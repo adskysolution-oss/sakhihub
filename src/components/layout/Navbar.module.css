@@ -1,0 +1,114 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5%;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  z-index: 1000;
+  border-bottom: 1px solid rgba(108, 74, 182, 0.1);
+  transition: all 0.3s ease;
+}
+
+.logo {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logoText {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.navLinks {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+
+.navLink {
+  font-weight: 500;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  position: relative;
+}
+
+.navLink:hover, .navLink.active {
+  color: var(--primary);
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary);
+  transition: width 0.3s ease;
+}
+
+.navLink:hover::after, .navLink.active::after {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.mobileMenuBtn {
+  display: none;
+  background: none;
+  color: var(--secondary);
+  font-size: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .navLinks {
+    display: none;
+  }
+  
+  .mobileMenuBtn {
+    display: block;
+  }
+}
+
+.mobileMenu {
+  position: fixed;
+  top: 80px;
+  left: 0;
+  width: 100%;
+  height: calc(100vh - 80px);
+  background: var(--white);
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 999;
+}
+
+.mobileMenu.open {
+  transform: translateX(0);
+}
+
+.mobileNavLink {
+  font-size: 1.2rem;
+  font-weight: 600;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
