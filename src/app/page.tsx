@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'; 
 import ImpactTicker from '@/components/home/ImpactTicker';
 import PremiumHero from '@/components/home/PremiumHero';
 import Impact from '@/components/home/Impact';
