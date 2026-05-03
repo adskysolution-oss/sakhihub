@@ -208,12 +208,49 @@ const Navbar = () => {
           </AnimatePresence>
         </div>
 
-        <Link href="/login" className="btn-secondary" style={{ padding: '10px 15px', fontSize: '0.85rem', borderRadius: '12px' }}>
-          {t('login')}
-        </Link>
-        <Link href="/register" className="btn-primary" style={{ padding: '10px 22px', fontSize: '0.9rem', borderRadius: '120px' }}>
-          {t('join_btn')}
-        </Link>
+        {/* Member Portal Dropdown */}
+        <div 
+          style={{ position: 'relative' }}
+          onMouseEnter={() => setActiveDropdown('portal')}
+          onMouseLeave={() => setActiveDropdown(null)}
+        >
+          <button className="btn-primary" style={{ padding: '10px 22px', fontSize: '0.9rem', borderRadius: '120px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Users2 size={18} />
+            <span>Member Portal</span>
+            <ChevronDown size={14} style={{ transform: activeDropdown === 'portal' ? 'rotate(180deg)' : 'none', transition: '0.3s' }} />
+          </button>
+
+          <AnimatePresence>
+            {activeDropdown === 'portal' && (
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 15 }}
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: '10px',
+                  background: 'white',
+                  borderRadius: '20px',
+                  padding: '10px',
+                  boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
+                  width: '200px',
+                  zIndex: 100,
+                  border: '1px solid #f0f0f0'
+                }}
+              >
+                <Link href="/login" className={styles.dropdownLink} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 15px', borderRadius: '12px', color: 'var(--secondary)', textDecoration: 'none', fontWeight: '600' }}>
+                  <Briefcase size={16} color="var(--primary)" /> {t('login')}
+                </Link>
+                <Link href="/register" className={styles.dropdownLink} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 15px', borderRadius: '12px', color: 'var(--secondary)', textDecoration: 'none', fontWeight: '600' }}>
+                  <Users size={16} color="var(--primary)" /> {t('join_btn')}
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         <button className={styles.mobileMenuBtn} onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
@@ -274,10 +311,15 @@ const Navbar = () => {
                   </button>
                 ))}
               </div>
-              <Link href="/login" className="btn-secondary" style={{ justifyContent: 'center' }} onClick={() => setIsOpen(false)}>
-                {t('login')}
-              </Link>
-              <a href="tel:8076611842" className="btn-primary" style={{ justifyContent: 'center', borderRadius: '120px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <Link href="/login" className="btn-secondary" style={{ justifyContent: 'center' }} onClick={() => setIsOpen(false)}>
+                  {t('login')}
+                </Link>
+                <Link href="/register" className="btn-primary" style={{ justifyContent: 'center' }} onClick={() => setIsOpen(false)}>
+                  {t('join_btn')}
+                </Link>
+              </div>
+              <a href="tel:8076611842" className="btn-primary" style={{ justifyContent: 'center', borderRadius: '120px', background: 'var(--secondary)' }}>
                 <Phone size={18} />
                 <span>8076611842</span>
               </a>

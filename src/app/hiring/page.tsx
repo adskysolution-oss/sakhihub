@@ -2,7 +2,7 @@
 
 import PageBanner from "@/components/common/PageBanner";
 import React, { useState } from "react";
-import { Briefcase, IndianRupee, MapPin, CheckCircle, ArrowRight, Star, Users, ShieldCheck, Heart, Zap } from "lucide-react";
+import { Briefcase, IndianRupee, MapPin, CheckCircle, ArrowRight, Star, Users, ShieldCheck, Heart, Zap, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
