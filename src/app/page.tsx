@@ -29,7 +29,7 @@ export default function Home() {
                 boxShadow: 'var(--shadow-hard)'
               }}>
                 <img 
-                  src="https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1000" 
+                  src="/images/hero_main_banner.png" 
                   alt="SakhiHub Women Group" 
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
@@ -100,7 +100,7 @@ export default function Home() {
               <img src="/images/empowerment.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Gallery 1" />
             </div>
             <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-              <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=500" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Gallery 2" />
+              <img src="/images/hero_awareness_campaign.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Gallery 2" />
             </div>
             <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
               <img src="/images/delivery.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Gallery 3" />
