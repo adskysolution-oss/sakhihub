@@ -7,6 +7,7 @@ import Impact from '@/components/home/Impact';
 import JoinMovement from '@/components/home/JoinMovement';
 import CTABanner from '@/components/home/CTABanner';
 import CampaignsSection from '@/components/home/CampaignsSection';
+import TeamSection from '@/components/home/TeamSection';
 import { ArrowRight, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 
@@ -76,10 +77,10 @@ export default function Home() {
       {/* 5. Impact Section (Animated Counters) */}
       <Impact />
 
-      {/* 6. Programs Preview */}
-      <ProgramsPreview />
+      {/* 6. Our Team */}
+      <TeamSection />
 
-      {/* 6. Product Showcase */}
+      {/* 7. Product Showcase */}
       <ProductShowcase />
 
       {/* 7. Gallery Preview (Grid) */}
