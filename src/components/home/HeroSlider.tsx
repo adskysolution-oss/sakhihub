@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Heart, Package, Briefcase, Truck } from 'lucide-react';
+import { ArrowRight, Heart, Package, Briefcase, Users } from 'lucide-react';
 import Link from 'next/link';
 import styles from './HeroSlider.module.css';
 
