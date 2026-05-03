@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Phone, Globe, ChevronDown } from 'lucide-react';
+import { Menu, X, Phone, Globe, ChevronDown, Activity, Users, BookOpen, Briefcase, Target, Eye, Users2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 import styles from './Navbar.module.css';
@@ -12,6 +12,8 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  
   const pathname = usePathname();
   const { language, setLanguage, t } = useLanguage();
 
@@ -34,11 +36,27 @@ const Navbar = () => {
 
   const navLinks = [
     { name: t('Home'), href: '/' },
-    { name: t('about_us'), href: '/about' },
-    { name: t('programs'), href: '/programs' },
+    { 
+      name: t('about_us'), 
+      href: '/about',
+      subLinks: [
+        { name: 'Vision', href: '/vision', icon: Eye },
+        { name: 'Mission', href: '/mission', icon: Target },
+        { name: 'Our Team', href: '/team', icon: Users2 },
+      ]
+    },
+    { 
+      name: t('programs'), 
+      href: '/programs',
+      subLinks: [
+        { name: 'Health & Hygiene', href: '/programs/health', icon: Activity },
+        { name: 'Employment', href: '/programs/employment', icon: Briefcase },
+        { name: 'Education', href: '/programs/education', icon: BookOpen },
+        { name: 'Community', href: '/programs/community', icon: Users },
+      ]
+    },
     { name: t('campaign'), href: '/campaign' },
     { name: t('Products'), href: '/products' },
-    { name: t('hiring'), href: '/hiring' },
     { name: t('contact'), href: '/contact' },
   ];
 
@@ -60,24 +78,82 @@ const Navbar = () => {
         </div>
       </Link>
 
-      <div className={styles.navLinks}>
+      <div className={styles.navLinks} style={{ gap: '35px' }}>
         {navLinks.map((link) => (
-          <Link
-            key={link.name}
-            href={link.href}
-            className={`${styles.navLink} ${pathname === link.href ? styles.active : ''}`}
+          <div 
+            key={link.name} 
+            className={styles.navItemWrapper}
+            onMouseEnter={() => link.subLinks && setActiveDropdown(link.name)}
+            onMouseLeave={() => setActiveDropdown(null)}
+            style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center' }}
           >
-            {link.name}
-          </Link>
+            <Link
+              href={link.href}
+              className={`${styles.navLink} ${pathname === link.href ? styles.active : ''}`}
+              style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+            >
+              {link.name}
+              {link.subLinks && <ChevronDown size={14} style={{ transform: activeDropdown === link.name ? 'rotate(180deg)' : 'none', transition: '0.3s' }} />}
+            </Link>
+
+            <AnimatePresence>
+              {link.subLinks && activeDropdown === link.name && (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 15 }}
+                  className={styles.dropdown}
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: 'white',
+                    borderRadius: '20px',
+                    padding: '15px',
+                    boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
+                    width: '250px',
+                    zIndex: 100,
+                    border: '1px solid #f0f0f0'
+                  }}
+                >
+                  {link.subLinks.map((sub) => (
+                    <Link
+                      key={sub.name}
+                      href={sub.href}
+                      className={styles.dropdownLink}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '12px 15px',
+                        borderRadius: '12px',
+                        color: 'var(--secondary)',
+                        textDecoration: 'none',
+                        fontSize: '0.9rem',
+                        fontWeight: '600',
+                        transition: '0.2s'
+                      }}
+                    >
+                      <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#FFF5F8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
+                        <sub.icon size={18} />
+                      </div>
+                      {sub.name}
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         ))}
       </div>
 
-      <div className={styles.actions}>
+      <div className={styles.actions} style={{ gap: '15px' }}>
         {/* Language Selector */}
         <div style={{ position: 'relative' }}>
           <button 
             className="btn-secondary" 
-            style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #eee' }}
+            style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #eee', borderRadius: '12px' }}
             onClick={() => setLangOpen(!langOpen)}
           >
             <Globe size={16} />
@@ -132,10 +208,10 @@ const Navbar = () => {
           </AnimatePresence>
         </div>
 
-        <Link href="/login" className="btn-secondary" style={{ padding: '10px 15px', fontSize: '0.85rem' }}>
+        <Link href="/login" className="btn-secondary" style={{ padding: '10px 15px', fontSize: '0.85rem', borderRadius: '12px' }}>
           {t('login')}
         </Link>
-        <Link href="/register" className="btn-primary" style={{ padding: '10px 20px', fontSize: '0.9rem' }}>
+        <Link href="/register" className="btn-primary" style={{ padding: '10px 22px', fontSize: '0.9rem', borderRadius: '120px' }}>
           {t('join_btn')}
         </Link>
         <button className={styles.mobileMenuBtn} onClick={() => setIsOpen(!isOpen)}>
@@ -153,14 +229,30 @@ const Navbar = () => {
             className={styles.mobileMenu}
           >
             {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className={styles.mobileNavLink}
-                onClick={() => setIsOpen(false)}
-              >
-                {link.name}
-              </Link>
+              <div key={link.name}>
+                <Link
+                  href={link.href}
+                  className={styles.mobileNavLink}
+                  onClick={() => !link.subLinks && setIsOpen(false)}
+                >
+                  {link.name}
+                </Link>
+                {link.subLinks && (
+                  <div style={{ paddingLeft: '20px', marginBottom: '10px' }}>
+                    {link.subLinks.map(sub => (
+                      <Link 
+                        key={sub.name} 
+                        href={sub.href} 
+                        className={styles.mobileNavLink} 
+                        style={{ fontSize: '0.9rem', opacity: 0.8, padding: '8px 0' }}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {sub.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
             <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
@@ -185,7 +277,7 @@ const Navbar = () => {
               <Link href="/login" className="btn-secondary" style={{ justifyContent: 'center' }} onClick={() => setIsOpen(false)}>
                 {t('login')}
               </Link>
-              <a href="tel:8076611842" className="btn-primary" style={{ justifyContent: 'center' }}>
+              <a href="tel:8076611842" className="btn-primary" style={{ justifyContent: 'center', borderRadius: '120px' }}>
                 <Phone size={18} />
                 <span>8076611842</span>
               </a>
