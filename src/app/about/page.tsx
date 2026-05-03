@@ -1,13 +1,19 @@
-import PageBanner from "@/components/common/PageBanner";
+import PageBannerSlider from "@/components/common/PageBannerSlider";
 import React from "react";
 
 export default function AboutPage() {
+  const images = [
+    "/images/about_mission.png",
+    "/images/hero_awareness_campaign.png",
+    "/images/team_field.png"
+  ];
+
   return (
     <>
-      <PageBanner 
+      <PageBannerSlider 
         title="About Us" 
         subtitle="SakhiHub: Empowering Women Across India"
-        image="/images/about_mission.png"
+        images={images}
       />
       
       <section className="section-padding">
