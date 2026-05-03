@@ -77,10 +77,26 @@ const PremiumHero = () => {
               </Link>
             </div>
 
-            <div style={{ marginTop: '50px', display: 'flex', gap: '30px' }}>
-              {[t('Direct Impact'), t('Trust Focused'), t('Ground Reality')].map((item) => (
-                <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', fontWeight: '700', color: 'var(--secondary)' }}>
-                  <CheckCircle2 size={18} color="var(--primary)" /> {item}
+            <div style={{ marginTop: '50px', display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+              {[
+                { key: 'direct_impact', icon: <CheckCircle2 size={16} /> },
+                { key: 'trust_focused', icon: <CheckCircle2 size={16} /> },
+                { key: 'ground_reality', icon: <CheckCircle2 size={16} /> }
+              ].map((item) => (
+                <div key={item.key} style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px', 
+                  fontSize: '0.85rem', 
+                  fontWeight: '800', 
+                  color: 'var(--secondary)',
+                  background: 'rgba(233, 30, 99, 0.06)',
+                  padding: '10px 20px',
+                  borderRadius: '100px',
+                  border: '1px solid rgba(233, 30, 99, 0.1)'
+                }}>
+                  <span style={{ color: 'var(--primary)' }}>{item.icon}</span>
+                  {t(item.key)}
                 </div>
               ))}
             </div>
