@@ -4,8 +4,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { MessageCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 const CTABanner = () => {
+  const { t, language } = useLanguage();
+
   return (
     <section className="section-padding" style={{ paddingBottom: '0' }}>
       <div className="container">
@@ -32,10 +35,13 @@ const CTABanner = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="hindi" 
             style={{ fontSize: '4.5rem', marginBottom: '30px', fontWeight: '900', lineHeight: '1.1' }}
           >
-            आज ही जुड़ें और बदलाव का <span style={{ color: 'var(--primary)' }}>हिस्सा बनें</span>
+            {language === 'hi' ? (
+              <>आज ही जुड़ें और बदलाव का <span style={{ color: 'var(--primary)' }}>हिस्सा बनें</span></>
+            ) : (
+              <>Join Today & <span style={{ color: 'var(--primary)' }}>Be the Change</span></>
+            )}
           </motion.h2>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -43,7 +49,10 @@ const CTABanner = () => {
             transition={{ delay: 0.3 }}
             style={{ fontSize: '1.4rem', opacity: 0.9, maxWidth: '850px', margin: '0 auto 50px', lineHeight: '1.6' }}
           >
-            Join SakhiHub today and empower your community. Every step you take creates a lasting impact on women&apos;s lives across India. Join the movement now!
+            {language === 'hi' 
+              ? "आज ही साखीहब से जुड़ें और अपने समुदाय को सशक्त बनाएं। आपके द्वारा उठाया गया हर कदम भारत भर में महिलाओं के जीवन पर स्थायी प्रभाव डालता है।"
+              : "Join SakhiHub today and empower your community. Every step you take creates a lasting impact on women's lives across India. Join the movement now!"
+            }
           </motion.p>
           
           <motion.div 
@@ -53,11 +62,11 @@ const CTABanner = () => {
             style={{ display: 'flex', gap: '25px', justifyContent: 'center', flexWrap: 'wrap' }}
           >
             <Link href="/register" className="btn-primary" style={{ background: 'white', color: 'var(--secondary)', padding: '22px 50px', fontSize: '1.2rem', borderRadius: '50px' }}>
-              Join the Movement <ArrowRight size={24} />
+              {t('join_btn')} <ArrowRight size={24} />
             </Link>
             <Link href="https://wa.me/918076611842" target="_blank" className="btn-secondary" style={{ border: '2px solid rgba(255,255,255,0.4)', color: 'white', background: 'transparent', padding: '22px 50px', fontSize: '1.2rem', borderRadius: '50px' }}>
               <MessageCircle size={24} />
-              WhatsApp Inquiry
+              {language === 'hi' ? 'व्हाट्सएप पूछताछ' : 'WhatsApp Inquiry'}
             </Link>
           </motion.div>
         </motion.div>
