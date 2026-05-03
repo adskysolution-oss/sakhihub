@@ -1,4 +1,5 @@
 import React from 'react';
+import ImpactTicker from '@/components/home/ImpactTicker';
 import PremiumHero from '@/components/home/PremiumHero';
 import Impact from '@/components/home/Impact';
 import WhatWeDo from '@/components/home/WhatWeDo';
@@ -12,6 +13,9 @@ import CTABanner from '@/components/home/CTABanner';
 export default function Home() {
   return (
     <>
+      {/* Real-time Updates Ticker */}
+      <ImpactTicker />
+
       {/* 1. Premium Hero */}
       <PremiumHero />
 
