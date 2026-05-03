@@ -11,7 +11,7 @@ const products = [
     offer: 80,
     details: "Regular + XL, Day Use",
     features: ["Soft & Comfortable", "High Absorbency", "Leak Protection", "Skin Friendly"],
-    image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=800"
+    image: "/images/product.png"
   },
   {
     name: "Sakhi Care Pads - Family Pack",
@@ -20,7 +20,7 @@ const products = [
     offer: 120,
     details: "XL + XXL, Day & Night Protection",
     features: ["Extra Protection", "High Absorbency", "Leak Protection", "Skin Friendly", "Night Use"],
-    image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=801"
+    image: "/images/product.png"
   }
 ];
 
@@ -30,7 +30,7 @@ export default function ProductsPage() {
       <PageBanner 
         title="Our Products" 
         subtitle="Sakhi Care Pads - Quality & Hygiene"
-        image="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=1500"
+        image="/images/product.png"
       />
       
       <section className="section-padding">

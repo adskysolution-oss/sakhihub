@@ -7,7 +7,7 @@ export default function AboutPage() {
       <PageBanner 
         title="About Us" 
         subtitle="SakhiHub: Empowering Women Across India"
-        image="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1500"
+        image="/images/about_mission.png"
       />
       
       <section className="section-padding">

@@ -9,7 +9,7 @@ export default function CampaignPage() {
       <PageBanner 
         title="Awareness Campaign" 
         subtitle="मासिक धर्म स्वच्छता जागरूकता अभियान"
-        image="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=1500"
+        image="/images/hero_awareness_campaign.png"
       />
       
       <section className="section-padding">
