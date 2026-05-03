@@ -1,93 +1,139 @@
-'use client';
+import { Users, Shield, Target, CheckCircle, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Globe, Mail, Share2 } from 'lucide-react';
-
-const teamMembers = [
-  {
-    name: 'Anjali Sharma',
-    role: 'Founder & Director',
-    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200',
-    bio: 'Dedicated to women empowerment for over 15 years.'
+const stories = [
+  { 
+    name: "Sunita Devi", 
+    role: "Village Member", 
+    story: "SakhiHub se judne ke baad mujhe swachhta aur health ki sahi jankari mili aur aaj main apne gaon me awareness phaila rahi hu.",
+    image: "/images/campaign_sanitary.png"
   },
-  {
-    name: 'Dr. Priya Varma',
-    role: 'Health Operations Head',
-    image: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?q=80&w=200',
-    bio: 'Expert in rural health hygiene and community wellness.'
+  { 
+    name: "Rekha Bai", 
+    role: "Field Volunteer", 
+    story: "Main ghar ghar jaakar mahilao ko samjhati hu aur ab main khud financially independent ho chuki hu.",
+    image: "/images/campaign_health.png"
   },
-  {
-    name: 'Rajesh Gupta',
-    role: 'Strategy & Growth',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200',
-    bio: 'Scaling social impact through technology and innovation.'
+  { 
+    name: "Pooja Sharma", 
+    role: "Group Leader", 
+    story: "Humne apne gaon me mahila group banaya aur ab sab milkar kaam karte hain aur earn bhi karte hain.",
+    image: "/images/about_mission.png"
   },
-  {
-    name: 'Meena Devi',
-    role: 'Field Coordinator',
-    image: 'https://images.unsplash.com/photo-1589386417686-0d34b5903d23?q=80&w=200',
-    bio: 'Managing ground operations across 50+ blocks.'
+  { 
+    name: "Meena Kumari", 
+    role: "Team Leader", 
+    story: "Main chahti hu ki hamare zila ki har mahila apne pairo par khadi ho aur SakhiHub isme puri madad kar raha hai.",
+    image: "/images/team_field.png"
   }
 ];
 
 const TeamSection = () => {
+  const fadeInUp = {
+    initial: { opacity: 0, y: 30 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration: 0.6 }
+  };
+
   return (
     <section className="section-padding">
       <div className="container">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center', marginBottom: '80px' }}>
-          <div>
-            <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px' }}>Our Workforce</span>
-            <h2 style={{ fontSize: '3rem', marginTop: '10px' }}>The Hearts Behind <span className="text-gradient">SakhiHub</span></h2>
-            <p style={{ color: 'var(--text-muted)', marginTop: '20px', fontSize: '1.1rem', lineHeight: '1.8' }}>
-              Our team consists of dedicated professionals, social workers, and ground heroes who work 
-              tirelessly to ensure the SakhiHub mission reaches every household. Together, we are 
-              building a more equitable and empowered future for women.
+        {/* Hearts Behind SakhiHub */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '80px', alignItems: 'center', marginBottom: '100px' }}>
+          <motion.div {...fadeInUp}>
+            <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px', textTransform: 'uppercase' }}>Our Workforce</span>
+            <h2 style={{ fontSize: '3.5rem', marginTop: '15px', color: 'var(--secondary)', lineHeight: '1.1' }}>The Hearts Behind <span className="text-gradient">SakhiHub</span></h2>
+            <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', lineHeight: '1.8', marginTop: '30px', maxWidth: '550px' }}>
+              Our field team works at the grassroots level, connecting directly with women in villages and communities. 
+              They conduct awareness sessions, build groups, and help women become confident, independent, and empowered.
             </p>
-            <div style={{ marginTop: '40px', display: 'flex', gap: '20px' }}>
-              <div style={{ textAlign: 'center' }}>
-                <h4 style={{ fontSize: '2rem', color: 'var(--secondary)' }}>250+</h4>
-                <p style={{ fontSize: '0.8rem', fontWeight: '700' }}>Field Workers</p>
-              </div>
-              <div style={{ borderLeft: '1px solid #ddd', paddingLeft: '20px' }}>
-                <h4 style={{ fontSize: '2rem', color: 'var(--primary)' }}>15+</h4>
-                <p style={{ fontSize: '0.8rem', fontWeight: '700' }}>Districts Covered</p>
-              </div>
+            
+            <div style={{ marginTop: '40px', marginBottom: '50px' }}>
+              {['Ground-level outreach in villages', 'Direct connection with women', 'Real impact through awareness'].map((item, idx) => (
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px', fontSize: '1.05rem', fontWeight: '600', color: 'var(--secondary)' }}>
+                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(233, 30, 99, 0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <CheckCircle size={14} />
+                  </div>
+                  {item}
+                </div>
+              ))}
             </div>
-          </div>
-          
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            style={{ borderRadius: '30px', overflow: 'hidden', boxShadow: 'var(--shadow-hard)' }}
-          >
-            <img src="/images/team_field.png" alt="Field Team" style={{ width: '100%', height: '400px', objectFit: 'cover' }} />
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+              {[
+                { val: '250+', label: 'Field Workers' },
+                { val: '15+', label: 'Districts Covered' },
+                { val: '50k+', label: 'Women Connected' }
+              ].map((stat, idx) => (
+                <div key={idx} style={{ padding: '20px', background: '#FFF5F8', borderRadius: '20px', textAlign: 'center', border: '1px solid rgba(233, 30, 99, 0.1)' }}>
+                  <h4 style={{ fontSize: '1.8rem', color: 'var(--primary)', fontWeight: '900', lineHeight: '1' }}>{stat.val}</h4>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px', fontWeight: '700' }}>{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div {...fadeInUp} style={{ position: 'relative' }}>
+            <div style={{ 
+              position: 'relative', 
+              zIndex: 2, 
+              borderRadius: '24px', 
+              overflow: 'hidden', 
+              boxShadow: '0 30px 60px rgba(0,0,0,0.15)'
+            }}>
+              <img src="/images/team_field.png" style={{ width: '100%', height: '550px', objectFit: 'cover' }} alt="Field Team" />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(106, 27, 154, 0.4), transparent)' }}></div>
+            </div>
+            
+            {/* Floating Overlays */}
+            <motion.div 
+              animate={{ y: [0, -15, 0] }}
+              transition={{ duration: 4, repeat: Infinity }}
+              style={{ position: 'absolute', top: '-40px', right: '-40px', width: '200px', height: '150px', borderRadius: '18px', overflow: 'hidden', border: '6px solid white', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', zIndex: 3 }}
+            >
+              <img src="/images/hero_awareness_campaign.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+            </motion.div>
           </motion.div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px' }}>
-          {teamMembers.map((member, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="glass-card"
-              style={{ padding: '30px', textAlign: 'center', background: 'white' }}
+        {/* Real Impact Stories */}
+        <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+          <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px' }}>REAL VOICES</span>
+          <h2 style={{ fontSize: '3rem', marginTop: '10px' }}>Voices of <span className="text-gradient">Real Change</span></h2>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px' }}>
+          {stories.map((item, idx) => (
+            <motion.div 
+              key={idx} 
+              {...fadeInUp}
+              whileHover={{ y: -10 }}
+              style={{ 
+                background: 'white', 
+                borderRadius: '24px', 
+                padding: '40px 30px', 
+                textAlign: 'center', 
+                boxShadow: '0 15px 40px rgba(0,0,0,0.05)',
+                border: '1px solid rgba(233, 30, 99, 0.1)'
+              }}
             >
-              <div style={{ width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', margin: '0 auto 20px', border: '4px solid var(--accent)' }}>
-                <img src={member.image} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <div style={{ 
+                width: '120px', 
+                height: '120px', 
+                borderRadius: '50%', 
+                overflow: 'hidden', 
+                margin: '0 auto 25px',
+                border: '4px solid #FFF5F8',
+                boxShadow: '0 10px 20px rgba(233, 30, 99, 0.15)'
+              }}>
+                <img src={item.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={item.name} />
               </div>
-              <h4 style={{ fontSize: '1.2rem', marginBottom: '5px' }}>{member.name}</h4>
-              <p style={{ color: 'var(--primary)', fontWeight: '700', fontSize: '0.85rem', marginBottom: '15px' }}>{member.role}</p>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '20px' }}>{member.bio}</p>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', color: 'var(--text-muted)' }}>
-                <Globe size={18} />
-                <Share2 size={18} />
-                <Mail size={18} />
-              </div>
+              <h3 style={{ fontSize: '1.4rem', color: 'var(--secondary)', marginBottom: '5px' }}>{item.name}</h3>
+              <span style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '20px' }}>{item.role}</span>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', fontStyle: 'italic' }}>
+                "{item.story}"
+              </p>
             </motion.div>
           ))}
         </div>
