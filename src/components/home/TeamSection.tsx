@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Linkedin, Mail, Twitter } from 'lucide-react';
+import { Globe, Mail, Share2 } from 'lucide-react';
 
 const teamMembers = [
   {
@@ -84,8 +84,8 @@ const TeamSection = () => {
               <p style={{ color: 'var(--primary)', fontWeight: '700', fontSize: '0.85rem', marginBottom: '15px' }}>{member.role}</p>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '20px' }}>{member.bio}</p>
               <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', color: 'var(--text-muted)' }}>
-                <Linkedin size={18} />
-                <Twitter size={18} />
+                <Globe size={18} />
+                <Share2 size={18} />
                 <Mail size={18} />
               </div>
             </motion.div>
