@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 const services = [
   { 
-    hindi: "मासिक धर्म एवं स्वास्थ्य जागरूकता", 
+    hindi: "स्वास्थ्य जागरूकता", 
     english: "Health Awareness", 
     desc: "Promoting menstrual hygiene and overall women health through awareness campaigns.",
     points: ["Period awareness", "Health education", "Village outreach"],
@@ -31,7 +31,7 @@ const services = [
     icon: <Users size={20} />
   },
   { 
-    hindi: "रोजगार", 
+    hindi: "रोजगार अवसर", 
     english: "Employment", 
     desc: "Generating local job opportunities for women at block and village level.",
     points: ["Field jobs", "Local earning", "Career growth"],

@@ -2,17 +2,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, Layout, MapPin, Target } from 'lucide-react';
+import { Users, Layout, Shield, Target, MapPin } from 'lucide-react';
 import styles from './Impact.module.css';
-
-const stats = [
-  { label: 'Women Joined', value: '50,000+', icon: <Users size={24} />, color: '#E91E63' },
-  { label: 'Groups Created', value: '12,500+', icon: <Layout size={24} />, color: '#6A1B9A' },
-  { label: 'Active Campaigns', value: '350+', icon: <Target size={24} />, color: '#E91E63' },
-  { label: 'Active Employees', value: '1,200+', icon: <Users size={24} />, color: '#6A1B9A' },
-];
-
-import { Users, Layout, Shield, Target } from 'lucide-react';
 
 const Impact = () => {
   const fadeInUp = {

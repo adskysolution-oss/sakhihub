@@ -1,3 +1,6 @@
+'use client';
+
+import { motion } from 'framer-motion';
 import { Users, Shield, Target, CheckCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 

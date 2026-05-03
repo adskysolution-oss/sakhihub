@@ -16,33 +16,50 @@ const CTABanner = () => {
           style={{ 
             background: 'var(--grad-dark)', 
             borderRadius: 'var(--radius-lg)', 
-            padding: '80px 40px',
+            padding: '120px 40px',
             textAlign: 'center',
             color: 'white',
             position: 'relative',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            boxShadow: '0 30px 60px rgba(0,0,0,0.2)'
           }}
         >
           {/* Background Decor */}
-          <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '200px', height: '200px', background: 'rgba(255, 77, 141, 0.2)', borderRadius: '50%', filter: 'blur(50px)' }}></div>
-          <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '200px', height: '200px', background: 'rgba(108, 74, 182, 0.2)', borderRadius: '50%', filter: 'blur(50px)' }}></div>
+          <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '400px', height: '400px', background: 'rgba(233, 30, 99, 0.25)', borderRadius: '50%', filter: 'blur(100px)' }}></div>
+          <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '400px', height: '400px', background: 'rgba(106, 27, 154, 0.25)', borderRadius: '50%', filter: 'blur(100px)' }}></div>
 
-          <h2 className="hindi" style={{ fontSize: '3.5rem', marginBottom: '30px', fontWeight: '800' }}>
-            आज ही जुड़ें और बदलाव का हिस्सा बनें
-          </h2>
-          <p style={{ fontSize: '1.2rem', opacity: 0.8, maxWidth: '800px', margin: '0 auto 40px' }}>
-            Join SakhiHub today and empower your community. Every step you take creates a lasting impact on women's lives across India.
-          </p>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="hindi" 
+            style={{ fontSize: '4.5rem', marginBottom: '30px', fontWeight: '900', lineHeight: '1.1' }}
+          >
+            आज ही जुड़ें और बदलाव का <span style={{ color: 'var(--primary)' }}>हिस्सा बनें</span>
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            style={{ fontSize: '1.4rem', opacity: 0.9, maxWidth: '850px', margin: '0 auto 50px', lineHeight: '1.6' }}
+          >
+            Join SakhiHub today and empower your community. Every step you take creates a lasting impact on women&apos;s lives across India. Join the movement now!
+          </motion.p>
           
-          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/register" className="btn-primary" style={{ background: 'white', color: 'var(--secondary)' }}>
-              Join Movement <ArrowRight size={20} />
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            style={{ display: 'flex', gap: '25px', justifyContent: 'center', flexWrap: 'wrap' }}
+          >
+            <Link href="/register" className="btn-primary" style={{ background: 'white', color: 'var(--secondary)', padding: '22px 50px', fontSize: '1.2rem', borderRadius: '50px' }}>
+              Join the Movement <ArrowRight size={24} />
             </Link>
-            <Link href="https://wa.me/918076611842" target="_blank" className="btn-secondary" style={{ border: '2px solid rgba(255,255,255,0.3)', color: 'white', background: 'transparent' }}>
-              <MessageCircle size={20} />
+            <Link href="https://wa.me/918076611842" target="_blank" className="btn-secondary" style={{ border: '2px solid rgba(255,255,255,0.4)', color: 'white', background: 'transparent', padding: '22px 50px', fontSize: '1.2rem', borderRadius: '50px' }}>
+              <MessageCircle size={24} />
               WhatsApp Inquiry
             </Link>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>
