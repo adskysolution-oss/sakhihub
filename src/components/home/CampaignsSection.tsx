@@ -13,7 +13,8 @@ const campaigns = [
     progress: 75,
     joined: '1,200+',
     icon: <Shield size={30} />,
-    color: '#E91E63'
+    color: '#E91E63',
+    image: '/images/campaign_sanitary.png'
   },
   {
     id: 2,
@@ -22,7 +23,8 @@ const campaigns = [
     progress: 45,
     joined: '850+',
     icon: <Heart size={30} />,
-    color: '#6A1B9A'
+    color: '#6A1B9A',
+    image: '/images/campaign_health.png'
   },
   {
     id: 3,
@@ -31,7 +33,8 @@ const campaigns = [
     progress: 90,
     joined: '5,000+',
     icon: <Users size={30} />,
-    color: '#E91E63'
+    color: '#E91E63',
+    image: '/images/campaign_membership.png'
   }
 ];
 
@@ -53,12 +56,16 @@ const CampaignsSection = () => {
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
               className="glass-card"
-              style={{ padding: '40px', background: 'white' }}
+              style={{ padding: '0', background: 'white', overflow: 'hidden' }}
             >
-              <div style={{ width: '70px', height: '70px', borderRadius: '20px', background: `${camp.color}15`, color: camp.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '25px' }}>
-                {camp.icon}
+              <div style={{ width: '100%', height: '200px', position: 'relative' }}>
+                <img src={camp.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={camp.title} />
+                <div style={{ position: 'absolute', top: '20px', left: '20px', width: '50px', height: '50px', borderRadius: '15px', background: 'white', color: camp.color, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-soft)' }}>
+                  {camp.icon}
+                </div>
               </div>
-              <h3 style={{ fontSize: '1.5rem', marginBottom: '15px' }}>{camp.title}</h3>
+              <div style={{ padding: '30px' }}>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '15px' }}>{camp.title}</h3>
               <p style={{ color: 'var(--text-muted)', marginBottom: '25px', fontSize: '0.95rem', lineHeight: '1.7' }}>
                 {camp.desc}
               </p>
