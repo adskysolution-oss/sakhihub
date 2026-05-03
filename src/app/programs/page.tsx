@@ -1,4 +1,4 @@
-import PageBanner from "@/components/common/PageBanner";
+import PageBannerSlider from "@/components/common/PageBannerSlider";
 import React from "react";
 import { Heart, Shield, BookOpen, Briefcase, Zap, Brain } from "lucide-react";
 import Link from "next/link";
@@ -43,12 +43,20 @@ const programsData = [
 ];
 
 export default function ProgramsPage() {
+  const sliderImages = [
+    "/images/program_skill.png",
+    "/images/hero_awareness_campaign.png",
+    "/images/about_mission.png",
+    "/images/team_field.png",
+    "/images/campaign_sanitary.png"
+  ];
+
   return (
     <>
-      <PageBanner 
+      <PageBannerSlider 
         title="Our Programs" 
         subtitle="Our Initiatives for Change"
-        image="https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1500"
+        images={sliderImages}
       />
       
       <section className="section-padding">
