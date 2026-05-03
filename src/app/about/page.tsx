@@ -21,10 +21,10 @@ const AboutPage = () => {
   ];
 
   const whatWeDo = [
-    { title: 'Awareness', desc: 'Providing ground-level education on health, hygiene, and rights.', icon: <Heart /> },
-    { title: 'Health', desc: 'Direct access to quality hygiene products and regular health camps.', icon: <Shield /> },
-    { title: 'Community', desc: 'Building strong networks of local women leaders for collective growth.', icon: <Users /> },
-    { title: 'Financial', desc: 'Enabling sustainable employment and financial independence.', icon: <DollarSign /> },
+    { title: 'Awareness', desc: 'Providing ground-level education on health, hygiene, and rights.', icon: Heart },
+    { title: 'Health', desc: 'Direct access to quality hygiene products and regular health camps.', icon: Shield },
+    { title: 'Community', desc: 'Building strong networks of local women leaders for collective growth.', icon: Users },
+    { title: 'Financial', desc: 'Enabling sustainable employment and financial independence.', icon: DollarSign },
   ];
 
   const whyChooseUs = [
@@ -119,7 +119,7 @@ const AboutPage = () => {
                 style={{ padding: '40px', textAlign: 'center', background: 'white' }}
               >
                 <div style={{ color: 'var(--primary)', marginBottom: '25px', display: 'flex', justifyContent: 'center' }}>
-                  {React.cloneElement(item.icon as React.ReactElement, { size: 40 })}
+                  <item.icon size={40} />
                 </div>
                 <h3 style={{ fontSize: '1.5rem', marginBottom: '15px' }}>{item.title}</h3>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6' }}>{item.desc}</p>
