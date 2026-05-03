@@ -75,28 +75,93 @@ const AboutPage = () => {
       </section>
 
       {/* 2. Mission & Vision */}
-      <section className="section-padding" style={{ background: 'var(--bg-light)' }}>
+      <section className="section-padding" style={{ background: '#FFF5F8' }}>
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
-            <motion.div {...fadeInUp} className="glass-card" style={{ padding: '60px', background: 'white' }}>
-              <div style={{ width: '70px', height: '70px', background: 'var(--grad-primary)', color: 'white', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '30px' }}>
-                <Target size={35} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '40px' }}>
+            {/* Card 1: Mission */}
+            <motion.div 
+              {...fadeInUp} 
+              whileHover={{ y: -10, boxShadow: '0 30px 80px rgba(106,27,154,0.12)' }}
+              style={{ 
+                padding: '48px', 
+                background: 'white', 
+                borderRadius: '28px', 
+                height: '420px', 
+                position: 'relative', 
+                overflow: 'hidden',
+                boxShadow: '0 20px 60px rgba(106,27,154,0.08)',
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
+              <div style={{ 
+                width: '64px', 
+                height: '64px', 
+                background: 'linear-gradient(135deg, #E91E63, #6A1B9A)', 
+                color: 'white', 
+                borderRadius: '16px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                marginBottom: '30px' 
+              }}>
+                <Target size={32} />
               </div>
-              <h2 style={{ fontSize: '2.5rem', marginBottom: '20px' }}>Our Mission</h2>
-              <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', lineHeight: '1.8' }}>
-                To reach every woman in rural India and provide her with the awareness, education, 
-                and employment opportunities she needs to lead a life of dignity and self-reliance.
+              <h2 style={{ fontSize: '42px', marginBottom: '20px', color: 'var(--secondary)', lineHeight: '1.2' }}>Our Mission</h2>
+              <p style={{ fontSize: '18px', color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '25px' }}>
+                To reach every woman in rural and urban India and provide awareness, education, health guidance, and income opportunities.
               </p>
+              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                {['Women Awareness', 'Health & Hygiene', 'Employment Support'].map(item => (
+                  <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', fontWeight: '600', color: 'var(--primary)' }}>
+                    <CheckCircle size={14} /> {item}
+                  </div>
+                ))}
+              </div>
+              <img src="/images/hero_awareness_campaign.png" style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '120px', height: '80px', objectFit: 'cover', borderRadius: '15px', opacity: 0.1, transform: 'rotate(-10deg)' }} alt="" />
             </motion.div>
-            <motion.div {...fadeInUp} className="glass-card" style={{ padding: '60px', background: 'white' }}>
-              <div style={{ width: '70px', height: '70px', background: 'var(--grad-secondary)', color: 'white', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '30px' }}>
-                <Eye size={35} />
+
+            {/* Card 2: Vision */}
+            <motion.div 
+              {...fadeInUp} 
+              whileHover={{ y: -10, boxShadow: '0 30px 80px rgba(106,27,154,0.12)' }}
+              style={{ 
+                padding: '48px', 
+                background: 'white', 
+                borderRadius: '28px', 
+                height: '420px', 
+                position: 'relative', 
+                overflow: 'hidden',
+                boxShadow: '0 20px 60px rgba(106,27,154,0.08)',
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
+              <div style={{ 
+                width: '64px', 
+                height: '64px', 
+                background: 'linear-gradient(135deg, #6A1B9A, #E91E63)', 
+                color: 'white', 
+                borderRadius: '16px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                marginBottom: '30px' 
+              }}>
+                <Eye size={32} />
               </div>
-              <h2 style={{ fontSize: '2.5rem', marginBottom: '20px' }}>Our Vision</h2>
-              <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', lineHeight: '1.8' }}>
-                Creating a future where gender equality is not just an ideal, but a reality, 
-                where every woman is financially independent and physically healthy.
+              <h2 style={{ fontSize: '42px', marginBottom: '20px', color: 'var(--secondary)', lineHeight: '1.2' }}>Our Vision</h2>
+              <p style={{ fontSize: '18px', color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '25px' }}>
+                To build a future where every woman is educated, financially independent, socially respected, and physically healthy.
               </p>
+              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                {['Gender Equality', 'Financial Independence', 'Strong Communities'].map(item => (
+                  <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', fontWeight: '600', color: 'var(--secondary)' }}>
+                    <CheckCircle size={14} /> {item}
+                  </div>
+                ))}
+              </div>
+              <img src="/images/about_mission.png" style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '120px', height: '80px', objectFit: 'cover', borderRadius: '15px', opacity: 0.1, transform: 'rotate(-10deg)' }} alt="" />
             </motion.div>
           </div>
         </div>
