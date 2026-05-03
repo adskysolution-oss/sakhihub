@@ -5,6 +5,7 @@ import WhatWeDo from '@/components/home/WhatWeDo';
 import HowItWorks from '@/components/home/HowItWorks';
 import TeamSection from '@/components/home/TeamSection';
 import WhySakhiHub from '@/components/home/WhySakhiHub';
+import LiveImpactMap from '@/components/home/LiveImpactMap';
 import ProgramsPreview from '@/components/home/ProgramsPreview';
 import CTABanner from '@/components/home/CTABanner';
 
@@ -29,10 +30,13 @@ export default function Home() {
       {/* 7. Why SakhiHub (Premium Image Cards) */}
       <WhySakhiHub />
 
-      {/* 8. Programs Preview */}
+      {/* 8. Live Impact Map (National Footprint) */}
+      <LiveImpactMap />
+
+      {/* 9. Programs Preview */}
       <ProgramsPreview />
 
-      {/* 9. Big CTA Banner */}
+      {/* 10. Big CTA Banner */}
       <CTABanner />
 
       <div style={{ height: '80px' }}></div>

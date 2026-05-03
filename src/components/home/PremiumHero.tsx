@@ -4,8 +4,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 const PremiumHero = () => {
+  const { t } = useLanguage();
+
   return (
     <section style={{ 
       padding: '120px 0 80px', 
@@ -38,17 +41,21 @@ const PremiumHero = () => {
               fontSize: '0.9rem',
               display: 'block',
               marginBottom: '15px'
-            }}>Women Empowerment Movement</span>
+            }}>{t('campaign')}</span>
             
             <h1 style={{ 
-              fontSize: '4.8rem', 
+              fontSize: '4.2rem', 
               fontWeight: '900', 
               lineHeight: '1.1', 
               marginBottom: '25px', 
               color: 'var(--secondary)' 
             }}>
-              Empowering Women <br />
-              <span className="text-gradient">Building Strong Communities</span>
+              {t('hero_title').split(',').map((part, i) => (
+                <React.Fragment key={i}>
+                  {i === 1 ? <span className="text-gradient">{part}</span> : part}
+                  {i === 0 && <br />}
+                </React.Fragment>
+              ))}
             </h1>
             
             <p style={{ 
@@ -58,20 +65,20 @@ const PremiumHero = () => {
               marginBottom: '45px', 
               maxWidth: '650px' 
             }}>
-              Join SakhiHub and be a part of India’s growing women empowerment movement focused on awareness, health, education, and self-reliance.
+              {t('hero_subtitle')}
             </p>
             
             <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
               <Link href="/register" className="btn-primary" style={{ padding: '20px 45px', fontSize: '1.1rem', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 20px 40px rgba(233, 30, 99, 0.2)' }}>
-                Join the Movement <ArrowRight size={20} />
+                {t('join_btn')} <ArrowRight size={20} />
               </Link>
               <Link href="/login" className="btn-secondary" style={{ padding: '20px 45px', fontSize: '1.1rem', borderRadius: '20px', background: 'white', color: 'var(--secondary)', border: '2px solid rgba(106, 27, 154, 0.2)' }}>
-                Become Employee
+                {t('login')}
               </Link>
             </div>
 
             <div style={{ marginTop: '50px', display: 'flex', gap: '30px' }}>
-              {['Ground Reality', 'Direct Impact', 'Trust Focused'].map((item) => (
+              {[t('Direct Impact'), t('Trust Focused'), t('Ground Reality')].map((item) => (
                 <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', fontWeight: '700', color: 'var(--secondary)' }}>
                   <CheckCircle2 size={18} color="var(--primary)" /> {item}
                 </div>
@@ -117,7 +124,7 @@ const PremiumHero = () => {
               }}
             >
               <h3 style={{ fontSize: '2.5rem', fontWeight: '900', color: 'var(--primary)', lineHeight: '1' }}>50,000+</h3>
-              <p style={{ fontSize: '0.9rem', color: 'var(--secondary)', fontWeight: '700', marginTop: '5px' }}>Women already connected</p>
+              <p style={{ fontSize: '0.9rem', color: 'var(--secondary)', fontWeight: '700', marginTop: '5px' }}>{t('impact')} Status</p>
             </motion.div>
 
             {/* Accent Circle */}

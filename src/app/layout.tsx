@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { MessageCircle } from "lucide-react";
-
 import WhatsAppButton from "@/components/common/WhatsAppButton";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 export const metadata: Metadata = {
   title: "SakhiHub | Empowering Women Across India",
@@ -20,12 +19,14 @@ export default function RootLayout({
   return (
     <html lang="hi">
       <body>
-        <Navbar />
-        <main style={{ minHeight: 'calc(100vh - 80px)', paddingTop: '80px' }}>
-          {children}
-        </main>
-        <Footer />
-        <WhatsAppButton />
+        <LanguageProvider>
+          <Navbar />
+          <main style={{ minHeight: 'calc(100vh - 80px)', paddingTop: '80px' }}>
+            {children}
+          </main>
+          <Footer />
+          <WhatsAppButton />
+        </LanguageProvider>
       </body>
     </html>
   );
