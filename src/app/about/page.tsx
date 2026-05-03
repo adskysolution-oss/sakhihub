@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Target, Eye, Shield, Heart, Users, DollarSign, CheckCircle, ArrowRight } from 'lucide-react';
+import { Target, Eye, Shield, Heart, Users, DollarSign, CheckCircle, ArrowRight, Briefcase, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
 const AboutPage = () => {
