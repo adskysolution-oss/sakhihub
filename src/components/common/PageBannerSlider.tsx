@@ -39,12 +39,12 @@ const PageBannerSlider = ({ title, subtitle, images }: PageBannerSliderProps) =>
             height: '100%',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            zIndex: -1
+            zIndex: 1
           }}
         />
       </AnimatePresence>
 
-      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+      <div className="container" style={{ position: 'relative', zIndex: 2 }}>
         <div className={styles.content}>
           <motion.h1 
             key={`title-${current}`}
