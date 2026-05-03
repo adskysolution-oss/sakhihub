@@ -29,7 +29,7 @@ export default function Home() {
                 boxShadow: 'var(--shadow-hard)'
               }}>
                 <img 
-                  src="/images/hero_main_banner.png" 
+                  src="/images/about_portrait.png" 
                   alt="SakhiHub Women Group" 
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
