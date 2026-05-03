@@ -2,7 +2,7 @@
 
 import PageBanner from "@/components/common/PageBanner";
 import React from "react";
-import { CheckCircle2, MessageCircle, Phone, Info, ShoppingBag, Star, ShieldCheck, Zap, ArrowRight } from "lucide-react";
+import { CheckCircle2, MessageCircle, Phone, Info, ShoppingBag, Star, ShieldCheck, Zap, ArrowRight, Heart } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
