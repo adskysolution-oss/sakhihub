@@ -2,38 +2,35 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, Home, ShieldCheck, HeartPulse } from 'lucide-react';
+import { Users, Layout, MapPin, Target } from 'lucide-react';
 import styles from './Impact.module.css';
 
 const stats = [
-  { label: 'Women Reached', value: '10,000+', icon: <Users size={32} /> },
-  { label: 'Villages Covered', value: '500+', icon: <Home size={32} /> },
-  { label: 'Partners Joined', value: '50+', icon: <ShieldCheck size={32} /> },
-  { label: 'Active Campaigns', value: '120+', icon: <HeartPulse size={32} /> },
+  { label: 'Women Connected', value: '10,000+', icon: <Users size={30} />, color: '#FF4D8D' },
+  { label: 'Groups Created', value: '850+', icon: <Layout size={30} />, color: '#6C4AB6' },
+  { label: 'Districts Covered', value: '25+', icon: <MapPin size={30} />, color: '#FF4D8D' },
+  { label: 'Active Campaigns', value: '12', icon: <Target size={30} />, color: '#6C4AB6' },
 ];
 
 const Impact = () => {
   return (
-    <section className={styles.impact}>
+    <section className={styles.impactSection}>
       <div className="container">
-        <div className={styles.header}>
-          <h2 className="text-gradient">Our Growing Impact</h2>
-          <p>We are dedicated to making a difference at the grassroots level.</p>
-        </div>
-        
-        <div className={styles.statsGrid}>
-          {stats.map((stat, index) => (
-            <motion.div 
-              key={stat.label}
+        <div className={styles.grid}>
+          {stats.map((stat, idx) => (
+            <motion.div
+              key={idx}
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: idx * 0.1 }}
               className={styles.statCard}
             >
-              <div className={styles.iconWrapper}>{stat.icon}</div>
-              <h3>{stat.value}</h3>
-              <p>{stat.label}</p>
+              <div className={styles.iconBox} style={{ background: `${stat.color}15`, color: stat.color }}>
+                {stat.icon}
+              </div>
+              <h3 className={styles.value}>{stat.value}</h3>
+              <p className={styles.label}>{stat.label}</p>
             </motion.div>
           ))}
         </div>

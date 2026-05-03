@@ -1,68 +1,91 @@
-import React from "react";
-import { Users, FileUser, Heart, Package, LayoutDashboard, Settings, Image as ImageIcon, BarChart3 } from "lucide-react";
+import React from 'react';
+import { 
+  Users, 
+  MapPin, 
+  IndianRupee, 
+  TrendingUp, 
+  Briefcase, 
+  Calendar, 
+  ChevronRight,
+  BarChart3,
+  Globe,
+  Settings
+} from 'lucide-react';
+
+const districtData = [
+  { name: 'Varanasi', groups: 120, members: 1500, collection: 150000, growth: '+15%' },
+  { name: 'Prayagraj', groups: 95, members: 1200, collection: 120000, growth: '+10%' },
+  { name: 'Lucknow', groups: 150, members: 2200, collection: 220000, growth: '+18%' },
+  { name: 'Mirzapur', groups: 45, members: 600, collection: 60000, growth: '+5%' },
+];
 
 export default function AdminDashboard() {
-  const adminStats = [
-    { label: 'Total Inquiries', value: '1,240', icon: Users, color: '#6C4AB6' },
-    { label: 'Employee Applications', value: '85', icon: FileUser, color: '#FF4D8D' },
-    { label: 'Delivery Leads', value: '42', icon: Package, color: '#10b981' },
-    { label: 'Campaign Leads', value: '156', icon: Heart, color: '#f59e0b' },
-  ];
-
   return (
     <div style={{ padding: '40px', background: '#f8fafc', minHeight: '100vh' }}>
+      {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
         <div>
-          <h2 style={{ fontSize: '2rem', color: 'var(--secondary)' }}>Admin Dashboard</h2>
-          <p style={{ color: 'var(--text-muted)' }}>Overview of SakhiHub operations and leads.</p>
+          <h1 style={{ fontSize: '2.5rem', color: 'var(--secondary)' }}>SakhiHub Command Center</h1>
+          <p style={{ color: 'var(--text-muted)' }}>National Operations & Field Force Overview</p>
         </div>
         <div style={{ display: 'flex', gap: '15px' }}>
-          <button className="btn-secondary" style={{ padding: '10px 20px' }}>Export Data</button>
-          <div style={{ width: '45px', height: '45px', background: 'var(--secondary)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}>A</div>
+          <button className="btn-secondary" style={{ padding: '12px 24px' }}>
+            <BarChart3 size={18} /> Analytics Report
+          </button>
+          <button className="btn-primary" style={{ padding: '12px 24px' }}>
+            <Settings size={18} /> Global Settings
+          </button>
         </div>
       </div>
 
+      {/* High Level Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '25px', marginBottom: '40px' }}>
-        {adminStats.map((stat, idx) => (
-          <div key={idx} className="glass-card" style={{ padding: '30px', background: 'white' }}>
+        {[
+          { label: 'Total Employees', value: '450', icon: Briefcase, color: '#6C4AB6' },
+          { label: 'Active Members', value: '15,240', icon: Users, color: '#FF4D8D' },
+          { label: 'Total Collection', value: '₹15.2L', icon: IndianRupee, color: '#10b981' },
+          { label: 'Coverage Reach', value: '12 Districts', icon: Globe, color: '#f59e0b' },
+        ].map((stat, i) => (
+          <div key={i} className="glass-card" style={{ padding: '30px', background: 'white' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
               <div style={{ padding: '12px', background: `${stat.color}15`, color: stat.color, borderRadius: '12px' }}>
                 <stat.icon size={24} />
               </div>
-              <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: '700' }}>+12%</span>
+              <TrendingUp size={20} color="#10b981" />
             </div>
-            <h3 style={{ fontSize: '1.8rem', fontWeight: '800', marginBottom: '5px' }}>{stat.value}</h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{stat.label}</p>
+            <h3 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '5px' }}>{stat.value}</h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '600' }}>{stat.label}</p>
           </div>
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
-        <div className="glass-card" style={{ padding: '30px', background: 'white' }}>
-          <h4 style={{ marginBottom: '25px' }}>Recent Website Inquiries</h4>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.2fr', gap: '30px' }}>
+        {/* District Data Table */}
+        <div className="glass-card" style={{ padding: '35px', background: 'white' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+            <h3 style={{ fontSize: '1.4rem' }}>District Performance</h3>
+            <button style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: '700' }}>View All Districts</button>
+          </div>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ textAlign: 'left', borderBottom: '2px solid #f1f5f9' }}>
-                  <th style={{ padding: '15px 10px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>Name</th>
-                  <th style={{ padding: '15px 10px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>Interest</th>
-                  <th style={{ padding: '15px 10px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>Status</th>
-                  <th style={{ padding: '15px 10px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>Action</th>
+                  <th style={{ padding: '15px 10px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>District</th>
+                  <th style={{ padding: '15px 10px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Groups</th>
+                  <th style={{ padding: '15px 10px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Members</th>
+                  <th style={{ padding: '15px 10px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Collection</th>
+                  <th style={{ padding: '15px 10px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Growth</th>
                 </tr>
               </thead>
               <tbody>
-                {[1, 2, 3, 4, 5].map(i => (
-                  <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                {districtData.map((d, idx) => (
+                  <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '15px 10px', fontWeight: '700' }}>{d.name}</td>
+                    <td style={{ padding: '15px 10px' }}>{d.groups}</td>
+                    <td style={{ padding: '15px 10px' }}>{d.members}</td>
+                    <td style={{ padding: '15px 10px', fontWeight: '600' }}>₹{d.collection.toLocaleString()}</td>
                     <td style={{ padding: '15px 10px' }}>
-                      <p style={{ fontWeight: '600', fontSize: '0.9rem' }}>Priya Singh</p>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>80766118{i}2</p>
-                    </td>
-                    <td style={{ padding: '15px 10px', fontSize: '0.9rem' }}>Delivery Partner</td>
-                    <td style={{ padding: '15px 10px' }}>
-                      <span style={{ padding: '4px 8px', background: '#e0f2fe', color: '#0369a1', borderRadius: '5px', fontSize: '0.75rem', fontWeight: '600' }}>New</span>
-                    </td>
-                    <td style={{ padding: '15px 10px' }}>
-                      <button style={{ padding: '5px 12px', borderRadius: '5px', background: 'var(--bg-light)', color: 'var(--primary)', border: 'none', fontSize: '0.8rem', fontWeight: '600' }}>Manage</button>
+                      <span style={{ color: '#10b981', fontWeight: '700' }}>{d.growth}</span>
                     </td>
                   </tr>
                 ))}
@@ -71,36 +94,57 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="glass-card" style={{ padding: '30px', background: 'white' }}>
-          <h4 style={{ marginBottom: '25px' }}>Operations Overview</h4>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ padding: '20px', background: 'var(--bg-light)', borderRadius: '15px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>Active Employees</span>
-                <span style={{ fontWeight: '700' }}>142</span>
-              </div>
-              <div style={{ height: '6px', background: '#e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
-                <div style={{ width: '85%', height: '100%', background: 'var(--primary)' }}></div>
-              </div>
+        {/* Management Quick Links */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+          <div className="glass-card" style={{ padding: '35px', background: 'white' }}>
+            <h3 style={{ fontSize: '1.4rem', marginBottom: '25px' }}>Operational Modules</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              {[
+                { name: 'Team Management', count: '450 Staff', icon: <Briefcase size={18} /> },
+                { name: 'Campaign CMS', count: '12 Active', icon: <Calendar size={18} /> },
+                { name: 'Gallery CMS', count: '1,200 Photos', icon: <Globe size={18} /> },
+                { name: 'Member Verification', count: '85 Pending', icon: <Users size={18} /> },
+              ].map((link, i) => (
+                <div key={i} style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center', 
+                  padding: '15px 20px', 
+                  background: 'var(--bg-light)', 
+                  borderRadius: '15px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.transform = 'translateX(5px)'}
+                onMouseOut={(e) => e.currentTarget.style.transform = 'translateX(0)'}
+                >
+                  <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                    <div style={{ color: 'var(--primary)' }}>{link.icon}</div>
+                    <div>
+                      <p style={{ fontWeight: '700', fontSize: '0.95rem' }}>{link.name}</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{link.count}</p>
+                    </div>
+                  </div>
+                  <ChevronRight size={18} color="#cbd5e1" />
+                </div>
+              ))}
             </div>
-            <div style={{ padding: '20px', background: 'var(--bg-light)', borderRadius: '15px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>Campaign Reach</span>
-                <span style={{ fontWeight: '700' }}>500+ Villages</span>
+          </div>
+
+          <div className="glass-card" style={{ padding: '35px', background: 'var(--grad-primary)', color: 'white' }}>
+            <h3 style={{ fontSize: '1.3rem', marginBottom: '15px' }}>System Health</h3>
+            <p style={{ fontSize: '0.9rem', opacity: 0.9, marginBottom: '20px' }}>All servers and database connections are operational.</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '10px', height: '100px', background: 'rgba(255,255,255,0.2)', borderRadius: '5px', position: 'relative' }}>
+                <div style={{ position: 'absolute', bottom: 0, width: '100%', height: '95%', background: 'white', borderRadius: '5px' }}></div>
               </div>
-              <div style={{ height: '6px', background: '#e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
-                <div style={{ width: '70%', height: '100%', background: 'var(--secondary)' }}></div>
+              <div style={{ width: '10px', height: '100px', background: 'rgba(255,255,255,0.2)', borderRadius: '5px', position: 'relative' }}>
+                <div style={{ position: 'absolute', bottom: 0, width: '100%', height: '80%', background: 'white', borderRadius: '5px' }}></div>
               </div>
-            </div>
-            
-            <div style={{ marginTop: '20px' }}>
-              <h5 style={{ marginBottom: '15px', fontSize: '0.9rem' }}>Quick Management</h5>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                <button className="btn-secondary" style={{ padding: '10px', fontSize: '0.8rem' }}>Manage CMS</button>
-                <button className="btn-secondary" style={{ padding: '10px', fontSize: '0.8rem' }}>Approve Staff</button>
-                <button className="btn-secondary" style={{ padding: '10px', fontSize: '0.8rem' }}>Gallery Upload</button>
-                <button className="btn-secondary" style={{ padding: '10px', fontSize: '0.8rem' }}>Reports</button>
+              <div style={{ width: '10px', height: '100px', background: 'rgba(255,255,255,0.2)', borderRadius: '5px', position: 'relative' }}>
+                <div style={{ position: 'absolute', bottom: 0, width: '100%', height: '90%', background: 'white', borderRadius: '5px' }}></div>
               </div>
+              <span style={{ marginLeft: '10px', fontWeight: '800', fontSize: '1.5rem' }}>99.9%</span>
             </div>
           </div>
         </div>

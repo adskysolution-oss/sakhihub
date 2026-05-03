@@ -1,12 +1,11 @@
-.impact {
-  background: var(--secondary);
+.impactSection {
   padding: 100px 0;
-  color: white;
+  background: var(--grad-dark);
   position: relative;
   overflow: hidden;
 }
 
-.impact::before {
+.impactSection::before {
   content: '';
   position: absolute;
   top: 0;
@@ -15,87 +14,65 @@
   height: 100%;
   background: url('https://www.transparenttextures.com/patterns/cubes.png');
   opacity: 0.1;
+  pointer-events: none;
 }
 
-.header {
-  text-align: center;
-  margin-bottom: 60px;
-}
-
-.header h2 {
-  font-size: 2.5rem;
-  margin-bottom: 15px;
-  background: linear-gradient(135deg, #fff, #ffd3e0);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.header p {
-  font-size: 1.1rem;
-  opacity: 0.8;
-}
-
-.statsGrid {
+.grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 30px;
 }
 
 .statCard {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
-  padding: 40px 20px;
-  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 50px 30px;
+  border-radius: var(--radius-lg);
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .statCard:hover {
-  transform: translateY(-10px);
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-5px);
+  border-color: var(--primary);
 }
 
-.iconWrapper {
-  width: 60px;
-  height: 60px;
-  background: var(--primary);
+.iconBox {
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 20px;
-  box-shadow: 0 0 20px rgba(255, 77, 141, 0.4);
+  margin: 0 auto 25px;
+  background: white !important;
 }
 
-.statCard h3 {
-  font-size: 2.5rem;
+.value {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: white;
   margin-bottom: 10px;
-  font-family: var(--font-heading);
 }
 
-.statCard p {
-  font-size: 1rem;
-  opacity: 0.9;
-  font-weight: 500;
+.label {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 1024px) {
-  .statsGrid {
+  .grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 768px) {
-  .statsGrid {
+@media (max-width: 640px) {
+  .grid {
     grid-template-columns: 1fr;
-  }
-  
-  .impact {
-    padding: 60px 0;
-  }
-  
-  .statCard h3 {
-    font-size: 2rem;
   }
 }
