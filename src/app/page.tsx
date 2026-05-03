@@ -1,3 +1,4 @@
+// Trigger build: 2026-05-03 - Final UI Polish
 import React from 'react';
 import HeroSlider from '@/components/home/HeroSlider';
 import WhatWeDo from '@/components/home/WhatWeDo';
