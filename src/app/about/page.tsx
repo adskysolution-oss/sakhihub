@@ -465,7 +465,80 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* 6. Why Choose Us */}
+      {/* 6. Real Impact Stories - Field Heroes */}
+      <section className="section-padding" style={{ background: 'var(--bg-light)' }}>
+        <div className="container">
+          <div className="section-title" style={{ maxWidth: '800px', margin: '0 auto 60px', textAlign: 'center' }}>
+            <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px' }}>REAL VOICES</span>
+            <h2 style={{ fontSize: '3rem', marginTop: '10px' }}>Our Ground <span className="text-gradient">Impact Stories</span></h2>
+            <p style={{ color: 'var(--text-muted)', marginTop: '20px', fontSize: '1.1rem' }}>
+              Real stories of change from the women who are leading the movement at the village level.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
+            {[
+              { 
+                name: "Sunita Devi", 
+                role: "Village Member", 
+                story: "SakhiHub se judne ke baad mujhe swachhta aur health ki sahi jankari mili aur aaj main apne gaon me awareness phaila rahi hu.",
+                image: "/images/campaign_sanitary.png"
+              },
+              { 
+                name: "Rekha Bai", 
+                role: "Field Volunteer", 
+                story: "Main ghar ghar jaakar mahilao ko samjhati hu aur ab main khud financially independent ho chuki hu.",
+                image: "/images/campaign_health.png"
+              },
+              { 
+                name: "Pooja Sharma", 
+                role: "Group Leader", 
+                story: "Humne apne gaon me mahila group banaya aur ab sab milkar kaam karte hain aur earn bhi karte hain.",
+                image: "/images/about_mission.png"
+              },
+              { 
+                name: "Meena Kumari", 
+                role: "Team Leader", 
+                story: "Main chahti hu ki hamare zila ki har mahila apne pairo par khadi ho aur SakhiHub isme puri madad kar raha hai.",
+                image: "/images/team_field.png"
+              }
+            ].map((item, idx) => (
+              <motion.div 
+                key={idx} 
+                {...fadeInUp}
+                whileHover={{ y: -10 }}
+                style={{ 
+                  background: 'white', 
+                  borderRadius: '24px', 
+                  padding: '40px 30px', 
+                  textAlign: 'center', 
+                  boxShadow: '0 15px 40px rgba(0,0,0,0.05)',
+                  border: '1px solid rgba(233, 30, 99, 0.1)'
+                }}
+              >
+                <div style={{ 
+                  width: '120px', 
+                  height: '120px', 
+                  borderRadius: '50%', 
+                  overflow: 'hidden', 
+                  margin: '0 auto 25px',
+                  border: '4px solid #FFF5F8',
+                  boxShadow: '0 10px 20px rgba(233, 30, 99, 0.15)'
+                }}>
+                  <img src={item.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={item.name} />
+                </div>
+                <h3 style={{ fontSize: '1.4rem', color: 'var(--secondary)', marginBottom: '5px' }}>{item.name}</h3>
+                <span style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '20px' }}>{item.role}</span>
+                <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: '1.6', fontStyle: 'italic' }}>
+                  "{item.story}"
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Why Choose Us */}
       <section className="section-padding" style={{ background: '#FFF7FB' }}>
         <div className="container">
           <div className="section-title" style={{ marginBottom: '60px', textAlign: 'center' }}>
