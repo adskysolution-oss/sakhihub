@@ -284,24 +284,110 @@ const AboutPage = () => {
       </section>
 
       {/* 6. Why Choose Us */}
-      <section className="section-padding" style={{ background: 'var(--bg-light)' }}>
+      <section className="section-padding" style={{ background: '#FFF7FB' }}>
         <div className="container">
-          <div className="section-title" style={{ marginBottom: '60px' }}>
-            <span>Why SakhiHub</span>
-            <h2 style={{ fontSize: '3rem' }}>Why We Stand <span className="text-gradient">Apart</span></h2>
+          <div className="section-title" style={{ marginBottom: '60px', textAlign: 'center' }}>
+            <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px' }}>WHY SAKHIHUB</span>
+            <h2 style={{ fontSize: '3rem', marginTop: '10px' }}>Why We Stand <span className="text-gradient">Apart</span></h2>
+            <p style={{ color: 'var(--text-muted)', marginTop: '20px', fontSize: '1.1rem' }}>
+              Built on trust, driven by impact, and focused on real change at ground level.
+            </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '30px' }}>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px', marginBottom: '80px' }}>
             {whyChooseUs.map((item, idx) => (
               <motion.div 
                 key={idx} 
                 {...fadeInUp}
-                className="glass-card" 
-                style={{ padding: '30px', background: 'white' }}
+                whileHover={{ y: -10 }}
+                style={{ 
+                  padding: '0', 
+                  background: 'white', 
+                  borderRadius: '28px', 
+                  height: '460px', 
+                  overflow: 'hidden', 
+                  boxShadow: '0 15px 40px rgba(0,0,0,0.05)',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}
               >
-                <CheckCircle size={30} color="var(--primary)" style={{ marginBottom: '20px' }} />
-                <h4 style={{ fontSize: '1.25rem', marginBottom: '15px' }}>{item.title}</h4>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: '1.6' }}>{item.desc}</p>
+                <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
+                  <motion.img 
+                    whileHover={{ scale: 1.1 }}
+                    src={
+                      idx === 0 ? '/images/team_field.png' :
+                      idx === 1 ? '/images/about_mission.png' :
+                      idx === 2 ? '/images/hero_main_banner.png' :
+                      '/images/campaign_health.png'
+                    } 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    alt={item.title} 
+                  />
+                  <div style={{ 
+                    position: 'absolute', 
+                    bottom: '-20px', 
+                    left: '20px', 
+                    width: '45px', 
+                    height: '45px', 
+                    background: 'linear-gradient(135deg, #6A1B9A, #E91E63)', 
+                    color: 'white', 
+                    borderRadius: '12px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    boxShadow: '0 8px 20px rgba(106, 27, 154, 0.3)',
+                    zIndex: 2
+                  }}>
+                    {idx === 0 ? <Users size={22} /> : 
+                     idx === 1 ? <Target size={22} /> : 
+                     idx === 2 ? <Shield size={22} /> : 
+                     <CheckCircle size={22} />}
+                  </div>
+                </div>
+                <div style={{ padding: '35px 28px 28px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <h3 style={{ fontSize: '1.4rem', marginBottom: '12px', color: 'var(--secondary)' }}>{item.title}</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '15px' }}>{item.desc}</p>
+                  
+                  <div style={{ marginBottom: '20px', flex: 1 }}>
+                    {(idx === 0 ? ['Direct outreach', 'Real field engagement', 'Local connection'] :
+                      idx === 1 ? ['Skill development', 'Leadership building', 'Confidence growth'] :
+                      idx === 2 ? ['50,000+ reached', 'Real success stories', 'Measurable impact'] :
+                      ['Clear reporting', 'Direct benefit system', 'Trust & accountability']).map((point, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--secondary)', fontWeight: '600', marginBottom: '6px' }}>
+                        <CheckCircle size={12} color="var(--primary)" /> {point}
+                      </div>
+                    ))}
+                  </div>
+
+                  <Link href="/about" style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--primary)', fontWeight: '800', fontSize: '0.85rem' }}>
+                    Learn More <ArrowRight size={16} />
+                  </Link>
+                </div>
               </motion.div>
+            ))}
+          </div>
+
+          {/* MINI TRUST BAR */}
+          <div className="glass-card" style={{ 
+            background: 'white', 
+            padding: '30px', 
+            borderRadius: '24px', 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '20px',
+            textAlign: 'center',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.03)'
+          }}>
+            {[
+              { label: 'Women Empowered', val: '50,000+' },
+              { label: 'Groups', val: '12,500+' },
+              { label: 'Campaigns', val: '350+' },
+              { label: 'Ground-Level Work', val: '100%' }
+            ].map((stat, i) => (
+              <div key={i} style={{ borderRight: i < 3 ? '1px solid #f1f5f9' : 'none' }}>
+                <h4 style={{ fontSize: '1.8rem', color: 'var(--primary)', fontWeight: '900', lineHeight: '1' }}>{stat.val}</h4>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '5px', fontWeight: '700' }}>{stat.label}</p>
+              </div>
             ))}
           </div>
         </div>
