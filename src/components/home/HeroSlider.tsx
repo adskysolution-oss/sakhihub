@@ -14,7 +14,7 @@ const slides = [
     subheading: 'Join our nationwide movement for menstrual hygiene and health awareness.',
     buttonText: 'Join Campaign',
     buttonLink: '/campaign',
-    image: 'https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=2000',
+    image: '/images/empowerment.png',
     icon: <Heart />,
     color: '#FF4D8D'
   },
@@ -25,7 +25,7 @@ const slides = [
     subheading: 'Premium hygiene products designed for comfort and confidence.',
     buttonText: 'Know More',
     buttonLink: '/products',
-    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=2000',
+    image: '/images/product.png',
     icon: <Package />,
     color: '#6C4AB6'
   },
@@ -36,7 +36,7 @@ const slides = [
     subheading: 'Join as a Block Level Employee or District Coordinator.',
     buttonText: 'Apply Now',
     buttonLink: '/hiring',
-    image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=2000',
+    image: '/images/empowerment.png',
     icon: <Briefcase />,
     color: '#FF4D8D'
   },
@@ -47,7 +47,7 @@ const slides = [
     subheading: 'Become a delivery partner and earn while serving women in your block.',
     buttonText: 'Become Partner',
     buttonLink: '/delivery-partner',
-    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2000',
+    image: '/images/delivery.png',
     icon: <Truck />,
     color: '#6C4AB6'
   }

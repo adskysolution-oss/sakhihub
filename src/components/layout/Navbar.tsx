@@ -33,7 +33,19 @@ const Navbar = () => {
   return (
     <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}>
       <Link href="/" className={styles.logo}>
-        <img src="/logo.png" alt="SakhiHub Logo" style={{ height: '60px', width: 'auto' }} />
+        <img 
+          src="/logo.png" 
+          alt="SakhiHub Logo" 
+          style={{ height: '60px', width: 'auto' }} 
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+            const fallback = e.currentTarget.parentElement?.querySelector('.logo-fallback');
+            if (fallback) (fallback as HTMLElement).style.display = 'block';
+          }}
+        />
+        <div className="logo-fallback" style={{ display: 'none', fontSize: '1.8rem', fontWeight: '800', color: 'var(--secondary)' }}>
+          Sakhi<span style={{ color: 'var(--primary)' }}>Hub</span>
+        </div>
       </Link>
 
       <div className={styles.navLinks}>

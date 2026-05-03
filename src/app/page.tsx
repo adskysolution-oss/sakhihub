@@ -93,16 +93,16 @@ export default function Home() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(2, 250px)', gap: '20px' }}>
             <div style={{ gridColumn: 'span 2', gridRow: 'span 2', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-              <img src="https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=800" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Gallery 1" />
+              <img src="/images/empowerment.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Gallery 1" />
             </div>
             <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
               <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=500" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Gallery 2" />
             </div>
             <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-              <img src="https://images.unsplash.com/photo-1573497019236-17f8177b81e8?q=80&w=500" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Gallery 3" />
+              <img src="/images/delivery.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Gallery 3" />
             </div>
             <div style={{ gridColumn: 'span 2', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-              <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=800" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Gallery 4" />
+              <img src="/images/product.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Gallery 4" />
             </div>
           </div>
         </div>

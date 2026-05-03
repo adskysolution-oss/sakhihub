@@ -30,7 +30,7 @@ const ProductShowcase = () => {
           >
             <div className={styles.badge}>Regular Pack</div>
             <div className={styles.imageBox}>
-              <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=800" alt="Sakhi Care Regular" />
+              <img src="/images/product.png" alt="Sakhi Care Regular" />
             </div>
             <div className={styles.info}>
               <h3>Sakhi Care Regular</h3>
