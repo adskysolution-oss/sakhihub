@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Mail, Phone, MapPin, MessageCircle, Facebook, Instagram, Youtube, Send, Heart } from 'lucide-react';
+import { Mail, Phone, MapPin, MessageCircle, Globe, Camera, Play, Send, Heart } from 'lucide-react';
 import styles from './Footer.module.css';
 
 const Footer = () => {
@@ -39,9 +39,9 @@ const Footer = () => {
               SakhiHub is a women empowerment platform working for health awareness, education, community building and self-reliance across India.
             </p>
             <div className={styles.socials}>
-              <a href="#" className={styles.socialLink}><Facebook size={18} /></a>
-              <a href="#" className={styles.socialLink}><Instagram size={18} /></a>
-              <a href="#" className={styles.socialLink}><Youtube size={18} /></a>
+              <a href="#" className={styles.socialLink}><Globe size={18} /></a>
+              <a href="#" className={styles.socialLink}><Camera size={18} /></a>
+              <a href="#" className={styles.socialLink}><Play size={18} /></a>
               <a href="https://wa.me/918076611842" className={styles.socialLink}><MessageCircle size={18} /></a>
             </div>
           </div>
