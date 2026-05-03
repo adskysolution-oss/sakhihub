@@ -3,7 +3,7 @@
 import React from 'react';
 import PageBanner from '@/components/common/PageBanner';
 import { motion } from 'framer-motion';
-import { Briefcase, GraduationCap, TrendingUp, Award, CheckCircle2, ArrowRight, Zap } from 'lucide-react';
+import { Briefcase, GraduationCap, TrendingUp, Award, CheckCircle2, ArrowRight, Zap, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
 const EmploymentProgram = () => {
