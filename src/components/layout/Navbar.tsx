@@ -33,10 +33,7 @@ const Navbar = () => {
   return (
     <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}>
       <Link href="/" className={styles.logo}>
-        <div className={styles.logoIcon}>
-          <Heart fill="var(--primary)" color="var(--primary)" size={28} />
-        </div>
-        <span className={styles.logoText}>SakhiHub</span>
+        <img src="/logo.png" alt="SakhiHub Logo" style={{ height: '60px', width: 'auto' }} />
       </Link>
 
       <div className={styles.navLinks}>

@@ -10,8 +10,7 @@ const Footer = () => {
         <div className={styles.grid}>
           <div className={styles.brandCol}>
             <Link href="/" className={styles.logo}>
-              <Heart fill="var(--primary)" color="var(--primary)" size={24} />
-              <span className={styles.logoText}>SakhiHub</span>
+              <img src="/logo.png" alt="SakhiHub Logo" style={{ height: '70px', width: 'auto', marginBottom: '20px' }} />
             </Link>
             <p className={styles.tagline}>Empowering Women Across India</p>
             <p className={styles.description}>
@@ -19,7 +18,6 @@ const Footer = () => {
             </p>
             <div className={styles.socials}>
               <a href="#" className={styles.socialLink}><MessageCircle size={20} /></a>
-              {/* Add more social links as needed */}
             </div>
           </div>
 
