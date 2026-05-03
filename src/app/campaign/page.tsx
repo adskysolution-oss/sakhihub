@@ -22,7 +22,11 @@ export default function CampaignPage() {
       <PageBanner 
         title="Awareness Campaign" 
         subtitle="Bringing health and dignity to the heart of every village."
-        image="https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=1500"
+        images={[
+          "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=1500",
+          "https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1500",
+          "https://images.unsplash.com/photo-1550581190-9c1c48d21d6c?q=80&w=1500"
+        ]}
       />
       
       {/* High Impact Intro */}

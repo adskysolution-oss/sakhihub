@@ -21,7 +21,11 @@ export default function HiringPage() {
       <PageBanner 
         title="Join Our Mission" 
         subtitle="Empower yourself while empowering thousands of women across India."
-        image="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1500"
+        images={[
+          "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1500",
+          "https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1500",
+          "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=1500"
+        ]}
       />
       
       {/* Intro Stats */}

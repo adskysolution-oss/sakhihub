@@ -62,7 +62,11 @@ export default function ProgramsPage() {
       <PageBanner 
         title="Our Programs" 
         subtitle="Cinematic initiatives driving national transformation at the grassroots level."
-        image="https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1500"
+        images={[
+          "https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1500",
+          "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=1500",
+          "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1500"
+        ]}
       />
 
       {/* Intro Stats */}

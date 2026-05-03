@@ -42,7 +42,11 @@ export default function ProductsPage() {
       <PageBanner 
         title="Premium Products" 
         subtitle="Sakhi Care: High-quality hygiene solutions at accessible prices."
-        image="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=1500"
+        images={[
+          "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=1500",
+          "https://images.unsplash.com/photo-1583947581924-860bda6a26df?q=80&w=1500",
+          "https://images.unsplash.com/photo-1550581190-9c1c48d21d6c?q=80&w=1500"
+        ]}
       />
       
       {/* Product Highlight */}
