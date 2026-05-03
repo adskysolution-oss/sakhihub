@@ -87,6 +87,7 @@ const CampaignsSection = () => {
                 <Link href={`/campaign/${camp.id}`} style={{ color: 'var(--primary)', fontWeight: '700', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
                   Join Campaign <ArrowRight size={18} />
                 </Link>
+                </div>
               </div>
             </motion.div>
           ))}
