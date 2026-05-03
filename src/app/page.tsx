@@ -8,6 +8,7 @@ import JoinMovement from '@/components/home/JoinMovement';
 import CTABanner from '@/components/home/CTABanner';
 import CampaignsSection from '@/components/home/CampaignsSection';
 import TeamSection from '@/components/home/TeamSection';
+import HomeActionGrid from '@/components/home/HomeActionGrid';
 import { ArrowRight, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 
@@ -116,7 +117,10 @@ export default function Home() {
       {/* 8. Join Movement Section */}
       <JoinMovement />
 
-      {/* 9. Strong CTA Banner */}
+      {/* 9. Key Actions (Employee, Membership, Support) */}
+      <HomeActionGrid />
+
+      {/* 10. Strong CTA Banner */}
       <CTABanner />
 
       <div style={{ height: '100px' }}></div>

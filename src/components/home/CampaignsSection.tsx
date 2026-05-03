@@ -64,30 +64,15 @@ const CampaignsSection = () => {
                   {camp.icon}
                 </div>
               </div>
-              <div style={{ padding: '30px' }}>
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '15px' }}>{camp.title}</h3>
-              <p style={{ color: 'var(--text-muted)', marginBottom: '25px', fontSize: '0.95rem', lineHeight: '1.7' }}>
-                {camp.desc}
-              </p>
+              <div style={{ padding: '30px', textAlign: 'center' }}>
+                <h3 style={{ fontSize: '1.4rem', marginBottom: '10px', color: 'var(--secondary)' }}>{camp.title}</h3>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '25px', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                  {camp.desc}
+                </p>
 
-              <div style={{ marginBottom: '25px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '0.85rem', fontWeight: '700' }}>
-                  <span>Progress</span>
-                  <span style={{ color: camp.color }}>{camp.progress}%</span>
-                </div>
-                <div style={{ height: '10px', background: '#f1f5f9', borderRadius: '10px', overflow: 'hidden' }}>
-                  <div style={{ width: `${camp.progress}%`, height: '100%', background: camp.color }}></div>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: '600' }}>
-                   <span style={{ color: camp.color }}>{camp.joined}</span> Women Joined
-                </div>
-                <Link href={`/campaign/${camp.id}`} style={{ color: 'var(--primary)', fontWeight: '700', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  Join Campaign <ArrowRight size={18} />
+                <Link href={`/campaign/${camp.id}`} className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                  Join Now
                 </Link>
-                </div>
               </div>
             </motion.div>
           ))}

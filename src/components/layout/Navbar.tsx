@@ -61,10 +61,12 @@ const Navbar = () => {
       </div>
 
       <div className={styles.actions}>
-        <a href="tel:8076611842" className="btn-primary" style={{ padding: '10px 20px', fontSize: '0.9rem' }}>
-          <Phone size={16} />
-          <span>Call Now</span>
-        </a>
+        <Link href="/login" className="btn-secondary" style={{ padding: '10px 15px', fontSize: '0.85rem' }}>
+          Employee Login
+        </Link>
+        <Link href="/register" className="btn-primary" style={{ padding: '10px 20px', fontSize: '0.9rem' }}>
+          Join Now
+        </Link>
         <button className={styles.mobileMenuBtn} onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
