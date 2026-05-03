@@ -3,10 +3,10 @@ import { Users, FileUser, Heart, Package, LayoutDashboard, Settings, Image as Im
 
 export default function AdminDashboard() {
   const adminStats = [
-    { label: 'Total Inquiries', value: '1,240', icon: <Users />, color: '#6C4AB6' },
-    { label: 'Employee Applications', value: '85', icon: <FileUser />, color: '#FF4D8D' },
-    { label: 'Delivery Leads', value: '42', icon: <Package />, color: '#10b981' },
-    { label: 'Campaign Leads', value: '156', icon: <Heart />, color: '#f59e0b' },
+    { label: 'Total Inquiries', value: '1,240', icon: Users, color: '#6C4AB6' },
+    { label: 'Employee Applications', value: '85', icon: FileUser, color: '#FF4D8D' },
+    { label: 'Delivery Leads', value: '42', icon: Package, color: '#10b981' },
+    { label: 'Campaign Leads', value: '156', icon: Heart, color: '#f59e0b' },
   ];
 
   return (
@@ -27,7 +27,7 @@ export default function AdminDashboard() {
           <div key={idx} className="glass-card" style={{ padding: '30px', background: 'white' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
               <div style={{ padding: '12px', background: `${stat.color}15`, color: stat.color, borderRadius: '12px' }}>
-                {React.cloneElement(stat.icon as React.ReactElement, { size: 24 })}
+                <stat.icon size={24} />
               </div>
               <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: '700' }}>+12%</span>
             </div>

@@ -20,16 +20,16 @@ export default function PartnerPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '30px', marginBottom: '80px' }}>
             {[
-              { name: 'NGOs', icon: <Target /> },
-              { name: 'SHGs', icon: <Users /> },
-              { name: 'Schools', icon: <School /> },
-              { name: 'Colleges', icon: <School /> },
-              { name: 'Distributors', icon: <Home /> },
-              { name: 'Social Orgs', icon: <Handshake /> },
+              { name: 'NGOs', icon: Target },
+              { name: 'SHGs', icon: Users },
+              { name: 'Schools', icon: School },
+              { name: 'Colleges', icon: School },
+              { name: 'Distributors', icon: Home },
+              { name: 'Social Orgs', icon: Handshake },
             ].map(item => (
               <div key={item.name} className="glass-card" style={{ padding: '30px', textAlign: 'center' }}>
                 <div style={{ color: 'var(--primary)', marginBottom: '15px', display: 'flex', justifyContent: 'center' }}>
-                  {React.cloneElement(item.icon as React.ReactElement, { size: 40 })}
+                  <item.icon size={40} />
                 </div>
                 <h4 style={{ color: 'var(--secondary)' }}>{item.name}</h4>
               </div>

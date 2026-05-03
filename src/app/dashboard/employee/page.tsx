@@ -3,10 +3,10 @@ import { Users, UserPlus, IndianRupee, Target, TrendingUp, Calendar } from "luci
 
 export default function EmployeeDashboard() {
   const stats = [
-    { label: 'Total Groups', value: '12', icon: <Users />, color: '#6C4AB6' },
-    { label: 'Total Members', value: '145', icon: <UserPlus />, color: '#FF4D8D' },
-    { label: 'Today\'s Members', value: '8', icon: <TrendingUp />, color: '#10b981' },
-    { label: 'Collection', value: '₹14,500', icon: <IndianRupee />, color: '#f59e0b' },
+    { label: 'Total Groups', value: '12', icon: Users, color: '#6C4AB6' },
+    { label: 'Total Members', value: '145', icon: UserPlus, color: '#FF4D8D' },
+    { label: 'Today\'s Members', value: '8', icon: TrendingUp, color: '#10b981' },
+    { label: 'Collection', value: '₹14,500', icon: IndianRupee, color: '#f59e0b' },
   ];
 
   return (
@@ -20,7 +20,7 @@ export default function EmployeeDashboard() {
         {stats.map((stat, idx) => (
           <div key={idx} className="glass-card" style={{ padding: '25px', display: 'flex', alignItems: 'center', gap: '20px', background: 'white' }}>
             <div style={{ width: '60px', height: '60px', borderRadius: '15px', background: `${stat.color}15`, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {React.cloneElement(stat.icon as React.ReactElement, { size: 28 })}
+              <stat.icon size={28} />
             </div>
             <div>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '5px' }}>{stat.label}</p>
