@@ -6,10 +6,10 @@ import { Users, Layout, MapPin, Target } from 'lucide-react';
 import styles from './Impact.module.css';
 
 const stats = [
-  { label: 'Women Connected', value: '10,000+', icon: <Users size={30} />, color: '#FF4D8D' },
-  { label: 'Groups Created', value: '850+', icon: <Layout size={30} />, color: '#6C4AB6' },
-  { label: 'Districts Covered', value: '25+', icon: <MapPin size={30} />, color: '#FF4D8D' },
-  { label: 'Active Campaigns', value: '12', icon: <Target size={30} />, color: '#6C4AB6' },
+  { label: 'Total Women Joined', value: '10,000+', icon: <Users size={30} />, color: '#E91E63' },
+  { label: 'Total Groups Created', value: '850+', icon: <Layout size={30} />, color: '#6A1B9A' },
+  { label: 'Active Campaigns', value: '12', icon: <Target size={30} />, color: '#E91E63' },
+  { label: 'Active Employees', value: '42', icon: <Users size={30} />, color: '#6A1B9A' },
 ];
 
 const Impact = () => {

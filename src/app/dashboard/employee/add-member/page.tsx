@@ -1,78 +1,63 @@
+'use client';
+
 import React from "react";
-import { UserPlus, Users, IndianRupee, Heart } from "lucide-react";
+import { UserPlus, Phone, MapPin, Hash, Users } from "lucide-react";
 
 export default function AddMemberPage() {
   return (
     <div style={{ maxWidth: '800px' }}>
       <div style={{ marginBottom: '30px' }}>
         <h2 style={{ fontSize: '1.8rem', color: 'var(--secondary)' }}>Add New Member</h2>
-        <p style={{ color: 'var(--text-muted)' }}>Register a woman member to an existing group.</p>
+        <p style={{ color: 'var(--text-muted)' }}>Register a woman member to an existing Sakhi Group.</p>
       </div>
 
       <form className="glass-card" style={{ padding: '40px', background: 'white', display: 'flex', flexDirection: 'column', gap: '25px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Select Group *</label>
-          <select style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }}>
-            <option>Sakhi Group 1 - Rampur</option>
-            <option>Sakhi Group 2 - Kashi</option>
-            <option>Sakhi Group 3 - Bira</option>
-          </select>
-        </div>
-
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Member Name *</label>
-            <input type="text" placeholder="Full Name" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }} />
+            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Full Name *</label>
+            <div style={{ position: 'relative' }}>
+              <input required type="text" placeholder="Enter Name" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd', width: '100%' }} />
+            </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Mobile Number *</label>
-            <input type="tel" placeholder="Mobile" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }} />
+            <div style={{ position: 'relative' }}>
+              <input required type="tel" placeholder="Enter Mobile" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd', width: '100%' }} />
+            </div>
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Age</label>
-            <input type="number" placeholder="Years" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }} />
+            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Age *</label>
+            <input required type="number" placeholder="Enter Age" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Occupation</label>
-            <select style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }}>
-              <option>Housewife</option>
-              <option>Farmer</option>
-              <option>Self Employed</option>
-              <option>Student</option>
-              <option>Other</option>
+            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Select Group *</label>
+            <select required style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }}>
+              <option value="">Choose a Group</option>
+              <option>Sakhi Group 1</option>
+              <option>Sakhi Group 2</option>
+              <option>Mahila Shakti</option>
             </select>
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Interested In (Multiple Selection)</label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-            {['Health Awareness', 'Sakhi Care Pads', 'Employment', 'Training', 'Volunteer'].map(item => (
-              <div key={item} style={{ display: 'flex', gap: '10px', alignItems: 'center', background: 'var(--bg-light)', padding: '10px 15px', borderRadius: '8px' }}>
-                <input type="checkbox" id={item} />
-                <label htmlFor={item} style={{ fontSize: '0.85rem' }}>{item}</label>
-              </div>
-            ))}
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Address *</label>
+          <textarea required placeholder="Full residential address..." rows={3} style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }}></textarea>
         </div>
 
-        <div style={{ background: 'var(--accent)', padding: '20px', borderRadius: '15px', border: '1px solid var(--primary)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h4 style={{ color: 'var(--primary)', marginBottom: '5px' }}>Paid Membership (₹100)</h4>
-              <p style={{ fontSize: '0.8rem', color: 'var(--secondary)' }}>Join SakhiHub as a premium member</p>
-            </div>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              <input type="checkbox" id="paid" style={{ width: '20px', height: '20px' }} />
-              <label htmlFor="paid" style={{ fontWeight: '700' }}>Yes, Add Paid</label>
-            </div>
-          </div>
+        <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-start', padding: '20px', background: 'var(--bg-light)', borderRadius: '12px' }}>
+          <input type="checkbox" style={{ marginTop: '5px' }} />
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+            I confirm that the above information is correct and the member has consented to join the SakhiHub movement.
+          </p>
         </div>
 
-        <button type="submit" className="btn-primary" style={{ justifyContent: 'center', padding: '15px' }}>Add Member</button>
+        <button type="submit" className="btn-primary" style={{ justifyContent: 'center', padding: '15px' }}>
+          <UserPlus size={20} /> Add Member
+        </button>
       </form>
     </div>
   );

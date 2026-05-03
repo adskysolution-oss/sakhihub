@@ -9,47 +9,47 @@ import styles from './HeroSlider.module.css';
 const slides = [
   {
     id: 1,
-    category: 'Women Health Campaign',
-    heading: 'हर महिला स्वस्थ, हर महिला सशक्त',
+    category: 'Awareness Mission',
+    heading: 'SakhiHub Awareness Mission',
     subheading: 'Join our nationwide movement for menstrual hygiene and health awareness.',
-    buttonText: 'Join Campaign',
-    buttonLink: '/campaign',
-    image: '/images/empowerment.png',
+    buttonText: 'Join Now',
+    buttonLink: '/register',
+    image: '/images/hero_main_banner.png',
     icon: <Heart />,
-    color: '#FF4D8D'
+    color: '#E91E63'
   },
   {
     id: 2,
-    category: 'Sakhi Care Pads',
-    heading: 'Quality Protection for Every Woman',
-    subheading: 'Premium hygiene products designed for comfort and confidence.',
-    buttonText: 'Know More',
-    buttonLink: '/products',
-    image: '/images/product.png',
-    icon: <Package />,
-    color: '#6C4AB6'
+    category: 'Empowerment',
+    heading: 'Join Women Empowerment Movement',
+    subheading: 'Building a network of strong, independent, and confident women across India.',
+    buttonText: 'Start Campaign',
+    buttonLink: '/campaign',
+    image: '/images/hero_join_movement.png',
+    icon: <Users />,
+    color: '#6A1B9A'
   },
   {
     id: 3,
-    category: 'Career Opportunities',
-    heading: 'Building a Strong Women Network',
-    subheading: 'Join as a Block Level Employee or District Coordinator.',
-    buttonText: 'Apply Now',
-    buttonLink: '/hiring',
-    image: '/images/empowerment.png',
+    category: 'Opportunities',
+    heading: 'Earn + Learn + Support Women',
+    subheading: 'Become a part of our community and help create sustainable employment for women.',
+    buttonText: 'Employee Login',
+    buttonLink: '/login',
+    image: '/images/hero_awareness_campaign.png',
     icon: <Briefcase />,
-    color: '#FF4D8D'
+    color: '#E91E63'
   },
   {
     id: 4,
-    category: 'Delivery Partnership',
-    heading: 'Empower Your Community',
-    subheading: 'Become a delivery partner and earn while serving women in your block.',
-    buttonText: 'Become Partner',
-    buttonLink: '/delivery-partner',
-    image: '/images/delivery.png',
-    icon: <Truck />,
-    color: '#6C4AB6'
+    category: 'Health Awareness',
+    heading: 'Health & Awareness Campaigns',
+    subheading: 'Specialized camps and educational drives in rural areas for better health.',
+    buttonText: 'View Campaigns',
+    buttonLink: '/campaign',
+    image: '/images/hero_awareness_campaign.png',
+    icon: <Package />,
+    color: '#6A1B9A'
   }
 ];
 

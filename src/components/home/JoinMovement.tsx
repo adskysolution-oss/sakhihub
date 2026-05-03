@@ -33,6 +33,8 @@ const joinOptions = [
   }
 ];
 
+import PosterGenerator from '@/components/common/PosterGenerator';
+
 const JoinMovement = () => {
   return (
     <section className="section-padding">
@@ -62,6 +64,10 @@ const JoinMovement = () => {
               </Link>
             </motion.div>
           ))}
+        </div>
+
+        <div style={{ marginTop: '100px' }}>
+          <PosterGenerator />
         </div>
       </div>
     </section>

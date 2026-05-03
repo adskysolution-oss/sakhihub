@@ -1,5 +1,5 @@
 import React from "react";
-import { Users, MapPin, Calendar, Camera, Info } from "lucide-react";
+import { Users, MapPin, Camera } from "lucide-react";
 
 export default function CreateGroupPage() {
   return (
@@ -13,48 +13,23 @@ export default function CreateGroupPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Group Name *</label>
-            <input type="text" placeholder="e.g. Mahila Shakti Group" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }} />
+            <input required type="text" placeholder="e.g. Mahila Shakti Group" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Village Name *</label>
-            <input type="text" placeholder="Enter Village" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }} />
+            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Village / Area *</label>
+            <input required type="text" placeholder="Enter Village or Area" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }} />
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Panchayat / Ward</label>
-            <input type="text" placeholder="Enter Panchayat" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }} />
+            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>District *</label>
+            <input required type="text" placeholder="Enter District" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Meeting Date *</label>
-            <input type="date" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }} />
+            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>State *</label>
+            <input required type="text" placeholder="Enter State" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }} />
           </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Group Leader Name *</label>
-            <input type="text" placeholder="Leader Name" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }} />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Leader Mobile Number *</label>
-            <input type="tel" placeholder="Leader Mobile" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }} />
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Campaign Name</label>
-          <select style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }}>
-            <option>Menstrual Hygiene Awareness</option>
-            <option>Women Empowerment</option>
-            <option>Skill Development</option>
-          </select>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Remarks</label>
-          <textarea placeholder="Any specific notes..." rows={3} style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }}></textarea>
         </div>
 
         <div style={{ border: '2px dashed #ddd', borderRadius: '15px', padding: '40px', textAlign: 'center', cursor: 'pointer' }}>
@@ -68,3 +43,4 @@ export default function CreateGroupPage() {
     </div>
   );
 }
+

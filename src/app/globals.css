@@ -1,19 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;700&display=swap');
 
 :root {
-  --primary: #FF4D8D;
-  --primary-dark: #E63D7D;
-  --secondary: #6C4AB6;
-  --secondary-dark: #5A3A9E;
-  --accent: #FFD3E0;
-  --bg-light: #FFF8FA;
-  --text-main: #1A0B2E;
-  --text-muted: #5E4A66;
+  --primary: #E91E63;
+  --primary-dark: #C2185B;
+  --secondary: #6A1B9A;
+  --secondary-dark: #4A148C;
+  --accent: #FCE4EC;
+  --bg-light: #FFF5F8;
+  --text-main: #2D1B36;
+  --text-muted: #6A5B73;
   --white: #FFFFFF;
   
-  --grad-primary: linear-gradient(135deg, #FF4D8D 0%, #6C4AB6 100%);
-  --grad-soft: linear-gradient(135deg, #FFF0F5 0%, #F5F3FF 100%);
-  --grad-dark: linear-gradient(135deg, #2E0249 0%, #570A57 100%);
+  --grad-primary: linear-gradient(135deg, #E91E63 0%, #6A1B9A 100%);
+  --grad-soft: linear-gradient(135deg, #FFF5F8 0%, #F3E5F5 100%);
+  --grad-dark: linear-gradient(135deg, #4A148C 0%, #880E4F 100%);
   
   --shadow-soft: 0 10px 30px rgba(108, 74, 182, 0.08);
   --shadow-medium: 0 20px 40px rgba(108, 74, 182, 0.12);

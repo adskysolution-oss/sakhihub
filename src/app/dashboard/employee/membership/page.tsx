@@ -1,69 +1,92 @@
-import React from "react";
-import { CreditCard, Search, Calendar, FileText, CheckCircle } from "lucide-react";
+'use client';
 
-export default function MembershipCollectionPage() {
+import React, { useState } from "react";
+import { CreditCard, CheckCircle, IndianRupee, ShieldCheck, Search } from "lucide-react";
+
+export default function MembershipPage() {
+  const [status, setStatus] = useState<'form' | 'processing' | 'success'>('form');
+
+  const handlePayment = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('processing');
+    // Simulate Razorpay Payment Gateway
+    setTimeout(() => {
+      setStatus('success');
+    }, 2000);
+  };
+
+  if (status === 'success') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center' }}>
+        <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '30px' }}>
+          <CheckCircle size={50} />
+        </div>
+        <h2 style={{ fontSize: '2rem', marginBottom: '15px' }}>Payment Successful!</h2>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '30px', maxWidth: '400px' }}>
+          The ₹100 membership fee has been received. The digital membership card will be generated shortly.
+        </p>
+        <button onClick={() => setStatus('form')} className="btn-primary">Add Another Member</button>
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div style={{ maxWidth: '1000px' }}>
       <div style={{ marginBottom: '30px' }}>
-        <h2 style={{ fontSize: '1.8rem', color: 'var(--secondary)' }}>Membership Collection</h2>
-        <p style={{ color: 'var(--text-muted)' }}>Manage ₹100 membership fee collection.</p>
+        <h2 style={{ fontSize: '1.8rem', color: 'var(--secondary)' }}>Membership Activation</h2>
+        <p style={{ color: 'var(--text-muted)' }}>Pay ₹100 for premium membership benefits and awareness kit.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '30px' }}>
-        <div>
-          <h4 style={{ marginBottom: '20px' }}>New Entry</h4>
-          <form className="glass-card" style={{ padding: '30px', background: 'white', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Search Member</label>
-              <div style={{ position: 'relative' }}>
-                <Search size={18} style={{ position: 'absolute', left: '12px', top: '14px', color: '#999' }} />
-                <input type="text" placeholder="Mobile or Name" style={{ padding: '12px 12px 12px 40px', borderRadius: '10px', border: '1px solid #ddd', width: '100%' }} />
-              </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '30px' }}>
+        <form onSubmit={handlePayment} className="glass-card" style={{ padding: '40px', background: 'white', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Search Member (Mobile) *</label>
+            <div style={{ position: 'relative' }}>
+               <Search size={18} style={{ position: 'absolute', left: '12px', top: '14px', color: '#999' }} />
+               <input required type="tel" placeholder="Enter Mobile to find member" style={{ padding: '12px 12px 12px 40px', borderRadius: '10px', border: '1px solid #ddd', width: '100%' }} />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Payment Mode</label>
-              <select style={{ padding: '12px', borderRadius: '10px', border: '1px solid #ddd' }}>
-                <option>Cash</option>
-                <option>UPI</option>
-                <option>Online</option>
-              </select>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Amount (Fixed)</label>
-              <div style={{ padding: '12px', borderRadius: '10px', background: '#f1f5f9', fontWeight: '700', color: 'var(--secondary)' }}>₹ 100</div>
-            </div>
-            <button type="submit" className="btn-primary" style={{ justifyContent: 'center' }}>Submit Payment</button>
-          </form>
-        </div>
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Member Name</label>
+            <input readOnly type="text" value="Automatic fetched name" style={{ padding: '12px', borderRadius: '10px', border: '1px solid #eee', background: '#f9f9f9' }} />
+          </div>
 
-        <div className="glass-card" style={{ padding: '30px', background: 'white' }}>
-          <h4 style={{ marginBottom: '25px' }}>Recent Collections</h4>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ textAlign: 'left', borderBottom: '2px solid #f1f5f9' }}>
-                  <th style={{ padding: '15px 10px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Member Name</th>
-                  <th style={{ padding: '15px 10px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Mode</th>
-                  <th style={{ padding: '15px 10px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Status</th>
-                  <th style={{ padding: '15px 10px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[1, 2, 3, 4].map(i => (
-                  <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={{ padding: '15px 10px' }}>
-                      <p style={{ fontWeight: '600', fontSize: '0.9rem' }}>Member {i}</p>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ID: SH-2024-00{i}</p>
-                    </td>
-                    <td style={{ padding: '15px 10px', fontSize: '0.9rem' }}>Cash</td>
-                    <td style={{ padding: '15px 10px' }}>
-                      <span style={{ padding: '4px 8px', background: '#dcfce7', color: '#166534', borderRadius: '5px', fontSize: '0.75rem', fontWeight: '600' }}>Paid</span>
-                    </td>
-                    <td style={{ padding: '15px 10px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>May 03, 2024</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div style={{ padding: '20px', background: 'var(--bg-light)', borderRadius: '15px', marginTop: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+              <span>Membership Fee</span>
+              <span style={{ fontWeight: '700' }}>₹100.00</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#16a34a', fontSize: '0.9rem' }}>
+              <span>Processing Fee</span>
+              <span>₹0.00</span>
+            </div>
+            <hr style={{ margin: '15px 0', border: 'none', borderTop: '1px solid #ddd' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '800', fontSize: '1.2rem' }}>
+              <span>Total Amount</span>
+              <span style={{ color: 'var(--primary)' }}>₹100.00</span>
+            </div>
+          </div>
+
+          <button disabled={status === 'processing'} type="submit" className={status === 'processing' ? 'btn-secondary' : 'btn-primary'} style={{ justifyContent: 'center', padding: '15px' }}>
+            <CreditCard size={20} /> {status === 'processing' ? 'Connecting Gateway...' : 'Pay ₹100 with Razorpay'}
+          </button>
+        </form>
+
+        <div className="glass-card" style={{ padding: '30px', background: 'var(--grad-dark)', color: 'white' }}>
+          <h4 style={{ marginBottom: '20px' }}>Premium Benefits</h4>
+          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '15px', fontSize: '0.9rem' }}>
+            <li style={{ display: 'flex', gap: '10px' }}><ShieldCheck size={18} /> Official Membership ID</li>
+            <li style={{ listStyle: 'none', marginLeft: '28px', opacity: 0.8, fontSize: '0.8rem' }}>A professional digital ID for recognition.</li>
+            <li style={{ display: 'flex', gap: '10px' }}><ShieldCheck size={18} /> Free Health Awareness Kit</li>
+            <li style={{ listStyle: 'none', marginLeft: '28px', opacity: 0.8, fontSize: '0.8rem' }}>Essential hygiene products for the month.</li>
+            <li style={{ display: 'flex', gap: '10px' }}><ShieldCheck size={18} /> Priority in Skill Workshops</li>
+            <li style={{ listStyle: 'none', marginLeft: '28px', opacity: 0.8, fontSize: '0.8rem' }}>Early access to learning programs.</li>
+          </ul>
+          
+          <div style={{ marginTop: '40px', padding: '15px', background: 'rgba(255,255,255,0.1)', borderRadius: '10px', fontSize: '0.8rem', textAlign: 'center' }}>
+            <IndianRupee size={30} style={{ marginBottom: '10px', marginLeft: 'auto', marginRight: 'auto' }} />
+            <p>Your payment is 100% secure with 256-bit encryption.</p>
           </div>
         </div>
       </div>
