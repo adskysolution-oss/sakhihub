@@ -168,26 +168,70 @@ const AboutPage = () => {
       </section>
 
       {/* 3. What We Do */}
-      <section className="section-padding">
+      <section className="section-padding" style={{ background: '#FFF7FB' }}>
         <div className="container">
-          <div className="section-title" style={{ maxWidth: '800px', margin: '0 auto 80px' }}>
-            <span>Our Core Focus</span>
-            <h2 style={{ fontSize: '3.5rem' }}>Our Initiatives for <span className="text-gradient">Real Change</span></h2>
+          <div className="section-title" style={{ maxWidth: '800px', margin: '0 auto 60px', textAlign: 'center' }}>
+            <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px' }}>OUR CORE FOCUS</span>
+            <h2 style={{ fontSize: '3.5rem', marginTop: '10px' }}>Our Initiatives for <span className="text-gradient">Real Change</span></h2>
+            <p style={{ color: 'var(--text-muted)', marginTop: '20px', fontSize: '1.1rem' }}>
+              Small steps that create awareness, confidence, health and financial independence for women. 
+              SakhiHub works at ground level to create awareness, support health, build communities and enable self-reliance for women.
+            </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '30px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px' }}>
             {whatWeDo.map((item, idx) => (
               <motion.div 
                 key={idx} 
                 {...fadeInUp}
                 whileHover={{ y: -10 }}
-                className="glass-card" 
-                style={{ padding: '40px', textAlign: 'center', background: 'white' }}
+                style={{ 
+                  padding: '0', 
+                  background: 'white', 
+                  borderRadius: '28px', 
+                  height: '430px', 
+                  overflow: 'hidden', 
+                  boxShadow: '0 15px 40px rgba(0,0,0,0.05)',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}
               >
-                <div style={{ color: 'var(--primary)', marginBottom: '25px', display: 'flex', justifyContent: 'center' }}>
-                  <item.icon size={40} />
+                <div style={{ position: 'relative', height: '190px', overflow: 'hidden' }}>
+                  <motion.img 
+                    whileHover={{ scale: 1.1 }}
+                    src={
+                      idx === 0 ? '/images/hero_awareness_campaign.png' :
+                      idx === 1 ? '/images/campaign_health.png' :
+                      idx === 2 ? '/images/about_mission.png' :
+                      '/images/program_skill.png'
+                    } 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderTopLeftRadius: '24px', borderTopRightRadius: '24px' }} 
+                    alt={item.title} 
+                  />
+                  <div style={{ 
+                    position: 'absolute', 
+                    bottom: '-20px', 
+                    left: '20px', 
+                    width: '45px', 
+                    height: '45px', 
+                    background: 'linear-gradient(135deg, #E91E63, #6A1B9A)', 
+                    color: 'white', 
+                    borderRadius: '12px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    boxShadow: '0 8px 20px rgba(233, 30, 99, 0.3)',
+                    zIndex: 2
+                  }}>
+                    <item.icon size={22} />
+                  </div>
                 </div>
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '15px' }}>{item.title}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6' }}>{item.desc}</p>
+                <div style={{ padding: '35px 28px 28px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <h3 style={{ fontSize: '1.5rem', marginBottom: '12px', color: 'var(--secondary)' }}>{item.title}</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '20px', flex: 1 }}>{item.desc}</p>
+                  <Link href="/programs" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary)', fontWeight: '700', fontSize: '0.9rem' }}>
+                    Learn More <ArrowRight size={16} />
+                  </Link>
+                </div>
               </motion.div>
             ))}
           </div>
