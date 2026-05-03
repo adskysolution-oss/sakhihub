@@ -2,208 +2,201 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Shield, Zap, BookOpen, Briefcase, Brain, CheckCircle, ArrowRight, Users, Target, Layout } from 'lucide-react';
+import { Heart, Shield, Zap, BookOpen, Briefcase, Brain, CheckCircle, ArrowRight, Users, Target, Layout, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import PageBannerSlider from "@/components/common/PageBannerSlider";
+import PageBanner from "@/components/common/PageBanner";
 
 const programsData = [
   {
-    title: "Menstrual Hygiene Awareness",
+    slug: "health",
+    title: "Health & Hygiene Awareness",
     hindi: "मासिक धर्म स्वच्छता जागरूकता",
-    icon: <Heart size={24} />,
-    image: "/images/campaign_sanitary.png",
+    icon: <Heart size={28} />,
+    image: "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?q=80&w=1200",
+    desc: "Dedicated to promoting wellness and menstrual dignity for every woman in rural India through awareness and eco-friendly products.",
     points: ["Period Hygiene Education", "Safe Disposal Methods", "Free Sanitary Kits"],
     color: "#E91E63"
   },
   {
-    title: "Women Health & Hygiene",
-    hindi: "महिला स्वास्थ्य एवं स्वच्छता",
-    icon: <Shield size={24} />,
-    image: "/images/campaign_health.png",
-    points: ["Regular Health Camps", "Doctor Consultation", "Infection Prevention"],
-    color: "#6A1B9A"
-  },
-  {
-    title: "Women Empowerment",
-    hindi: "महिला सशक्तिकरण",
-    icon: <Zap size={24} />,
-    image: "/images/about_mission.png",
-    points: ["Leadership Training", "Rights Awareness", "Collective Voice"],
-    color: "#E91E63"
-  },
-  {
-    title: "Education & Skill Development",
-    hindi: "शिक्षा एवं कौशल विकास",
-    icon: <BookOpen size={24} />,
-    image: "/images/program_skill.png",
-    points: ["Technical Training", "Digital Literacy", "Vocational Skills"],
-    color: "#6A1B9A"
-  },
-  {
+    slug: "employment",
     title: "Employment & Self-Reliance",
     hindi: "रोजगार एवं आत्मनिर्भरता",
-    icon: <Briefcase size={24} />,
-    image: "/images/team_field.png",
+    icon: <Briefcase size={28} />,
+    image: "https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=1200",
+    desc: "Empowering women to build sustainable careers and achieve financial independence through field work and team leadership roles.",
     points: ["Job Opportunities", "Small Business Support", "Financial Inclusion"],
-    color: "#E91E63"
+    color: "#6A1B9A"
   },
   {
-    title: "Health, Nutrition & Mental Health",
-    hindi: "स्वास्थ्य, पोषण और मानसिक स्वास्थ्य",
-    icon: <Brain size={24} />,
-    image: "/images/hero_awareness_campaign.png",
-    points: ["Nutrition Guidance", "Mental Health Support", "Counseling Sessions"],
-    color: "#6A1B9A"
+    slug: "education",
+    title: "Education & Skill Development",
+    hindi: "शिक्षा एवं कौशल विकास",
+    icon: <BookOpen size={28} />,
+    image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1200",
+    desc: "Knowledge is the strongest tool for empowerment. We bridge the gap between information and action via digital literacy.",
+    points: ["Technical Training", "Digital Literacy", "Vocational Skills"],
+    color: "#4CAF50"
+  },
+  {
+    slug: "community",
+    title: "Community Network",
+    hindi: "सामुदायिक नेटवर्क",
+    icon: <Users size={28} />,
+    image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200",
+    desc: "Building a powerful sisterhood where every woman supports another through local village groups and support networks.",
+    points: ["Leadership Training", "Rights Awareness", "Collective Voice"],
+    color: "#FFD700"
   }
 ];
 
-const howItWorks = [
-  { step: "01", title: "Awareness Session", desc: "Interactive awareness sessions in villages and communities." },
-  { step: "02", title: "Group Formation", desc: "Organizing local women into self-help and support groups." },
-  { step: "03", title: "Membership Registration", desc: "Joining the SakhiHub network for ongoing support and benefits." },
-  { step: "04", title: "Training & Support", desc: "Providing necessary skills, products, and operational guidance." }
-];
-
-const stats = [
-  { label: 'Women Reached', value: '50,000+', icon: <Users size={24} />, color: '#E91E63' },
-  { label: 'Groups Created', value: '12,500+', icon: <Layout size={24} />, color: '#6A1B9A' },
-  { label: 'Awareness Drives', value: '350+', icon: <Target size={24} />, color: '#E91E63' },
-  { label: 'Field Employees', value: '1,200+', icon: <Users size={24} />, color: '#6A1B9A' },
-];
-
 export default function ProgramsPage() {
-  const sliderImages = [
-    "/images/hero_awareness_campaign.png",
-    "/images/program_skill.png",
-    "/images/about_mission.png",
-    "/images/campaign_health.png",
-    "/images/campaign_sanitary.png"
-  ];
-
   const fadeInUp = {
-    initial: { opacity: 0, y: 30 },
+    initial: { opacity: 0, y: 40 },
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true },
-    transition: { duration: 0.6 }
+    transition: { duration: 0.7 }
   };
 
   return (
-    <div style={{ background: 'white' }}>
-      <PageBannerSlider 
+    <div style={{ background: '#fff' }}>
+      <PageBanner 
         title="Our Programs" 
-        subtitle="Awareness, Health, Education & Self-Reliance for Every Woman"
-        images={sliderImages}
+        subtitle="Cinematic initiatives driving national transformation at the grassroots level."
+        image="https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1500"
       />
 
-      {/* 2. Program Cards Grid */}
+      {/* Intro Stats */}
+      <section style={{ marginTop: '-60px', position: 'relative', zIndex: 10 }}>
+        <div className="container">
+          <div style={{ 
+            background: 'white', 
+            borderRadius: '30px', 
+            padding: '40px', 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(4, 1fr)', 
+            boxShadow: '0 30px 60px rgba(0,0,0,0.1)',
+            border: '1px solid #f0f0f0'
+          }}>
+            {[
+              { val: "50k+", label: "Women Empowered" },
+              { val: "22+", label: "States Impacted" },
+              { val: "1.2k+", label: "Field Agents" },
+              { val: "500+", label: "Village Groups" }
+            ].map((s, i) => (
+              <div key={i} style={{ textAlign: 'center', borderRight: i < 3 ? '1px solid #eee' : 'none' }}>
+                <h3 style={{ fontSize: '2.5rem', fontWeight: '900', color: 'var(--secondary)' }}>{s.val}</h3>
+                <p style={{ fontSize: '0.85rem', color: '#999', fontWeight: '700', textTransform: 'uppercase' }}>{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Cinematic Programs Flow */}
       <section className="section-padding">
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '40px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '100px' }}>
+            <span style={{ color: 'var(--primary)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px' }}>Empowering Millions</span>
+            <h2 style={{ fontSize: '3.5rem', fontWeight: '900', color: 'var(--secondary)', marginTop: '10px' }}>Exploring Our <span className="text-gradient">Vision</span></h2>
+          </div>
+
+          <div style={{ display: 'grid', gap: '150px' }}>
             {programsData.map((prog, idx) => (
               <motion.div 
                 key={idx} 
                 {...fadeInUp}
-                whileHover={{ y: -10 }}
-                className="glass-card" 
-                style={{ padding: '0', overflow: 'hidden', background: 'white', display: 'flex', flexDirection: 'column' }}
+                style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: idx % 2 === 0 ? '1.1fr 0.9fr' : '0.9fr 1.1fr', 
+                  gap: '80px', 
+                  alignItems: 'center' 
+                }}
               >
-                <div style={{ position: 'relative', height: '240px' }}>
-                  <img src={prog.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={prog.title} />
-                  <div style={{ position: 'absolute', top: '20px', left: '20px', width: '50px', height: '50px', borderRadius: '15px', background: 'white', color: prog.color, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-soft)' }}>
+                {idx % 2 !== 0 && (
+                  <div style={{ position: 'relative' }}>
+                    <div style={{ 
+                      borderRadius: '50px', 
+                      overflow: 'hidden', 
+                      height: '500px',
+                      boxShadow: '0 40px 80px rgba(0,0,0,0.15)'
+                    }}>
+                      <img src={prog.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={prog.title} />
+                    </div>
+                    <div style={{ position: 'absolute', bottom: '-40px', right: '-40px', background: 'var(--grad-primary)', padding: '30px', borderRadius: '30px', color: 'white', border: '8px solid white' }}>
+                       <Sparkles size={40} />
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <div style={{ 
+                    width: '60px', 
+                    height: '60px', 
+                    background: '#FFF5F8', 
+                    borderRadius: '16px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    color: 'var(--primary)',
+                    marginBottom: '25px'
+                  }}>
                     {prog.icon}
                   </div>
-                </div>
-                <div style={{ padding: '35px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  <h3 style={{ fontSize: '1.4rem', marginBottom: '8px', color: 'var(--secondary)' }}>{prog.hindi}</h3>
-                  <p style={{ color: 'var(--primary)', fontWeight: '700', fontSize: '0.9rem', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '1px' }}>{prog.title}</p>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--primary)', marginBottom: '5px' }}>{prog.hindi}</h3>
+                  <h2 style={{ fontSize: '2.8rem', fontWeight: '900', color: 'var(--secondary)', marginBottom: '25px', lineHeight: '1.1' }}>{prog.title}</h2>
+                  <p style={{ fontSize: '1.15rem', color: '#666', lineHeight: '1.8', marginBottom: '35px' }}>{prog.desc}</p>
                   
-                  <div style={{ marginBottom: '30px', flex: 1 }}>
+                  <div style={{ display: 'grid', gap: '15px', marginBottom: '45px' }}>
                     {prog.points.map((p, i) => (
-                      <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px', color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-                        <CheckCircle size={16} color="var(--primary)" />
-                        <span>{p}</span>
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '700', color: 'var(--secondary)' }}>
+                        <CheckCircle size={20} color="var(--primary)" /> {p}
                       </div>
                     ))}
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                    <Link href="/programs/details" className="btn-secondary" style={{ padding: '12px', fontSize: '0.85rem', justifyContent: 'center' }}>Learn More</Link>
-                    <Link href="/register" className="btn-primary" style={{ padding: '12px', fontSize: '0.85rem', justifyContent: 'center' }}>Join Program</Link>
+                  <div style={{ display: 'flex', gap: '20px' }}>
+                    <Link href={`/programs/${prog.slug}`} className="btn-primary" style={{ padding: '18px 40px', fontSize: '1rem', borderRadius: '15px' }}>
+                      Learn Details <ArrowRight size={18} style={{ marginLeft: '10px' }} />
+                    </Link>
+                    <Link href="/register" className="btn-secondary" style={{ padding: '18px 40px', fontSize: '1rem', border: '1px solid #eee', borderRadius: '15px' }}>
+                      Join Program
+                    </Link>
                   </div>
                 </div>
+
+                {idx % 2 === 0 && (
+                  <div style={{ position: 'relative' }}>
+                    <div style={{ 
+                      borderRadius: '50px', 
+                      overflow: 'hidden', 
+                      height: '500px',
+                      boxShadow: '0 40px 80px rgba(0,0,0,0.15)'
+                    }}>
+                      <img src={prog.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={prog.title} />
+                    </div>
+                    <div style={{ position: 'absolute', top: '-40px', left: '-40px', background: 'var(--grad-secondary)', padding: '30px', borderRadius: '30px', color: 'white', border: '8px solid white' }}>
+                       <Target size={40} />
+                    </div>
+                  </div>
+                )}
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 3. How Our Programs Work */}
-      <section className="section-padding" style={{ background: 'var(--bg-light)' }}>
+      {/* CTA Section */}
+      <section className="section-padding" style={{ background: 'var(--secondary)', color: 'white', textAlign: 'center' }}>
         <div className="container">
-          <div className="section-title">
-            <span>Our Process</span>
-            <h2 style={{ fontSize: '3rem' }}>How SakhiHub Works <span className="text-gradient">on Ground</span></h2>
+          <h2 style={{ fontSize: '3.5rem', fontWeight: '900', marginBottom: '30px' }}>Ready to Lead the <span style={{ color: 'var(--primary)' }}>Change?</span></h2>
+          <p style={{ fontSize: '1.4rem', opacity: 0.8, maxWidth: '800px', margin: '0 auto 50px' }}>
+            Join our mission as a Field Hero or Team Lead and help us reach every village in India.
+          </p>
+          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
+            <Link href="/register" className="btn-primary" style={{ padding: '20px 60px', fontSize: '1.2rem', borderRadius: '120px' }}>
+               Start Your Journey
+            </Link>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px', position: 'relative' }}>
-            {howItWorks.map((step, idx) => (
-              <motion.div key={idx} {...fadeInUp} className="glass-card" style={{ padding: '40px', background: 'white', textAlign: 'center', borderTop: `4px solid ${idx % 2 === 0 ? 'var(--primary)' : 'var(--secondary)'}` }}>
-                <div style={{ fontSize: '3rem', fontWeight: '900', color: 'rgba(0,0,0,0.05)', marginBottom: '-30px' }}>{step.step}</div>
-                <h4 style={{ fontSize: '1.4rem', marginBottom: '15px', position: 'relative', zIndex: 1 }}>{step.title}</h4>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6' }}>{step.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Impact Stats */}
-      <section className="section-padding">
-        <div className="container">
-          <div className="glass-card" style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(4, 1fr)', 
-            gap: '20px', 
-            padding: '60px 40px',
-            background: 'white',
-            border: '1px solid rgba(0,0,0,0.05)',
-            boxShadow: 'var(--shadow-hard)'
-          }}>
-            {stats.map((stat, idx) => (
-              <motion.div key={idx} {...fadeInUp} style={{ textAlign: 'center' }}>
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', color: stat.color }}>{stat.icon}</div>
-                <h3 style={{ fontSize: '3rem', fontWeight: '900', color: 'var(--secondary)', lineHeight: '1' }}>{stat.value}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '1rem', fontWeight: '600', marginTop: '10px' }}>{stat.label}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 5. CTA Section */}
-      <section style={{ padding: '100px 0' }}>
-        <div className="container">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            style={{ 
-              background: 'var(--grad-secondary)', 
-              borderRadius: '40px', 
-              padding: '80px', 
-              textAlign: 'center', 
-              color: 'white'
-            }}
-          >
-            <h2 style={{ fontSize: '3.5rem', fontWeight: '900', marginBottom: '30px' }}>Want to Start a Program in Your Area?</h2>
-            <p style={{ fontSize: '1.2rem', opacity: 0.9, marginBottom: '50px', maxWidth: '700px', margin: '0 auto 50px' }}>
-              We are constantly expanding to new villages and districts. Partner with us to bring 
-              health and empowerment to the women in your community.
-            </p>
-            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
-              <Link href="/register" className="btn-primary" style={{ padding: '18px 45px', fontSize: '1.1rem', background: 'white', color: 'var(--secondary)' }}>Join Now</Link>
-              <Link href="/contact" className="btn-secondary" style={{ padding: '18px 45px', fontSize: '1.1rem', border: '2px solid white' }}>Contact Team</Link>
-            </div>
-          </motion.div>
         </div>
       </section>
     </div>
