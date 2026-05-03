@@ -370,31 +370,96 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* 5. Field Team Section */}
+      {/* 5. The Hearts Behind SakhiHub - Field Team */}
       <section className="section-padding">
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '80px', alignItems: 'center' }}>
-            <motion.div 
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
-              <div style={{ borderRadius: '30px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.1)' }}>
-                <img src="/images/team_field.png" style={{ width: '100%', height: '500px', objectFit: 'cover' }} alt="Our Field Heroes" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '80px', alignItems: 'center' }}>
+            {/* Left Content */}
+            <motion.div {...fadeInUp}>
+              <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px', textTransform: 'uppercase' }}>Our Workforce</span>
+              <h2 style={{ fontSize: '3.5rem', marginTop: '15px', color: 'var(--secondary)', lineHeight: '1.1' }}>The Hearts Behind <span className="text-gradient">SakhiHub</span></h2>
+              <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', lineHeight: '1.8', marginTop: '30px', maxWidth: '550px' }}>
+                Our field team works at the grassroots level, connecting directly with women in villages and communities. 
+                They conduct awareness sessions, build groups, and help women become confident, independent, and empowered.
+              </p>
+              
+              <div style={{ marginTop: '40px', marginBottom: '50px' }}>
+                {['Ground-level outreach in villages', 'Direct connection with women', 'Real impact through awareness'].map((item, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px', fontSize: '1.05rem', fontWeight: '600', color: 'var(--secondary)' }}>
+                    <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(233, 30, 99, 0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <CheckCircle size={14} />
+                    </div>
+                    {item}
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+                {[
+                  { val: '250+', label: 'Field Workers' },
+                  { val: '15+', label: 'Districts Covered' },
+                  { val: '50k+', label: 'Women Connected' }
+                ].map((stat, idx) => (
+                  <div key={idx} style={{ padding: '20px', background: '#FFF5F8', borderRadius: '20px', textAlign: 'center', border: '1px solid rgba(233, 30, 99, 0.1)' }}>
+                    <h4 style={{ fontSize: '1.8rem', color: 'var(--primary)', fontWeight: '900', lineHeight: '1' }}>{stat.val}</h4>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px', fontWeight: '700' }}>{stat.label}</p>
+                  </div>
+                ))}
               </div>
             </motion.div>
-            <motion.div 
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
-              <span style={{ color: 'var(--secondary)', fontWeight: '800', letterSpacing: '2px' }}>Our Field Heroes</span>
-              <h2 style={{ fontSize: '3rem', margin: '15px 0 30px' }}>The Heart of <br />Our <span className="text-gradient">Network</span></h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', lineHeight: '1.8', marginBottom: '30px' }}>
-                Our field employees and village leaders are the true backbone of SakhiHub. They bridge the gap 
-                between resources and the women who need them most, working day and night across villages.
-              </p>
-              <Link href="/hiring" className="btn-secondary">Join Our Team <ArrowRight size={20} /></Link>
+
+            {/* Right Images */}
+            <motion.div {...fadeInUp} style={{ position: 'relative' }}>
+              <div style={{ 
+                position: 'relative', 
+                zIndex: 2, 
+                borderRadius: '24px', 
+                overflow: 'hidden', 
+                boxShadow: '0 30px 60px rgba(0,0,0,0.15)'
+              }}>
+                <img src="/images/team_field.png" style={{ width: '100%', height: '550px', objectFit: 'cover' }} alt="Field Team" />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(106, 27, 154, 0.4), transparent)' }}></div>
+              </div>
+              
+              {/* Floating Overlay 1 */}
+              <motion.div 
+                animate={{ y: [0, -15, 0] }}
+                transition={{ duration: 4, repeat: Infinity }}
+                style={{ 
+                  position: 'absolute', 
+                  top: '-40px', 
+                  right: '-40px', 
+                  width: '200px', 
+                  height: '150px', 
+                  borderRadius: '18px', 
+                  overflow: 'hidden', 
+                  border: '6px solid white', 
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+                  zIndex: 3 
+                }}
+              >
+                <img src="/images/hero_awareness_campaign.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+              </motion.div>
+
+              {/* Floating Overlay 2 */}
+              <motion.div 
+                animate={{ y: [0, 15, 0] }}
+                transition={{ duration: 5, repeat: Infinity }}
+                style={{ 
+                  position: 'absolute', 
+                  bottom: '-40px', 
+                  left: '-40px', 
+                  width: '220px', 
+                  height: '160px', 
+                  borderRadius: '18px', 
+                  overflow: 'hidden', 
+                  border: '6px solid white', 
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+                  zIndex: 3 
+                }}
+              >
+                <img src="/images/about_mission.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+              </motion.div>
             </motion.div>
           </div>
         </div>
