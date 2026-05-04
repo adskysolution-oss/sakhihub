@@ -1,5 +1,5 @@
 import React from "react";
-import { Users, UserPlus, IndianRupee, Target, TrendingUp, Calendar } from "lucide-react";
+import { Users, UserPlus, IndianRupee, Target, TrendingUp, Calendar, FileText } from "lucide-react";
 
 export default function EmployeeDashboard() {
   const stats = [
@@ -81,6 +81,32 @@ export default function EmployeeDashboard() {
             </div>
           </div>
         </div>
+      </div>
+      <div className="glass-card" style={{ marginTop: '30px', padding: '25px', background: 'linear-gradient(135deg, #FFE4EC 0%, #FFFFFF 100%)', border: '1px solid #E91E8C30', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <div style={{ width: '50px', height: '50px', background: '#E91E8C', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+            <FileText size={24} />
+          </div>
+          <div>
+            <h4 style={{ color: '#6B21A8', margin: 0 }}>Campaign Awareness Presentation</h4>
+            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>Professional PPT/PDF for women's health awareness.</p>
+          </div>
+        </div>
+        <a 
+          href="/campaign/presentation" 
+          style={{ 
+            background: '#E91E8C', 
+            color: 'white', 
+            padding: '10px 25px', 
+            borderRadius: '10px', 
+            textDecoration: 'none', 
+            fontWeight: '600',
+            fontSize: '0.9rem',
+            boxShadow: '0 4px 15px rgba(233, 30, 140, 0.3)'
+          }}
+        >
+          Open Presentation
+        </a>
       </div>
     </div>
   );

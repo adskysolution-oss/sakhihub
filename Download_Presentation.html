@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sakhi Hub - Complete 20 Slide Presentation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #E91E8C; --secondary: #6B21A8; --dark: #4A148C; --bg-light: #FFF0F5;
+            --blue: #1E88E5; --red: #D32F2F; --orange: #F57C00; --green: #2E7D32; --yellow: #FBC02D;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Noto Sans Devanagari', sans-serif; background: #222; display: flex; flex-direction: column; align-items: center; padding: 50px 0; }
+        
+        .controls { position: fixed; top: 20px; right: 20px; z-index: 1000; }
+        .btn-dl { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none; padding: 15px 40px; border-radius: 50px; font-weight: 800; cursor: pointer; box-shadow: 0 5px 25px rgba(0,0,0,0.5); font-size: 1.1rem; }
+        
+        #presentation-root { display: flex; flex-direction: column; gap: 60px; }
+        
+        .slide { 
+            width: 1280px; height: 720px; background: white; position: relative; overflow: hidden; 
+            box-shadow: 0 20px 80px rgba(0,0,0,0.8); border-radius: 8px; flex-shrink: 0;
+        }
+
+        /* UI Elements to match screenshots */
+        .progress-bar { position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: #eee; z-index: 10; }
+        .progress-fill { height: 100%; background: var(--primary); }
+        .slide-number { position: absolute; top: 15px; left: 30px; font-size: 14px; color: #999; font-weight: bold; }
+        
+        .top-header { 
+            height: 60px; display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 40px; color: white; font-weight: 700; font-size: 20px; z-index: 5;
+        }
+        .top-logo { height: 40px; }
+
+        .slide-body { height: 610px; padding: 40px 60px; background: var(--bg-light); position: relative; }
+        
+        /* Layout Utilities */
+        .title-h1 { font-size: 52px; font-weight: 800; color: var(--secondary); text-align: center; margin-bottom: 10px; line-height: 1.2; }
+        .title-h2 { font-size: 38px; font-weight: 800; color: var(--secondary); margin-bottom: 20px; border-bottom: 4px solid var(--primary); display: inline-block; padding-bottom: 5px; }
+        .subtitle-p { font-size: 24px; color: var(--primary); text-align: center; margin-bottom: 30px; font-weight: 600; }
+        
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .glass-box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.8); }
+        
+        .list-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; font-size: 20px; font-weight: 600; color: #333; }
+        .check { color: #4CAF50; font-weight: 800; }
+        .cross { color: #F44336; font-weight: 800; }
+        .warn { color: #FF9800; font-weight: 800; }
+
+        .footer-banner { 
+            position: absolute; bottom: 0; width: 100%; height: 50px; background: white; 
+            display: flex; align-items: center; justify-content: center; border-top: 1px solid #eee;
+            font-size: 16px; color: #666; font-weight: 600;
+        }
+
+        /* Specific Component Styles */
+        .membership-card { 
+            background: linear-gradient(135deg, #FFF, #FFF8E1); border: 2px solid var(--yellow);
+            text-align: center; padding: 40px; border-radius: 30px;
+        }
+        .price-tag { background: var(--orange); color: white; padding: 15px 30px; border-radius: 20px; font-size: 44px; font-weight: 800; margin-bottom: 20px; display: inline-block; }
+        
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; margin-top: 20px; }
+        th { background: #f8f9fa; padding: 20px; color: var(--secondary); text-align: left; font-size: 20px; }
+        td { padding: 15px 20px; border-top: 1px solid #eee; font-size: 19px; font-weight: 600; }
+
+        .contact-pill { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; padding: 20px 50px; border-radius: 20px; font-size: 48px; font-weight: 800; margin: 30px 0; }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button class="btn-dl" id="dlBtn" onclick="generatePDF()">📥 पूरा 20 स्लाइड प्रेजेंटेशन डाउनलोड करें</button>
+    </div>
+
+    <div id="presentation-root">
+        
+        <!-- SLIDE 1: HERO -->
+        <div class="slide" id="sl1">
+            <div class="progress-bar"><div class="progress-fill" style="width: 5%"></div></div>
+            <div class="slide-number">1 / 20</div>
+            <div class="top-header" style="background: var(--secondary);">
+                <span>🌸 Sakhi Hub - महिला स्वास्थ्य अभियान</span>
+                <img src="https://www.genspark.ai/api/files/s/HpZ4mmhQ" class="top-logo">
+            </div>
+            <div class="slide-body" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <h1 class="title-h1" style="font-size: 64px;">महिला स्वास्थ्य एवं स्वच्छता जागरूकता अभियान</h1>
+                <p class="subtitle-p" style="font-size: 32px;">Sakhi Hub द्वारा संचालित</p>
+                <div style="background: white; padding: 25px 80px; border-radius: 100px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); font-size: 40px; font-weight: 800; color: var(--dark); margin: 40px 0;">🌸 स्वस्थ महिला – सशक्त परिवार – समृद्ध भारत 🌸</div>
+                <div style="display: flex; gap: 40px; margin-top: 40px;">
+                    <div class="glass-box" style="display: flex; align-items: center; gap: 15px; width: 320px; border: 2px solid var(--primary);"><img src="https://www.genspark.ai/api/files/s/ihfMhY66" height="70"><div><b>Sakhi Hub</b><br><small>महिला स्वास्थ्य केंद्र</small></div></div>
+                    <div class="glass-box" style="display: flex; align-items: center; gap: 15px; width: 320px; border: 2px solid var(--secondary);"><img src="https://www.genspark.ai/api/files/s/4bo1HUX0" height="70"><div><b>Sakhi Care</b><br><small>स्वच्छता उत्पाद</small></div></div>
+                </div>
+            </div>
+            <div class="footer-banner">Sakhi Hub - हर महिला तक सही जानकारी पहुंचाना</div>
+        </div>
+
+        <!-- SLIDE 2: STATUS -->
+        <div class="slide" id="sl2">
+            <div class="progress-bar"><div class="progress-fill" style="width: 10%"></div></div>
+            <div class="slide-number">2 / 20</div>
+            <div class="top-header" style="background: var(--blue);">
+                <span>📋 परिचय - Sakhi Hub</span>
+            </div>
+            <div class="slide-body">
+                <h2 class="title-h1" style="text-align: center;">भारत में महिला स्वास्थ्य की स्थिति</h2>
+                <p class="subtitle-p">आज भी कई महिलाएं सही जानकारी से वंचित हैं</p>
+                <div class="grid-container">
+                    <div class="glass-box">
+                        <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 24px;">⚠️ वर्तमान स्थिति</h3>
+                        <div class="list-item"><span class="check">✓</span> कई महिलाएं सही जानकारी से वंचित हैं</div>
+                        <div class="list-item"><span class="check">✓</span> Unsafe तरीकों का उपयोग करती हैं</div>
+                        <div class="list-item"><span class="check">✓</span> Hygiene की कमी के कारण Health Issues</div>
+                    </div>
+                    <div class="glass-box">
+                        <h3 style="color: var(--secondary); margin-bottom: 15px; font-size: 24px;">❤️ सेवा की विशेषताएं</h3>
+                        <div class="list-item"><span class="check">✓</span> पूरी तरह से FREE सेवा</div>
+                        <div class="list-item"><span class="check">✓</span> गांव-गांव पहुंच</div>
+                        <div class="list-item"><span class="check">✓</span> विशेषज्ञ सलाह</div>
+                    </div>
+                </div>
+                <div style="background: var(--secondary); color: white; padding: 20px; border-radius: 15px; text-align: center; font-size: 24px; font-weight: 700; margin-top: 40px;">"जागरूकता हर महिला का अधिकार है"</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: PROBLEMS -->
+        <div class="slide" id="sl3">
+            <div class="progress-bar"><div class="progress-fill" style="width: 15%"></div></div>
+            <div class="slide-number">3 / 20</div>
+            <div class="top-header" style="background: var(--red);"><span>⚠️ समस्या - Sakhi Hub</span></div>
+            <div class="slide-body">
+                <h2 class="title-h1">गांवों में स्वच्छता की समस्याएं</h2>
+                <p class="subtitle-p">अभी भी कई महिलाएं unsafe तरीकों का उपयोग करती हैं</p>
+                <div class="grid-container">
+                    <div class="glass-box" style="border-left: 10px solid var(--red);">
+                        <h3 style="color: var(--red);">❌ वर्तमान समस्याएं</h3>
+                        <div class="list-item"><span class="cross">✖</span> गंदा कपड़ा उपयोग - पुराने कपड़े का इस्तेमाल</div>
+                        <div class="list-item"><span class="cross">✖</span> देर से pad change करना - 8-12 घंटे तक</div>
+                    </div>
+                    <div class="glass-box" style="border-left: 10px solid var(--orange);">
+                        <h3 style="color: var(--orange);">🔔 स्वास्थ्य चेतावनी</h3>
+                        <div class="list-item"><span class="warn">!</span> इन समस्याओं से गंभीर बीमारियां हो सकती हैं</div>
+                        <div class="list-item"><span class="warn">!</span> Infection का खतरा बढ़ जाता है</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: HEALTH RISKS -->
+        <div class="slide" id="sl4">
+            <div class="progress-bar"><div class="progress-fill" style="width: 20%"></div></div>
+            <div class="slide-number">4 / 20</div>
+            <div class="top-header" style="background: var(--orange);"><span>🩺 स्वास्थ्य जोखिम - Sakhi Hub</span></div>
+            <div class="slide-body">
+                <h2 class="title-h1">स्वास्थ्य जोखिम</h2>
+                <p class="subtitle-p">लंबे समय तक Hygiene का ध्यान न रखने के परिणाम</p>
+                <div class="grid-container">
+                    <div class="glass-box">
+                        <div class="list-item"><span class="warn">⚠️</span> Infection का खतरा (Bacterial/Fungal)</div>
+                        <div class="list-item"><span class="warn">⚠️</span> Skin irritation, खुजली और जलन</div>
+                        <div class="list-item"><span class="warn">⚠️</span> Urinary discomfort और भविष्य की बीमारियां</div>
+                    </div>
+                    <div class="glass-box" style="background: #FFF3E0; border: 1px solid var(--orange);">
+                        <h3 style="color: var(--orange);">महत्वपूर्ण संदेश</h3>
+                        <p style="font-size: 20px;">सही hygiene अपनाना बहुत जरूरी है। अगर आपको कोई भी समस्या है, तो तुरंत विशेषज्ञ से सलाह लें।</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: SOLUTION -->
+        <div class="slide" id="sl5">
+            <div class="progress-bar"><div class="progress-fill" style="width: 25%"></div></div>
+            <div class="slide-number">5 / 20</div>
+            <div class="top-header" style="background: var(--green);"><span>✅ समाधान - Sakhi Hub</span></div>
+            <div class="slide-body">
+                <h2 class="title-h1">सही स्वच्छता अपनाना है समाधान</h2>
+                <p class="subtitle-p">सही जानकारी = सुरक्षित जीवन</p>
+                <div class="grid-container" style="margin-top: 50px;">
+                    <div class="glass-box" style="text-align: center;">
+                        <h3 style="color: var(--green); font-size: 30px; margin-bottom: 20px;">सही तरीका अपनाएं</h3>
+                        <p style="font-size: 22px;">Hygienic pad use करें जो साफ़ और सुरक्षित हो।</p>
+                    </div>
+                    <div class="glass-box" style="text-align: center;">
+                        <h3 style="color: var(--green); font-size: 30px; margin-bottom: 20px;">स्वच्छता के फायदे</h3>
+                        <p style="font-size: 22px;">संक्रमण से बचाव और बेहतर स्वास्थ्य परिणाम।</p>
+                    </div>
+                </div>
+                <div style="background: var(--green); color: white; padding: 25px; border-radius: 15px; text-align: center; font-size: 32px; font-weight: 800; margin-top: 60px;">"सही स्वच्छता = सुरक्षित जीवन"</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: WHY PAD? -->
+        <div class="slide" id="sl6">
+            <div class="progress-bar"><div class="progress-fill" style="width: 30%"></div></div>
+            <div class="slide-number">6 / 20</div>
+            <div class="top-header" style="background: var(--blue);"><span>❓ सही Pad क्यों जरूरी है? - Sakhi Hub</span></div>
+            <div class="slide-body">
+                <h2 class="title-h1">सही Pad क्यों जरूरी है?</h2>
+                <p class="subtitle-p">हर महिला के स्वास्थ्य और आत्मविश्वास के लिए</p>
+                <div class="grid-container">
+                    <div class="glass-box">
+                        <div class="list-item"><span class="check">✓</span> कोमलता और आराम (Comfort)</div>
+                        <div class="list-item"><span class="check">✓</span> Hygiene और सुरक्षा</div>
+                        <div class="list-item"><span class="check">✓</span> आत्मविश्वास (Confidence) बढ़ाता है</div>
+                        <div class="list-item"><span class="check">✓</span> गंध से मुक्ति (Odor control)</div>
+                    </div>
+                    <div class="glass-box" style="background: #E3F2FD; display: flex; align-items: center; justify-content: center; text-align: center;">
+                         <h3 style="color: var(--blue); font-size: 34px;">"सही Pad = सही जीवन"<br><small style="font-size: 18px; color: #666;">हर महिला का अधिकार है</small></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: PRODUCT INTRO -->
+        <div class="slide" id="sl7">
+            <div class="progress-bar"><div class="progress-fill" style="width: 35%"></div></div>
+            <div class="slide-number">7 / 20</div>
+            <div class="top-header" style="background: var(--secondary);"><span>🌸 उत्पाद परिचय - Sakhi Care</span></div>
+            <div class="slide-body" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <h2 class="title-h1" style="font-size: 60px;">Sakhi Care Pads</h2>
+                <p class="subtitle-p" style="font-size: 30px;">आपकी सेहत, हमारी जिम्मेदारी</p>
+                <img src="https://www.genspark.ai/api/files/s/4bo1HUX0" height="250" style="margin: 40px 0;">
+                <div style="background: var(--primary); color: white; padding: 20px 60px; border-radius: 100px; font-size: 34px; font-weight: 800;">100% सुरक्षित और आरामदायक</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: PRODUCT FEATURES -->
+        <div class="slide" id="sl8">
+            <div class="progress-bar"><div class="progress-fill" style="width: 40%"></div></div>
+            <div class="slide-number">8 / 20</div>
+            <div class="top-header" style="background: var(--orange);"><span>🔬 उत्पाद की विशेषताएं - Sakhi Care</span></div>
+            <div class="slide-body">
+                <h2 class="title-h1">उत्पाद की विशेषताएं</h2>
+                <p class="subtitle-p">Advanced Technology for Superior Protection</p>
+                <div class="grid-container" style="margin-top: 40px;">
+                    <div class="glass-box">
+                        <h3 style="color: var(--orange); margin-bottom: 20px;">सोखने की क्षमता</h3>
+                        <div class="list-item">✅ High Absorbency - 150ml+</div>
+                        <div class="list-item">✅ 12 घंटे तक सुरक्षा</div>
+                        <div class="list-item">✅ Heavy flow में भी बेहतर</div>
+                    </div>
+                    <div class="glass-box">
+                        <h3 style="color: var(--secondary); margin-bottom: 20px;">मुख्य फीचर्स</h3>
+                        <div class="list-item">✅ Anti-leak तकनीक</div>
+                        <div class="list-item">✅ Skin friendly मटेरियल</div>
+                        <div class="list-item">✅ Breathable लेयर</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: HOW IT WORKS -->
+        <div class="slide" id="sl9">
+            <div class="progress-bar"><div class="progress-fill" style="width: 45%"></div></div>
+            <div class="slide-number">9 / 20</div>
+            <div class="top-header" style="background: var(--primary);"><span>❓ Pad कैसे काम करता है? - Sakhi Care</span></div>
+            <div class="slide-body">
+                <h2 class="title-h1">Pad कैसे काम करता है?</h2>
+                <p class="subtitle-p">आसान भाषा में समझें - कोई भी शर्म नहीं, सही जानकारी जरूरी है</p>
+                <div class="grid-container">
+                    <div class="glass-box">
+                        <h3 style="color: var(--primary); margin-bottom: 20px;">यह क्या करता है?</h3>
+                        <p style="font-size: 20px; line-height: 1.6;">Sakhi Care Pad खून को तुरंत सोख लेता है और गीलेपन का एहसास नहीं होने देता। इससे आप पूरा दिन सूखा और साफ़ महसूस करती हैं।</p>
+                    </div>
+                    <div class="glass-box">
+                        <h3 style="color: var(--secondary); margin-bottom: 20px;">सुरक्षा की गारंटी</h3>
+                        <div class="list-item">⭐ Leak Protection - रिसाव से बचाव</div>
+                        <div class="list-item">⭐ Odor Control - बदबू को रोकता है</div>
+                        <div class="list-item">⭐ Skin Friendly - अंगों को सुरक्षित रखता है</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: USAGE -->
+        <div class="slide" id="sl10">
+            <div class="progress-bar"><div class="progress-fill" style="width: 50%"></div></div>
+            <div class="slide-number">10 / 20</div>
+            <div class="top-header" style="background: var(--orange);"><span>💡 सही उपयोग - Sakhi Hub</span></div>
+            <div class="slide-body">
+                <h2 class="title-h1">सही उपयोग कैसे करें?</h2>
+                <p class="subtitle-p">3 सरल चरणों में सुरक्षित स्वच्छता</p>
+                <div style="display: flex; justify-content: space-between; margin-top: 50px;">
+                    <div class="glass-box" style="width: 350px; text-align: center;">
+                        <div style="width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px; font-weight: 800;">1</div>
+                        <h3>4-6 घंटे में बदलें</h3>
+                        <p>हाइजीन बनाए रखने के लिए समय पर बदलना जरूरी है।</p>
+                    </div>
+                    <div class="glass-box" style="width: 350px; text-align: center;">
+                        <div style="width: 60px; height: 60px; background: var(--secondary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px; font-weight: 800;">2</div>
+                        <h3>साफ जगह dispose करें</h3>
+                        <p>पेपर में लपेटकर कचरे के डिब्बे में डालें।</p>
+                    </div>
+                    <div class="glass-box" style="width: 350px; text-align: center;">
+                        <div style="width: 60px; height: 60px; background: var(--green); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px; font-weight: 800;">3</div>
+                        <h3>हाथ साफ रखें</h3>
+                        <p>बदलने से पहले और बाद में हाथ साबुन से धोएं।</p>
+                    </div>
+                </div>
+                <div style="background: var(--dark); color: white; padding: 25px; border-radius: 15px; text-align: center; font-size: 26px; font-weight: 800; margin-top: 60px;">💡 "याद रखें: सही स्वच्छता अपनाना हर महिला का अधिकार है"</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: MESSAGE -->
+        <div class="slide" id="sl11">
+            <div class="progress-bar"><div class="progress-fill" style="width: 55%"></div></div>
+            <div class="slide-number">11 / 20</div>
+            <div class="top-header" style="background: var(--green);"><span>📢 संदेश - Sakhi Hub</span></div>
+            <div class="slide-body" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                <h1 class="title-h1" style="font-size: 60px;">"जागरूकता हर महिला का अधिकार है"</h1>
+                <h2 style="color: var(--primary); font-size: 40px; margin: 30px 0;">यह सेवा पूरी तरह <span style="background: var(--green); color: white; padding: 5px 25px; border-radius: 10px;">FREE</span> है</h2>
+                <div style="display: flex; gap: 60px; margin-top: 40px;">
+                    <div class="glass-box" style="width: 250px;"><h3>💓<br>महिला स्वास्थ्य</h3></div>
+                    <div class="glass-box" style="width: 250px;"><h3>🤝<br>समर्थन</h3></div>
+                    <div class="glass-box" style="width: 250px;"><h3>🏘️<br>समुदाय</h3></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: WHAT WE DO -->
+        <div class="slide" id="sl12">
+            <div class="progress-bar"><div class="progress-fill" style="width: 60%"></div></div>
+            <div class="slide-number">12 / 20</div>
+            <div class="top-header" style="background: var(--blue);"><span>ℹ️ SakhiHub क्या करता है?</span></div>
+            <div class="slide-body">
+                <h2 class="title-h1">SakhiHub क्या करता है?</h2>
+                <p class="subtitle-p">महिला स्वास्थ्य और स्वच्छता के लिए समर्पित संगठन</p>
+                <div class="grid-container">
+                    <div class="glass-box">
+                        <h3 style="color: var(--primary); margin-bottom: 20px;">📢 हमारी गतिविधियां</h3>
+                        <div class="list-item">🏠 गांव-गांव जागरूकता</div>
+                        <div class="list-item">👥 महिला समूह बनाना</div>
+                        <div class="list-item">📚 सही जानकारी देना</div>
+                    </div>
+                    <div class="glass-box">
+                        <h3 style="color: var(--secondary); margin-bottom: 20px;">📈 हमारा प्रभाव</h3>
+                        <div class="list-item">✨ 1000+ महिलाएं जागरूक</div>
+                        <div class="list-item">📍 50+ गांवों में पहुंच</div>
+                        <div class="list-item">🏥 नियमित स्वास्थ्य शिविर</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 13: GROUP SYSTEM -->
+        <div class="slide" id="sl13">
+            <div class="progress-bar"><div class="progress-fill" style="width: 65%"></div></div>
+            <div class="slide-number">13 / 20</div>
+            <div class="top-header" style="background: var(--secondary);"><span>👥 समूह प्रणाली - Sakhi Hub</span></div>
+            <div class="slide-body">
+                <h2 class="title-h1">समूह प्रणाली</h2>
+                <p class="subtitle-p">तीन स्तंभों पर आधारित महिला समूह प्रणाली</p>
+                <div style="display: flex; justify-content: space-between; margin-top: 40px;">
+                    <div class="glass-box" style="width: 350px; text-align: center; border-bottom: 8px solid var(--primary);">
+                        <h3 style="color: var(--primary);">मासिक बैठक</h3>
+                        <p style="font-size: 18px; margin-top: 15px;">नियमित बैठकें और जागरूकता कार्यक्रम।</p>
+                    </div>
+                    <div class="glass-box" style="width: 350px; text-align: center; border-bottom: 8px solid var(--secondary);">
+                        <h3 style="color: var(--secondary);">सपोर्ट सिस्टम</h3>
+                        <p style="font-size: 18px; margin-top: 15px;">भावनात्मक और सामुदायिक मदद।</p>
+                    </div>
+                    <div class="glass-box" style="width: 350px; text-align: center; border-bottom: 8px solid var(--green);">
+                        <h3 style="color: var(--green);">जानकारी और सीख</h3>
+                        <p style="font-size: 18px; margin-top: 15px;">शिक्षा और स्किल डेवलपमेंट।</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 14: MEMBERSHIP PLAN -->
+        <div class="slide" id="sl14">
+            <div class="progress-bar"><div class="progress-fill" style="width: 70%"></div></div>
+            <div class="slide-number">14 / 20</div>
+            <div class="top-header" style="background: var(--yellow);"><span>⭐ सदस्यता योजना - Sakhi Hub</span></div>
+            <div class="slide-body">
+                <h2 class="title-h1">सदस्यता योजना</h2>
+                <p class="subtitle-p">₹200 में 12 महीने की सदस्यता - 72 pads FREE</p>
+                <div class="grid-container" style="margin-top: 50px;">
+                    <div class="membership-card">
+                        <div class="price-tag">₹200 <small style="font-size: 20px;">/ 12 महीने</small></div>
+                        <h3 style="color: var(--dark);">महिला समूह सदस्यता</h3>
+                        <div class="list-item" style="justify-content: center; margin-top: 20px;">✅ 72 pads हर साल मुफ्त</div>
+                    </div>
+                    <div class="glass-box">
+                        <h3 style="margin-bottom: 20px;">📊 लाभ की गणना</h3>
+                        <div class="list-item">💰 सदस्यता शुल्क: ₹200</div>
+                        <div class="list-item">🎁 FREE Pads: 72 pads</div>
+                        <div class="list-item">💎 प्रति पैड लागत: ₹2.78</div>
+                        <div style="background: var(--secondary); color: white; padding: 15px; border-radius: 10px; text-align: center; font-weight: 800; margin-top: 20px;">कुल मूल्य: ₹200</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 15: BENEFITS -->
+        <div class="slide" id="sl15">
+            <div class="progress-bar"><div class="progress-fill" style="width: 75%"></div></div>
+            <div class="slide-number">15 / 20</div>
+            <div class="top-header" style="background: var(--primary);"><span>🎁 सदस्यता के फायदे - Sakhi Hub</span></div>
+            <div class="slide-body">
+                <h2 class="title-h1">सदस्यता के फायदे</h2>
+                <p class="subtitle-p">जुड़ें और पाएं विशेष लाभ</p>
+                <div class="grid-container">
+                    <div class="glass-box">
+                        <h3 style="color: var(--primary);">👥 समूह समर्थन</h3>
+                        <div class="list-item">✓ बैठकों में भाग लेने का मौका</div>
+                        <div class="list-item">✓ साथ मिलकर समस्याओं का हल</div>
+                    </div>
+                    <div class="glass-box">
+                        <h3 style="color: var(--secondary);">📦 उत्पाद लाभ</h3>
+                        <div class="list-item">✓ नियमित उत्पाद डिलीवरी</div>
+                        <div class="list-item">✓ गुणवत्ता की पूरी गारंटी</div>
+                    </div>
+                    <div class="glass-box">
+                        <h3 style="color: var(--blue);">🎓 प्रशिक्षण</h3>
+                        <div class="list-item">✓ स्वास्थ्य कार्यशालाएं</div>
+                        <div class="list-item">✓ जागरूकता और शिक्षा</div>
+                    </div>
+                    <div class="glass-box">
+                        <h3 style="color: var(--green);">💰 कमाई का अवसर</h3>
+                        <div class="list-item">✓ उत्पाद बेचने का अवसर</div>
+                        <div class="list-item">✓ आर्थिक स्वतंत्रता</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 16: COMPARISON -->
+        <div class="slide" id="sl16">
+            <div class="progress-bar"><div class="progress-fill" style="width: 80%"></div></div>
+            <div class="slide-number">16 / 20</div>
+            <div class="top-header" style="background: var(--orange);"><span>📊 Comparison - Sakhi Hub</span></div>
+            <div class="slide-body">
+                <h2 class="title-h1">Member vs Non-Member Comparison</h2>
+                <p class="subtitle-p">सदस्यता के लाभ जानें</p>
+                <div style="padding: 0 50px;">
+                    <table>
+                        <tr><th>Feature</th><th>Non-Member</th><th>Member</th></tr>
+                        <tr><td>Awareness</td><td class="check">✓ FREE</td><td class="check">✓ FREE</td></tr>
+                        <tr><td>Group Access</td><td class="cross">✖ Limited</td><td class="check">✓ Full</td></tr>
+                        <tr><td>Free Packs</td><td class="cross">✖ No</td><td class="check">✓ Yes (3 packs/year)</td></tr>
+                        <tr><td>Training</td><td class="cross">✖ No</td><td class="check">✓ Yes</td></tr>
+                    </table>
+                    <div style="background: var(--secondary); color: white; padding: 20px; border-radius: 15px; margin-top: 30px; text-align: center; font-size: 26px; font-weight: 800;">📍 Membership: ₹200 (12 महीने)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 17: JOINING BENEFITS -->
+        <div class="slide" id="sl17">
+            <div class="progress-bar"><div class="progress-fill" style="width: 85%"></div></div>
+            <div class="slide-number">17 / 20</div>
+            <div class="top-header" style="background: var(--green);"><span>💚 जुड़ने के फायदे - Sakhi Hub</span></div>
+            <div class="slide-body">
+                <h2 class="title-h1">Sakhi Hub से जुड़ने के फायदे</h2>
+                <p class="subtitle-p">नियमित सपोर्ट, सस्ती सुविधा, और Awareness के अवसर</p>
+                <div class="grid-container" style="margin-top: 60px;">
+                    <div class="glass-box" style="border-left: 10px solid var(--secondary);">
+                        <h3 style="color: var(--secondary);">💜 नियमित Support</h3>
+                        <div class="list-item">✓ Health tips और guidance</div>
+                        <div class="list-item">✓ 24/7 हेल्पलाइन सपोर्ट</div>
+                    </div>
+                    <div class="glass-box" style="border-left: 10px solid var(--blue);">
+                        <h3 style="color: var(--blue);">🌐 Awareness + अवसर</h3>
+                        <div class="list-item">✓ स्किल डेवलपमेंट ट्रेनिंग</div>
+                        <div class="list-item">✓ अर्निंग अपॉर्चुनिटी</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 18: VISION (UPGRADED) -->
+        <div class="slide" id="sl18">
+            <div class="progress-bar"><div class="progress-fill" style="width: 82%"></div></div>
+            <div class="slide-number">18 / 22</div>
+            <div class="top-header" style="background: linear-gradient(90deg, #1E88E5, #6B21A8);"><span>🌟 हमारी दृष्टि - Sakhi Hub</span></div>
+            <div class="slide-body" style="background: linear-gradient(180deg, #FFF0F5 0%, #FFFFFF 100%);">
+                <h2 class="title-h1" style="font-size: 60px; margin-bottom: 40px;">हमारी दृष्टि (Vision)</h2>
+                <div style="display: flex; gap: 40px; justify-content: center; margin-top: 20px;">
+                    <div class="glass-box" style="width: 380px; text-align: center; border: 2px solid var(--blue);">
+                        <div style="font-size: 80px; margin-bottom: 20px;">🌏</div>
+                        <h3 style="color: var(--blue); font-size: 28px; margin-bottom: 15px;">वैश्विक मानक</h3>
+                        <p style="font-size: 18px; color: #555;">ग्रामीण भारत में स्वच्छता और स्वास्थ्य के वैश्विक मानकों को स्थापित करना।</p>
+                    </div>
+                    <div class="glass-box" style="width: 380px; text-align: center; border: 2px solid var(--primary); transform: translateY(-20px); background: white;">
+                        <div style="font-size: 80px; margin-bottom: 20px;">👩‍⚕️</div>
+                        <h3 style="color: var(--primary); font-size: 28px; margin-bottom: 15px;">पूर्ण सशक्तिकरण</h3>
+                        <p style="font-size: 18px; color: #555;">हर महिला को आर्थिक और सामाजिक रूप से स्वतंत्र और स्वस्थ बनाना।</p>
+                    </div>
+                    <div class="glass-box" style="width: 380px; text-align: center; border: 2px solid var(--green);">
+                        <div style="font-size: 80px; margin-bottom: 20px;">🍃</div>
+                        <h3 style="color: var(--green); font-size: 28px; margin-bottom: 15px;">स्वस्थ समाज</h3>
+                        <p style="font-size: 18px; color: #555;">एक ऐसा भारत जहां हर परिवार बीमारी मुक्त और खुशहाल हो।</p>
+                    </div>
+                </div>
+                <div style="background: var(--dark); color: white; padding: 25px; border-radius: 20px; text-align: center; font-size: 30px; font-weight: 800; margin-top: 60px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                    🚀 "2025 तक 10,000+ गांवों में स्वास्थ्य क्रांति लाना"
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 19: MISSION (NEW ATTRACIVE) -->
+        <div class="slide" id="sl19">
+            <div class="progress-bar"><div class="progress-fill" style="width: 86%"></div></div>
+            <div class="slide-number">19 / 22</div>
+            <div class="top-header" style="background: linear-gradient(90deg, #F57C00, #E91E8C);"><span>🎯 हमारा मिशन - Sakhi Hub</span></div>
+            <div class="slide-body">
+                <h2 class="title-h1" style="font-size: 60px;">हमारा मिशन (Mission)</h2>
+                <div style="display: flex; align-items: center; gap: 50px; margin-top: 40px;">
+                    <div style="flex: 1;">
+                        <div class="glass-box" style="margin-bottom: 25px; border-left: 10px solid var(--primary); padding-left: 30px;">
+                            <h3 style="color: var(--primary); font-size: 26px;">1. गुणवत्तापूर्ण उत्पाद</h3>
+                            <p style="font-size: 18px;">हर महिला को सस्ते और बेहतरीन क्वालिटी के सेनेटरी पैड्स उपलब्ध कराना।</p>
+                        </div>
+                        <div class="glass-box" style="margin-bottom: 25px; border-left: 10px solid var(--secondary); padding-left: 30px;">
+                            <h3 style="color: var(--secondary); font-size: 26px;">2. शिक्षा और जागरूकता</h3>
+                            <p style="font-size: 18px;">स्वच्छता से जुड़ी रूढ़ियों को तोड़ना और सही जानकारी फैलाना।</p>
+                        </div>
+                        <div class="glass-box" style="border-left: 10px solid var(--green); padding-left: 30px;">
+                            <h3 style="color: var(--green); font-size: 26px;">3. सामुदायिक विकास</h3>
+                            <p style="font-size: 18px;">महिलाओं के समूहों को ट्रेनिंग देकर उन्हें नेतृत्व के लिए तैयार करना।</p>
+                        </div>
+                    </div>
+                    <div style="flex: 0.8; text-align: center;">
+                        <div style="position: relative; width: 350px; height: 350px; margin: 0 auto; border: 15px solid var(--bg-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; background: white; box-shadow: 0 15px 45px rgba(0,0,0,0.1);">
+                            <img src="https://www.genspark.ai/api/files/s/ihfMhY66" height="150">
+                            <div style="position: absolute; top: -20px; font-size: 40px;">🚀</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 20: OUR TEAM (NEW ATTRACTIVE) -->
+        <div class="slide" id="sl20">
+            <div class="progress-bar"><div class="progress-fill" style="width: 91%"></div></div>
+            <div class="slide-number">20 / 22</div>
+            <div class="top-header" style="background: var(--dark);"><span>🤝 हमारी टीम - Sakhi Hub</span></div>
+            <div class="slide-body">
+                <h2 class="title-h1" style="margin-bottom: 50px;">हमारी टीम (Our Team)</h2>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px;">
+                    <div class="glass-box" style="text-align: center; padding-top: 40px;">
+                        <div style="width: 120px; height: 120px; background: #eee; border-radius: 50%; margin: 0 auto 20px; border: 4px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 50px;">👤</div>
+                        <h3 style="color: var(--secondary); margin-bottom: 5px;">संस्थापक</h3>
+                        <p style="font-size: 16px; color: #666; font-weight: 700;">विज़नरी लीडर</p>
+                    </div>
+                    <div class="glass-box" style="text-align: center; padding-top: 40px;">
+                        <div style="width: 120px; height: 120px; background: #eee; border-radius: 50%; margin: 0 auto 20px; border: 4px solid var(--blue); display: flex; align-items: center; justify-content: center; font-size: 50px;">👩‍⚕️</div>
+                        <h3 style="color: var(--secondary); margin-bottom: 5px;">हेल्थ एक्सपर्ट</h3>
+                        <p style="font-size: 16px; color: #666; font-weight: 700;">स्वच्छता सलाहकार</p>
+                    </div>
+                    <div class="glass-box" style="text-align: center; padding-top: 40px;">
+                        <div style="width: 120px; height: 120px; background: #eee; border-radius: 50%; margin: 0 auto 20px; border: 4px solid var(--orange); display: flex; align-items: center; justify-content: center; font-size: 50px;">🤝</div>
+                        <h3 style="color: var(--secondary); margin-bottom: 5px;">कोऑर्डिनेटर</h3>
+                        <p style="font-size: 16px; color: #666; font-weight: 700;">फील्ड ऑपरेशन</p>
+                    </div>
+                    <div class="glass-box" style="text-align: center; padding-top: 40px;">
+                        <div style="width: 120px; height: 120px; background: #eee; border-radius: 50%; margin: 0 auto 20px; border: 4px solid var(--green); display: flex; align-items: center; justify-content: center; font-size: 50px;">👥</div>
+                        <h3 style="color: var(--secondary); margin-bottom: 5px;">कम्युनिटी लीडर</h3>
+                        <p style="font-size: 16px; color: #666; font-weight: 700;">ग्रामीण नेटवर्क</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 50px; font-size: 22px; font-weight: 700; color: var(--primary);">"सैकड़ों समर्पित कार्यकर्ता, एक साझा लक्ष्य"</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 21: CONTACT -->
+        <div class="slide" id="sl21">
+            <div class="progress-bar"><div class="progress-fill" style="width: 96%"></div></div>
+            <div class="slide-number">21 / 22</div>
+            <div class="top-header" style="background: var(--secondary);"><span>📞 आज ही जुड़ें! - Sakhi Hub</span></div>
+            <div class="slide-body" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <h2 class="title-h1" style="font-size: 60px;">आज ही जुड़ें!</h2>
+                <p class="subtitle-p" style="font-size: 30px;">Sakhi Hub के साथ स्वस्थ और सशक्त बनें</p>
+                <div class="contact-pill">📞 8076611842</div>
+                <div style="display: flex; gap: 30px; margin-top: 20px;">
+                    <div class="glass-box">✅ FREE सलाह</div>
+                    <div class="glass-box">✅ 24/7 Support</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 22: FINAL -->
+        <div class="slide" id="sl22">
+            <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+            <div class="slide-number">22 / 22</div>
+            <div class="top-header" style="background: var(--dark);"><span>💝 अंतिम संदेश - Sakhi Hub</span></div>
+            <div class="slide-body" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                <h2 class="title-h1" style="font-size: 60px;">अंतिम संदेश</h2>
+                <div class="grid-container" style="width: 1000px; margin-top: 50px;">
+                    <div class="glass-box" style="border: 4px solid var(--primary); padding: 40px;">
+                        <h3 style="font-size: 28px; color: var(--secondary);">"शर्म नहीं, सही जानकारी जरूरी है"</h3>
+                        <p style="margin-top: 10px;">- Sakhi Hub</p>
+                    </div>
+                    <div class="glass-box" style="border: 4px solid var(--secondary); padding: 40px;">
+                        <h3 style="font-size: 28px; color: var(--primary);">"एक कदम आपका, बदलाव पूरे समाज का"</h3>
+                        <p style="margin-top: 10px;">- Sakhi Hub</p>
+                    </div>
+                </div>
+                <div style="margin-top: 60px; font-size: 32px; font-weight: 800; color: var(--secondary);">धन्यवाद! 🙏</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        async function generatePDF() {
+            const btn = document.getElementById('dlBtn');
+            btn.disabled = true;
+            btn.innerText = "PDF तैयार हो रही है (इसमें 20-30 सेकंड लग सकते हैं)...";
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('l', 'px', [1280, 720]);
+            const ids = Array.from({length: 22}, (_, i) => `sl${i+1}`);
+
+            try {
+                for (let i = 0; i < ids.length; i++) {
+                    const el = document.getElementById(ids[i]);
+                    const canvas = await html2canvas(el, { 
+                        scale: 1.2, useCORS: true, logging: false 
+                    });
+                    const imgData = canvas.toDataURL('image/jpeg', 0.85);
+                    if (i > 0) pdf.addPage([1280, 720], 'l');
+                    pdf.addImage(imgData, 'JPEG', 0, 0, 1280, 720);
+                }
+                pdf.save('Sakhi_Hub_Campaign_Full_Deck.pdf');
+                btn.innerText = "📥 पूरा 22 स्लाइड प्रेजेंटेशन डाउनलोड करें";
+                btn.disabled = false;
+            } catch (err) {
+                console.error(err);
+                alert("PDF बनाने में त्रुटि हुई। कृपया दोबारा प्रयास करें।");
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
