@@ -226,34 +226,116 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* 5. Team Section (Small & Human Centric) */}
+      {/* 5. Real Impact Stories */}
       <section className="section-padding" style={{ background: '#FFF5F8' }}>
-        <div className="container" style={{ textAlign: 'center' }}>
-          <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px' }}>THE TEAM</span>
-          <h2 style={{ fontSize: '3.5rem', fontWeight: '900', marginTop: '15px', marginBottom: '60px' }}>The Humans Behind <span className="text-gradient">The Movement</span></h2>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '30px' }}>
-            {[1, 2, 3, 4].map((i) => (
-              <motion.div key={i} {...fadeInUp} transition={{ delay: i * 0.1 }}>
-                <div style={{ 
-                  aspectRatio: '1', 
-                  borderRadius: '32px', 
-                  overflow: 'hidden', 
-                  marginBottom: '20px',
-                  boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-                  position: 'relative'
-                }}>
-                  <Image src={i % 2 === 0 ? "/assets/field-work.png" : "/assets/women-group.png"} alt="Team Member" fill style={{ objectFit: 'cover' }} />
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '80px' }}>
+            <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px' }}>REAL VOICES</span>
+            <h2 style={{ fontSize: '3.5rem', fontWeight: '900', marginTop: '15px' }}>Stories of <span className="text-gradient">Impact</span></h2>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '40px' }}>
+            {[
+              { 
+                name: "Anita Devi", 
+                location: "Bihar", 
+                story: "Before SakhiHub, I had no source of income. Today, as a Field Hero, I lead a team of 15 women and help provide hygiene kits to my village.",
+                img: "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?q=80&w=1000"
+              },
+              { 
+                name: "Sunita Verma", 
+                location: "Uttar Pradesh", 
+                story: "The education programs gave me the confidence to start my own small shop. SakhiHub didn't just give me resources; they gave me a voice.",
+                img: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1000"
+              },
+              { 
+                name: "Meena Kumari", 
+                location: "Rajasthan", 
+                story: "Learning about menstrual hygiene changed my life. Now I educate school girls and ensure they don't miss school due to lack of awareness.",
+                img: "https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1000"
+              }
+            ].map((story, idx) => (
+              <motion.div 
+                key={idx}
+                {...fadeInUp}
+                style={{ background: 'white', borderRadius: '32px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}
+              >
+                <div style={{ height: '250px', position: 'relative' }}>
+                  <img src={story.img} alt={story.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', bottom: '20px', left: '20px', background: 'white', padding: '5px 15px', borderRadius: '100px', fontSize: '0.8rem', fontWeight: '800', color: 'var(--primary)' }}>
+                    {story.location}
+                  </div>
                 </div>
-                <h4 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--secondary)', margin: '0 0 5px 0' }}>Field Leader {i}</h4>
-                <p style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: '700', textTransform: 'uppercase' }}>Ground Outreach</p>
+                <div style={{ padding: '30px' }}>
+                  <Quote size={24} color="var(--primary)" style={{ opacity: 0.2, marginBottom: '15px' }} />
+                  <p style={{ fontSize: '1.05rem', color: 'var(--secondary)', fontWeight: '500', lineHeight: '1.6', marginBottom: '20px' }}>&quot;{story.story}&quot;</p>
+                  <h4 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--secondary)', margin: 0 }}>{story.name}</h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>SakhiHub Member</p>
+                </div>
               </motion.div>
             ))}
           </div>
-          
-          <p style={{ marginTop: '60px', fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '800px', margin: '60px auto 0' }}>
-            Our team is composed of passionate social workers, health experts, and community leaders who work 24/7 to ensure SakhiHub&apos;s mission reaches the last mile.
-          </p>
+        </div>
+      </section>
+
+      {/* 6. Mission Timeline & Roadmap */}
+      <section className="section-padding">
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '80px' }}>
+            <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px' }}>THE ROADMAP</span>
+            <h2 style={{ fontSize: '3.5rem', fontWeight: '900', marginTop: '15px' }}>Our Journey <span className="text-gradient">& Future</span></h2>
+          </div>
+
+          <div style={{ position: 'relative', maxWidth: '900px', margin: '0 auto' }}>
+            {/* Center Line */}
+            <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', background: '#eee', transform: 'translateX(-50%)' }}></div>
+
+            {[
+              { year: '2021', title: 'The Genesis', desc: 'Started with 5 villages and 100 women in Bihar.', align: 'left' },
+              { year: '2022', title: 'Expansion', desc: 'Reached 10 districts with dedicated field teams.', align: 'right' },
+              { year: '2023', title: 'Digital Shift', desc: 'Launched digital literacy and online support networks.', align: 'left' },
+              { year: '2024', title: 'The Milestone', desc: '50,000 active members and 22 states impact.', align: 'right' },
+              { year: '2025', title: 'Vision 2025', desc: 'Aiming for 200,000 members and full self-reliance models.', align: 'left', future: true },
+              { year: '2026', title: 'National Impact', desc: 'Reaching 1 Million women across India.', align: 'right', future: true }
+            ].map((milestone, i) => (
+              <div key={i} style={{ 
+                display: 'flex', 
+                justifyContent: milestone.align === 'left' ? 'flex-start' : 'flex-end',
+                width: '100%',
+                marginBottom: '60px',
+                position: 'relative'
+              }}>
+                <div style={{ 
+                  position: 'absolute', 
+                  left: '50%', 
+                  top: '20px', 
+                  width: '20px', 
+                  height: '20px', 
+                  background: milestone.future ? 'white' : 'var(--primary)', 
+                  border: `4px solid ${milestone.future ? '#eee' : 'var(--primary)'}`,
+                  borderRadius: '50%', 
+                  transform: 'translateX(-50%)',
+                  zIndex: 2
+                }}></div>
+
+                <motion.div 
+                  {...fadeInUp}
+                  style={{ 
+                    width: '45%', 
+                    padding: '30px', 
+                    background: milestone.future ? '#f9f9f9' : 'white', 
+                    borderRadius: '24px', 
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
+                    border: milestone.future ? '2px dashed #eee' : '1px solid #f2f2f2'
+                  }}
+                >
+                  <span style={{ fontSize: '1.5rem', fontWeight: '900', color: milestone.future ? '#999' : 'var(--primary)', marginBottom: '10px', display: 'block' }}>{milestone.year}</span>
+                  <h4 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--secondary)', marginBottom: '10px' }}>{milestone.title}</h4>
+                  <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', lineHeight: '1.6', margin: 0 }}>{milestone.desc}</p>
+                </motion.div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

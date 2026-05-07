@@ -9,10 +9,15 @@ import WhySakhiHub from '@/components/home/WhySakhiHub';
 import LiveImpactMap from '@/components/home/LiveImpactMap';
 import ProgramsPreview from '@/components/home/ProgramsPreview';
 import CTABanner from '@/components/home/CTABanner';
+import SEOMetadata from '@/components/common/SEOMetadata';
 
 export default function Home() {
   return (
     <>
+      <SEOMetadata 
+        title="Home - Empowering Women Digitally" 
+        description="SakhiHub is a national movement for menstrual hygiene, rural empowerment, and digital literacy for women across India."
+      />
       {/* Real-time Updates Ticker */}
       <ImpactTicker />
 

@@ -67,6 +67,36 @@ const programsData = [
       hi: ["नेतृत्व प्रशिक्षण", "अधिकार जागरूकता", "सामूहिक आवाज"]
     },
     color: "#FF9800"
+  },
+  {
+    slug: "husbandry",
+    title: { en: "Animal Husbandry & Farming", hi: "पशुपालन एवं कृषि" },
+    icon: <Zap size={28} />,
+    image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1200",
+    desc: {
+      en: "Training women in sustainable livestock management and high-yield farming techniques for extra household income.",
+      hi: "अतिरिक्त घरेलू आय के लिए महिलाओं को स्थायी पशुधन प्रबंधन और उच्च उपज वाली कृषि तकनीकों में प्रशिक्षित करना।"
+    },
+    points: {
+      en: ["Livestock Care", "Organic Farming", "Market Linkages"],
+      hi: ["पशुधन देखभाल", "जैविक खेती", "बाजार लिंक"]
+    },
+    color: "#795548"
+  },
+  {
+    slug: "technology",
+    title: { en: "Rural Tech & Innovation", hi: "ग्रामीण तकनीक एवं नवाचार" },
+    icon: <Globe size={28} />,
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200",
+    desc: {
+      en: "Introducing modern technology and clean energy solutions to rural homes to improve quality of life and efficiency.",
+      hi: "जीवन की गुणवत्ता और दक्षता में सुधार के लिए ग्रामीण घरों में आधुनिक तकनीक और स्वच्छ ऊर्जा समाधान पेश करना।"
+    },
+    points: {
+      en: ["Solar Energy", "Digital Tools", "Smart Appliances"],
+      hi: ["सौर ऊर्जा", "डिजिटल उपकरण", "स्मार्ट उपकरण"]
+    },
+    color: "#00BCD4"
   }
 ];
 

@@ -6,6 +6,7 @@ import { CheckCircle, Target, Users, MapPin, Package, Heart, Globe, Sparkles, Ar
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
+import CampaignGallery from "@/components/campaign/CampaignGallery";
 
 export default function CampaignPage() {
   const { t } = useLanguage();
@@ -92,50 +93,14 @@ export default function CampaignPage() {
         </div>
       </section>
 
-      {/* Field Activities Grid */}
+      {/* ground reality replaced by Gallery */}
       <section className="section-padding" style={{ background: '#f8f9fa' }}>
         <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-            <h2 style={{ fontSize: '3rem', fontWeight: '900', color: 'var(--secondary)' }}>Our <span className="text-gradient">Ground Reality</span></h2>
-            <p style={{ color: '#666', marginTop: '20px', fontSize: '1.2rem' }}>How we drive change every single day across rural districts.</p>
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <h2 style={{ fontSize: '3rem', fontWeight: '900', color: 'var(--secondary)' }}>Campaign <span className="text-gradient">Gallery</span></h2>
+            <p style={{ color: '#666', marginTop: '20px', fontSize: '1.2rem' }}>Explore our recent drives and join upcoming missions across India.</p>
           </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px' }}>
-            {[
-              { title: "Group Awareness", desc: "Interactive sessions with local women groups to discuss hygiene and health in a safe space.", icon: Users, color: "#E91E63" },
-              { title: "Direct Outreach", desc: "Door-to-door awareness and education by our dedicated block employees and field heroes.", icon: MapPin, color: "#6A1B9A" },
-              { title: "Product Access", desc: "Ensuring Sakhi Care Pads are reachable to every woman at affordable prices in their own village.", icon: Package, color: "#4CAF50" }
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                {...fadeInUp}
-                whileHover={{ y: -10 }}
-                style={{
-                  background: 'white',
-                  padding: '50px',
-                  borderRadius: '40px',
-                  boxShadow: '0 15px 40px rgba(0,0,0,0.05)',
-                  border: '1px solid #f0f0f0'
-                }}
-              >
-                <div style={{ 
-                  width: '70px', 
-                  height: '70px', 
-                  background: `${item.color}10`, 
-                  borderRadius: '20px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  color: item.color,
-                  marginBottom: '30px'
-                }}>
-                  <item.icon size={35} />
-                </div>
-                <h3 style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--secondary)', marginBottom: '20px' }}>{item.title}</h3>
-                <p style={{ color: '#666', lineHeight: '1.7', fontSize: '1.05rem' }}>{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
+          <CampaignGallery />
         </div>
       </section>
 

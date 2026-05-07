@@ -57,6 +57,7 @@ const Navbar = () => {
     },
     { name: t('campaign'), href: '/campaign' },
     { name: t('Products'), href: '/products' },
+    { name: 'Hiring', href: '/hiring' },
     { name: t('contact'), href: '/contact' },
   ];
 
@@ -208,35 +209,13 @@ const Navbar = () => {
           </AnimatePresence>
         </div>
 
-        {/* Member Portal Dropdown */}
-        <div 
-          className={styles.portalWrapper}
-          onMouseEnter={() => setActiveDropdown('portal')}
-          onMouseLeave={() => setActiveDropdown(null)}
-        >
-          <button className="btn-primary" style={{ padding: '10px 20px', fontSize: '0.9rem', borderRadius: '120px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Users2 size={18} />
-            <span className={styles.portalText}>Member Portal</span>
-            <ChevronDown size={14} className={styles.portalChevron} style={{ transform: activeDropdown === 'portal' ? 'rotate(180deg)' : 'none', transition: '0.3s' }} />
-          </button>
-
-          <AnimatePresence>
-            {activeDropdown === 'portal' && (
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 15 }}
-                className={styles.portalDropdown}
-              >
-                <Link href="/login" className={styles.dropdownLink} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 15px', borderRadius: '12px', color: 'var(--secondary)', textDecoration: 'none', fontWeight: '600' }}>
-                  <Briefcase size={16} color="var(--primary)" /> {t('login')}
-                </Link>
-                <Link href="/register" className={styles.dropdownLink} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 15px', borderRadius: '12px', color: 'var(--secondary)', textDecoration: 'none', fontWeight: '600' }}>
-                  <Users size={16} color="var(--primary)" /> {t('join_btn')}
-                </Link>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <div className={styles.authButtons} style={{ display: 'flex', gap: '10px' }}>
+          <Link href="/login" className="btn-secondary" style={{ padding: '10px 20px', fontSize: '0.85rem', borderRadius: '120px' }}>
+            Employee Login
+          </Link>
+          <Link href="/register" className="btn-primary" style={{ padding: '10px 20px', fontSize: '0.85rem', borderRadius: '120px' }}>
+            Join Now
+          </Link>
         </div>
 
         <button className={styles.mobileMenuBtn} onClick={() => setIsOpen(!isOpen)} style={{ zIndex: 101 }}>
