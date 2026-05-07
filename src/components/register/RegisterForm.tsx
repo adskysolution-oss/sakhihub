@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, Phone, MapPin, Lock, Upload, CheckCircle, 
-  ArrowRight, ArrowLeft, Users, Briefcase, GraduationCap, Sparkles, ShieldCheck 
+  ArrowRight, ArrowLeft, Users, Briefcase, GraduationCap, Sparkles, ShieldCheck, Store 
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -125,6 +125,13 @@ export default function RegisterForm() {
                 <div style={{ flex: 1 }}>
                   <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--secondary)' }}>Work With Us</h3>
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Apply for Field Hero or Team Lead roles.</p>
+                </div>
+              </div>
+              <div onClick={() => setFormData({...formData, role: "vendor"})} style={{ padding: '25px', borderRadius: '24px', border: '2px solid', borderColor: formData.role === "vendor" ? 'var(--primary)' : '#f0f0f0', background: formData.role === "vendor" ? '#FFF5F8' : 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                <div style={{ width: '60px', height: '60px', background: 'rgba(233, 30, 99, 0.1)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}><Store size={30} /></div>
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--secondary)' }}>Vendor / Merchant</h3>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>List your products or services on SakhiHub.</p>
                 </div>
               </div>
               <button type="button" disabled={!formData.role} onClick={nextStep} className="btn-primary" style={{ marginTop: '20px', justifyContent: 'center', opacity: formData.role ? 1 : 0.5 }}>Continue <ArrowRight size={20} /></button>

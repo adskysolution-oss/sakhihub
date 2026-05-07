@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState } from "react";
-import { Phone, Lock, Heart, ShieldCheck, UserCircle, Users } from "lucide-react";
+import { Phone, Lock, Heart, ShieldCheck, UserCircle, Users, Store } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-type Role = 'admin' | 'employee' | 'member';
+type Role = 'admin' | 'employee' | 'member' | 'vendor';
 
 export default function LoginPage() {
   const [role, setRole] = useState<Role>('employee');
@@ -30,6 +30,7 @@ export default function LoginPage() {
       setLoading(false);
       if (role === 'admin') window.location.href = '/admin/dashboard';
       else if (role === 'employee') window.location.href = '/dashboard/employee';
+      else if (role === 'vendor') window.location.href = '/dashboard/vendor';
       else window.location.href = '/dashboard/member';
     }, 1500);
   };
@@ -49,7 +50,7 @@ export default function LoginPage() {
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
             {/* Role Selection */}
             <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-              {(['member', 'employee', 'admin'] as Role[]).map((r) => (
+              {(['member', 'employee', 'vendor', 'admin'] as Role[]).map((r) => (
                 <button
                   key={r}
                   type="button"
@@ -73,6 +74,7 @@ export default function LoginPage() {
                 >
                   {r === 'admin' && <ShieldCheck size={18} />}
                   {r === 'employee' && <UserCircle size={18} />}
+                  {r === 'vendor' && <Store size={18} />}
                   {r === 'member' && <Users size={18} />}
                   {r}
                 </button>
@@ -129,9 +131,9 @@ export default function LoginPage() {
           </form>
         )}
 
-        {role === 'employee' && step === 1 && (
+        {(role === 'employee' || role === 'vendor' || role === 'member') && step === 1 && (
           <p style={{ textAlign: 'center', marginTop: '30px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-            New Employee? <Link href="/register" style={{ color: 'var(--primary)', fontWeight: '700' }}>Register Now</Link>
+            New {role}? <Link href="/register" style={{ color: 'var(--primary)', fontWeight: '700' }}>Register Now</Link>
           </p>
         )}
       </div>
