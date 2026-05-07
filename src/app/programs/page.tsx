@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Shield, Zap, BookOpen, Briefcase, Brain, CheckCircle, ArrowRight, Users, Target, Layout, Sparkles } from 'lucide-react';
+import { Heart, Shield, Zap, BookOpen, Briefcase, Brain, CheckCircle, ArrowRight, Users, Target, Layout, Sparkles, Globe } from 'lucide-react';
 import Link from 'next/link';
 import PageBanner from "@/components/common/PageBanner";
 import { useLanguage } from '@/context/LanguageContext';
