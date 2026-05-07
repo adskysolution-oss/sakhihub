@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import WhatsAppButton from "@/components/common/WhatsAppButton";
+import Navbar from "@/components/shared/Navbar";
+import Footer from "@/components/shared/Footer";
+import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import { LanguageProvider } from "@/context/LanguageContext";
 
 export const metadata: Metadata = {
@@ -31,3 +31,4 @@ export default function RootLayout({
     </html>
   );
 }
+

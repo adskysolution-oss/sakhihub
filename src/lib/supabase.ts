@@ -5,3 +5,4 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholde
 
 // This ensures the build doesn't crash if env vars are missing
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+

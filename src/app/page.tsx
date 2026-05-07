@@ -1,14 +1,14 @@
 import React from 'react'; 
-import ImpactTicker from '@/components/home/ImpactTicker';
-import PremiumHero from '@/components/home/PremiumHero';
-import Impact from '@/components/home/Impact';
-import WhatWeDo from '@/components/home/WhatWeDo';
-import HowItWorks from '@/components/home/HowItWorks';
-import TeamSection from '@/components/home/TeamSection';
-import WhySakhiHub from '@/components/home/WhySakhiHub';
-import LiveImpactMap from '@/components/home/LiveImpactMap';
-import ProgramsPreview from '@/components/home/ProgramsPreview';
-import CTABanner from '@/components/home/CTABanner';
+import ImpactTicker from '@/components/features/home/ImpactTicker';
+import PremiumHero from '@/components/features/home/PremiumHero';
+import Impact from '@/components/features/home/Impact';
+import WhatWeDo from '@/components/features/home/WhatWeDo';
+import HowItWorks from '@/components/features/home/HowItWorks';
+import TeamSection from '@/components/features/home/TeamSection';
+import WhySakhiHub from '@/components/features/home/WhySakhiHub';
+import LiveImpactMap from '@/components/features/home/LiveImpactMap';
+import ProgramsPreview from '@/components/features/home/ProgramsPreview';
+import CTABanner from '@/components/features/home/CTABanner';
 
 export default function Home() {
   return (
@@ -47,3 +47,4 @@ export default function Home() {
     </>
   );
 }
+

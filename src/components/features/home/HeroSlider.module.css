@@ -1,0 +1,148 @@
+.slider {
+  position: relative;
+  height: 90vh;
+  width: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+.slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.bgImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+
+.imageOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(26, 11, 46, 0.9) 0%, rgba(26, 11, 46, 0.4) 60%, transparent 100%);
+  z-index: -1;
+}
+
+.content {
+  max-width: 800px;
+  color: white;
+  z-index: 1;
+}
+
+.category {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 24px;
+  border-radius: var(--radius-full);
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 30px;
+}
+
+.content h1 {
+  font-size: 5rem;
+  line-height: 1.1;
+  margin-bottom: 25px;
+  font-weight: 900;
+}
+
+.content p {
+  font-size: 1.4rem;
+  opacity: 0.9;
+  margin-bottom: 45px;
+  max-width: 600px;
+}
+
+.btnGroup {
+  display: flex;
+  gap: 20px;
+}
+
+.secondaryBtn {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 16px 36px;
+  border-radius: var(--radius-full);
+  color: white;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.secondaryBtn:hover {
+  background: white;
+  color: var(--secondary);
+}
+
+.dots {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 15px;
+  z-index: 10;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dot.active {
+  background: var(--primary);
+  width: 40px;
+  border-radius: 10px;
+}
+
+@media (max-width: 1024px) {
+  .content h1 {
+    font-size: 3.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .slider {
+    height: 80vh;
+  }
+  
+  .content h1 {
+    font-size: 2.8rem;
+  }
+  
+  .content p {
+    font-size: 1.1rem;
+  }
+  
+  .btnGroup {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .btnGroup a {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
