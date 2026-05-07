@@ -28,6 +28,9 @@ export default function RegisterForm() {
     role: "",
     fullName: "",
     mobile: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
     state: "",
     district: "",
     address: "",
@@ -42,32 +45,32 @@ export default function RegisterForm() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
     try {
-      const { data, error: submitError } = await supabase
-        .from('profiles')
-        .insert([
-          {
-            full_name: formData.fullName,
-            mobile: formData.mobile,
-            role: formData.role,
-            state: formData.state,
-            district: formData.district,
-            address: formData.address,
-            status: 'pending'
-          }
-        ]);
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
 
-      if (submitError) throw submitError;
+      const result = await response.json();
 
-      // Simulate success and redirect
-      router.push('/dashboard/member');
+      if (!result.success) {
+        throw new Error(result.message || "Registration failed");
+      }
+
+      // Success
+      router.push('/login?registered=true');
     } catch (err: any) {
       console.error("Registration error:", err);
-      // For now, even if DB fails (table might not exist), let's allow 100x progress for demo
-      setTimeout(() => router.push('/dashboard/member'), 1000);
+      setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -120,11 +123,11 @@ export default function RegisterForm() {
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Get community support & products.</p>
                 </div>
               </div>
-              <div onClick={() => setFormData({...formData, role: "employee"})} style={{ padding: '25px', borderRadius: '24px', border: '2px solid', borderColor: formData.role === "employee" ? 'var(--primary)' : '#f0f0f0', background: formData.role === "employee" ? '#FFF5F8' : 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '20px' }}>
-                <div style={{ width: '60px', height: '60px', background: 'rgba(106, 27, 154, 0.1)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--secondary)' }}><Briefcase size={30} /></div>
+              <div onClick={() => setFormData({...formData, role: "admin"})} style={{ padding: '25px', borderRadius: '24px', border: '2px solid', borderColor: formData.role === "admin" ? 'var(--primary)' : '#f0f0f0', background: formData.role === "admin" ? '#FFF5F8' : 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                <div style={{ width: '60px', height: '60px', background: 'rgba(106, 27, 154, 0.1)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--secondary)' }}><ShieldCheck size={30} /></div>
                 <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--secondary)' }}>Work With Us</h3>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Apply for Field Hero or Team Lead roles.</p>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--secondary)' }}>Super Admin</h3>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Platform management role.</p>
                 </div>
               </div>
               <button type="button" disabled={!formData.role} onClick={nextStep} className="btn-primary" style={{ marginTop: '20px', justifyContent: 'center', opacity: formData.role ? 1 : 0.5 }}>Continue <ArrowRight size={20} /></button>
@@ -142,6 +145,10 @@ export default function RegisterForm() {
                   <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Mobile</label>
                   <input type="tel" name="mobile" value={formData.mobile} onChange={handleChange} placeholder="Number" style={{ padding: '14px', borderRadius: '14px', border: '1px solid #eee' }} required />
                 </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Email (Optional)</label>
+                <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" style={{ padding: '14px', borderRadius: '14px', border: '1px solid #eee' }} />
               </div>
               <div style={{ display: 'flex', gap: '15px', marginTop: '20px' }}>
                 <button type="button" onClick={prevStep} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>Back</button>
@@ -167,13 +174,13 @@ export default function RegisterForm() {
           {step === 4 && (
             <motion.div key="step4" {...fadeInUp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div style={{ border: '2px dashed #eee', borderRadius: '20px', padding: '20px', textAlign: 'center' }}>
-                  <Upload size={20} style={{ margin: '0 auto 10px', color: 'var(--primary)' }} />
-                  <p style={{ fontSize: '0.8rem' }}>Passport Photo</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Password</label>
+                  <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="********" style={{ padding: '14px', borderRadius: '14px', border: '1px solid #eee' }} required />
                 </div>
-                <div style={{ border: '2px dashed #eee', borderRadius: '20px', padding: '20px', textAlign: 'center' }}>
-                  <ShieldCheck size={20} style={{ margin: '0 auto 10px', color: 'var(--secondary)' }} />
-                  <p style={{ fontSize: '0.8rem' }}>Aadhar Card</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Confirm Password</label>
+                  <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="********" style={{ padding: '14px', borderRadius: '14px', border: '1px solid #eee' }} required />
                 </div>
               </div>
               {error && <p style={{ color: 'red', fontSize: '0.85rem', textAlign: 'center' }}>{error}</p>}
@@ -190,4 +197,5 @@ export default function RegisterForm() {
     </div>
   );
 }
+
 

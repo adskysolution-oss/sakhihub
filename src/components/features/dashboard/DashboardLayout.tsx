@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, 
   Users, 
@@ -13,19 +13,50 @@ import {
   X, 
   Bell,
   Search,
-  User
+  User,
+  ShieldCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLanguage } from '@/context/LanguageContext';
-
-import { MEMBER_DASHBOARD_LINKS } from '@/constants/navigation';
+import axios from 'axios';
+import { MEMBER_DASHBOARD_LINKS, ADMIN_DASHBOARD_LINKS } from '@/constants/navigation';
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const pathname = usePathname();
-  const { t } = useLanguage();
+  const router = useRouter();
 
-  const menuItems = MEMBER_DASHBOARD_LINKS;
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get('/api/auth/me');
+        if (res.data.success) {
+          setUser(res.data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user session", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await axios.post('/api/auth/logout');
+      router.push('/login');
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
+
+  const menuItems = user?.role === 'admin' ? ADMIN_DASHBOARD_LINKS : MEMBER_DASHBOARD_LINKS;
+
+  if (loading) {
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Session...</div>;
+  }
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#f8f9fa', overflow: 'hidden' }}>
@@ -80,19 +111,22 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             </nav>
 
             <div style={{ padding: '20px', borderTop: '1px solid #f5f5f5' }}>
-              <button style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '12px 16px',
-                borderRadius: '12px',
-                color: '#ef4444',
-                background: 'transparent',
-                border: 'none',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}>
+              <button 
+                onClick={handleLogout}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  color: '#ef4444',
+                  background: 'transparent',
+                  border: 'none',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
                 <LogOut size={20} />
                 <span>Logout</span>
               </button>
@@ -145,11 +179,11 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingLeft: '20px', borderLeft: '1px solid #eee' }}>
               <div style={{ textAlign: 'right' }}>
-                <p style={{ margin: 0, fontWeight: '700', color: 'var(--secondary)', fontSize: '0.9rem' }}>Sunita Devi</p>
-                <p style={{ margin: 0, fontSize: '0.75rem', color: '#999' }}>Village Member</p>
+                <p style={{ margin: 0, fontWeight: '700', color: 'var(--secondary)', fontSize: '0.9rem' }}>{user?.fullName}</p>
+                <p style={{ margin: 0, fontSize: '0.75rem', color: '#999', textTransform: 'capitalize' }}>{user?.role}</p>
               </div>
               <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--grad-primary)', color: 'white', display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center', fontWeight: '800' }}>
-                S
+                {user?.fullName?.charAt(0)}
               </div>
             </div>
           </div>
