@@ -5,6 +5,7 @@ import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import CreateGroupForm from "@/components/features/dashboard/CreateGroupForm";
 import { Users, Plus, MapPin, Calendar, Search, Filter, ArrowRight } from "lucide-react";
 import axios from "axios";
+import Link from "next/link";
 
 export default function EmployeeGroupsPage() {
   const [showCreate, setShowCreate] = useState(false);
@@ -80,9 +81,11 @@ export default function EmployeeGroupsPage() {
                   <Users size={16} /> Leader: {group.leaderName}
                 </div>
               </div>
-              <button style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid var(--primary)', background: 'none', color: 'var(--primary)', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                View Members <ArrowRight size={16} />
-              </button>
+              <Link href={`/employee/groups/${group._id}`} style={{ width: '100%' }}>
+                <button style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid var(--primary)', background: 'none', color: 'var(--primary)', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  View Members <ArrowRight size={16} />
+                </button>
+              </Link>
             </div>
           ))}
           {groups.length === 0 && (

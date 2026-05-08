@@ -3,6 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import Group from '@/models/Group';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
+import Campaign from '@/models/Campaign';
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,19 +12,18 @@ export async function POST(req: NextRequest) {
 
     await dbConnect();
     const body = await req.json();
-    console.log('Group Creation Payload:', body);
     
-    const mongoose = (await import('mongoose')).default;
+    if (!(session as any).id) {
+      return errorResponse('Session error: User ID missing', 400);
+    }
     
     const groupData = {
       ...body,
-      meetingDate: new Date(body.meetingDate),
-      createdBy: new mongoose.Types.ObjectId((session as any).id)
+      meetingDate: body.meetingDate ? new Date(body.meetingDate) : new Date(),
+      createdBy: (session as any).id
     };
 
-    if (body.campaignId && body.campaignId !== 'temp') {
-      groupData.campaignId = new mongoose.Types.ObjectId(body.campaignId);
-    } else {
+    if (body.campaignId === 'temp' || !body.campaignId) {
       delete groupData.campaignId;
     }
     

@@ -8,8 +8,9 @@ import {
   User, Phone, MapPin, ShieldCheck, CreditCard, 
   Clock, CheckCircle, AlertCircle, Download, 
   MessageSquare, Users, Home, Calendar, Briefcase,
-  ExternalLink, Sparkles, Heart
+  ExternalLink, Sparkles, Heart, FileText
 } from "lucide-react";
+import Link from "next/link";
 
 export default function MemberDashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -183,9 +184,11 @@ export default function MemberDashboardPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#16a34a', fontWeight: '700' }}>
                       <CheckCircle size={20} /> Verified Receipt
                     </div>
-                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 25px', background: 'var(--grad-primary)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '700', cursor: 'pointer' }}>
-                      <Download size={18} /> Download PDF
-                    </button>
+                    <Link href={`/member/receipt/${membership._id}`} target="_blank" style={{ textDecoration: 'none' }}>
+                      <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 25px', background: 'var(--grad-primary)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '700', cursor: 'pointer' }}>
+                        <FileText size={18} /> View Receipt
+                      </button>
+                    </Link>
                   </div>
                 </div>
               ) : (

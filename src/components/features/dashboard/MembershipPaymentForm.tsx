@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import Link from 'next/link';
 
 export default function MembershipPaymentForm({ onCancel, onSuccess }: { onCancel: () => void, onSuccess: () => void }) {
   const [loading, setLoading] = useState(false);
@@ -74,7 +75,9 @@ export default function MembershipPaymentForm({ onCancel, onSuccess }: { onCance
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
              <button className="btn-secondary" style={{ borderRadius: '15px', justifyContent: 'center' }}><Printer size={18} /> Print</button>
-             <button className="btn-secondary" style={{ borderRadius: '15px', justifyContent: 'center' }}><Share2 size={18} /> Share</button>
+             <Link href={`/member/receipt/${receipt._id}`} target="_blank" style={{ flex: 1, textDecoration: 'none' }}>
+                <button className="btn-secondary" style={{ borderRadius: '15px', justifyContent: 'center', width: '100%' }}><Share2 size={18} /> View Receipt</button>
+             </Link>
           </div>
           <button onClick={onSuccess} className="btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: '15px', padding: '18px' }}>Done</button>
         </div>

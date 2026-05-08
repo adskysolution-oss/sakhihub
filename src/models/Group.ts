@@ -33,7 +33,7 @@ const GroupSchema: Schema = new Schema(
     leaderMobile: { type: String, required: true },
     totalMembers: { type: Number, default: 0 },
     meetingDate: { type: Date, required: true },
-    campaignId: { type: Schema.Types.ObjectId, ref: 'Campaign' },
+    campaignId: { type: Schema.Types.ObjectId, ref: 'Campaign', required: false },
     remarks: { type: String },
     photo: { type: String },
     gpsLocation: {
@@ -45,4 +45,9 @@ const GroupSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.Group || mongoose.model<IGroup>('Group', GroupSchema);
+if (process.env.NODE_ENV === 'development') {
+  delete mongoose.models.Group;
+}
+
+const Group = mongoose.models.Group || mongoose.model<IGroup>('Group', GroupSchema);
+export default Group;

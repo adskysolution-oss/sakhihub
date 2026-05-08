@@ -7,15 +7,30 @@ import {
   ClipboardList, Bell, ShieldCheck
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-const stats = [
-  { label: "Groups Created", value: "12", icon: Users, color: "#6a1b9a" },
-  { label: "Women Members", value: "156", icon: UserPlus, color: "#e91e63" },
-  { label: "Total Collection", value: "₹15,600", icon: IndianRupee, color: "#2e7d32" },
-  { label: "Today's Work", value: "2 Groups", icon: Calendar, color: "#ef6c00" },
-];
+import axios from 'axios';
 
 export default function EmployeeDashboard({ user }: { user: any }) {
+  const [data, setData] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await axios.get('/api/employee/stats');
+        if (res.data.success) setData(res.data.data.stats);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  const stats = [
+    { label: "Groups Created", value: data?.totalGroups || "0", icon: Users, color: "#6a1b9a" },
+    { label: "Women Members", value: data?.totalMembers || "0", icon: UserPlus, color: "#e91e63" },
+    { label: "Total Collection", value: `₹${(data?.totalCollection || 0).toLocaleString()}`, icon: IndianRupee, color: "#2e7d32" },
+    { label: "Monthly Goal", value: `${data?.monthlyMembers || 0} / 200`, icon: Target, color: "#ef6c00" },
+  ];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
       {/* Welcome Banner */}

@@ -9,6 +9,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = await params;
     const session = await getAuthSession();
     if (!session || (session as any).role !== 'super_admin') {
       return errorResponse('Unauthorized', 403);
@@ -28,7 +29,7 @@ export async function PATCH(
        updateData.employeeId = `SKH-${new Date().getFullYear()}-${1000 + count}`;
     }
 
-    const user = await User.findByIdAndUpdate(params.id, updateData, { new: true });
+    const user = await User.findByIdAndUpdate(id, updateData, { returnDocument: 'after' });
 
     if (!user) {
       return errorResponse('Employee not found', 404);

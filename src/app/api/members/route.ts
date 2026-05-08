@@ -12,6 +12,16 @@ export async function POST(req: NextRequest) {
     await dbConnect();
     const body = await req.json();
     
+    // Auto-populate district and block from group if missing
+    const Group = (await import('@/models/Group')).default;
+    const group = await Group.findById(body.groupId);
+    if (!group) {
+      return errorResponse('Associated group not found', 404);
+    }
+
+    if (!body.district) body.district = group.district;
+    if (!body.block) body.block = group.block;
+
     const member = await WomenMember.create({
       ...body,
       createdBy: (session as any).id,
@@ -35,8 +45,14 @@ export async function GET(req: NextRequest) {
     const userId = (session as any).id;
 
     let query: any = {};
+    const groupId = searchParams.get('groupId');
+
     if (role === 'employee') {
       query.createdBy = userId;
+    }
+
+    if (groupId) {
+      query.groupId = groupId;
     }
 
     if (search) {

@@ -11,12 +11,24 @@ export async function POST(req: NextRequest) {
     if (!session) return errorResponse('Unauthorized', 401);
 
     await dbConnect();
-    const { memberId, groupId, amount, paymentMode } = await req.json();
-    
-    // Generate Membership ID & Receipt Number
+    const body = await req.json();
+    const { memberId, groupId, paymentMode } = body;
+
+    // Verify member exists
+    const member = await WomenMember.findById(memberId);
+    if (!member) return errorResponse('Member not found', 404);
+
+    // Check if membership already exists
+    const existing = await Membership.findOne({ memberId });
+    if (existing && existing.paymentStatus === 'Paid') {
+      return errorResponse('Member already has an active membership', 400);
+    }
+
+    // Generate Membership ID and Receipt Number
     const count = await Membership.countDocuments();
-    const membershipId = `SHM-${new Date().getFullYear()}${String(count + 1).padStart(5, '0')}`;
-    const receiptNumber = `RCP-${Date.now()}`;
+    const year = new Date().getFullYear();
+    const membershipId = `SH-${year}-${1000 + count + 1}`;
+    const receiptNumber = `REC-${year}-${2000 + count + 1}`;
 
     const membership = await Membership.create({
       membershipId,
@@ -24,16 +36,16 @@ export async function POST(req: NextRequest) {
       memberId,
       groupId,
       employeeId: (session as any).id,
-      amount: amount || 100,
+      amount: 100,
       paymentMode,
-      paymentStatus: 'Paid', // Assuming success for cash/manual entry in v1
-      paymentDate: new Date(),
+      paymentStatus: 'Paid',
+      paymentDate: new Date()
     });
 
     // Update member status
     await WomenMember.findByIdAndUpdate(memberId, { membershipStatus: 'paid' });
 
-    return successResponse(membership, 'Payment collected successfully', 201);
+    return successResponse(membership, 'Membership created successfully', 201);
   } catch (error: any) {
     return errorResponse(error.message, 500);
   }
@@ -45,16 +57,19 @@ export async function GET(req: NextRequest) {
     if (!session) return errorResponse('Unauthorized', 401);
 
     await dbConnect();
+    const { searchParams } = new URL(req.url);
     const role = (session as any).role;
     const userId = (session as any).id;
-
+    
     let query: any = {};
-    if (role === 'employee') query.employeeId = userId;
+    if (role === 'employee') {
+      query.employeeId = userId;
+    }
 
     const memberships = await Membership.find(query)
-      .sort({ createdAt: -1 })
       .populate('memberId', 'name mobile')
-      .populate('groupId', 'groupName');
+      .populate('groupId', 'groupName village')
+      .sort({ createdAt: -1 });
 
     return successResponse(memberships);
   } catch (error: any) {
