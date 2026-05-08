@@ -45,9 +45,6 @@ export async function proxy(request: NextRequest) {
 
     // B. Super Admin Access Control
     if (role === 'super_admin') {
-      // Super Admin can access /admin/* 
-      // If they try to access employee/member routes, maybe allow or redirect?
-      // User said: "Super Admin can access only admin routes"
       if (isEmployeeProtectedRoute || isMemberProtectedRoute) {
         return NextResponse.redirect(new URL('/admin/dashboard', request.url));
       }
@@ -58,9 +55,6 @@ export async function proxy(request: NextRequest) {
     if (role === 'employee') {
       if (isAdminPath) return NextResponse.redirect(new URL('/login', request.url));
       if (isMemberProtectedRoute) return NextResponse.redirect(new URL('/employee/dashboard', request.url));
-      if (!isEmployeeProtectedRoute && pathname !== '/') {
-         // Optionally restrict other paths, but keep it simple for now
-      }
       return NextResponse.next();
     }
 
@@ -72,7 +66,6 @@ export async function proxy(request: NextRequest) {
     }
 
   } catch (error) {
-    // Token invalid or expired
     const response = NextResponse.redirect(
       isAdminPath ? new URL('/admin/login', request.url) : new URL('/login', request.url)
     );

@@ -33,7 +33,7 @@ const GroupSchema: Schema = new Schema(
     leaderMobile: { type: String, required: true },
     totalMembers: { type: Number, default: 0 },
     meetingDate: { type: Date, required: true },
-    campaignId: { type: Schema.Types.ObjectId, ref: 'Campaign', required: true },
+    campaignId: { type: Schema.Types.ObjectId, ref: 'Campaign' },
     remarks: { type: String },
     photo: { type: String },
     gpsLocation: {

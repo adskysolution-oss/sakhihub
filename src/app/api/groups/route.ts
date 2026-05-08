@@ -11,15 +11,28 @@ export async function POST(req: NextRequest) {
 
     await dbConnect();
     const body = await req.json();
+    console.log('Group Creation Payload:', body);
     
-    const group = await Group.create({
+    const mongoose = (await import('mongoose')).default;
+    
+    const groupData = {
       ...body,
-      createdBy: (session as any).id,
-    });
+      meetingDate: new Date(body.meetingDate),
+      createdBy: new mongoose.Types.ObjectId((session as any).id)
+    };
+
+    if (body.campaignId && body.campaignId !== 'temp') {
+      groupData.campaignId = new mongoose.Types.ObjectId(body.campaignId);
+    } else {
+      delete groupData.campaignId;
+    }
+    
+    const group = await Group.create(groupData);
 
     return successResponse(group, 'Group created successfully', 201);
   } catch (error: any) {
-    return errorResponse(error.message, 500);
+    console.error('Group Creation API Error:', error);
+    return errorResponse(error.message || 'Failed to create group', 500);
   }
 }
 

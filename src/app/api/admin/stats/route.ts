@@ -20,9 +20,12 @@ export async function GET(req: NextRequest) {
 
     const totalUsers = await User.countDocuments();
     const totalEmployees = await User.countDocuments({ role: 'employee' });
+    const activeEmployees = await User.countDocuments({ role: 'employee', status: 'active' });
+    const pendingEmployees = await User.countDocuments({ role: 'employee', status: 'pending' });
+    const rejectedEmployees = await User.countDocuments({ role: 'employee', status: 'rejected' });
+    
     const totalMembers = await WomenMember.countDocuments();
     const totalGroups = await Group.countDocuments();
-    const pendingApprovals = await User.countDocuments({ status: 'pending', role: 'employee' });
     
     const collections = await Membership.aggregate([
       { $match: { paymentStatus: 'Paid' } },
@@ -30,25 +33,32 @@ export async function GET(req: NextRequest) {
     ]);
     const totalCollections = collections[0]?.total || 0;
 
-    // Recent registrations (last 5)
-    const recentUsers = await User.find({ role: 'employee' })
+    // Recent employee applications
+    const pendingApplications = await User.find({ role: 'employee', status: 'pending' })
       .sort({ createdAt: -1 })
-      .limit(5)
-      .select('fullName mobile role status designation createdAt');
+      .limit(10)
+      .select('-password');
+
+    // Recent platform activity (mocking for now by taking recent groups/members)
+    const recentGroups = await Group.find().sort({ createdAt: -1 }).limit(5).select('groupName village createdAt');
+    const recentMembers = await WomenMember.find().sort({ createdAt: -1 }).limit(5).select('name village createdAt');
 
     return successResponse({
       stats: {
-        totalUsers,
         totalEmployees,
+        activeEmployees,
+        pendingEmployees,
+        rejectedEmployees,
         totalMembers,
         totalGroups,
-        pendingApprovals,
         totalCollections
       },
-      recentUsers,
+      pendingApplications,
+      recentGroups,
+      recentMembers
     });
   } catch (error: any) {
     console.error('Admin Stats Error:', error);
-    return errorResponse('Internal Server Error', 500);
+    return errorResponse(error.message, 500);
   }
 }

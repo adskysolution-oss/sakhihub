@@ -12,7 +12,7 @@ export const PUBLIC_LINKS = [
 
 export const MEMBER_DASHBOARD_LINKS = [
   { name: 'Overview', icon: LayoutDashboard, href: '/member/dashboard' },
-  { name: 'My Group', icon: Users, href: '/member/group' },
+  { name: 'My Group', icon: Users, href: '/member/my-group' },
   { name: 'Resources', icon: Heart, href: '/member/resources' },
   { name: 'Profile', icon: User, href: '/member/profile' },
   { name: 'Settings', icon: Settings, href: '/member/settings' },
