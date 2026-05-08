@@ -21,7 +21,6 @@ export async function GET(
 
     if (!membership) return errorResponse('Membership record not found', 404);
 
-    // Map to a cleaner object for the receipt
     const data = {
       ...membership.toObject(),
       member: membership.memberId,
@@ -30,6 +29,45 @@ export async function GET(
     };
 
     return successResponse(data);
+  } catch (error: any) {
+    return errorResponse(error.message, 500);
+  }
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = await params;
+    const session = await getAuthSession();
+    if (!session || (session as any).role !== 'super_admin') {
+      return errorResponse('Unauthorized. Admin access required.', 401);
+    }
+
+    await dbConnect();
+    const { status } = await req.json();
+
+    const membership = await Membership.findByIdAndUpdate(
+      id,
+      {
+        paymentStatus: status,
+        verifiedBy: (session as any).id,
+        verifiedAt: new Date()
+      },
+      { new: true }
+    );
+
+    if (!membership) return errorResponse('Membership not found', 404);
+
+    // If payment is failed/rejected, we might want to update the member record back to unpaid
+    if (status === 'Failed' || status === 'Pending') {
+      await WomenMember.findByIdAndUpdate(membership.memberId, { membershipStatus: 'unpaid' });
+    } else if (status === 'Paid') {
+      await WomenMember.findByIdAndUpdate(membership.memberId, { membershipStatus: 'paid' });
+    }
+
+    return successResponse(membership, `Membership marked as ${status}`);
   } catch (error: any) {
     return errorResponse(error.message, 500);
   }

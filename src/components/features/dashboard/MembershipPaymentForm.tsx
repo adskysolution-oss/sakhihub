@@ -18,8 +18,20 @@ export default function MembershipPaymentForm({ onCancel, onSuccess }: { onCance
   const [paymentMode, setPaymentMode] = useState<'Cash' | 'UPI' | 'Online'>('Cash');
   const [receipt, setReceipt] = useState<any>(null);
 
+  const fetchInitialMembers = async () => {
+    try {
+      const res = await axios.get('/api/members');
+      if (res.data.success) setSearchResults(res.data.data);
+    } catch (err) {
+      console.error("Failed to fetch initial members", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchInitialMembers();
+  }, []);
+
   const searchMember = async () => {
-    if (searchTerm.length < 3) return;
     try {
       const res = await axios.get(`/api/members?search=${searchTerm}`);
       if (res.data.success) setSearchResults(res.data.data);
@@ -32,9 +44,10 @@ export default function MembershipPaymentForm({ onCancel, onSuccess }: { onCance
     if (!selectedMember) return;
     setLoading(true);
     try {
+      const gId = typeof selectedMember.groupId === 'object' ? selectedMember.groupId._id : selectedMember.groupId;
       const res = await axios.post('/api/memberships', {
         memberId: selectedMember._id,
-        groupId: selectedMember.groupId,
+        groupId: gId,
         amount: 100,
         paymentMode
       });
@@ -74,7 +87,7 @@ export default function MembershipPaymentForm({ onCancel, onSuccess }: { onCance
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-             <button className="btn-secondary" style={{ borderRadius: '15px', justifyContent: 'center' }}><Printer size={18} /> Print</button>
+             <button onClick={() => window.print()} className="btn-secondary" style={{ borderRadius: '15px', justifyContent: 'center' }}><Printer size={18} /> Print</button>
              <Link href={`/member/receipt/${receipt._id}`} target="_blank" style={{ flex: 1, textDecoration: 'none' }}>
                 <button className="btn-secondary" style={{ borderRadius: '15px', justifyContent: 'center', width: '100%' }}><Share2 size={18} /> View Receipt</button>
              </Link>
@@ -110,14 +123,41 @@ export default function MembershipPaymentForm({ onCancel, onSuccess }: { onCance
                   style={{ padding: '18px 18px 18px 50px', borderRadius: '15px', border: '1px solid #eee', width: '100%', fontSize: '1.1rem' }} 
                 />
              </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#666', fontWeight: '700' }}>{searchResults.length} Members Found</p>
                 {searchResults.map(member => (
-                  <div key={member._id} onClick={() => setSelectedMember(member)} style={{ padding: '15px', border: '1px solid #eee', borderRadius: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', background: '#fcfcfc' }}>
-                     <div>
-                       <p style={{ margin: 0, fontWeight: '800' }}>{member.name}</p>
-                       <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>{member.mobile} • {member.village}</p>
+                  <div 
+                    key={member._id} 
+                    onClick={() => member.membershipStatus !== 'paid' && setSelectedMember(member)} 
+                    style={{ 
+                      padding: '20px', 
+                      border: '1px solid #eee', 
+                      borderRadius: '20px', 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center', 
+                      cursor: member.membershipStatus === 'paid' ? 'default' : 'pointer', 
+                      background: member.membershipStatus === 'paid' ? '#f8f9fa' : 'white',
+                      transition: '0.2s',
+                      opacity: member.membershipStatus === 'paid' ? 0.7 : 1
+                    }}
+                  >
+                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: member.membershipStatus === 'paid' ? '#e2e8f0' : 'var(--grad-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800' }}>
+                          {member.name[0]}
+                        </div>
+                        <div>
+                          <p style={{ margin: 0, fontWeight: '800' }}>{member.name}</p>
+                          <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>{member.mobile} • {member.village}</p>
+                        </div>
                      </div>
-                     <ArrowLeft size={18} style={{ transform: 'rotate(180deg)', color: 'var(--primary)' }} />
+                     <div>
+                        {member.membershipStatus === 'paid' ? (
+                          <span style={{ fontSize: '0.75rem', fontWeight: '800', color: '#10b981', background: '#f0fdf4', padding: '6px 12px', borderRadius: '100px' }}>PAID</span>
+                        ) : (
+                          <span style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--primary)', background: '#FFF5F8', padding: '6px 12px', borderRadius: '100px' }}>COLLECT FEE</span>
+                        )}
+                     </div>
                   </div>
                 ))}
              </div>

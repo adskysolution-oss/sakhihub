@@ -33,15 +33,60 @@ export async function GET(req: NextRequest) {
     ]);
     const totalCollections = collections[0]?.total || 0;
 
+    // District-wise collections
+    const districtStats = await Membership.aggregate([
+      { $match: { paymentStatus: 'Paid' } },
+      {
+        $lookup: {
+          from: 'groups',
+          localField: 'groupId',
+          foreignField: '_id',
+          as: 'group'
+        }
+      },
+      { $unwind: '$group' },
+      {
+        $group: {
+          _id: '$group.district',
+          total: { $sum: '$amount' },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { total: -1 } }
+    ]);
+
+    // Employee-wise collections
+    const employeeStats = await Membership.aggregate([
+      { $match: { paymentStatus: 'Paid' } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'employeeId',
+          foreignField: '_id',
+          as: 'employee'
+        }
+      },
+      { $unwind: '$employee' },
+      {
+        $group: {
+          _id: '$employee.fullName',
+          total: { $sum: '$amount' },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { total: -1 } },
+      { $limit: 5 }
+    ]);
+
+    // Recent platform activity
+    const recentGroups = await Group.find().sort({ createdAt: -1 }).limit(5).select('groupName village createdAt');
+    const recentMembers = await WomenMember.find().sort({ createdAt: -1 }).limit(5).select('name village createdAt');
+
     // Recent employee applications
     const pendingApplications = await User.find({ role: 'employee', status: 'pending' })
       .sort({ createdAt: -1 })
       .limit(10)
       .select('-password');
-
-    // Recent platform activity (mocking for now by taking recent groups/members)
-    const recentGroups = await Group.find().sort({ createdAt: -1 }).limit(5).select('groupName village createdAt');
-    const recentMembers = await WomenMember.find().sort({ createdAt: -1 }).limit(5).select('name village createdAt');
 
     return successResponse({
       stats: {
@@ -51,7 +96,9 @@ export async function GET(req: NextRequest) {
         rejectedEmployees,
         totalMembers,
         totalGroups,
-        totalCollections
+        totalCollections,
+        districtStats,
+        employeeStats
       },
       pendingApplications,
       recentGroups,

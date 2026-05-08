@@ -48,7 +48,7 @@ export default function AdminMembershipsPage() {
         ) : memberships.length === 0 ? (
           <p style={{ padding: '40px', textAlign: 'center' }}>No membership records found.</p>
         ) : (
-          <MembershipTable data={memberships} isAdmin={true} />
+          <MembershipTable data={memberships} isAdmin={true} onUpdate={fetchMemberships} />
         )}
       </div>
     </DashboardLayout>

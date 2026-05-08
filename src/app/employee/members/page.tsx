@@ -3,11 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import AddMemberForm from "@/components/features/dashboard/AddMemberForm";
+import MemberDetailsModal from "@/components/features/dashboard/MemberDetailsModal";
 import { UserPlus, Plus, Search, Filter, Phone, MapPin, IndianRupee, CheckCircle2 } from "lucide-react";
 import axios from "axios";
 
 export default function EmployeeMembersPage() {
   const [showAdd, setShowAdd] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<any>(null);
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -99,7 +101,10 @@ export default function EmployeeMembersPage() {
                   )}
                 </td>
                 <td style={{ padding: '20px' }}>
-                   <button style={{ color: 'var(--primary)', fontWeight: '800', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.9rem' }}>View Details</button>
+                   <button 
+                    onClick={() => setSelectedMember(member)}
+                    style={{ color: 'var(--primary)', fontWeight: '800', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.9rem' }}
+                   >View Details</button>
                 </td>
               </tr>
             ))}
@@ -113,6 +118,13 @@ export default function EmployeeMembersPage() {
           </tbody>
         </table>
       </div>
+
+      {selectedMember && (
+        <MemberDetailsModal 
+          member={selectedMember} 
+          onClose={() => setSelectedMember(null)} 
+        />
+      )}
     </DashboardLayout>
   );
 }

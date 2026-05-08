@@ -104,24 +104,56 @@ export default function SuperAdminDashboard({ stats: data }: { stats?: any }) {
         {/* Recent Platform Activity */}
         <div style={{ background: 'white', borderRadius: '30px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', padding: '30px' }}>
           <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '30px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <BarChart3 size={22} color="var(--primary)" /> Recent Activity
+            <BarChart3 size={22} color="var(--primary)" /> Top Employee Performance
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-             {data?.recentGroups?.map((g: any) => (
-               <div key={g._id} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <div style={{ padding: '8px', background: '#ecfdf5', color: '#10b981', borderRadius: '10px' }}><Layout size={18} /></div>
-                  <div>
-                    <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: '700' }}>New Group Created: {g.groupName}</p>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#999' }}>{g.village} • {new Date(g.createdAt).toLocaleDateString()}</p>
+             {data?.stats?.employeeStats?.map((emp: any, i: number) => (
+               <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', background: '#fcfcfc', borderRadius: '15px', border: '1px solid #f5f5f5' }}>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div style={{ width: '35px', height: '35px', borderRadius: '10px', background: 'var(--grad-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '0.8rem' }}>{i + 1}</div>
+                    <div>
+                      <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '800' }}>{emp._id}</p>
+                      <p style={{ margin: 0, fontSize: '0.75rem', color: '#999' }}>{emp.count} Members Activated</p>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ margin: 0, fontSize: '1rem', fontWeight: '900', color: '#10b981' }}>₹{emp.total}</p>
                   </div>
                </div>
              ))}
-             {data?.recentMembers?.map((m: any) => (
-               <div key={m._id} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <div style={{ padding: '8px', background: '#f5f3ff', color: '#6a1b9a', borderRadius: '10px' }}><UserPlus size={18} /></div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
+        {/* District-wise collections */}
+        <div style={{ background: 'white', borderRadius: '30px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', padding: '30px' }}>
+          <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '30px' }}>Collections by District</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+             {data?.stats?.districtStats?.map((dist: any) => (
+               <div key={dist._id}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '700' }}>
+                    <span>{dist._id || 'Unassigned'}</span>
+                    <span style={{ color: 'var(--primary)' }}>₹{dist.total}</span>
+                  </div>
+                  <div style={{ height: '8px', background: '#f0f0f0', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', background: 'var(--grad-primary)', width: `${Math.min((dist.total / (data?.stats?.totalCollections || 1)) * 100, 100)}%` }}></div>
+                  </div>
+               </div>
+             ))}
+          </div>
+        </div>
+
+        {/* Activity Feed */}
+        <div style={{ background: 'white', borderRadius: '30px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', padding: '30px' }}>
+          <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '30px' }}>Recent Group/Member Activity</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+             {data?.recentGroups?.slice(0, 3).map((g: any) => (
+               <div key={g._id} style={{ display: 'flex', gap: '12px' }}>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary)', marginTop: '5px' }}></div>
                   <div>
-                    <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: '700' }}>Member Joined: {m.name}</p>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#999' }}>{m.village} • {new Date(m.createdAt).toLocaleDateString()}</p>
+                    <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: '700' }}>{g.groupName} formed in {g.village}</p>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#999' }}>{new Date(g.createdAt).toLocaleDateString()}</p>
                   </div>
                </div>
              ))}
