@@ -10,53 +10,74 @@ export async function proxy(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
   const { pathname } = request.nextUrl;
 
-  // Define protected and public routes
-  const isAdminRoute = pathname.startsWith('/admin');
-  const isDashboardRoute = pathname.startsWith('/dashboard');
-  const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register');
+  // 1. Define Route Categories
+  const isAdminPath = pathname.startsWith('/admin');
+  const isAdminLogin = pathname === '/admin/login';
+  const isAdminProtectedRoute = isAdminPath && !isAdminLogin;
+  
+  const isEmployeeProtectedRoute = pathname.startsWith('/employee');
+  const isMemberProtectedRoute = pathname.startsWith('/member');
+  
+  const isPublicAuthRoute = pathname === '/login' || pathname === '/register';
 
-  // 1. If trying to access protected routes without a token, redirect to login
-  if ((isAdminRoute || isDashboardRoute) && !token) {
-    const loginUrl = new URL('/login', request.url);
-    return NextResponse.redirect(loginUrl);
+  // 2. Handle Unauthenticated Access
+  if (!token) {
+    if (isAdminProtectedRoute) {
+      return NextResponse.redirect(new URL('/admin/login', request.url));
+    }
+    if (isEmployeeProtectedRoute || isMemberProtectedRoute) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+    return NextResponse.next();
   }
 
-  // 2. If token exists, verify it and check roles
-  if (token) {
-    try {
-      const { payload } = await jwtVerify(token, JWT_SECRET);
-      const role = payload.role as string;
+  // 3. Handle Authenticated Access
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const role = payload.role as string;
 
-      // Prevent logged-in users from accessing login/register pages
-      if (isAuthRoute) {
-        if (role === 'super_admin') return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-        if (role === 'employee') return NextResponse.redirect(new URL('/dashboard/employee', request.url));
-        return NextResponse.redirect(new URL('/dashboard/member', request.url));
-      }
-
-      // Role-based protection
-      if (isAdminRoute && role !== 'super_admin') {
-        const redirectUrl = role === 'employee' ? '/dashboard/employee' : '/dashboard/member';
-        return NextResponse.redirect(new URL(redirectUrl, request.url));
-      }
-
-      // If employee trying to access member routes or vice versa
-      if (pathname.startsWith('/dashboard/employee') && role !== 'employee' && role !== 'super_admin') {
-        return NextResponse.redirect(new URL('/dashboard/member', request.url));
-      }
-      
-      if (pathname.startsWith('/dashboard/member') && role !== 'member' && role !== 'super_admin') {
-        return NextResponse.redirect(new URL('/dashboard/employee', request.url));
-      }
-
-    } catch (error) {
-      // Token invalid or expired
-      if (isAdminRoute || isDashboardRoute) {
-        const response = NextResponse.redirect(new URL('/login', request.url));
-        response.cookies.delete('token');
-        return response;
-      }
+    // A. Prevent logged-in users from visiting login pages
+    if (isPublicAuthRoute || isAdminLogin) {
+      if (role === 'super_admin') return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+      if (role === 'employee') return NextResponse.redirect(new URL('/employee/dashboard', request.url));
+      if (role === 'member') return NextResponse.redirect(new URL('/member/dashboard', request.url));
     }
+
+    // B. Super Admin Access Control
+    if (role === 'super_admin') {
+      // Super Admin can access /admin/* 
+      // If they try to access employee/member routes, maybe allow or redirect?
+      // User said: "Super Admin can access only admin routes"
+      if (isEmployeeProtectedRoute || isMemberProtectedRoute) {
+        return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+      }
+      return NextResponse.next();
+    }
+
+    // C. Employee Access Control
+    if (role === 'employee') {
+      if (isAdminPath) return NextResponse.redirect(new URL('/login', request.url));
+      if (isMemberProtectedRoute) return NextResponse.redirect(new URL('/employee/dashboard', request.url));
+      if (!isEmployeeProtectedRoute && pathname !== '/') {
+         // Optionally restrict other paths, but keep it simple for now
+      }
+      return NextResponse.next();
+    }
+
+    // D. Member Access Control
+    if (role === 'member') {
+      if (isAdminPath) return NextResponse.redirect(new URL('/login', request.url));
+      if (isEmployeeProtectedRoute) return NextResponse.redirect(new URL('/member/dashboard', request.url));
+      return NextResponse.next();
+    }
+
+  } catch (error) {
+    // Token invalid or expired
+    const response = NextResponse.redirect(
+      isAdminPath ? new URL('/admin/login', request.url) : new URL('/login', request.url)
+    );
+    response.cookies.delete('token');
+    return response;
   }
 
   return NextResponse.next();
@@ -65,7 +86,8 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     '/admin/:path*',
-    '/dashboard/:path*',
+    '/employee/:path*',
+    '/member/:path*',
     '/login',
     '/register',
   ],

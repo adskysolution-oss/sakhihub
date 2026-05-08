@@ -46,8 +46,8 @@ export default function LoginPage() {
       if (response.data.success) {
         const user = response.data.data;
         if (user.role === 'super_admin') router.push('/admin/dashboard');
-        else if (user.role === 'employee') router.push('/dashboard/employee');
-        else router.push('/dashboard/member');
+        else if (user.role === 'employee') router.push('/employee/dashboard');
+        else router.push('/member/dashboard');
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Invalid credentials or unauthorized access");

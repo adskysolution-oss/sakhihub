@@ -22,14 +22,22 @@ export async function POST(req: NextRequest) {
       return errorResponse('Invalid credentials', 401);
     }
 
-    // Verify role if specified
-    if (role) {
-      const isAuthorized = 
-        user.role === role || 
-        (role === 'admin' && user.role === 'super_admin');
-      
-      if (!isAuthorized) {
+    // Verify role if specified (Strict Separation)
+    if (role === 'admin') {
+      if (user.role !== 'super_admin') {
+        return errorResponse('Only Super Admin can access this portal', 403);
+      }
+    } else if (role === 'member' || role === 'employee') {
+      if (user.role === 'super_admin') {
+        return errorResponse('Super Admin must use the Admin Portal', 403);
+      }
+      if (user.role !== role) {
         return errorResponse(`Unauthorized for ${role} access`, 403);
+      }
+    } else {
+      // Default fallback if no role is passed (should not happen with new UI)
+      if (user.role === 'super_admin') {
+        return errorResponse('Please use the Admin Portal', 403);
       }
     }
 
