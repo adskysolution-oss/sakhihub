@@ -3,14 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Heart, 
-  Settings, 
-  LogOut, 
-  Menu, 
-  X, 
+import {
+  LayoutDashboard,
+  Users,
+  Heart,
+  Settings,
+  LogOut,
+  Menu,
+  X,
   Bell,
   Search,
   User,
@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import { MEMBER_DASHBOARD_LINKS, ADMIN_DASHBOARD_LINKS } from '@/constants/navigation';
+import { MEMBER_DASHBOARD_LINKS, ADMIN_DASHBOARD_LINKS, EMPLOYEE_DASHBOARD_LINKS } from '@/constants/navigation';
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -52,7 +52,13 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     }
   };
 
-  const menuItems = user?.role === 'admin' ? ADMIN_DASHBOARD_LINKS : MEMBER_DASHBOARD_LINKS;
+  const getMenuItems = () => {
+    if (user?.role === 'super_admin') return ADMIN_DASHBOARD_LINKS;
+    if (user?.role === 'employee') return EMPLOYEE_DASHBOARD_LINKS;
+    return MEMBER_DASHBOARD_LINKS;
+  };
+
+  const menuItems = getMenuItems();
 
   if (loading) {
     return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Session...</div>;
@@ -111,7 +117,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             </nav>
 
             <div style={{ padding: '20px', borderTop: '1px solid #f5f5f5' }}>
-              <button 
+              <button
                 onClick={handleLogout}
                 style={{
                   width: '100%',
@@ -138,9 +144,9 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
       {/* Main Content */}
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Dashboard Header */}
-        <header style={{ 
-          height: '80px', 
-          background: '#fff', 
+        <header style={{
+          height: '80px',
+          background: '#fff',
           borderBottom: '1px solid #eee',
           display: 'flex',
           alignItems: 'center',
@@ -149,7 +155,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
           zIndex: 40
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <button 
+            <button
               onClick={() => setSidebarOpen(!isSidebarOpen)}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}
             >
@@ -157,17 +163,17 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             </button>
             <div style={{ position: 'relative' }}>
               <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-              <input 
-                type="text" 
-                placeholder="Search..." 
-                style={{ 
-                  padding: '10px 15px 10px 40px', 
-                  borderRadius: '10px', 
-                  border: '1px solid #eee', 
+              <input
+                type="text"
+                placeholder="Search..."
+                style={{
+                  padding: '10px 15px 10px 40px',
+                  borderRadius: '10px',
+                  border: '1px solid #eee',
                   background: '#f8f9fa',
                   width: '250px',
                   fontSize: '0.9rem'
-                }} 
+                }}
               />
             </div>
           </div>

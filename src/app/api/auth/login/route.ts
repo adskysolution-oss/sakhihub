@@ -23,8 +23,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify role if specified
-    if (role && user.role !== role) {
-      return errorResponse(`Unauthorized for ${role} access`, 403);
+    if (role) {
+      const isAuthorized = 
+        user.role === role || 
+        (role === 'admin' && user.role === 'super_admin');
+      
+      if (!isAuthorized) {
+        return errorResponse(`Unauthorized for ${role} access`, 403);
+      }
     }
 
     // Check status

@@ -70,10 +70,10 @@ const PremiumHero = () => {
             
             <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
               <Link href="/register" className="btn-primary" style={{ padding: '20px 45px', fontSize: '1.1rem', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 20px 40px rgba(233, 30, 99, 0.2)' }}>
-                {t('join_btn')} <ArrowRight size={20} />
+                {t('employee_join_cta') || 'Join as Employee'} <ArrowRight size={20} />
               </Link>
-              <Link href="/login" className="btn-secondary" style={{ padding: '20px 45px', fontSize: '1.1rem', borderRadius: '20px', background: 'white', color: 'var(--secondary)', border: '2px solid rgba(106, 27, 154, 0.2)' }}>
-                {t('login')}
+              <Link href="/verify-membership" className="btn-secondary" style={{ padding: '20px 45px', fontSize: '1.1rem', borderRadius: '20px', background: 'white', color: 'var(--secondary)', border: '2px solid rgba(106, 27, 154, 0.2)' }}>
+                {t('verify_btn') || 'Verify Membership'}
               </Link>
             </div>
 

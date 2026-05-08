@@ -8,7 +8,11 @@ export async function POST(req: NextRequest) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { fullName, mobile, email, password, role, state, district, address } = body;
+    const { 
+      fullName, mobile, whatsapp, email, password, role, 
+      designation, qualification, experience, state, district, 
+      block, area, address 
+    } = body;
 
     if (!fullName || !mobile || !password) {
       return errorResponse('Missing required fields: Name, Mobile, Password', 400);
@@ -32,13 +36,19 @@ export async function POST(req: NextRequest) {
     const newUser = await User.create({
       fullName,
       mobile,
+      whatsapp,
       email,
       password: hashedPassword,
       role: role || 'member',
+      designation,
+      qualification,
+      experience,
       state,
       district,
+      block,
+      area,
       address,
-      status: role === 'admin' ? 'active' : 'pending', // Admins are active, members need approval
+      status: role === 'super_admin' ? 'active' : 'pending',
     });
 
     return successResponse(

@@ -6,7 +6,7 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'your-fallback-secret'
 );
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
   const { pathname } = request.nextUrl;
 
@@ -29,20 +29,24 @@ export async function middleware(request: NextRequest) {
 
       // Prevent logged-in users from accessing login/register pages
       if (isAuthRoute) {
-        const dashboardUrl = role === 'admin' 
-          ? new URL('/admin/dashboard', request.url) 
-          : new URL('/dashboard/member', request.url);
-        return NextResponse.redirect(dashboardUrl);
-      }
-
-      // Role-based protection
-      if (isAdminRoute && role !== 'admin') {
+        if (role === 'super_admin') return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+        if (role === 'employee') return NextResponse.redirect(new URL('/dashboard/employee', request.url));
         return NextResponse.redirect(new URL('/dashboard/member', request.url));
       }
 
-      if (isDashboardRoute && role === 'admin' && !pathname.includes('member')) {
-         // Admins can view member dashboard if they want, but usually stay in /admin
-         // For now, let's allow them, or redirect if needed.
+      // Role-based protection
+      if (isAdminRoute && role !== 'super_admin') {
+        const redirectUrl = role === 'employee' ? '/dashboard/employee' : '/dashboard/member';
+        return NextResponse.redirect(new URL(redirectUrl, request.url));
+      }
+
+      // If employee trying to access member routes or vice versa
+      if (pathname.startsWith('/dashboard/employee') && role !== 'employee' && role !== 'super_admin') {
+        return NextResponse.redirect(new URL('/dashboard/member', request.url));
+      }
+      
+      if (pathname.startsWith('/dashboard/member') && role !== 'member' && role !== 'super_admin') {
+        return NextResponse.redirect(new URL('/dashboard/employee', request.url));
       }
 
     } catch (error) {
