@@ -13,6 +13,9 @@ export default function EmployeeMembersPage() {
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [search, setSearch] = useState("");
+  const [filterGroup, setFilterGroup] = useState("all");
+
   const fetchMembers = async () => {
     try {
       const res = await axios.get('/api/members');
@@ -27,6 +30,15 @@ export default function EmployeeMembersPage() {
   useEffect(() => {
     fetchMembers();
   }, []);
+
+  const groups = Array.from(new Set(members.map(m => m.groupId?.groupName).filter(Boolean)));
+
+  const filteredMembers = members.filter(m => {
+    const matchesSearch = m.name.toLowerCase().includes(search.toLowerCase()) || 
+                          m.mobile.includes(search);
+    const matchesGroup = filterGroup === "all" || m.groupId?.groupName === filterGroup;
+    return matchesSearch && matchesGroup;
+  });
 
   if (showAdd) {
     return (
@@ -48,18 +60,34 @@ export default function EmployeeMembersPage() {
         </button>
       </div>
 
-      <div style={{ background: 'white', padding: '20px', borderRadius: '20px', marginBottom: '30px', display: 'flex', gap: '15px' }}>
-         <div style={{ flex: 1, position: 'relative' }}>
+      <div style={{ background: 'white', padding: '20px', borderRadius: '20px', marginBottom: '30px', display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+         <div style={{ flex: 1, minWidth: '250px', position: 'relative' }}>
             <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-            <input type="text" placeholder="Search members by name or mobile..." style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '12px', border: '1px solid #eee' }} />
+            <input 
+              type="text" 
+              placeholder="Search members by name or mobile..." 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '12px', border: '1px solid #eee', outline: 'none' }} 
+            />
          </div>
-         <button style={{ padding: '12px 20px', borderRadius: '12px', border: '1px solid #eee', background: 'white', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '700' }}>
-            <Filter size={18} /> Filters
-         </button>
+         <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ position: 'relative' }}>
+              <Filter size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
+              <select 
+                value={filterGroup}
+                onChange={(e) => setFilterGroup(e.target.value)}
+                style={{ padding: '12px 15px 12px 40px', borderRadius: '12px', border: '1px solid #eee', background: 'white', fontWeight: '700', appearance: 'none', minWidth: '160px' }}
+              >
+                <option value="all">All Groups</option>
+                {groups.map(g => <option key={g as string} value={g as string}>{g as string}</option>)}
+              </select>
+            </div>
+         </div>
       </div>
 
-      <div style={{ background: 'white', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+      <div style={{ background: 'white', borderRadius: '24px', overflowX: 'auto', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
           <thead style={{ background: '#f8f9fa' }}>
             <tr>
               <th style={{ padding: '20px', color: '#666', fontSize: '0.9rem', fontWeight: '800' }}>Member Name</th>
@@ -72,7 +100,7 @@ export default function EmployeeMembersPage() {
           <tbody>
             {loading ? (
               <tr><td colSpan={5} style={{ padding: '40px', textAlign: 'center' }}>Loading Members...</td></tr>
-            ) : members.map((member) => (
+            ) : filteredMembers.map((member) => (
               <tr key={member._id} style={{ borderTop: '1px solid #f5f5f5' }}>
                 <td style={{ padding: '20px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -108,10 +136,10 @@ export default function EmployeeMembersPage() {
                 </td>
               </tr>
             ))}
-            {members.length === 0 && !loading && (
+            {filteredMembers.length === 0 && !loading && (
               <tr>
                 <td colSpan={5} style={{ padding: '100px', textAlign: 'center', color: '#999' }}>
-                   No members found. Start adding women to your groups!
+                   No members found matching your search.
                 </td>
               </tr>
             )}

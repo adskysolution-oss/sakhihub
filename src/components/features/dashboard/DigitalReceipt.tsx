@@ -99,7 +99,7 @@ export default function DigitalReceipt({ data }: ReceiptProps) {
         <button onClick={handlePrint} style={{ flex: 1, padding: '15px', borderRadius: '15px', background: '#f5f5f5', border: 'none', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
           <Printer size={18} /> Print Receipt
         </button>
-        <button style={{ flex: 1, padding: '15px', borderRadius: '15px', background: 'var(--grad-primary)', color: 'white', border: 'none', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+        <button onClick={handlePrint} style={{ flex: 1, padding: '15px', borderRadius: '15px', background: 'var(--grad-primary)', color: 'white', border: 'none', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
           <Download size={18} /> Download PDF
         </button>
       </div>

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import Link from 'next/link';
 
 export default function EmployeeDashboard({ user }: { user: any }) {
   const [data, setData] = React.useState<any>(null);
@@ -94,26 +95,34 @@ export default function EmployeeDashboard({ user }: { user: any }) {
             <ClipboardList size={22} color="var(--primary)" /> Quick Actions
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-            <button style={{ padding: '20px', borderRadius: '20px', border: '1px solid #eee', background: '#f8f9fa', textAlign: 'left', cursor: 'pointer', transition: '0.2s' }}>
-              <div style={{ color: 'var(--primary)', marginBottom: '10px' }}><UserPlus size={24} /></div>
-              <p style={{ fontWeight: '800', margin: 0 }}>Add New Member</p>
-              <p style={{ fontSize: '0.75rem', color: '#777', margin: '5px 0 0' }}>Register a woman in a group</p>
-            </button>
-            <button style={{ padding: '20px', borderRadius: '20px', border: '1px solid #eee', background: '#f8f9fa', textAlign: 'left', cursor: 'pointer', transition: '0.2s' }}>
-              <div style={{ color: '#6a1b9a', marginBottom: '10px' }}><Users size={24} /></div>
-              <p style={{ fontWeight: '800', margin: 0 }}>Create Group</p>
-              <p style={{ fontSize: '0.75rem', color: '#777', margin: '5px 0 0' }}>Form a new village unit</p>
-            </button>
-            <button style={{ padding: '20px', borderRadius: '20px', border: '1px solid #eee', background: '#f8f9fa', textAlign: 'left', cursor: 'pointer', transition: '0.2s' }}>
-              <div style={{ color: '#2e7d32', marginBottom: '10px' }}><IndianRupee size={24} /></div>
-              <p style={{ fontWeight: '800', margin: 0 }}>Membership Fee</p>
-              <p style={{ fontSize: '0.75rem', color: '#777', margin: '5px 0 0' }}>Collect ₹100 from member</p>
-            </button>
-            <button style={{ padding: '20px', borderRadius: '20px', border: '1px solid #eee', background: '#f8f9fa', textAlign: 'left', cursor: 'pointer', transition: '0.2s' }}>
-              <div style={{ color: '#ef6c00', marginBottom: '10px' }}><TrendingUp size={24} /></div>
-              <p style={{ fontWeight: '800', margin: 0 }}>Daily Report</p>
-              <p style={{ fontSize: '0.75rem', color: '#777', margin: '5px 0 0' }}>Submit today's summary</p>
-            </button>
+            <Link href="/employee/members" style={{ textDecoration: 'none' }}>
+              <button style={{ width: '100%', padding: '20px', borderRadius: '20px', border: '1px solid #eee', background: '#f8f9fa', textAlign: 'left', cursor: 'pointer', transition: '0.2s' }}>
+                <div style={{ color: 'var(--primary)', marginBottom: '10px' }}><UserPlus size={24} /></div>
+                <p style={{ fontWeight: '800', margin: 0, color: 'var(--secondary)' }}>Add New Member</p>
+                <p style={{ fontSize: '0.75rem', color: '#777', margin: '5px 0 0' }}>Register a woman in a group</p>
+              </button>
+            </Link>
+            <Link href="/employee/groups" style={{ textDecoration: 'none' }}>
+              <button style={{ width: '100%', padding: '20px', borderRadius: '20px', border: '1px solid #eee', background: '#f8f9fa', textAlign: 'left', cursor: 'pointer', transition: '0.2s' }}>
+                <div style={{ color: '#6a1b9a', marginBottom: '10px' }}><Users size={24} /></div>
+                <p style={{ fontWeight: '800', margin: 0, color: 'var(--secondary)' }}>Create Group</p>
+                <p style={{ fontSize: '0.75rem', color: '#777', margin: '5px 0 0' }}>Form a new village unit</p>
+              </button>
+            </Link>
+            <Link href="/employee/membership" style={{ textDecoration: 'none' }}>
+              <button style={{ width: '100%', padding: '20px', borderRadius: '20px', border: '1px solid #eee', background: '#f8f9fa', textAlign: 'left', cursor: 'pointer', transition: '0.2s' }}>
+                <div style={{ color: '#2e7d32', marginBottom: '10px' }}><IndianRupee size={24} /></div>
+                <p style={{ fontWeight: '800', margin: 0, color: 'var(--secondary)' }}>Membership Fee</p>
+                <p style={{ fontSize: '0.75rem', color: '#777', margin: '5px 0 0' }}>Collect ₹100 from member</p>
+              </button>
+            </Link>
+            <Link href="/employee/reports" style={{ textDecoration: 'none' }}>
+              <button style={{ width: '100%', padding: '20px', borderRadius: '20px', border: '1px solid #eee', background: '#f8f9fa', textAlign: 'left', cursor: 'pointer', transition: '0.2s' }}>
+                <div style={{ color: '#ef6c00', marginBottom: '10px' }}><TrendingUp size={24} /></div>
+                <p style={{ fontWeight: '800', margin: 0, color: 'var(--secondary)' }}>Daily Report</p>
+                <p style={{ fontSize: '0.75rem', color: '#777', margin: '5px 0 0' }}>Submit today's summary</p>
+              </button>
+            </Link>
           </div>
         </div>
 
@@ -126,25 +135,25 @@ export default function EmployeeDashboard({ user }: { user: any }) {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '0.9rem', fontWeight: '700' }}>
                 <span>Monthly Members Target</span>
-                <span>156 / 200</span>
+                <span>{data?.monthlyMembers || 0} / 200</span>
               </div>
               <div style={{ height: '10px', background: '#eee', borderRadius: '10px', overflow: 'hidden' }}>
-                <div style={{ width: '78%', height: '100%', background: 'var(--grad-primary)' }}></div>
+                <div style={{ width: `${Math.min(((data?.monthlyMembers || 0) / 200) * 100, 100)}%`, height: '100%', background: 'var(--grad-primary)' }}></div>
               </div>
             </div>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '0.9rem', fontWeight: '700' }}>
                 <span>Group Creation Goal</span>
-                <span>12 / 15</span>
+                <span>{data?.totalGroups || 0} / 15</span>
               </div>
               <div style={{ height: '10px', background: '#eee', borderRadius: '10px', overflow: 'hidden' }}>
-                <div style={{ width: '80%', height: '100%', background: 'var(--grad-secondary)' }}></div>
+                <div style={{ width: `${Math.min(((data?.totalGroups || 0) / 15) * 100, 100)}%`, height: '100%', background: 'var(--grad-secondary)' }}></div>
               </div>
             </div>
             <div style={{ marginTop: '10px', padding: '20px', background: '#FFF5F8', borderRadius: '20px', border: '1px dashed var(--primary)' }}>
               <p style={{ margin: 0, fontWeight: '800', color: 'var(--primary)', fontSize: '0.9rem' }}>Efficiency Score</p>
-              <h4 style={{ fontSize: '2rem', fontWeight: '900', color: 'var(--secondary)', margin: '5px 0' }}>88%</h4>
-              <p style={{ margin: 0, fontSize: '0.8rem', color: '#777' }}>You are performing better than 75% of field leads.</p>
+              <h4 style={{ fontSize: '2rem', fontWeight: '900', color: 'var(--secondary)', margin: '5px 0' }}>{Math.round(((data?.monthlyMembers || 0) / 200) * 100)}%</h4>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#777' }}>{((data?.monthlyMembers || 0) / 200) >= 0.8 ? 'You are performing exceptionally well!' : 'Keep pushing to reach your monthly targets.'}</p>
             </div>
           </div>
         </div>

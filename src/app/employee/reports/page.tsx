@@ -50,39 +50,41 @@ export default function EmployeeReportsPage() {
         {loading ? (
           <p>Loading reports...</p>
         ) : reports.map((report) => (
-          <div key={report._id} style={{ background: 'white', borderRadius: '24px', padding: '25px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #f5f5f5', display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', gap: '30px' }}>
-            <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-              <div style={{ width: '55px', height: '55px', background: 'rgba(233, 30, 99, 0.1)', color: 'var(--primary)', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                 <Calendar size={26} />
+          <div key={report._id} style={{ background: 'white', borderRadius: '24px', padding: '25px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #f5f5f5', overflowX: 'auto' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', gap: '30px', minWidth: '700px' }}>
+              <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                <div style={{ width: '55px', height: '55px', background: 'rgba(233, 30, 99, 0.1)', color: 'var(--primary)', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                   <Calendar size={26} />
+                </div>
+                <div>
+                  <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>{new Date(report.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>{report.status.toUpperCase()}</p>
+                </div>
               </div>
-              <div>
-                <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>{new Date(report.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
-                <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>{report.status.toUpperCase()}</p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+                 <div style={{ textAlign: 'center' }}>
+                   <p style={{ margin: 0, fontSize: '0.8rem', color: '#888', fontWeight: '700' }}>Groups</p>
+                   <p style={{ margin: '5px 0 0', fontSize: '1.2rem', fontWeight: '900' }}>{report.groupsCreated}</p>
+                 </div>
+                 <div style={{ textAlign: 'center' }}>
+                   <p style={{ margin: 0, fontSize: '0.8rem', color: '#888', fontWeight: '700' }}>Members</p>
+                   <p style={{ margin: '5px 0 0', fontSize: '1.2rem', fontWeight: '900' }}>{report.membersAdded}</p>
+                 </div>
+                 <div style={{ textAlign: 'center' }}>
+                   <p style={{ margin: 0, fontSize: '0.8rem', color: '#888', fontWeight: '700' }}>Collection</p>
+                   <p style={{ margin: '5px 0 0', fontSize: '1.2rem', fontWeight: '900' }}>₹{report.membershipCollected}</p>
+                 </div>
+                 <div style={{ textAlign: 'center' }}>
+                   <p style={{ margin: 0, fontSize: '0.8rem', color: '#888', fontWeight: '700' }}>Inquiries</p>
+                   <p style={{ margin: '5px 0 0', fontSize: '1.2rem', fontWeight: '900' }}>{report.padsInquiry}</p>
+                 </div>
               </div>
-            </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
-               <div style={{ textAlign: 'center' }}>
-                 <p style={{ margin: 0, fontSize: '0.8rem', color: '#888', fontWeight: '700' }}>Groups</p>
-                 <p style={{ margin: '5px 0 0', fontSize: '1.2rem', fontWeight: '900' }}>{report.groupsCreated}</p>
-               </div>
-               <div style={{ textAlign: 'center' }}>
-                 <p style={{ margin: 0, fontSize: '0.8rem', color: '#888', fontWeight: '700' }}>Members</p>
-                 <p style={{ margin: '5px 0 0', fontSize: '1.2rem', fontWeight: '900' }}>{report.membersAdded}</p>
-               </div>
-               <div style={{ textAlign: 'center' }}>
-                 <p style={{ margin: 0, fontSize: '0.8rem', color: '#888', fontWeight: '700' }}>Collection</p>
-                 <p style={{ margin: '5px 0 0', fontSize: '1.2rem', fontWeight: '900' }}>₹{report.membershipCollected}</p>
-               </div>
-               <div style={{ textAlign: 'center' }}>
-                 <p style={{ margin: 0, fontSize: '0.8rem', color: '#888', fontWeight: '700' }}>Inquiries</p>
-                 <p style={{ margin: '5px 0 0', fontSize: '1.2rem', fontWeight: '900' }}>{report.padsInquiry}</p>
-               </div>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px' }}>
-               {report.status === 'verified' && <span style={{ color: '#10b981', background: '#f0fdf4', padding: '8px 15px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '5px' }}><CheckCircle2 size={16} /> Verified</span>}
-               <button style={{ color: '#666', background: '#f8f9fa', padding: '10px 20px', borderRadius: '12px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>View Details</button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px' }}>
+                 {report.status === 'verified' && <span style={{ color: '#10b981', background: '#f0fdf4', padding: '8px 15px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '5px' }}><CheckCircle2 size={16} /> Verified</span>}
+                 <button style={{ color: '#666', background: '#f8f9fa', padding: '10px 20px', borderRadius: '12px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>View Details</button>
+              </div>
             </div>
           </div>
         ))}

@@ -9,6 +9,7 @@ import Link from "next/link";
 
 export default function EmployeeGroupsPage() {
   const [showCreate, setShowCreate] = useState(false);
+  const [search, setSearch] = useState("");
   const [groups, setGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,6 +27,11 @@ export default function EmployeeGroupsPage() {
   useEffect(() => {
     fetchGroups();
   }, []);
+
+  const filteredGroups = groups.filter(g => 
+    g.groupName.toLowerCase().includes(search.toLowerCase()) || 
+    g.village.toLowerCase().includes(search.toLowerCase())
+  );
 
   if (showCreate) {
     return (
@@ -50,18 +56,21 @@ export default function EmployeeGroupsPage() {
       <div style={{ background: 'white', padding: '20px', borderRadius: '20px', marginBottom: '30px', display: 'flex', gap: '15px' }}>
          <div style={{ flex: 1, position: 'relative' }}>
             <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-            <input type="text" placeholder="Search groups by name or village..." style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '12px', border: '1px solid #eee' }} />
+            <input 
+              type="text" 
+              placeholder="Search groups by name or village..." 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '12px', border: '1px solid #eee', outline: 'none' }} 
+            />
          </div>
-         <button style={{ padding: '12px 20px', borderRadius: '12px', border: '1px solid #eee', background: 'white', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '700' }}>
-            <Filter size={18} /> Filters
-         </button>
       </div>
 
       {loading ? (
         <p>Loading groups...</p>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '20px' }}>
-          {groups.map((group) => (
+          {filteredGroups.map((group) => (
             <div key={group._id} style={{ background: 'white', borderRadius: '24px', padding: '25px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #f5f5f5' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
                 <div style={{ width: '50px', height: '50px', borderRadius: '14px', background: 'rgba(106, 27, 154, 0.1)', color: '#6a1b9a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
