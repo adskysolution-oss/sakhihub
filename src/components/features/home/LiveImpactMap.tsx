@@ -19,25 +19,25 @@ const LiveImpactMap = () => {
   ];
 
   return (
-    <section className="section-padding" style={{ background: '#fff', position: 'relative', overflow: 'hidden' }}>
-      <div className="container">
-        <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-          <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px' }}>
+    <section className="py-16 md:py-32 bg-white relative overflow-hidden">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto text-center mb-16 md:mb-24">
+          <span className="text-primary font-bold tracking-widest uppercase text-xs md:text-sm block mb-4">
             {language === 'hi' ? 'वास्तविक समय पदचिह्न' : 'REAL-TIME FOOTPRINT'}
           </span>
-          <h2 style={{ fontSize: '3.5rem', fontWeight: '900', marginTop: '15px' }}>
+          <h2 className="text-3xl md:text-5xl font-bold text-secondary leading-tight">
             {language === 'hi' ? <>पूरे <span className="text-gradient">भारत</span> में हमारा प्रभाव</> : <>Our Impact Across <span className="text-gradient">India</span></>}
           </h2>
-          <p style={{ color: '#666', marginTop: '20px', fontSize: '1.2rem', maxWidth: '800px', margin: '20px auto 0' }}>
+          <p className="text-gray-500 mt-6 text-sm md:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed font-medium">
             {language === 'hi' 
               ? 'साखीहब तेजी से बढ़ रहा है, देश के हर कोने से महिलाओं को जोड़ रहा है।'
               : 'SakhiHub is rapidly growing, connecting women from every corner of the country.'}
           </p>
         </div>
 
-        <div className="map-layout">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-20 items-center">
           {/* Stats List */}
-          <div className="stats-list">
+          <div className="lg:col-span-2 space-y-6">
             {[
               { label: language === 'hi' ? 'सक्रिय जिले' : 'Active Districts', val: '45+', icon: MapPin, color: '#E91E63' },
               { label: language === 'hi' ? 'ग्राम प्रधान' : 'Village Leaders', val: '2,500+', icon: Users, color: '#6A1B9A' },
@@ -50,14 +50,14 @@ const LiveImpactMap = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="stat-item"
+                className="p-6 md:p-8 bg-gray-50/50 rounded-[32px] flex items-center gap-6 border border-gray-100 transition-all hover:bg-white hover:shadow-2xl hover:shadow-black/5 hover:translate-x-2"
               >
-                <div className="stat-icon" style={{ color: item.color }}>
+                <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white flex items-center justify-center shadow-lg shadow-black/[0.03] shrink-0" style={{ color: item.color }}>
                   <item.icon size={28} />
                 </div>
                 <div>
-                  <h3 className="stat-val">{item.val}</h3>
-                  <p className="stat-label">{item.label}</p>
+                  <h3 className="text-2xl md:text-3xl font-bold text-secondary leading-none">{item.val}</h3>
+                  <p className="text-xs md:text-sm text-gray-500 font-bold mt-1 uppercase tracking-wider">{item.label}</p>
                 </div>
               </motion.div>
             ))}
@@ -68,14 +68,14 @@ const LiveImpactMap = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="map-container"
+            className="lg:col-span-3 relative h-[500px] md:h-[700px] bg-gray-50/30 rounded-[40px] md:rounded-[60px] border border-gray-100 overflow-hidden shadow-2xl shadow-black/5"
           >
             {/* Proper India Map Image Background */}
-            <div className="map-image-wrapper">
+            <div className="absolute inset-8 md:inset-12 flex items-center justify-center opacity-60">
               <img 
                 src="https://upload.wikimedia.org/wikipedia/commons/e/e0/India_map_blank.svg" 
                 alt="India Map" 
-                className="india-map-img"
+                className="max-w-full max-h-full object-contain filter drop-shadow-2xl"
               />
             </div>
 
@@ -83,183 +83,35 @@ const LiveImpactMap = () => {
             {activeDistricts.map((district) => (
               <motion.div
                 key={district.id}
+                className="absolute z-10 group"
                 style={{
-                  position: 'absolute',
                   top: district.top,
                   left: district.left,
-                  zIndex: 2
                 }}
               >
-                <div className="pulse-marker-wrapper">
+                <div className="relative">
                   <motion.div
                     animate={{ scale: [1, 2.5, 1], opacity: [0.6, 0, 0.6] }}
                     transition={{ duration: 2, repeat: Infinity }}
-                    className="marker-pulse"
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-primary rounded-full"
                   />
-                  <div className="marker-dot" />
+                  <div className="w-3 h-3 md:w-4 md:h-4 bg-primary rounded-full border-2 border-white shadow-lg shadow-primary/60 relative z-10" />
                   
-                  <div className="marker-tooltip">
-                    {district.name}: <span style={{ color: 'var(--primary)' }}>{district.active}</span>
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white px-3 py-1.5 md:px-4 md:py-2 rounded-xl shadow-2xl text-[10px] md:text-xs font-bold text-secondary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all group-hover:-translate-y-1 pointer-events-none border border-gray-100">
+                    {district.name}: <span className="text-primary">{district.active}</span>
                   </div>
                 </div>
               </motion.div>
             ))}
 
-            <div className="live-update-badge">
-               <h4 className="badge-title">Live Updates</h4>
-               <p className="badge-text">
+            <div className="absolute bottom-8 right-8 text-right z-20">
+               <h4 className="text-sm md:text-base font-bold text-secondary mb-2">Live Activity</h4>
+               <p className="text-[10px] md:text-xs font-bold text-gray-500 bg-white/80 backdrop-blur-md px-4 py-2.5 rounded-full shadow-xl border border-white/50">
                   📍 Bihar: New group formed with 25 members
                </p>
             </div>
           </motion.div>
         </div>
-
-        <style jsx>{`
-          .map-layout {
-            display: grid;
-            grid-template-columns: 1fr 1.5fr;
-            gap: 60px;
-            align-items: center;
-          }
-          .stats-list {
-            display: grid;
-            gap: 25px;
-          }
-          .stat-item {
-            padding: 30px;
-            background: #fcfcfc;
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            gap: 25px;
-            border: 1px solid #f0f0f0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
-            transition: 0.3s;
-          }
-          .stat-item:hover {
-            transform: translateX(10px);
-            background: white;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
-          }
-          .stat-icon {
-            width: 65px;
-            height: 65px;
-            border-radius: 18px;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-          }
-          .stat-val {
-            font-size: 2.2rem;
-            font-weight: 900;
-            color: var(--secondary);
-            margin: 0;
-            line-height: 1;
-          }
-          .stat-label {
-            color: #666;
-            font-weight: 700;
-            margin: 5px 0 0;
-          }
-          .map-container {
-            position: relative;
-            height: 700px;
-            background: #fdfdfd;
-            border-radius: 50px;
-            border: 1px solid #f0f0f0;
-            overflow: hidden;
-            box-shadow: 0 30px 70px rgba(0,0,0,0.05);
-          }
-          .map-image-wrapper {
-            position: absolute;
-            inset: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.8;
-          }
-          .india-map-img {
-            max-width: 100%;
-            max-height: 100%;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.05));
-            opacity: 0.6;
-          }
-          .pulse-marker-wrapper {
-            position: relative;
-          }
-          .marker-pulse {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 45px;
-            height: 45px;
-            background: var(--primary);
-            border-radius: 50%;
-            z-index: -1;
-          }
-          .marker-dot {
-            width: 14px;
-            height: 14px;
-            background: var(--primary);
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 0 15px rgba(233, 30, 99, 0.6);
-          }
-          .marker-tooltip {
-            position: absolute;
-            bottom: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            padding: 8px 18px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            white-space: nowrap;
-            font-size: 0.85rem;
-            font-weight: 800;
-            color: var(--secondary);
-            pointer-events: none;
-            opacity: 0;
-            transition: 0.3s;
-          }
-          .pulse-marker-wrapper:hover .marker-tooltip {
-            opacity: 1;
-            transform: translateX(-50%) translateY(-5px);
-          }
-          .live-update-badge {
-            position: absolute;
-            bottom: 40px;
-            right: 40px;
-            text-align: right;
-            z-index: 10;
-          }
-          .badge-title {
-            font-size: 1.25rem;
-            font-weight: 900;
-            color: var(--secondary);
-            margin-bottom: 8px;
-          }
-          .badge-text {
-            font-size: 0.9rem;
-            color: #444;
-            background: white;
-            padding: 10px 20px;
-            border-radius: 100px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            border: 1px solid #f0f0f0;
-          }
-          @media (max-width: 1024px) {
-            .map-layout {
-              grid-template-columns: 1fr;
-            }
-            .map-container {
-              height: 600px;
-            }
-          }
-        `}</style>
       </div>
     </section>
   );

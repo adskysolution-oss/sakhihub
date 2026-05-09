@@ -34,38 +34,38 @@ export default function MemberManagement() {
 
   return (
     <DashboardLayout>
-      <div style={{ padding: '10px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '30px', flexWrap: 'wrap', gap: '20px' }}>
+      <div className="p-2 md:p-4">
+        <div className="flex flex-col md:flex-row justify-between items-start mb-6 md:mb-10 gap-5">
           <div>
-            <h2 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'var(--secondary)' }}>Members Directory</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Global registry of all women members and their membership compliance.</p>
+            <h2 className="text-2xl md:text-4xl font-black text-secondary leading-tight">Members Directory</h2>
+            <p className="text-gray-500 text-sm md:text-lg mt-1">Global registry of all women members and their membership compliance.</p>
           </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button className="btn-secondary" style={{ padding: '12px 25px' }}>
-              <Download size={18} /> Export Excel
+          <div className="flex flex-wrap gap-2 md:gap-3 w-full md:w-auto">
+            <button className="btn-secondary py-3 px-6 text-sm flex-1 md:flex-none justify-center">
+              <Download size={16} /> Export Excel
             </button>
-            <button className="btn-primary" style={{ padding: '12px 25px' }}>
-              <Download size={18} /> Export PDF
+            <button className="btn-primary py-3 px-6 text-sm flex-1 md:flex-none justify-center">
+              <Download size={16} /> Export PDF
             </button>
           </div>
         </div>
 
-        <div className="glass-card" style={{ padding: '30px', background: 'white', borderRadius: '30px', boxShadow: '0 10px 40px rgba(0,0,0,0.03)' }}>
-          <div style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
-            <div style={{ position: 'relative', flex: 1 }}>
-              <Search size={18} style={{ position: 'absolute', left: '15px', top: '16px', color: '#999' }} />
+        <div className="glass-card p-4 md:p-8 bg-white rounded-3xl shadow-soft">
+          <div className="flex flex-col md:flex-row gap-4 mb-8">
+            <div className="relative flex-1">
+              <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
                 type="text" 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by member name, mobile or village..." 
-                style={{ padding: '15px 15px 15px 45px', borderRadius: '15px', border: '1px solid #eee', width: '100%', outline: 'none' }} 
+                placeholder="Search by member, mobile or village..." 
+                className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
               />
             </div>
           </div>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div className="overflow-x-auto -mx-4 md:mx-0">
+            <table className="w-full border-collapse min-w-[1000px]">
               <thead>
                 <tr style={{ textAlign: 'left', borderBottom: '2px solid #f8f9fa' }}>
                   <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Member Details</th>

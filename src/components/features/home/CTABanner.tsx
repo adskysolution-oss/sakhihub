@@ -10,44 +10,35 @@ const CTABanner = () => {
   const { t, language } = useLanguage();
 
   return (
-    <section className="section-padding" style={{ paddingBottom: '0' }}>
+    <section className="section-padding !pb-0 overflow-hidden">
       <div className="container">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          style={{ 
-            background: 'var(--grad-dark)', 
-            borderRadius: 'var(--radius-lg)', 
-            padding: '120px 40px',
-            textAlign: 'center',
-            color: 'white',
-            position: 'relative',
-            overflow: 'hidden',
-            boxShadow: '0 30px 60px rgba(0,0,0,0.2)'
-          }}
+          className="bg-secondary-dark rounded-[40px] md:rounded-[60px] py-16 px-6 md:py-24 md:px-20 text-center text-white relative overflow-hidden shadow-2xl"
         >
           {/* Background Decor */}
-          <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '400px', height: '400px', background: 'rgba(233, 30, 99, 0.25)', borderRadius: '50%', filter: 'blur(100px)' }}></div>
-          <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '400px', height: '400px', background: 'rgba(106, 27, 154, 0.25)', borderRadius: '50%', filter: 'blur(100px)' }}></div>
+          <div className="absolute top-[-100px] right-[-100px] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-primary/20 rounded-full blur-[80px] md:blur-[120px]" />
+          <div className="absolute bottom-[-100px] left-[-100px] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-secondary/30 rounded-full blur-[80px] md:blur-[120px]" />
 
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            style={{ fontSize: '4.5rem', marginBottom: '30px', fontWeight: '900', lineHeight: '1.1' }}
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 relative z-10"
           >
             {language === 'hi' ? (
-              <>आज ही जुड़ें और बदलाव का <span style={{ color: 'var(--primary)' }}>हिस्सा बनें</span></>
+              <>आज ही जुड़ें और बदलाव का <span className="text-primary">हिस्सा बनें</span></>
             ) : (
-              <>Join Today & <span style={{ color: 'var(--primary)' }}>Be the Change</span></>
+              <>Join Today & <span className="text-primary">Be the Change</span></>
             )}
           </motion.h2>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            style={{ fontSize: '1.4rem', opacity: 0.9, maxWidth: '850px', margin: '0 auto 50px', lineHeight: '1.6' }}
+            className="text-base md:text-lg lg:text-xl opacity-90 max-w-3xl mx-auto mb-12 leading-relaxed font-medium relative z-10"
           >
             {language === 'hi' 
               ? "आज ही साखीहब से जुड़ें और अपने समुदाय को सशक्त बनाएं। आपके द्वारा उठाया गया हर कदम भारत भर में महिलाओं के जीवन पर स्थायी प्रभाव डालता है।"
@@ -59,13 +50,13 @@ const CTABanner = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            style={{ display: 'flex', gap: '25px', justifyContent: 'center', flexWrap: 'wrap' }}
+            className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center relative z-10"
           >
-            <Link href="/register" className="btn-primary" style={{ background: 'white', color: 'var(--secondary)', padding: '22px 50px', fontSize: '1.2rem', borderRadius: '50px' }}>
-              {t('join_btn')} <ArrowRight size={24} />
+            <Link href="/register" className="btn-primary bg-white text-secondary py-5 px-10 text-base md:text-lg rounded-2xl flex items-center justify-center gap-2 shadow-xl hover:scale-105 transition-all">
+              {t('join_btn')} <ArrowRight size={20} />
             </Link>
-            <Link href="https://wa.me/918076611842" target="_blank" className="btn-secondary" style={{ border: '2px solid rgba(255,255,255,0.4)', color: 'white', background: 'transparent', padding: '22px 50px', fontSize: '1.2rem', borderRadius: '50px' }}>
-              <MessageCircle size={24} />
+            <Link href="https://wa.me/918076611842" target="_blank" className="btn-secondary border-white/20 text-white bg-white/5 backdrop-blur-sm py-5 px-10 text-base md:text-lg rounded-2xl flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
+              <MessageCircle size={20} />
               {language === 'hi' ? 'व्हाट्सएप पूछताछ' : 'WhatsApp Inquiry'}
             </Link>
           </motion.div>

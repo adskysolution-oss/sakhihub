@@ -75,63 +75,60 @@ const WhatWeDo = () => {
   };
 
   return (
-    <section className="section-padding" style={{ background: '#fcfcfc' }}>
-      <div className="container">
-        <div className="section-title" style={{ maxWidth: '800px', margin: '0 auto 60px', textAlign: 'center' }}>
-          <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px', textTransform: 'uppercase' }}>
+    <section className="py-16 md:py-32 bg-[#fcfcfc] overflow-hidden">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto mb-16 md:mb-24 text-center">
+          <span className="text-primary font-bold uppercase tracking-[2px] text-xs md:text-sm block mb-4">
             {language === 'hi' ? 'हमारा मुख्य कार्य' : 'OUR CORE WORK'}
           </span>
-          <h2 style={{ fontSize: '3.5rem', marginTop: '10px' }}>
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight text-secondary">
             {language === 'hi' ? <>कर्म के माध्यम से <span className="text-gradient">सशक्तिकरण</span></> : <>Empowering Through <span className="text-gradient">Action</span></>}
           </h2>
-          <p style={{ color: 'var(--text-muted)', marginTop: '20px', fontSize: '1.1rem' }}>
+          <p className="text-gray-500 mt-6 text-sm md:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed">
             {language === 'hi' 
               ? 'साखीहब जागरूकता पैदा करने, समुदायों का निर्माण करने और बेहतर भविष्य के लिए महिलाओं को सशक्त बनाने के लिए जमीनी स्तर पर काम करता है।'
               : 'SakhiHub works at ground level to create awareness, build communities, and empower women for a better future.'}
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
           {services.map((item, idx) => (
             <motion.div 
               key={idx} 
               {...fadeInUp}
               whileHover={{ y: -10 }}
-              style={{ 
-                background: 'white', 
-                borderRadius: '35px', 
-                overflow: 'hidden', 
-                boxShadow: '0 25px 60px rgba(0,0,0,0.06)',
-                border: '1px solid #f2f2f2',
-                display: 'flex',
-                flexDirection: 'column'
-              }}
+              className="bg-white rounded-[40px] overflow-hidden shadow-2xl shadow-black/5 border border-gray-100 flex flex-col transition-all hover:shadow-primary/5"
             >
-              <div style={{ position: 'relative', height: '220px', overflow: 'hidden' }}>
+              <div className="relative h-56 md:h-64 overflow-hidden">
                 <img 
                   src={item.image} 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: '0.6s' }} 
+                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-110" 
                   alt={language === 'hi' ? item.hi : item.en} 
                 />
-                <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(to top, ${item.color}cc, transparent)` }}></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 md:opacity-40"></div>
+                <div className="absolute bottom-6 left-6">
+                   <div className="px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-[10px] font-bold text-white uppercase tracking-widest">
+                     {language === 'hi' ? 'विशेषता' : 'Core Service'}
+                   </div>
+                </div>
               </div>
-              <div style={{ padding: '35px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <h3 style={{ fontSize: '1.6rem', marginBottom: '10px', color: 'var(--secondary)', fontWeight: '900' }}>
+              <div className="p-8 md:p-10 flex-1 flex flex-col">
+                <h3 className="text-xl md:text-2xl font-bold mb-4 text-secondary leading-tight">
                   {language === 'hi' ? item.hi : item.en}
                 </h3>
-                <p style={{ color: '#666', fontSize: '0.95rem', lineHeight: '1.7', marginBottom: '20px' }}>
+                <p className="text-gray-500 text-sm md:text-base leading-relaxed mb-8 flex-1">
                   {language === 'hi' ? item.desc.hi : item.desc.en}
                 </p>
                 
-                <div style={{ marginBottom: '25px', flex: 1 }}>
+                <div className="mb-8 space-y-3">
                   {(language === 'hi' ? item.points.hi : item.points.en).map((point, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', color: 'var(--secondary)', fontWeight: '700', marginBottom: '8px' }}>
-                      <CheckCircle size={14} color={item.color} /> {point}
+                    <div key={i} className="flex items-center gap-3 text-[11px] md:text-xs font-bold text-secondary uppercase tracking-wider">
+                      <CheckCircle size={14} className="shrink-0" style={{ color: item.color }} /> {point}
                     </div>
                   ))}
                 </div>
 
-                <Link href="/programs" style={{ display: 'flex', alignItems: 'center', gap: '10px', color: item.color, fontWeight: '900', fontSize: '0.95rem', textDecoration: 'none' }}>
+                <Link href="/programs" className="flex items-center gap-2 font-bold text-xs md:text-sm uppercase tracking-widest transition-all hover:gap-4" style={{ color: item.color }}>
                   {language === 'hi' ? 'अधिक जानें' : 'Learn More'} <ArrowRight size={18} />
                 </Link>
               </div>

@@ -14,47 +14,24 @@ const updates = [
 
 const ImpactTicker = () => {
   return (
-    <div style={{ 
-      background: 'var(--secondary)', 
-      color: 'white', 
-      padding: '12px 0', 
-      overflow: 'hidden', 
-      whiteSpace: 'nowrap',
-      position: 'relative',
-      zIndex: 10,
-      borderBottom: '1px solid rgba(255,255,255,0.1)'
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div style={{ 
-          background: 'var(--primary)', 
-          padding: '0 20px', 
-          height: '100%', 
-          display: 'flex', 
-          alignItems: 'center', 
-          fontWeight: '900', 
-          fontSize: '0.8rem', 
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
-          position: 'absolute',
-          left: 0,
-          zIndex: 2,
-          boxShadow: '10px 0 20px rgba(0,0,0,0.2)'
-        }}>
+    <div className="bg-secondary text-white py-3 overflow-hidden whitespace-nowrap relative z-10 border-b border-white/10">
+      <div className="flex items-center">
+        <div className="bg-primary px-5 py-3 h-full flex items-center font-bold text-[10px] md:text-xs uppercase tracking-widest absolute left-0 z-[5] shadow-[10px_0_20px_rgba(0,0,0,0.3)]">
           Live Updates
         </div>
         
         <motion.div
-          animate={{ x: [0, -1500] }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          style={{ display: 'flex', paddingLeft: '150px' }}
+          animate={{ x: [0, -2000] }}
+          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+          className="flex pl-36"
         >
-          {[...updates, ...updates].map((update, i) => (
-            <div key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', margin: '0 40px', fontSize: '0.9rem', fontWeight: '500' }}>
+          {[...updates, ...updates, ...updates].map((update, i) => (
+            <div key={i} className="inline-flex items-center gap-3 mx-10 md:mx-12 text-xs md:text-sm font-medium opacity-90">
               <div style={{ color: update.color }}>
-                <update.icon size={16} />
+                <update.icon size={14} />
               </div>
               <span>{update.text}</span>
-              <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.3)', margin: '0 20px' }}></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-white/20 mx-8 md:mx-10 shrink-0"></div>
             </div>
           ))}
         </motion.div>

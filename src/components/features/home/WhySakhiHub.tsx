@@ -40,49 +40,47 @@ const WhySakhiHub = () => {
   };
 
   return (
-    <section className="section-padding" style={{ background: '#FFF7FB' }}>
-      <div className="container">
-        <div className="section-title" style={{ marginBottom: '60px', textAlign: 'center' }}>
-          <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px', textTransform: 'uppercase' }}>Why SakhiHub</span>
-          <h2 style={{ fontSize: '3.5rem', marginTop: '10px' }}>Why We Stand <span className="text-gradient">Apart</span></h2>
-          <p style={{ color: 'var(--text-muted)', marginTop: '20px', fontSize: '1.1rem', maxWidth: '800px', margin: '20px auto 0' }}>
+    <section className="section-padding bg-[#FFF7FB] overflow-hidden">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto text-center mb-16 md:mb-20">
+          <span className="text-primary font-bold tracking-widest uppercase text-xs md:text-sm block mb-4">Why SakhiHub</span>
+          <h2 className="text-3xl md:text-5xl font-bold text-secondary leading-tight">Why We Stand <span className="text-gradient">Apart</span></h2>
+          <p className="text-gray-500 mt-6 text-sm md:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed font-medium">
             Built on trust, driven by impact, and focused on real change at ground level.
           </p>
         </div>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
           {whyCards.map((card, idx) => (
             <motion.div 
               key={idx} 
               {...fadeInUp}
               whileHover={{ y: -10 }}
-              style={{ 
-                background: 'white', 
-                borderRadius: '28px', 
-                overflow: 'hidden', 
-                boxShadow: '0 15px 40px rgba(0,0,0,0.05)',
-                display: 'flex',
-                flexDirection: 'column'
-              }}
+              className="bg-white rounded-[40px] overflow-hidden shadow-2xl shadow-black/5 flex flex-col transition-all hover:shadow-primary/5 border border-white"
             >
-              <div style={{ position: 'relative', height: '220px', overflow: 'hidden' }}>
-                <img src={card.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={card.title} />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)' }}></div>
+              <div className="relative h-56 md:h-64 overflow-hidden">
+                <img src={card.image} className="w-full h-full object-cover transition-transform duration-700 hover:scale-110" alt={card.title} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
+                <div className="absolute bottom-6 left-6">
+                   <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30">
+                     <CheckCircle size={18} />
+                   </div>
+                </div>
               </div>
-              <div style={{ padding: '30px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <h3 style={{ fontSize: '1.5rem', color: 'var(--secondary)', marginBottom: '15px', fontWeight: '800' }}>{card.title}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '20px' }}>{card.desc}</p>
+              <div className="p-8 md:p-10 flex-1 flex flex-col">
+                <h3 className="text-xl md:text-2xl font-bold text-secondary mb-4 leading-tight">{card.title}</h3>
+                <p className="text-gray-500 text-sm md:text-base leading-relaxed mb-8 flex-1 font-medium">{card.desc}</p>
                 
-                <div style={{ marginBottom: '25px', flex: 1 }}>
+                <div className="mb-8 space-y-3">
                   {card.points.map((point, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: '600', marginBottom: '8px' }}>
-                      <CheckCircle size={16} color="var(--primary)" /> {point}
+                    <div key={i} className="flex items-center gap-3 text-[11px] md:text-xs font-bold text-secondary uppercase tracking-wider">
+                      <CheckCircle size={14} className="text-primary shrink-0" /> {point}
                     </div>
                   ))}
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary)', fontWeight: '800', fontSize: '0.9rem' }}>
-                  Real Ground Action <ArrowRight size={16} />
+                <div className="flex items-center gap-2 font-bold text-xs md:text-sm uppercase tracking-widest text-primary transition-all hover:gap-4 cursor-pointer group">
+                  Real Ground Action <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
             </motion.div>

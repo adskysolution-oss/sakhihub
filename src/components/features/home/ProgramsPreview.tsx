@@ -42,44 +42,49 @@ const ProgramsPreview = () => {
   ];
 
   return (
-    <section className={styles.programs}>
-      <div className="container">
-        <div className={styles.header}>
-          <span className={styles.label}>{t('programs')}</span>
-          <h2 style={{ fontSize: '3.5rem', fontWeight: '900', color: 'var(--secondary)' }}>
+    <section className="py-16 md:py-32 bg-white overflow-hidden">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-16 md:mb-24 max-w-4xl mx-auto">
+          <span className="text-primary font-bold tracking-widest uppercase text-xs md:text-sm block mb-4">{t('programs')}</span>
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-secondary leading-tight">
             {language === 'hi' ? <>हमारी मुख्य <span className="text-gradient">पहल</span></> : <>Our Core <span className="text-gradient">Initiatives</span></>}
           </h2>
-          <p style={{ fontSize: '1.1rem', color: '#666', marginTop: '10px' }}>
+          <p className="text-gray-500 text-sm md:text-lg mt-6 max-w-2xl mx-auto leading-relaxed font-medium">
             {language === 'hi' 
               ? 'महिलाओं के जीवन में सकारात्मक बदलाव लाने के लिए जमीनी स्तर की पहल।'
               : 'Ground-level initiatives to drive positive change in women\'s lives.'}
           </p>
         </div>
 
-        <div className={styles.grid}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {programs.map((program, index) => (
-            <Link href={program.href} key={program.en} style={{ textDecoration: 'none' }}>
+            <Link href={program.href} key={program.en} className="no-underline group">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
                 whileHover={{ y: -10 }}
-                className={styles.card}
+                className="bg-white rounded-[40px] overflow-hidden shadow-2xl shadow-black/5 border border-gray-50 flex flex-col transition-all hover:shadow-primary/10 h-full"
               >
-                <div className={styles.imageBox}>
-                  <img src={program.image} alt={program.en} />
-                  <div className={styles.overlay} style={{ background: `linear-gradient(to top, ${program.color}, transparent)` }}></div>
+                <div className="relative h-64 md:h-72 overflow-hidden">
+                  <img src={program.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={program.en} />
+                  <div className="absolute inset-0 opacity-60 md:opacity-40 transition-opacity group-hover:opacity-80" style={{ background: `linear-gradient(to top, ${program.color}, transparent)` }}></div>
+                  <div className="absolute bottom-6 left-6">
+                    <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30">
+                      <ArrowRight size={24} className="-rotate-45 group-hover:rotate-0 transition-transform" />
+                    </div>
+                  </div>
                 </div>
-                <div className={styles.cardBody}>
-                  <h3 style={{ fontSize: '1.5rem', fontWeight: '900', color: 'var(--secondary)', marginBottom: '5px' }}>
+                <div className="p-8 md:p-10 flex flex-col flex-1">
+                  <h3 className="text-xl md:text-2xl font-bold text-secondary mb-3 leading-tight">
                     {language === 'hi' ? program.hi : program.en}
                   </h3>
-                  <p style={{ fontSize: '0.85rem', color: '#777', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  <p className="text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-widest mb-6">
                     {language === 'hi' ? program.en : program.en}
                   </p>
-                  <div className={styles.exploreBtn} style={{ color: program.color }}>
-                    {language === 'hi' ? 'विवरण देखें' : 'Learn More'} <ArrowRight size={16} />
+                  <div className="mt-auto flex items-center gap-2 font-bold text-xs md:text-sm uppercase tracking-widest transition-all group-hover:gap-4" style={{ color: program.color }}>
+                    {language === 'hi' ? 'विवरण देखें' : 'Learn More'} <ArrowRight size={18} />
                   </div>
                 </div>
               </motion.div>
@@ -92,4 +97,3 @@ const ProgramsPreview = () => {
 };
 
 export default ProgramsPreview;
-

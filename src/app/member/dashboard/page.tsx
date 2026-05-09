@@ -8,9 +8,10 @@ import {
   User, Phone, MapPin, ShieldCheck, CreditCard, 
   Clock, CheckCircle, AlertCircle, Download, 
   MessageSquare, Users, Home, Calendar, Briefcase,
-  ExternalLink, Sparkles, Heart, FileText
+  ExternalLink, Sparkles, Heart, FileText, Bell
 } from "lucide-react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 export default function MemberDashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -106,154 +107,155 @@ export default function MemberDashboardPage() {
 
   return (
     <DashboardLayout>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gap: '30px' }}>
+      <div className="max-w-6xl mx-auto flex flex-col gap-6 md:gap-10 p-2 md:p-4">
         
         {/* Connection Requests from Employees */}
         {pendingRequests?.length > 0 && pendingRequests.some((r: any) => r.requestedBy === 'employee') && (
-          <section className="glass-card" style={{ padding: '30px', background: 'var(--grad-primary)', borderRadius: '30px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-              <div style={{ padding: '15px', background: 'rgba(255,255,255,0.2)', borderRadius: '20px' }}>
-                <Users size={30} />
+          <motion.section 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-6 md:p-10 bg-gradient-to-br from-primary to-secondary rounded-[35px] text-white flex flex-col md:flex-row justify-between items-center gap-6 shadow-2xl shadow-primary/30"
+          >
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center shrink-0">
+                <Users size={32} />
               </div>
               <div>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: '900', margin: 0 }}>Connection Request Received</h2>
-                <p style={{ margin: '5px 0 0', opacity: 0.9 }}>
-                  A SakhiHub Hero ({pendingRequests.find((r: any) => r.requestedBy === 'employee').employeeId?.fullName}) wants to connect with you.
+                <h2 className="text-xl md:text-2xl font-black leading-tight">Connection Request Received</h2>
+                <p className="mt-2 opacity-90 text-sm md:text-base">
+                  A SakhiHub Hero (<span className="font-bold underline">{pendingRequests.find((r: any) => r.requestedBy === 'employee').employeeId?.fullName}</span>) wants to connect with you.
                 </p>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div className="flex gap-3 w-full md:w-auto">
               <button 
                 onClick={() => handleResponseRequest(pendingRequests.find((r: any) => r.requestedBy === 'employee')._id, 'rejected')}
-                style={{ padding: '10px 20px', borderRadius: '12px', background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', fontWeight: '700', cursor: 'pointer' }}
+                className="flex-1 md:flex-none py-4 px-6 rounded-2xl bg-white/10 hover:bg-white/20 font-bold transition-all"
               >
                 Reject
               </button>
               <button 
                 onClick={() => handleResponseRequest(pendingRequests.find((r: any) => r.requestedBy === 'employee')._id, 'approved')}
-                style={{ padding: '10px 25px', borderRadius: '12px', background: 'white', border: 'none', color: 'var(--primary)', fontWeight: '900', cursor: 'pointer', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}
+                className="flex-1 md:flex-none py-4 px-8 rounded-2xl bg-white text-primary font-black shadow-xl shadow-black/10 hover:scale-105 transition-all"
               >
                 Approve & Connect
               </button>
             </div>
-          </section>
+          </motion.section>
         )}
+
         {/* Header / Welcome Section */}
-        <section className="glass-card" style={{ 
-          background: 'var(--grad-primary)', 
-          padding: '40px', 
-          borderRadius: '35px', 
-          color: 'white',
-          position: 'relative',
-          overflow: 'hidden',
-          boxShadow: '0 25px 50px rgba(233, 30, 99, 0.2)'
-        }}>
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
-              <span style={{ padding: '8px 15px', background: 'rgba(255,255,255,0.2)', borderRadius: '100px', fontSize: '0.8rem', fontWeight: '800', letterSpacing: '1px' }}>
+        <section className="relative p-8 md:p-14 bg-gradient-to-br from-primary to-secondary-dark rounded-[40px] text-white overflow-hidden shadow-2xl shadow-primary/20">
+          <div className="relative z-10">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <span className="px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-[10px] md:text-xs font-black tracking-widest uppercase">
                 MEMBER PORTAL
               </span>
               {isVerified ? (
-                <span style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 15px', background: 'rgba(74, 222, 128, 0.2)', borderRadius: '100px', fontSize: '0.8rem', fontWeight: '800' }}>
-                  <ShieldCheck size={14} /> VERIFIED
+                <span className="flex items-center gap-2 px-4 py-1.5 bg-green-400/20 backdrop-blur-md rounded-full text-[10px] md:text-xs font-black text-green-300">
+                  <ShieldCheck size={14} /> VERIFIED MEMBER
                 </span>
               ) : (
-                <span style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 15px', background: 'rgba(251, 191, 36, 0.2)', borderRadius: '100px', fontSize: '0.8rem', fontWeight: '800' }}>
+                <span className="flex items-center gap-2 px-4 py-1.5 bg-amber-400/20 backdrop-blur-md rounded-full text-[10px] md:text-xs font-black text-amber-300">
                   <Clock size={14} /> PENDING VERIFICATION
                 </span>
               )}
             </div>
-            <h1 style={{ fontSize: '2.8rem', fontWeight: '900', marginBottom: '10px' }}>
-              Welcome Back, {profile?.fullName.split(' ')[0]}! <Sparkles style={{ display: 'inline' }} />
+            <h1 className="text-3xl md:text-6xl font-black mb-4 leading-tight">
+              Welcome Back, <br className="md:hidden"/> {profile?.fullName.split(' ')[0]}! <Sparkles className="inline ml-2 text-amber-300" />
             </h1>
-            <p style={{ fontSize: '1.1rem', opacity: 0.9, maxWidth: '600px', lineHeight: '1.6' }}>
+            <p className="text-sm md:text-xl opacity-80 max-w-2xl leading-relaxed">
               We're glad to have you in the SakhiHub community. Manage your membership, view your group details, and stay updated with our latest campaigns.
             </p>
           </div>
-          <Heart style={{ position: 'absolute', right: '-40px', top: '-40px', width: '300px', height: '300px', opacity: 0.1, color: 'white' }} />
+          <Heart className="absolute -right-20 -bottom-20 w-80 h-80 opacity-10 text-white transform -rotate-12" />
         </section>
 
         {/* Summary Cards Grid */}
-        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-          <div className="stat-card" style={{ padding: '25px', background: 'white', borderRadius: '25px', border: '1px solid #eee', display: 'flex', gap: '20px', alignItems: 'center' }}>
-            <div style={{ padding: '15px', background: '#FFF5F8', color: 'var(--primary)', borderRadius: '20px' }}>
-              <CreditCard size={24} />
+        <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+          <div className="p-6 md:p-8 bg-white rounded-[32px] border border-gray-100 flex items-center gap-5 shadow-soft hover:border-primary/30 transition-all group">
+            <div className="w-14 h-14 bg-primary/5 rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+              <CreditCard size={28} />
             </div>
             <div>
-              <p style={{ fontSize: '0.85rem', color: '#666', fontWeight: '600' }}>Membership Status</p>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: isVerified ? '#16a34a' : '#ea580c' }}>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Membership</p>
+              <h3 className={`text-lg md:text-xl font-black mt-0.5 ${isVerified ? 'text-green-600' : 'text-amber-600'}`}>
                 {isVerified ? 'Active & Paid' : 'Pending Payment'}
               </h3>
             </div>
           </div>
 
-          <div className="stat-card" style={{ padding: '25px', background: 'white', borderRadius: '25px', border: '1px solid #eee', display: 'flex', gap: '20px', alignItems: 'center' }}>
-            <div style={{ padding: '15px', background: '#F5F3FF', color: 'var(--secondary)', borderRadius: '20px' }}>
-              <Users size={24} />
+          <div className="p-6 md:p-8 bg-white rounded-[32px] border border-gray-100 flex items-center gap-5 shadow-soft hover:border-primary/30 transition-all group">
+            <div className="w-14 h-14 bg-secondary/5 rounded-2xl flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+              <Users size={28} />
             </div>
             <div>
-              <p style={{ fontSize: '0.85rem', color: '#666', fontWeight: '600' }}>Assigned Group</p>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--secondary)' }}>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Your Group</p>
+              <h3 className="text-lg md:text-xl font-black text-secondary mt-0.5 truncate max-w-[150px]">
                 {fieldRecord?.groupId?.name || 'Not Assigned'}
               </h3>
             </div>
           </div>
 
-          <div className="stat-card" style={{ padding: '25px', background: 'white', borderRadius: '25px', border: '1px solid #eee', display: 'flex', gap: '20px', alignItems: 'center' }}>
-            <div style={{ padding: '15px', background: '#ECFDF5', color: '#059669', borderRadius: '20px' }}>
-              <MapPin size={24} />
+          <div className="p-6 md:p-8 bg-white rounded-[32px] border border-gray-100 flex items-center gap-5 shadow-soft hover:border-primary/30 transition-all group">
+            <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform">
+              <MapPin size={28} />
             </div>
             <div>
-              <p style={{ fontSize: '0.85rem', color: '#666', fontWeight: '600' }}>Village/Area</p>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--secondary)' }}>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Location</p>
+              <h3 className="text-lg md:text-xl font-black text-secondary mt-0.5 truncate max-w-[150px]">
                 {fieldRecord?.village || profile?.area || 'Global Member'}
               </h3>
             </div>
           </div>
         </section>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '30px', alignItems: 'start' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10">
           
           {/* Main Column */}
-          <div style={{ display: 'grid', gap: '30px' }}>
+          <div className="lg:col-span-8 flex flex-col gap-6 md:gap-10">
             
             {/* Connection Status & Discovery */}
             {fieldRecord?.connectionStatus === 'unassigned' && (
-              <section className="glass-card" style={{ padding: '35px', background: '#FFF5F8', borderRadius: '30px', border: '1px dashed var(--primary)' }}>
-                <div style={{ textAlign: 'center', marginBottom: '25px' }}>
-                  <Users size={40} style={{ color: 'var(--primary)', marginBottom: '15px' }} />
-                  <h2 style={{ fontSize: '1.6rem', fontWeight: '900', color: 'var(--secondary)' }}>Connect with Local Sakhi</h2>
-                  <p style={{ color: '#666' }}>Find and connect with an active field employee in your area to get your membership verified and join a group.</p>
-                </div>
+              <section className="p-8 md:p-12 bg-primary/5 rounded-[40px] border-2 border-dashed border-primary/30 text-center">
+                <Users size={50} className="mx-auto text-primary mb-6" />
+                <h2 className="text-2xl md:text-3xl font-black text-secondary leading-tight">Connect with Local Sakhi</h2>
+                <p className="text-gray-500 mt-3 mb-10 max-w-lg mx-auto leading-relaxed">Find and connect with an active field employee in your area to get your membership verified and join a group.</p>
 
-                <div style={{ display: 'grid', gap: '15px' }}>
+                <div className="grid gap-4">
                   {discoveryLoading ? (
-                    <div style={{ textAlign: 'center', padding: '20px' }}>Searching for nearby Sakhis...</div>
+                    <div className="py-10 flex flex-col items-center gap-4">
+                       <div className="w-10 h-10 border-4 border-gray-100 border-t-primary rounded-full animate-spin"></div>
+                       <p className="text-gray-400 font-black">Searching nearby Sakhis...</p>
+                    </div>
                   ) : nearbyEmployees.length > 0 ? (
                     nearbyEmployees.map((emp) => (
-                      <div key={emp._id} style={{ 
-                        padding: '20px', borderRadius: '20px', background: 'white', 
-                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
-                      }}>
-                        <div>
-                          <h4 style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--secondary)' }}>{emp.fullName}</h4>
-                          <p style={{ fontSize: '0.8rem', color: '#666' }}>{emp.area}, {emp.block}</p>
+                      <div key={emp._id} className="p-6 bg-white rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-5 shadow-soft hover:shadow-medium transition-all border border-gray-50">
+                        <div className="flex items-center gap-5">
+                          <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-primary font-black text-xl">
+                            {emp.fullName.charAt(0)}
+                          </div>
+                          <div className="text-left">
+                            <h4 className="text-lg font-black text-secondary leading-tight">{emp.fullName}</h4>
+                            <p className="text-sm text-gray-400 font-bold uppercase tracking-widest mt-1">{emp.area}, {emp.block}</p>
+                          </div>
                         </div>
                         <button 
                           onClick={() => handleConnect(emp._id)}
                           disabled={requestStatus === emp._id}
-                          className="btn-primary" 
-                          style={{ padding: '8px 20px', fontSize: '0.85rem' }}
+                          className="btn-primary w-full sm:w-auto py-3 px-8 text-sm"
                         >
                           {requestStatus === emp._id ? 'Connecting...' : 'Connect'}
                         </button>
                       </div>
                     ))
                   ) : (
-                    <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
-                      No active employees found in your pincode ({fieldRecord?.pincode}) yet. 
-                      Our team will reach out to you soon.
+                    <div className="py-12 bg-white/50 rounded-3xl border border-gray-100 px-6">
+                      <AlertCircle size={40} className="mx-auto text-gray-200 mb-4" />
+                      <p className="text-gray-400 font-bold italic">
+                        No active employees found in your pincode ({fieldRecord?.pincode}) yet. <br/>
+                        Our team will reach out to you soon.
+                      </p>
                     </div>
                   )}
                 </div>
@@ -261,154 +263,150 @@ export default function MemberDashboardPage() {
             )}
 
             {fieldRecord?.connectionStatus === 'pending_request' && (
-              <section className="glass-card" style={{ padding: '35px', background: '#FEFCE8', borderRadius: '30px', border: '1px solid #FEF08A' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                  <div style={{ padding: '15px', background: '#FEF9C3', borderRadius: '20px', color: '#854d0e' }}>
-                    <Clock size={30} />
-                  </div>
-                  <div>
-                    <h2 style={{ fontSize: '1.4rem', fontWeight: '900', color: '#854d0e' }}>Connection Request Pending</h2>
-                    <p style={{ color: '#713f12', marginTop: '5px' }}>Your request to connect with our local field employee is awaiting approval. You will be notified once they accept.</p>
-                  </div>
+              <section className="p-8 md:p-10 bg-amber-50 rounded-[40px] border border-amber-100 flex items-center gap-6">
+                <div className="w-16 h-16 bg-amber-100 rounded-3xl flex items-center justify-center text-amber-600 shrink-0">
+                  <Clock size={32} />
+                </div>
+                <div>
+                  <h2 className="text-xl md:text-2xl font-black text-amber-900 leading-tight">Connection Request Pending</h2>
+                  <p className="text-amber-700/80 mt-2 text-sm md:text-base leading-relaxed">Your request to connect with our local field employee is awaiting approval. You will be notified once they accept.</p>
                 </div>
               </section>
             )}
 
             {fieldRecord?.connectionStatus === 'approved' && fieldRecord?.assignedEmployeeId && (
-              <section className="glass-card" style={{ padding: '35px', background: '#F0FDF4', borderRadius: '30px', border: '1px solid #BBF7D0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <div style={{ padding: '15px', background: '#DCFCE7', borderRadius: '20px', color: '#166534' }}>
-                      <ShieldCheck size={30} />
-                    </div>
-                    <div>
-                      <h2 style={{ fontSize: '1.4rem', fontWeight: '900', color: '#166534' }}>Connected with {fieldRecord.assignedEmployeeId.fullName}</h2>
-                      <p style={{ color: '#15803d', marginTop: '5px' }}>Your account is managed by our local Sakhi Hero. You can contact them for any support.</p>
-                    </div>
+              <section className="p-8 md:p-10 bg-green-50 rounded-[40px] border border-green-100 flex flex-col sm:flex-row justify-between items-center gap-8">
+                <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 bg-green-100 rounded-3xl flex items-center justify-center text-green-600 shrink-0">
+                    <ShieldCheck size={32} />
                   </div>
-                  <a href={`tel:${fieldRecord.assignedEmployeeId.mobile}`} className="btn-primary" style={{ background: '#16a34a', boxShadow: '0 10px 20px rgba(22, 163, 74, 0.2)' }}>
-                    <Phone size={18} /> Call Sakhi
-                  </a>
+                  <div>
+                    <h2 className="text-xl md:text-2xl font-black text-green-900 leading-tight">Connected with {fieldRecord.assignedEmployeeId.fullName}</h2>
+                    <p className="text-green-700/80 mt-2 text-sm md:text-base leading-relaxed">Your account is managed by our local Sakhi Hero. You can contact them for any support.</p>
+                  </div>
                 </div>
+                <a href={`tel:${fieldRecord.assignedEmployeeId.mobile}`} className="btn-primary w-full sm:w-auto py-4 px-8 bg-green-600 border-none shadow-xl shadow-green-200 justify-center">
+                  <Phone size={20} /> Call Sakhi
+                </a>
               </section>
             )}
             
             {/* Detailed Profile Section */}
-            <section className="glass-card" style={{ padding: '35px', background: 'white', borderRadius: '30px', border: '1px solid #eee' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: 'var(--secondary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <User size={22} className="text-gradient" /> Member Profile
+            <section className="p-8 md:p-12 bg-white rounded-[40px] border border-gray-100 shadow-soft">
+              <div className="flex justify-between items-center mb-10">
+                <h2 className="text-2xl md:text-3xl font-black text-secondary flex items-center gap-4">
+                  <User size={28} className="text-primary" /> Member Profile
                 </h2>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
                 {[
-                  { label: 'Full Name', value: profile?.fullName, icon: <User size={16} /> },
-                  { label: 'Mobile Number', value: profile?.mobile, icon: <Phone size={16} /> },
-                  { label: 'WhatsApp', value: profile?.whatsapp || 'Not provided', icon: <MessageSquare size={16} /> },
-                  { label: 'Member ID', value: membership?.membershipId || 'Generating...', icon: <ShieldCheck size={16} /> },
-                  { label: 'District', value: profile?.district || fieldRecord?.district, icon: <MapPin size={16} /> },
-                  { label: 'Block', value: profile?.block || fieldRecord?.block, icon: <Home size={16} /> },
-                  { label: 'Occupation', value: fieldRecord?.occupation || 'Member', icon: <Briefcase size={16} /> },
-                  { label: 'Joining Date', value: new Date(profile?.createdAt).toLocaleDateString(), icon: <Calendar size={16} /> }
+                  { label: 'Full Name', value: profile?.fullName, icon: <User size={18} /> },
+                  { label: 'Mobile Number', value: profile?.mobile, icon: <Phone size={18} /> },
+                  { label: 'WhatsApp', value: profile?.whatsapp || 'Not provided', icon: <MessageSquare size={18} /> },
+                  { label: 'Member ID', value: membership?.membershipId || 'Generating...', icon: <ShieldCheck size={18} /> },
+                  { label: 'District', value: profile?.district || fieldRecord?.district, icon: <MapPin size={18} /> },
+                  { label: 'Block', value: profile?.block || fieldRecord?.block, icon: <Home size={18} /> },
+                  { label: 'Occupation', value: fieldRecord?.occupation || 'Member', icon: <Briefcase size={18} /> },
+                  { label: 'Joining Date', value: new Date(profile?.createdAt).toLocaleDateString(), icon: <Calendar size={18} /> }
                 ].map((item, i) => (
-                  <div key={i} style={{ padding: '15px', background: '#f8f9fa', borderRadius: '15px' }}>
-                    <p style={{ fontSize: '0.75rem', color: '#999', fontWeight: '700', marginBottom: '5px', textTransform: 'uppercase' }}>{item.label}</p>
-                    <p style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ color: 'var(--primary)' }}>{item.icon}</span> {item.value}
-                    </p>
+                  <div key={i} className="p-5 md:p-6 bg-gray-50 rounded-3xl border border-transparent hover:border-gray-200 transition-all group">
+                    <p className="text-[10px] md:text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{item.label}</p>
+                    <div className="flex items-center gap-3">
+                      <span className="text-primary opacity-60 group-hover:opacity-100 transition-opacity">{item.icon}</span>
+                      <p className="text-sm md:text-lg font-black text-secondary">{item.value}</p>
+                    </div>
                   </div>
                 ))}
               </div>
             </section>
 
             {/* Receipt & Verification Section */}
-            <section className="glass-card" style={{ padding: '35px', background: 'white', borderRadius: '30px', border: '1px solid #eee' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: 'var(--secondary)', marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <CreditCard size={22} className="text-gradient" /> Membership Receipt
+            <section className="p-8 md:p-12 bg-white rounded-[40px] border border-gray-100 shadow-soft">
+              <h2 className="text-2xl md:text-3xl font-black text-secondary mb-10 flex items-center gap-4">
+                <CreditCard size={28} className="text-primary" /> Membership Receipt
               </h2>
               
               {membership ? (
-                <div style={{ padding: '30px', background: '#f8f9fa', borderRadius: '20px', border: '2px dashed #ddd', position: 'relative' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '25px' }}>
+                <div className="p-8 md:p-10 bg-gray-50 rounded-[35px] border-2 border-dashed border-gray-200 relative">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 pb-8 border-b border-gray-200">
                     <div>
-                      <p style={{ fontSize: '0.8rem', color: '#666', fontWeight: '600' }}>Receipt Number</p>
-                      <h4 style={{ fontSize: '1.2rem', fontWeight: '900', color: 'var(--secondary)' }}>{membership.receiptNumber}</h4>
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Receipt Number</p>
+                      <h4 className="text-xl md:text-3xl font-black text-secondary mt-1">{membership.receiptNumber}</h4>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <p style={{ fontSize: '0.8rem', color: '#666', fontWeight: '600' }}>Amount Paid</p>
-                      <h4 style={{ fontSize: '1.2rem', fontWeight: '900', color: 'var(--primary)' }}>₹{membership.amount}.00</h4>
+                    <div className="sm:text-right">
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Amount Paid</p>
+                      <h4 className="text-xl md:text-3xl font-black text-primary mt-1">₹{membership.amount}.00</h4>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '20px', borderTop: '1px solid #eee' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#16a34a', fontWeight: '700' }}>
-                      <CheckCircle size={20} /> Verified Receipt
+                  <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
+                    <div className="flex items-center gap-3 text-green-600 font-black text-base md:text-lg">
+                      <CheckCircle size={24} /> Verified Digital Receipt
                     </div>
-                    <Link href={`/member/receipt/${membership._id}`} target="_blank" style={{ textDecoration: 'none' }}>
-                      <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 25px', background: 'var(--grad-primary)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '700', cursor: 'pointer' }}>
-                        <FileText size={18} /> View Receipt
+                    <Link href={`/member/receipt/${membership._id}`} target="_blank" className="w-full sm:w-auto">
+                      <button className="btn-primary w-full py-4 px-8 shadow-xl shadow-primary/20">
+                        <FileText size={20} /> View Receipt
                       </button>
                     </Link>
                   </div>
                 </div>
               ) : (
-                <div style={{ padding: '40px', textAlign: 'center', background: '#fff9f9', borderRadius: '25px', border: '1px solid #ffebeb' }}>
-                  <AlertCircle size={40} style={{ color: '#ef4444', marginBottom: '15px' }} />
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--secondary)' }}>No Active Membership Found</h3>
-                  <p style={{ color: '#666', marginTop: '10px' }}>Please contact your local SakhiHub Hero/Employee to verify your membership and generate a receipt.</p>
+                <div className="p-10 md:p-16 text-center bg-red-50/50 rounded-[40px] border border-red-100">
+                  <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center text-red-500 mx-auto mb-6">
+                    <AlertCircle size={40} />
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-black text-secondary leading-tight">No Active Membership Found</h3>
+                  <p className="text-gray-500 mt-4 max-w-sm mx-auto leading-relaxed">Please contact your local SakhiHub Hero/Employee to verify your membership and generate a receipt.</p>
                 </div>
               )}
             </section>
           </div>
 
           {/* Sidebar Column */}
-          <aside style={{ display: 'grid', gap: '30px' }}>
+          <aside className="lg:col-span-4 flex flex-col gap-6 md:gap-10">
             
             {/* Quick Actions */}
-            <section className="glass-card" style={{ padding: '30px', background: 'white', borderRadius: '30px', border: '1px solid #eee' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: '900', color: 'var(--secondary)', marginBottom: '20px' }}>Quick Actions</h3>
-              <div style={{ display: 'grid', gap: '12px' }}>
+            <section className="p-8 bg-white rounded-[40px] border border-gray-100 shadow-soft">
+              <h3 className="text-xl font-black text-secondary mb-8">Quick Actions</h3>
+              <div className="grid gap-3">
                 {[
-                  { label: 'Contact Employee', icon: <Phone size={18} />, color: '#4F46E5' },
-                  { label: 'View Group Members', icon: <Users size={18} />, color: '#059669' },
-                  { label: 'Latest Campaigns', icon: <Sparkles size={18} />, color: '#E11D48' },
-                  { label: 'Help & Support', icon: <Heart size={18} />, color: '#7C3AED' }
+                  { label: 'Contact Employee', icon: <Phone size={20} />, color: '#E91E63' },
+                  { label: 'View Group Members', icon: <Users size={20} />, color: '#6A1B9A' },
+                  { label: 'Latest Campaigns', icon: <Sparkles size={20} />, color: '#F59E0B' },
+                  { label: 'Help & Support', icon: <Heart size={20} />, color: '#E91E63' }
                 ].map((action, i) => (
-                  <button key={i} style={{ 
-                    display: 'flex', alignItems: 'center', gap: '12px', 
-                    padding: '15px 20px', width: '100%',
-                    background: 'white', border: '1px solid #eee', 
-                    borderRadius: '15px', color: 'var(--secondary)',
-                    fontWeight: '700', cursor: 'pointer', textAlign: 'left',
-                    transition: '0.2s'
-                  }}>
-                    <span style={{ color: action.color }}>{action.icon}</span>
+                  <motion.button 
+                    key={i} 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center gap-4 p-5 w-full bg-gray-50 hover:bg-white border border-transparent hover:border-gray-200 rounded-2xl text-secondary font-black text-sm transition-all text-left shadow-sm hover:shadow-md"
+                  >
+                    <span className="shrink-0" style={{ color: action.color }}>{action.icon}</span>
                     {action.label}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </section>
 
             {/* Notifications / Updates */}
-            <section className="glass-card" style={{ padding: '30px', background: '#F8FAFC', borderRadius: '30px', border: '1px solid #E2E8F0' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#1E293B', marginBottom: '20px' }}>Updates</h3>
-              <div style={{ display: 'grid', gap: '20px' }}>
+            <section className="p-8 bg-slate-900 rounded-[40px] text-white shadow-2xl">
+              <h3 className="text-xl font-black mb-8 flex items-center gap-3">
+                <Bell size={24} className="text-primary" /> Updates
+              </h3>
+              <div className="flex flex-col gap-8">
                 {[
                   { title: 'New Campaign', desc: 'Sakhi Care Pads distribution starts next week.', time: '2h ago' },
                   { title: 'Meeting Reminder', desc: 'Your community group meeting is on Sunday.', time: '1d ago' },
                   { title: 'Payment Confirmed', desc: 'Membership payment verified by Admin.', time: '3d ago' }
                 ].map((notif, i) => (
-                  <div key={i} style={{ paddingLeft: '15px', borderLeft: '3px solid var(--primary)' }}>
-                    <h4 style={{ fontSize: '0.95rem', fontWeight: '800', color: 'var(--secondary)' }}>{notif.title}</h4>
-                    <p style={{ fontSize: '0.85rem', color: '#64748B', marginTop: '4px' }}>{notif.desc}</p>
-                    <p style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '5px' }}>{notif.time}</p>
+                  <div key={i} className="relative pl-6 border-l-2 border-primary/30 hover:border-primary transition-colors">
+                    <div className="absolute left-[-5px] top-0 w-2 h-2 bg-primary rounded-full"></div>
+                    <h4 className="text-base font-black text-white leading-tight">{notif.title}</h4>
+                    <p className="text-xs text-gray-400 mt-2 leading-relaxed font-medium">{notif.desc}</p>
+                    <p className="text-[10px] text-primary font-black uppercase tracking-widest mt-3">{notif.time}</p>
                   </div>
                 ))}
               </div>
-              <button style={{ 
-                marginTop: '25px', width: '100%', padding: '12px', 
-                background: 'transparent', border: '1px solid #CBD5E1', 
-                borderRadius: '12px', color: '#64748B', fontWeight: '700', fontSize: '0.85rem'
-              }}>
+              <button className="mt-10 w-full py-4 bg-white/10 hover:bg-white/20 rounded-2xl text-white font-black text-xs uppercase tracking-widest transition-all">
                 View All Notifications
               </button>
             </section>
@@ -417,17 +415,6 @@ export default function MemberDashboardPage() {
 
         </div>
       </div>
-      
-      <style jsx>{`
-        .glass-card { transition: transform 0.3s ease; }
-        .glass-card:hover { transform: translateY(-5px); }
-        .stat-card { transition: all 0.3s ease; }
-        .stat-card:hover { border-color: var(--primary) !important; background: #fffcfd !important; }
-        .text-gradient { background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        @media (max-width: 992px) {
-          div { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </DashboardLayout>
   );
 }

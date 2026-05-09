@@ -40,10 +40,7 @@ export default function Home() {
       {/* 9. Programs Preview */}
       <ProgramsPreview />
 
-      {/* 10. Big CTA Banner */}
       <CTABanner />
-
-      <div style={{ height: '80px' }}></div>
     </>
   );
 }

@@ -53,70 +53,64 @@ export default function MemberDetailsModal({ member, onClose }: MemberDetailsMod
   if (!member) return null;
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[1000] p-4">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        style={{ 
-          background: 'white', 
-          width: '100%', 
-          maxWidth: '800px', 
-          borderRadius: '40px', 
-          maxHeight: '90vh', 
-          overflow: 'hidden',
-          boxShadow: '0 30px 100px rgba(0,0,0,0.2)',
-          position: 'relative'
-        }}
+        className="bg-white w-full max-w-4xl rounded-[40px] max-height-[90vh] overflow-hidden shadow-2xl relative flex flex-col"
       >
         {/* Header Section */}
-        <div style={{ background: 'var(--grad-primary)', padding: '60px 40px 40px', position: 'relative', color: 'white' }}>
+        <section className="bg-gradient-to-br from-primary to-secondary-dark p-8 md:p-14 text-white relative">
           <button 
             onClick={onClose} 
-            style={{ position: 'absolute', right: '25px', top: '25px', background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', width: '45px', height: '45px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            className="absolute right-6 top-6 md:right-10 md:top-10 w-12 h-12 bg-white/20 hover:bg-white/30 backdrop-blur-xl rounded-full flex items-center justify-center transition-all group"
           >
-            <X size={24} />
+            <X size={24} className="group-hover:rotate-90 transition-transform" />
           </button>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
-            <div style={{ width: '100px', height: '100px', background: 'white', borderRadius: '35px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', fontWeight: '900', color: 'var(--primary)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 text-center md:text-left mt-4 md:mt-0">
+            <div className="w-24 h-24 md:w-32 md:h-32 bg-white rounded-[32px] flex items-center justify-center text-4xl md:text-6xl font-black text-primary shadow-2xl shadow-black/20">
               {member.name[0]}
             </div>
-            <div>
-              <h2 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0, letterSpacing: '-0.5px' }}>{member.name}</h2>
-              <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
-                <span style={{ background: 'rgba(255,255,255,0.2)', padding: '6px 15px', borderRadius: '100px', fontSize: '0.85rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div className="flex-1">
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-tight mb-4">{member.name}</h2>
+              <div className="flex flex-wrap justify-center md:justify-start gap-3">
+                <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-2xl text-[10px] md:text-xs font-black tracking-widest uppercase flex items-center gap-2">
                   <Users size={14} /> {member.groupId?.groupName || 'No Group'}
                 </span>
-                <span style={{ background: 'rgba(255,255,255,0.2)', padding: '6px 15px', borderRadius: '100px', fontSize: '0.85rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-2xl text-[10px] md:text-xs font-black tracking-widest uppercase flex items-center gap-2">
                   <MapPin size={14} /> {member.village}
                 </span>
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Scrollable Content */}
-        <div style={{ padding: '40px', overflowY: 'auto', maxHeight: 'calc(90vh - 200px)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px' }}>
+        <div className="flex-1 overflow-y-auto p-8 md:p-14">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16">
             
             {/* Left Column: Profile Details */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-              <SectionTitle icon={User} title="Personal Information" />
-              
-              <InfoGrid>
-                <InfoItem label="Full Name" value={member.name} />
-                <InfoItem label="Mobile" value={member.mobile} />
-                <InfoItem label="Age" value={`${member.age} Years`} />
-                <InfoItem label="Marital Status" value={member.maritalStatus} />
-                <InfoItem label="Occupation" value={member.occupation} />
-              </InfoGrid>
+            <div className="flex flex-col gap-10">
+              <div>
+                <SectionTitle icon={User} title="Personal Information" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-8">
+                  <InfoItem label="Full Name" value={member.name} />
+                  <InfoItem label="Mobile" value={member.mobile} />
+                  <InfoItem label="Age" value={`${member.age} Years`} />
+                  <InfoItem label="Marital Status" value={member.maritalStatus} />
+                  <div className="sm:col-span-2">
+                    <InfoItem label="Occupation" value={member.occupation} />
+                  </div>
+                </div>
+              </div>
 
-              <div style={{ marginTop: '10px' }}>
+              <div>
                 <SectionTitle icon={Heart} title="Interests" />
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '15px' }}>
+                <div className="flex flex-wrap gap-2 mt-6">
                   {member.interests?.map((interest: string, i: number) => (
-                    <span key={i} style={{ background: '#f5f3ff', color: '#6a1b9a', padding: '8px 16px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: '700' }}>
+                    <span key={i} className="bg-primary/5 text-primary px-5 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-widest border border-primary/10 shadow-sm">
                       {interest}
                     </span>
                   ))}
@@ -125,62 +119,75 @@ export default function MemberDetailsModal({ member, onClose }: MemberDetailsMod
             </div>
 
             {/* Right Column: Location & Status */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-              <SectionTitle icon={MapPin} title="Geography" />
-              <InfoGrid>
-                <InfoItem label="Village" value={member.village} />
-                <InfoItem label="Block" value={member.block} />
-                <InfoItem label="District" value={member.district} />
-              </InfoGrid>
+            <div className="flex flex-col gap-10">
+              <div>
+                <SectionTitle icon={MapPin} title="Geography" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-8">
+                  <InfoItem label="Village" value={member.village} />
+                  <InfoItem label="Block" value={member.block} />
+                  <div className="sm:col-span-2">
+                    <InfoItem label="District" value={member.district} />
+                  </div>
+                </div>
+              </div>
 
-              <div style={{ marginTop: '10px' }}>
+              <div>
                 <SectionTitle icon={ShieldCheck} title="Membership Status" />
-                <div style={{ background: member.membershipStatus === 'paid' ? '#f0fdf4' : '#fffbeb', padding: '25px', borderRadius: '25px', marginTop: '15px', border: `1px solid ${member.membershipStatus === 'paid' ? '#10b981' : '#f59e0b'}` }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className={`mt-6 p-8 rounded-[32px] border-2 flex flex-col gap-6 ${
+                  member.membershipStatus === 'paid' 
+                    ? 'bg-green-50/50 border-green-100 text-green-700' 
+                    : 'bg-amber-50/50 border-amber-100 text-amber-700'
+                }`}>
+                  <div className="flex justify-between items-start gap-4">
                     <div>
-                      <p style={{ margin: 0, fontSize: '0.8rem', color: member.membershipStatus === 'paid' ? '#16a34a' : '#d97706', fontWeight: '800', textTransform: 'uppercase' }}>Status</p>
-                      <h4 style={{ margin: '5px 0', fontSize: '1.4rem', fontWeight: '900', color: member.membershipStatus === 'paid' ? '#16a34a' : '#d97706' }}>
+                      <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">Activation Status</p>
+                      <h4 className="text-2xl font-black leading-tight">
                         {member.membershipStatus === 'paid' ? 'Verified Member' : 'Pending Verification'}
                       </h4>
                     </div>
-                    {member.membershipStatus === 'paid' ? <CheckCircle2 size={32} color="#16a34a" /> : <Clock size={32} color="#d97706" />}
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
+                      member.membershipStatus === 'paid' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
+                    }`}>
+                      {member.membershipStatus === 'paid' ? <CheckCircle2 size={30} /> : <Clock size={30} />}
+                    </div>
                   </div>
-                  <p style={{ margin: '15px 0 0', fontSize: '0.85rem', color: '#666', lineHeight: '1.5' }}>
+                  <p className="text-xs font-bold leading-relaxed opacity-80">
                     {member.membershipStatus === 'paid' 
-                      ? 'The member has completed the registration and paid the required fee.' 
-                      : 'Initial registration is complete. Please collect the ₹100 membership fee to activate.'}
+                      ? 'This member has completed the registration and paid the required fee. They are now an active part of the SakhiHub community.' 
+                      : 'Initial registration is complete. Please collect and verify the ₹100 membership fee to activate their account features.'}
                   </p>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: '#888' }}>
-                  <Calendar size={14} /> Joined on {new Date(member.createdAt).toLocaleDateString()}
+              <div className="flex flex-col gap-3 py-6 border-y border-gray-100">
+                <div className="flex items-center gap-3 text-xs font-bold text-gray-400">
+                  <Calendar size={14} className="text-primary" /> Joined on {new Date(member.createdAt).toLocaleDateString()}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: '#888' }}>
-                  <Users size={14} /> Created By: {member.createdBy?.fullName || 'Self'}
+                <div className="flex items-center gap-3 text-xs font-bold text-gray-400">
+                  <Users size={14} className="text-primary" /> Created By: <span className="text-secondary font-black">{member.createdBy?.fullName || 'Self Registration'}</span>
                 </div>
               </div>
 
-              {/* Group Assignment Section (for Employees/Admins) */}
               {!member.groupId && (
-                <div style={{ marginTop: '20px', padding: '25px', background: '#f5f3ff', borderRadius: '25px', border: '1px solid #ddd6fe' }}>
+                <div className="p-8 bg-secondary/5 rounded-[32px] border border-dashed border-secondary/30">
                   <SectionTitle icon={Users} title="Assign to Group" />
-                  <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>This member is not assigned to any group. Select a group to connect them.</p>
-                  <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                    <select 
-                      value={selectedGroup}
-                      onChange={(e) => setSelectedGroup(e.target.value)}
-                      style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #c4b5fd', outline: 'none', background: 'white', fontWeight: '700' }}
-                    >
-                      <option value="">Select a Group...</option>
-                      {groups.map(g => <option key={g._id} value={g._id}>{g.groupName}</option>)}
-                    </select>
+                  <p className="text-xs font-bold text-gray-400 mt-4 leading-relaxed">This member is not assigned to any group. Select a group to connect them.</p>
+                  <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                    <div className="relative flex-1">
+                      <select 
+                        value={selectedGroup}
+                        onChange={(e) => setSelectedGroup(e.target.value)}
+                        className="w-full p-4 rounded-2xl bg-white border border-secondary/20 font-black text-xs text-secondary appearance-none focus:outline-none focus:ring-2 focus:ring-secondary/20"
+                      >
+                        <option value="">Select a Group...</option>
+                        {groups.map(g => <option key={g._id} value={g._id}>{g.groupName}</option>)}
+                      </select>
+                      <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary pointer-events-none" />
+                    </div>
                     <button 
                       onClick={handleAssign}
                       disabled={!selectedGroup || assigning}
-                      className="btn-primary"
-                      style={{ padding: '12px 25px', fontSize: '0.9rem', background: 'var(--grad-primary)' }}
+                      className="btn-primary py-4 px-10 text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 disabled:opacity-50"
                     >
                       {assigning ? 'Assigning...' : 'Assign'}
                     </button>
@@ -188,16 +195,16 @@ export default function MemberDetailsModal({ member, onClose }: MemberDetailsMod
                 </div>
               )}
 
-              <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #eee' }}>
-                <SectionTitle icon={IndianRupee} title="Payment History" />
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px', padding: '15px', borderRadius: '15px', background: '#f8f9fa' }}>
+              <div className="mt-4">
+                <SectionTitle icon={IndianRupee} title="Payment Details" />
+                <div className="mt-6 p-6 bg-gray-50 rounded-3xl flex justify-between items-center border border-gray-100">
                   <div>
-                    <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: '800' }}>Membership Fee</p>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#999' }}>Standard Registration</p>
+                    <p className="text-sm font-black text-secondary">Membership Fee</p>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">One-time Registration</p>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: '900', color: member.membershipStatus === 'paid' ? '#10b981' : '#666' }}>₹100.00</p>
-                    <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: '800', color: member.membershipStatus === 'paid' ? '#10b981' : '#f59e0b' }}>
+                  <div className="text-right">
+                    <p className={`text-2xl font-black ${member.membershipStatus === 'paid' ? 'text-green-600' : 'text-secondary'}`}>₹100.00</p>
+                    <p className={`text-[10px] font-black tracking-widest uppercase mt-1 ${member.membershipStatus === 'paid' ? 'text-green-600' : 'text-amber-500'}`}>
                       {member.membershipStatus === 'paid' ? 'PAID' : 'PENDING'}
                     </p>
                   </div>
@@ -214,21 +221,20 @@ export default function MemberDetailsModal({ member, onClose }: MemberDetailsMod
 
 function SectionTitle({ icon: Icon, title }: { icon: any, title: string }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--secondary)', fontWeight: '900', fontSize: '1.1rem' }}>
-      <Icon size={20} color="var(--primary)" /> {title}
+    <div className="flex items-center gap-3 text-lg md:text-xl font-black text-secondary uppercase tracking-tight">
+      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+        <Icon size={20} />
+      </div>
+      {title}
     </div>
   );
 }
 
-function InfoGrid({ children }: { children: React.ReactNode }) {
-  return <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '15px' }}>{children}</div>;
-}
-
 function InfoItem({ label, value }: { label: string, value: string }) {
   return (
-    <div>
-      <p style={{ margin: 0, fontSize: '0.75rem', color: '#999', fontWeight: '800', textTransform: 'uppercase' }}>{label}</p>
-      <p style={{ margin: '5px 0 0', fontSize: '1rem', fontWeight: '700', color: '#333' }}>{value || 'N/A'}</p>
+    <div className="flex flex-col gap-1.5 p-2 border-l-2 border-primary/10 pl-6">
+      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{label}</p>
+      <p className="text-base md:text-lg font-black text-secondary leading-tight">{value || 'N/A'}</p>
     </div>
   );
 }

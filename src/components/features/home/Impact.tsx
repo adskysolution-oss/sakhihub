@@ -13,25 +13,18 @@ const Impact = () => {
   };
 
   return (
-    <section className="section-padding" style={{ 
-      position: 'relative', 
-      overflow: 'hidden',
-      minHeight: '400px',
-      display: 'flex',
-      alignItems: 'center',
-      background: 'url(https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1500) center/cover no-repeat fixed'
-    }}>
-      {/* Overlay */}
-      <div style={{ 
-        position: 'absolute', 
-        inset: 0, 
-        background: 'linear-gradient(135deg, rgba(46, 2, 73, 0.92), rgba(233, 30, 99, 0.85))',
-        backdropFilter: 'blur(5px)',
-        zIndex: 1
-      }}></div>
+    <section className="relative py-20 md:py-32 overflow-hidden flex items-center min-h-[500px]">
+      {/* Background with Parallax effect (fixed bg) */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat bg-fixed opacity-60 md:opacity-100"
+        style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1500)' }}
+      ></div>
 
-      <div className="container" style={{ position: 'relative', zIndex: 2, width: '100%' }}>
-        <div className="stats-grid">
+      {/* Overlay */}
+      <div className="absolute inset-0 z-[1] bg-gradient-to-br from-[#2e0249]/95 via-[#2e0249]/90 to-[#e91e63]/85 backdrop-blur-[2px]"></div>
+
+      <div className="container mx-auto px-4 relative z-[2]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {[
             { label: 'Women Empowered', val: '50,000+', desc: 'Building a strong women network across India', icon: <Users size={24} /> },
             { label: 'Active Groups', val: '12,500+', desc: 'Connecting women at village level', icon: <Layout size={24} /> },
@@ -42,56 +35,18 @@ const Impact = () => {
               key={idx} 
               {...fadeInUp}
               whileHover={{ y: -10 }}
-              className="stat-card"
-              style={{ 
-                background: 'rgba(255, 255, 255, 0.98)', 
-                padding: '40px 25px', 
-                borderRadius: '30px', 
-                textAlign: 'center',
-                boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
-                border: '1px solid rgba(255,255,255,0.4)',
-              }}
+              className="p-8 md:p-10 bg-white rounded-[40px] text-center shadow-2xl shadow-black/20 border border-white/40 transition-all hover:shadow-primary/20"
             >
-              <div style={{ 
-                width: '60px', 
-                height: '60px', 
-                background: 'linear-gradient(135deg, #E91E63, #6A1B9A)', 
-                color: 'white', 
-                borderRadius: '20px', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                margin: '0 auto 25px',
-                transform: 'rotate(-5deg)'
-              }}>
-                <div style={{ transform: 'rotate(5deg)' }}>{stat.icon}</div>
+              <div className="w-14 h-14 bg-gradient-to-br from-primary to-secondary text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary/30 -rotate-6">
+                <div className="rotate-6">{stat.icon}</div>
               </div>
-              <h3 style={{ fontSize: '36px', fontWeight: '900', color: '#2E0249', lineHeight: '1', marginBottom: '12px' }}>{stat.val}</h3>
-              <p style={{ fontSize: '16px', fontWeight: '800', color: '#E91E63', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px' }}>{stat.label}</p>
-              <div style={{ width: '40px', height: '3px', background: '#E91E63', margin: '0 auto 20px', borderRadius: '10px' }}></div>
-              <p style={{ fontSize: '0.9rem', color: '#666', lineHeight: '1.5' }}>{stat.desc}</p>
+              <h3 className="text-3xl md:text-5xl font-bold text-secondary leading-none mb-3 tracking-tight">{stat.val}</h3>
+              <p className="text-[10px] md:text-xs font-bold text-primary uppercase tracking-[2px] mb-6">{stat.label}</p>
+              <div className="w-10 h-1 rounded-full bg-primary/20 mx-auto mb-6"></div>
+              <p className="text-xs md:text-sm text-gray-500 font-medium leading-relaxed opacity-80">{stat.desc}</p>
             </motion.div>
           ))}
         </div>
-
-        <style jsx>{`
-          .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 30px;
-            width: 100%;
-          }
-          @media (max-width: 1024px) {
-            .stats-grid {
-              grid-template-columns: repeat(2, 1fr);
-            }
-          }
-          @media (max-width: 640px) {
-            .stats-grid {
-              grid-template-columns: 1fr;
-            }
-          }
-        `}</style>
       </div>
     </section>
   );

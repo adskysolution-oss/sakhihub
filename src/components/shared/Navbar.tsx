@@ -61,24 +61,24 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}>
-      <Link href="/" className={styles.logo}>
+    <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ''} px-4 md:px-[5%]`}>
+      <Link href="/" className={`${styles.logo} scale-90 md:scale-100`}>
         <img 
           src="/logo.png" 
           alt="SakhiHub Logo" 
-          style={{ height: '60px', width: 'auto' }} 
+          className="h-[45px] md:h-[60px] w-auto"
           onError={(e) => {
             e.currentTarget.style.display = 'none';
             const fallback = e.currentTarget.parentElement?.querySelector('.logo-fallback');
             if (fallback) (fallback as HTMLElement).style.display = 'block';
           }}
         />
-        <div className="logo-fallback" style={{ display: 'none', fontSize: '1.8rem', fontWeight: '800', color: 'var(--secondary)' }}>
+        <div className="logo-fallback" style={{ display: 'none', fontWeight: '800', color: 'var(--secondary)' }} className="text-xl md:text-3xl">
           Sakhi<span style={{ color: 'var(--primary)' }}>Hub</span>
         </div>
       </Link>
 
-      <div className={styles.navLinks} style={{ gap: '35px' }}>
+      <div className={`${styles.navLinks} hidden lg:flex`} style={{ gap: '35px' }}>
         {navLinks.map((link) => (
           <div 
             key={link.name} 
@@ -148,9 +148,9 @@ const Navbar = () => {
         ))}
       </div>
 
-      <div className={styles.actions} style={{ gap: '15px' }}>
+      <div className={`${styles.actions} gap-2 md:gap-[15px]`}>
         {/* Language Selector */}
-        <div style={{ position: 'relative' }}>
+        <div className="hidden sm:block" style={{ position: 'relative' }}>
           <button 
             className="btn-secondary" 
             style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #eee', borderRadius: '12px' }}
@@ -210,7 +210,7 @@ const Navbar = () => {
 
         {/* Member Portal Dropdown */}
         <div 
-          className={styles.portalWrapper}
+          className={`${styles.portalWrapper} hidden sm:block`}
           onMouseEnter={() => setActiveDropdown('portal')}
           onMouseLeave={() => setActiveDropdown(null)}
         >
@@ -239,7 +239,7 @@ const Navbar = () => {
           </AnimatePresence>
         </div>
 
-        <button className={styles.mobileMenuBtn} onClick={() => setIsOpen(!isOpen)} style={{ zIndex: 101 }}>
+        <button className={`${styles.mobileMenuBtn} flex lg:hidden`} onClick={() => setIsOpen(!isOpen)} style={{ zIndex: 101 }}>
           {isOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
@@ -251,25 +251,25 @@ const Navbar = () => {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className={styles.mobileMenu}
+            className={`${styles.mobileMenu} w-[85%] md:w-[400px]`}
           >
             {navLinks.map((link) => (
               <div key={link.name}>
                 <Link
                   href={link.href}
-                  className={styles.mobileNavLink}
+                  className={`${styles.mobileNavLink} text-lg md:text-xl`}
                   onClick={() => !link.subLinks && setIsOpen(false)}
                 >
                   {link.name}
                 </Link>
                 {link.subLinks && (
-                  <div style={{ paddingLeft: '20px', marginBottom: '10px' }}>
+                  <div style={{ paddingLeft: '20px', marginBottom: '10px' }} className="border-l-2 border-primary ml-2">
                     {link.subLinks.map(sub => (
                       <Link 
                         key={sub.name} 
                         href={sub.href} 
                         className={styles.mobileNavLink} 
-                        style={{ fontSize: '0.9rem', opacity: 0.8, padding: '8px 0' }}
+                        style={{ fontSize: '0.9rem', opacity: 0.8, padding: '8px 0', border: 'none' }}
                         onClick={() => setIsOpen(false)}
                       >
                         {sub.name}
@@ -280,15 +280,16 @@ const Navbar = () => {
               </div>
             ))}
             <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Select Language</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                 {languages.map(l => (
                   <button 
                     key={l.code}
                     onClick={() => setLanguage(l.code as any)}
                     style={{ 
-                      padding: '8px', 
-                      borderRadius: '8px', 
-                      background: language === l.code ? 'var(--primary)' : '#f0f0f0',
+                      padding: '12px 8px', 
+                      borderRadius: '12px', 
+                      background: language === l.code ? 'var(--primary)' : '#f8f9fa',
                       color: language === l.code ? 'white' : 'var(--secondary)',
                       fontSize: '0.8rem',
                       fontWeight: '700',
@@ -299,17 +300,18 @@ const Navbar = () => {
                   </button>
                 ))}
               </div>
+              <div className="h-px bg-gray-100 my-2"></div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                <Link href="/login" className="btn-secondary" style={{ justifyContent: 'center' }} onClick={() => setIsOpen(false)}>
+                <Link href="/login" className="btn-secondary py-4" style={{ justifyContent: 'center' }} onClick={() => setIsOpen(false)}>
                   {t('login')}
                 </Link>
-                <Link href="/register" className="btn-primary" style={{ justifyContent: 'center' }} onClick={() => setIsOpen(false)}>
+                <Link href="/register" className="btn-primary py-4" style={{ justifyContent: 'center' }} onClick={() => setIsOpen(false)}>
                   {t('join_btn')}
                 </Link>
               </div>
-              <a href="tel:8076611842" className="btn-primary" style={{ justifyContent: 'center', borderRadius: '120px', background: 'var(--secondary)' }}>
+              <a href="tel:8076611842" className="btn-primary py-4" style={{ justifyContent: 'center', borderRadius: '120px', background: 'var(--secondary)', boxShadow: 'none' }}>
                 <Phone size={18} />
-                <span>8076611842</span>
+                <span>Call Us</span>
               </a>
             </div>
           </motion.div>

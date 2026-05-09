@@ -40,22 +40,22 @@ const TeamSection = () => {
   };
 
   return (
-    <section className="section-padding">
+    <section className="section-padding overflow-hidden">
       <div className="container">
         {/* Hearts Behind SakhiHub */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '80px', alignItems: 'center', marginBottom: '100px' }}>
-          <motion.div {...fadeInUp}>
-            <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px', textTransform: 'uppercase' }}>Our Workforce</span>
-            <h2 style={{ fontSize: '3.5rem', marginTop: '15px', color: 'var(--secondary)', lineHeight: '1.1' }}>The Hearts Behind <span className="text-gradient">SakhiHub</span></h2>
-            <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', lineHeight: '1.8', marginTop: '30px', maxWidth: '550px' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20 lg:gap-32 items-center mb-20 md:mb-32">
+          <motion.div {...fadeInUp} className="text-center md:text-left">
+            <span className="text-primary font-bold tracking-widest uppercase text-xs md:text-sm">Our Workforce</span>
+            <h2 className="text-3xl md:text-5xl lg:text-6xl mt-4 text-secondary leading-tight font-bold">The Hearts Behind <span className="text-gradient">SakhiHub</span></h2>
+            <p className="text-base md:text-lg text-text-muted leading-relaxed mt-6 md:mt-8 max-w-xl mx-auto md:mx-0">
               Our field team works at the grassroots level, connecting directly with women in villages and communities. 
               They conduct awareness sessions, build groups, and help women become confident, independent, and empowered.
             </p>
             
-            <div style={{ marginTop: '40px', marginBottom: '50px' }}>
+            <div className="mt-8 md:mt-10 mb-10 md:mb-12 space-y-4">
               {['Ground-level outreach in villages', 'Direct connection with women', 'Real impact through awareness'].map((item, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px', fontSize: '1.05rem', fontWeight: '600', color: 'var(--secondary)' }}>
-                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(233, 30, 99, 0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div key={idx} className="flex items-center gap-3 justify-center md:justify-start text-sm md:text-base font-semibold text-secondary">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     <CheckCircle size={14} />
                   </div>
                   {item}
@@ -63,78 +63,60 @@ const TeamSection = () => {
               ))}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-6">
               {[
                 { val: '250+', label: 'Field Workers' },
                 { val: '15+', label: 'Districts Covered' },
                 { val: '50k+', label: 'Women Connected' }
               ].map((stat, idx) => (
-                <div key={idx} style={{ padding: '20px', background: '#FFF5F8', borderRadius: '20px', textAlign: 'center', border: '1px solid rgba(233, 30, 99, 0.1)' }}>
-                  <h4 style={{ fontSize: '1.8rem', color: 'var(--primary)', fontWeight: '900', lineHeight: '1' }}>{stat.val}</h4>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px', fontWeight: '700' }}>{stat.label}</p>
+                <div key={idx} className={`p-6 bg-primary/5 rounded-[24px] text-center border border-primary/5 shadow-sm transition-all hover:shadow-md ${idx === 2 ? 'col-span-2 sm:col-span-1' : ''}`}>
+                  <h4 className="text-2xl md:text-3xl text-primary font-bold leading-none">{stat.val}</h4>
+                  <p className="text-[10px] md:text-xs text-text-muted mt-2 font-bold uppercase tracking-widest">{stat.label}</p>
                 </div>
               ))}
             </div>
           </motion.div>
 
-          <motion.div {...fadeInUp} style={{ position: 'relative' }}>
-            <div style={{ 
-              position: 'relative', 
-              zIndex: 2, 
-              borderRadius: '24px', 
-              overflow: 'hidden', 
-              boxShadow: '0 30px 60px rgba(0,0,0,0.15)'
-            }}>
-              <img src="/images/team_field.png" style={{ width: '100%', height: '550px', objectFit: 'cover' }} alt="Field Team" />
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(106, 27, 154, 0.4), transparent)' }}></div>
+          <motion.div {...fadeInUp} className="relative w-full max-w-2xl mx-auto lg:max-w-none">
+            <div className="relative z-10 rounded-[32px] overflow-hidden shadow-2xl h-[400px] md:h-[550px] border-4 md:border-8 border-white">
+              <img src="/images/team_field.png" className="w-full h-full object-cover" alt="Field Team" />
+              <div className="absolute inset-0 bg-gradient-to-t from-secondary/40 to-transparent"></div>
             </div>
             
             {/* Floating Overlays */}
             <motion.div 
-              animate={{ y: [0, -15, 0] }}
+              animate={{ y: [0, -10, 0] }}
               transition={{ duration: 4, repeat: Infinity }}
-              style={{ position: 'absolute', top: '-40px', right: '-40px', width: '200px', height: '150px', borderRadius: '18px', overflow: 'hidden', border: '6px solid white', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', zIndex: 3 }}
+              className="absolute -top-6 -right-6 md:-top-10 md:-right-10 w-32 h-24 md:w-48 md:h-36 rounded-2xl overflow-hidden border-4 border-white shadow-2xl z-20"
             >
-              <img src="/images/hero_awareness_campaign.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+              <img src="/images/hero_awareness_campaign.png" className="w-full h-full object-cover" alt="" />
             </motion.div>
+
+            {/* Decor */}
+            <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-primary/5 rounded-full blur-3xl z-0" />
           </motion.div>
         </div>
 
         {/* Real Impact Stories */}
-        <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-          <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px' }}>REAL VOICES</span>
-          <h2 style={{ fontSize: '3rem', marginTop: '10px' }}>Voices of <span className="text-gradient">Real Change</span></h2>
+        <div className="text-center mb-12 md:mb-16">
+          <span className="text-primary font-bold tracking-widest uppercase text-xs">REAL VOICES</span>
+          <h2 className="text-3xl md:text-5xl mt-3 font-bold">Voices of <span className="text-gradient">Real Change</span></h2>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {stories.map((item, idx) => (
             <motion.div 
               key={idx} 
               {...fadeInUp}
               whileHover={{ y: -10 }}
-              style={{ 
-                background: 'white', 
-                borderRadius: '24px', 
-                padding: '40px 30px', 
-                textAlign: 'center', 
-                boxShadow: '0 15px 40px rgba(0,0,0,0.05)',
-                border: '1px solid rgba(233, 30, 99, 0.1)'
-              }}
+              className="bg-white rounded-[32px] p-8 md:p-10 text-center shadow-xl shadow-black/5 border border-primary/5 transition-all"
             >
-              <div style={{ 
-                width: '120px', 
-                height: '120px', 
-                borderRadius: '50%', 
-                overflow: 'hidden', 
-                margin: '0 auto 25px',
-                border: '4px solid #FFF5F8',
-                boxShadow: '0 10px 20px rgba(233, 30, 99, 0.15)'
-              }}>
-                <img src={item.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={item.name} />
+              <div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden mx-auto mb-6 border-4 border-primary/5 shadow-xl shadow-primary/10">
+                <img src={item.image} className="w-full h-full object-cover" alt={item.name} />
               </div>
-              <h3 style={{ fontSize: '1.4rem', color: 'var(--secondary)', marginBottom: '5px' }}>{item.name}</h3>
-              <span style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '20px' }}>{item.role}</span>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', fontStyle: 'italic' }}>
+              <h3 className="text-xl font-bold text-secondary mb-1">{item.name}</h3>
+              <span className="text-[10px] md:text-xs text-primary font-bold uppercase tracking-widest block mb-4">{item.role}</span>
+              <p className="text-sm md:text-base text-text-muted leading-relaxed italic opacity-80 font-medium">
                 "{item.story}"
               </p>
             </motion.div>

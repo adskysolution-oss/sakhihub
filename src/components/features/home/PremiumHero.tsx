@@ -10,92 +10,53 @@ const PremiumHero = () => {
   const { t } = useLanguage();
 
   return (
-    <section style={{ 
-      padding: '120px 0 80px', 
-      position: 'relative', 
-      overflow: 'hidden',
-      background: 'white'
-    }}>
+    <section className="relative overflow-hidden bg-white pt-24 pb-12 md:pt-32 md:pb-20">
       {/* Background radial gradients for texture */}
-      <div style={{ 
-        position: 'absolute', 
-        inset: 0, 
-        background: 'radial-gradient(circle at 20% 20%, #ffe0ee, transparent 35%), radial-gradient(circle at 80% 10%, #efe2ff, transparent 40%)',
-        opacity: 0.6,
-        zIndex: 0
-      }} />
+      <div className="absolute inset-0 opacity-60 z-0 bg-[radial-gradient(circle_at_20%_20%,#ffe0ee,transparent_35%),radial-gradient(circle_at_80%_10%,#efe2ff,transparent_40%)]" />
 
-      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '60px', alignItems: 'center' }}>
+      <div className="container relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-12 md:gap-16 lg:gap-20 items-center">
           {/* Left Content */}
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
+            className="text-center lg:text-left"
           >
-            <span style={{ 
-              color: 'var(--primary)', 
-              fontWeight: '800', 
-              letterSpacing: '3px', 
-              textTransform: 'uppercase',
-              fontSize: '0.9rem',
-              display: 'block',
-              marginBottom: '15px'
-            }}>{t('campaign')}</span>
+            <span className="text-primary font-bold tracking-[2px] uppercase text-xs md:text-sm block mb-4">
+              {t('campaign')}
+            </span>
             
-            <h1 style={{ 
-              fontSize: '4.2rem', 
-              fontWeight: '900', 
-              lineHeight: '1.1', 
-              marginBottom: '25px', 
-              color: 'var(--secondary)' 
-            }}>
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold leading-[1.1] mb-6 text-secondary tracking-tight">
               {t('hero_title').split(',').map((part, i) => (
                 <React.Fragment key={i}>
                   {i === 1 ? <span className="text-gradient">{part}</span> : part}
-                  {i === 0 && <br />}
+                  {i === 0 && <br className="hidden md:block" />}
                 </React.Fragment>
               ))}
             </h1>
             
-            <p style={{ 
-              fontSize: '1.25rem', 
-              color: 'var(--text-muted)', 
-              lineHeight: '1.8', 
-              marginBottom: '45px', 
-              maxWidth: '650px' 
-            }}>
+            <p className="text-base md:text-xl text-text-muted leading-relaxed mb-10 max-w-2xl mx-auto lg:mx-0">
               {t('hero_subtitle')}
             </p>
             
-            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-              <Link href="/register" className="btn-primary" style={{ padding: '20px 45px', fontSize: '1.1rem', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 20px 40px rgba(233, 30, 99, 0.2)' }}>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Link href="/register" className="btn-primary py-4 px-10 text-base md:text-lg rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-primary/20">
                 {t('employee_join_cta') || 'Join as Employee'} <ArrowRight size={20} />
               </Link>
-              <Link href="/verify-membership" className="btn-secondary" style={{ padding: '20px 45px', fontSize: '1.1rem', borderRadius: '20px', background: 'white', color: 'var(--secondary)', border: '2px solid rgba(106, 27, 154, 0.2)' }}>
+              <Link href="/verify-membership" className="btn-secondary py-4 px-10 text-base md:text-lg rounded-2xl bg-white text-secondary border-2 border-secondary/10 flex items-center justify-center">
                 {t('verify_btn') || 'Verify Membership'}
               </Link>
             </div>
 
-            <div style={{ marginTop: '50px', display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+            <div className="mt-12 flex flex-wrap gap-3 justify-center lg:justify-start">
               {[
-                { key: 'direct_impact', icon: <CheckCircle2 size={16} /> },
-                { key: 'trust_focused', icon: <CheckCircle2 size={16} /> },
-                { key: 'ground_reality', icon: <CheckCircle2 size={16} /> }
+                { key: 'direct_impact', icon: <CheckCircle2 size={14} /> },
+                { key: 'trust_focused', icon: <CheckCircle2 size={14} /> },
+                { key: 'ground_reality', icon: <CheckCircle2 size={14} /> }
               ].map((item) => (
-                <div key={item.key} style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '8px', 
-                  fontSize: '0.85rem', 
-                  fontWeight: '800', 
-                  color: 'var(--secondary)',
-                  background: 'rgba(233, 30, 99, 0.06)',
-                  padding: '10px 20px',
-                  borderRadius: '100px',
-                  border: '1px solid rgba(233, 30, 99, 0.1)'
-                }}>
-                  <span style={{ color: 'var(--primary)' }}>{item.icon}</span>
+                <div key={item.key} className="flex items-center gap-2 text-[11px] md:text-xs font-bold text-secondary bg-primary/5 px-4 py-2.5 rounded-full border border-primary/10 shadow-sm">
+                  <span className="text-primary">{item.icon}</span>
                   {t(item.key)}
                 </div>
               ))}
@@ -107,54 +68,29 @@ const PremiumHero = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            style={{ position: 'relative' }}
+            className="relative w-full max-w-xl mx-auto lg:max-w-none"
           >
-            <div style={{ 
-              borderRadius: '40px', 
-              overflow: 'hidden', 
-              boxShadow: '0 40px 100px rgba(106, 27, 154, 0.15)',
-              height: '600px',
-              border: '8px solid white'
-            }}>
+            <div className="rounded-[40px] overflow-hidden shadow-2xl shadow-secondary/15 h-[350px] sm:h-[450px] md:h-[600px] border-4 md:border-8 border-white relative z-10">
               <img 
                 src="/images/about_mission.png" 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                className="w-full h-full object-cover" 
                 alt="SakhiHub Women Empowerment" 
               />
             </div>
 
             {/* Floating Badge */}
             <motion.div 
-              animate={{ y: [0, -15, 0] }}
+              animate={{ y: [0, -10, 0] }}
               transition={{ duration: 4, repeat: Infinity }}
-              style={{ 
-                position: 'absolute', 
-                bottom: '-30px', 
-                left: '40px', 
-                background: 'white', 
-                padding: '25px 35px', 
-                borderRadius: '24px', 
-                boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
-                border: '1px solid rgba(0,0,0,0.05)',
-                zIndex: 2
-              }}
+              className="absolute -bottom-6 left-6 md:bottom-10 md:-left-10 bg-white p-6 md:p-10 rounded-[32px] shadow-2xl border border-black/5 z-20 text-center md:text-left min-w-[180px]"
             >
-              <h3 style={{ fontSize: '2.5rem', fontWeight: '900', color: 'var(--primary)', lineHeight: '1' }}>50,000+</h3>
-              <p style={{ fontSize: '0.9rem', color: 'var(--secondary)', fontWeight: '700', marginTop: '5px' }}>{t('impact')} Status</p>
+              <h3 className="text-3xl md:text-5xl font-bold text-primary leading-none mb-2">50,000+</h3>
+              <p className="text-[10px] md:text-xs text-secondary font-bold uppercase tracking-widest">{t('impact')} Status</p>
             </motion.div>
 
-            {/* Accent Circle */}
-            <div style={{ 
-              position: 'absolute', 
-              top: '-30px', 
-              right: '-30px', 
-              width: '120px', 
-              height: '120px', 
-              background: 'var(--grad-primary)', 
-              borderRadius: '50%', 
-              opacity: 0.1,
-              zIndex: -1
-            }} />
+            {/* Accent Decor */}
+            <div className="absolute -top-6 -right-6 w-24 h-24 bg-primary/10 rounded-full blur-2xl z-0" />
+            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-secondary/10 rounded-full blur-3xl z-0" />
           </motion.div>
         </div>
       </div>

@@ -159,91 +159,96 @@ export default function RegisterForm() {
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: '600px' }}>
+  return (
+    <div className="w-full max-w-[650px] px-2 md:px-0 mx-auto">
       {/* Step Indicator */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '50px', position: 'relative' }}>
-        <div style={{ position: 'absolute', top: '15px', left: '0', width: '100%', height: '2px', background: '#eee', zIndex: 1 }}></div>
-        <div style={{ position: 'absolute', top: '15px', left: '0', width: `${((step - 1) / (steps.length - 1)) * 100}%`, height: '2px', background: 'var(--grad-primary)', zIndex: 1, transition: 'width 0.4s ease' }}></div>
+      <div className="flex justify-between mb-8 md:mb-12 relative px-2">
+        <div className="absolute top-[16px] left-0 w-full h-[2px] bg-gray-100 z-0"></div>
+        <div 
+          className="absolute top-[16px] left-0 h-[2px] bg-gradient-to-r from-primary to-secondary z-0 transition-all duration-500" 
+          style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
+        ></div>
 
         {steps.map((s) => (
-          <div key={s.id} style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <div style={{
-              width: '32px', height: '32px', borderRadius: '50%',
-              background: step >= s.id ? 'var(--grad-primary)' : 'white',
-              border: '2px solid', borderColor: step >= s.id ? 'transparent' : '#eee',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: step >= s.id ? 'white' : '#999', fontWeight: '700', fontSize: '0.8rem',
-              boxShadow: step === s.id ? '0 0 0 4px rgba(233, 30, 99, 0.1)' : 'none'
-            }}>
+          <div key={s.id} className="relative z-10 flex flex-col items-center gap-2">
+            <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xs md:text-sm font-black transition-all duration-300 ${step >= s.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white text-gray-300 border-2 border-gray-100'}`}>
               {step > s.id ? <CheckCircle size={16} /> : s.id}
             </div>
-            <span style={{ fontSize: '0.7rem', fontWeight: '700', color: step >= s.id ? 'var(--secondary)' : '#999', textTransform: 'uppercase' }}>{s.name}</span>
+            <span className={`text-[10px] md:text-xs font-black uppercase tracking-tighter md:tracking-widest ${step >= s.id ? 'text-secondary' : 'text-gray-300'}`}>
+              {language === 'hi' ? s.hindi : s.name}
+            </span>
           </div>
         ))}
       </div>
 
-      <div style={{ marginBottom: '40px' }}>
-        <h2 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'var(--secondary)' }}>{steps[step - 1].name} Details</h2>
-        <p style={{ color: 'var(--primary)', fontWeight: '700', fontSize: '1.1rem' }}>{steps[step - 1].hindi} विवरण</p>
+      <div className="mb-6 md:mb-10 text-center md:text-left">
+        <h2 className="text-2xl md:text-4xl font-black text-secondary leading-tight">{steps[step - 1].name} Details</h2>
+        <p className="text-primary font-bold text-sm md:text-lg">{steps[step - 1].hindi} विवरण</p>
       </div>
 
       <form onSubmit={handleRegister}>
         <AnimatePresence mode="wait">
           {step === 1 && (
-            <motion.div key="step1" {...fadeInUp} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              <div onClick={() => setFormData({ ...formData, role: "employee" })} style={{ padding: '25px', borderRadius: '24px', border: '2px solid', borderColor: formData.role === "employee" ? 'var(--primary)' : '#f0f0f0', background: formData.role === "employee" ? '#FFF5F8' : 'white', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center', textAlign: 'center' }}>
-                <div style={{ width: '60px', height: '60px', background: 'rgba(106, 27, 154, 0.1)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--secondary)' }}><Briefcase size={30} /></div>
+            <motion.div key="step1" {...fadeInUp} className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+              <div 
+                onClick={() => setFormData({ ...formData, role: "employee" })} 
+                className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "employee" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
+              >
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary"><Briefcase size={28} /></div>
                 <div>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--secondary)' }}>Employee</h3>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Field worker / Lead</p>
+                  <h3 className="text-lg md:text-xl font-black text-secondary">Employee</h3>
+                  <p className="text-xs md:text-sm text-gray-400">Field worker / Lead</p>
                 </div>
               </div>
-              <div onClick={() => setFormData({ ...formData, role: "member" })} style={{ padding: '25px', borderRadius: '24px', border: '2px solid', borderColor: formData.role === "member" ? 'var(--primary)' : '#f0f0f0', background: formData.role === "member" ? '#FFF5F8' : 'white', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center', textAlign: 'center' }}>
-                <div style={{ width: '60px', height: '60px', background: 'rgba(233, 30, 99, 0.1)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}><Users size={30} /></div>
+              <div 
+                onClick={() => setFormData({ ...formData, role: "member" })} 
+                className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "member" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
+              >
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"><Users size={28} /></div>
                 <div>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--secondary)' }}>Member</h3>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Community user</p>
+                  <h3 className="text-lg md:text-xl font-black text-secondary">Member</h3>
+                  <p className="text-xs md:text-sm text-gray-400">Community user</p>
                 </div>
               </div>
-              <div style={{ gridColumn: 'span 2' }}>
-                <button type="button" disabled={!formData.role} onClick={nextStep} className="btn-primary" style={{ width: '100%', justifyContent: 'center', opacity: formData.role ? 1 : 0.5 }}>Continue <ArrowRight size={20} /></button>
+              <div className="sm:col-span-2">
+                <button type="button" disabled={!formData.role} onClick={nextStep} className="btn-primary w-full py-4 justify-center text-sm md:text-base">Continue <ArrowRight size={20} /></button>
               </div>
             </motion.div>
           )}
 
           {step === 2 && (
-            <motion.div key="step2" {...fadeInUp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Full Name</label>
-                  <div style={{ position: 'relative' }}>
-                    <User size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-                    <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Full Name" style={{ padding: '14px 14px 14px 45px', borderRadius: '14px', border: '1px solid #eee', width: '100%' }} required />
+            <motion.div key="step2" {...fadeInUp} className="flex flex-col gap-4 md:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-black text-gray-700">Full Name</label>
+                  <div className="relative">
+                    <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Full Name" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Mobile</label>
-                  <div style={{ position: 'relative' }}>
-                    <Phone size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-                    <input type="tel" name="mobile" value={formData.mobile} onChange={handleChange} placeholder="Mobile No" style={{ padding: '14px 14px 14px 45px', borderRadius: '14px', border: '1px solid #eee', width: '100%' }} required />
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-black text-gray-700">Mobile</label>
+                  <div className="relative">
+                    <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="tel" name="mobile" value={formData.mobile} onChange={handleChange} placeholder="Mobile No" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                   </div>
                 </div>
               </div>
 
               {formData.role === 'employee' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>WhatsApp No</label>
-                    <div style={{ position: 'relative' }}>
-                      <MessageCircle size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-                      <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleChange} placeholder="WhatsApp No" style={{ padding: '14px 14px 14px 45px', borderRadius: '14px', border: '1px solid #eee', width: '100%' }} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-black text-gray-700">WhatsApp No</label>
+                    <div className="relative">
+                      <MessageCircle size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleChange} placeholder="WhatsApp No" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
                     </div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Apply For</label>
-                    <div style={{ position: 'relative' }}>
-                      <ClipboardList size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-                      <select name="designation" value={formData.designation} onChange={handleChange} style={{ padding: '14px 14px 14px 45px', borderRadius: '14px', border: '1px solid #eee', width: '100%', appearance: 'none', background: 'white' }} required>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-black text-gray-700">Apply For</label>
+                    <div className="relative">
+                      <ClipboardList size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <select name="designation" value={formData.designation} onChange={handleChange} className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none bg-white font-bold" required>
                         <option value="">Select Designation</option>
                         {designations.map(d => <option key={d} value={d}>{d}</option>)}
                       </select>
@@ -253,173 +258,172 @@ export default function RegisterForm() {
               )}
 
               {formData.role === 'employee' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Qualification</label>
-                    <div style={{ position: 'relative' }}>
-                      <BookOpen size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-                      <input type="text" name="qualification" value={formData.qualification} onChange={handleChange} placeholder="B.A, 12th, etc." style={{ padding: '14px 14px 14px 45px', borderRadius: '14px', border: '1px solid #eee', width: '100%' }} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-black text-gray-700">Qualification</label>
+                    <div className="relative">
+                      <BookOpen size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input type="text" name="qualification" value={formData.qualification} onChange={handleChange} placeholder="B.A, 12th, etc." className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
                     </div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Experience</label>
-                    <div style={{ position: 'relative' }}>
-                      <Clock size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-                      <input type="text" name="experience" value={formData.experience} onChange={handleChange} placeholder="Years/Details" style={{ padding: '14px 14px 14px 45px', borderRadius: '14px', border: '1px solid #eee', width: '100%' }} />
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-black text-gray-700">Experience</label>
+                    <div className="relative">
+                      <Clock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input type="text" name="experience" value={formData.experience} onChange={handleChange} placeholder="Years/Details" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
                     </div>
                   </div>
                 </div>
               )}
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Email (Optional)</label>
-                <div style={{ position: 'relative' }}>
-                  <Mail size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="email@example.com" style={{ padding: '14px 14px 14px 45px', borderRadius: '14px', border: '1px solid #eee', width: '100%' }} />
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-black text-gray-700">Email (Optional)</label>
+                <div className="relative">
+                  <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="email@example.com" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
-                <button type="button" onClick={prevStep} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>Back</button>
-                <button type="button" onClick={nextStep} className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>Next Step</button>
+              <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
+                <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">Next Step</button>
               </div>
             </motion.div>
           )}
 
           {step === 3 && (
-            <motion.div key="step3" {...fadeInUp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Pincode</label>
-                <div style={{ position: 'relative' }}>
-                  <MapPin size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-                  <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} placeholder="6 Digit Pincode" maxLength={6} style={{ padding: '14px 14px 14px 45px', borderRadius: '14px', border: '1px solid #eee', width: '100%' }} required />
-                  {pincodeLoading && <div className="spinner-small" style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)' }}></div>}
+            <motion.div key="step3" {...fadeInUp} className="flex flex-col gap-4 md:gap-6">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-black text-gray-700">Pincode</label>
+                <div className="relative">
+                  <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} placeholder="6 Digit Pincode" maxLength={6} className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 font-black text-lg" required />
+                  {pincodeLoading && <div className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 border-2 border-gray-200 border-t-primary rounded-full animate-spin"></div>}
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>State</label>
-                  <input type="text" name="state" value={formData.state} onChange={handleChange} placeholder="State" style={{ padding: '14px', borderRadius: '14px', border: '1px solid #eee' }} required />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-black text-gray-700">State</label>
+                  <input type="text" name="state" value={formData.state} onChange={handleChange} placeholder="State" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>District</label>
-                  <input type="text" name="district" value={formData.district} onChange={handleChange} placeholder="District" style={{ padding: '14px', borderRadius: '14px', border: '1px solid #eee' }} required />
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-black text-gray-700">District</label>
+                  <input type="text" name="district" value={formData.district} onChange={handleChange} placeholder="District" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                 </div>
               </div>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Block / Tehsil</label>
-                  <input type="text" name="block" value={formData.block} onChange={handleChange} placeholder="Block Name" style={{ padding: '14px', borderRadius: '14px', border: '1px solid #eee' }} required />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-black text-gray-700">Block / Tehsil</label>
+                  <input type="text" name="block" value={formData.block} onChange={handleChange} placeholder="Block Name" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Panchayat / Area</label>
-                  <input type="text" name="area" value={formData.area} onChange={handleChange} placeholder="Area Name" style={{ padding: '14px', borderRadius: '14px', border: '1px solid #eee' }} required />
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-black text-gray-700">Panchayat / Area</label>
+                  <input type="text" name="area" value={formData.area} onChange={handleChange} placeholder="Area Name" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Full Address</label>
-                <textarea name="address" value={formData.address} onChange={handleChange} placeholder="Village, Landmark, etc." rows={3} style={{ padding: '14px', borderRadius: '14px', border: '1px solid #eee' }} required></textarea>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-black text-gray-700">Full Address</label>
+                <textarea name="address" value={formData.address} onChange={handleChange} placeholder="Village, Landmark, etc." rows={3} className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required></textarea>
               </div>
 
-              <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
-                <button type="button" onClick={prevStep} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>Back</button>
-                <button type="button" onClick={nextStep} className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>{formData.role === 'member' ? 'Find Nearby Sakhi' : 'Last Step'}</button>
+              <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
+                <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">{formData.role === 'member' ? 'Find Nearby Sakhi' : 'Last Step'}</button>
               </div>
             </motion.div>
           )}
 
           {step === 4 && (
-            <motion.div key="step4" {...fadeInUp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '800' }}>{formData.role === 'member' ? 'Connect with Local Sakhi' : 'Verify Location'}</h3>
-                <p style={{ fontSize: '0.85rem', color: '#666' }}>{formData.role === 'member' ? 'Choose an employee to assist you with your registration.' : 'Confirm your service area.'}</p>
+            <motion.div key="step4" {...fadeInUp} className="flex flex-col gap-6">
+              <div className="text-center">
+                <h3 className="text-xl md:text-2xl font-black text-secondary">{formData.role === 'member' ? 'Connect with Local Sakhi' : 'Verify Location'}</h3>
+                <p className="text-gray-400 text-sm mt-1">{formData.role === 'member' ? 'Choose an employee to assist you with your registration.' : 'Confirm your service area.'}</p>
               </div>
 
               {formData.role === 'member' ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '350px', overflowY: 'auto', padding: '5px' }}>
+                <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto px-2 pb-4 scrollbar-hide">
                   {discoveryLoading ? (
-                    <div style={{ textAlign: 'center', padding: '40px' }}>Searching for nearby employees...</div>
+                    <div className="text-center py-12 flex flex-col items-center gap-3">
+                       <div className="w-8 h-8 border-4 border-gray-100 border-t-primary rounded-full animate-spin"></div>
+                       <p className="text-gray-400 font-bold">Searching for nearby employees...</p>
+                    </div>
                   ) : nearbyEmployees.length > 0 ? (
                     nearbyEmployees.map((emp) => (
-                      <div key={emp._id} style={{ 
-                        padding: '15px', borderRadius: '18px', border: '2px solid', 
-                        borderColor: requestStatus[emp._id] ? 'var(--primary)' : '#eee',
-                        background: requestStatus[emp._id] ? '#FFF5F8' : 'white',
-                        display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                          <div style={{ width: '45px', height: '45px', background: 'var(--grad-primary)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                      <div key={emp._id} className={`p-5 rounded-3xl border-2 transition-all flex justify-between items-center gap-4 ${requestStatus[emp._id] ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white'}`}>
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
                             <User size={24} />
                           </div>
                           <div>
-                            <h4 style={{ fontSize: '1rem', fontWeight: '800', margin: 0 }}>{emp.fullName}</h4>
-                            <p style={{ fontSize: '0.75rem', color: '#666', margin: 0 }}>Code: {emp.employeeId || 'N/A'}</p>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: '700', margin: 0 }}>{emp.block}, {emp.district}</p>
+                            <h4 className="font-black text-secondary">{emp.fullName}</h4>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">CODE: {emp.employeeId || 'N/A'}</p>
+                            <p className="text-xs text-primary font-black mt-0.5">{emp.block}, {emp.district}</p>
                           </div>
                         </div>
-                        <button type="button" onClick={() => handleConnect(emp._id)} style={{ 
-                          padding: '8px 16px', borderRadius: '10px', border: 'none', 
-                          background: requestStatus[emp._id] ? 'var(--primary)' : 'var(--secondary)',
-                          color: 'white', fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer'
-                        }}>
+                        <button type="button" onClick={() => handleConnect(emp._id)} className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${requestStatus[emp._id] ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
                           {requestStatus[emp._id] ? 'Selected' : 'Connect'}
                         </button>
                       </div>
                     ))
                   ) : (
-                    <div style={{ textAlign: 'center', padding: '40px', background: '#f8f9fa', borderRadius: '20px' }}>
-                      <p style={{ color: '#666', fontSize: '0.9rem' }}>No active employees found in your area yet.</p>
-                      <button type="button" onClick={nextStep} style={{ color: 'var(--primary)', fontWeight: '700', background: 'none', border: 'none', cursor: 'pointer' }}>Continue without connecting</button>
+                    <div className="text-center py-12 bg-gray-50 rounded-3xl px-6">
+                      <AlertCircle size={40} className="mx-auto text-gray-200 mb-4" />
+                      <p className="text-gray-500 font-bold">No active employees found in your area yet.</p>
+                      <button type="button" onClick={nextStep} className="text-primary font-black mt-4 underline">Continue without connecting</button>
                     </div>
                   )}
                 </div>
               ) : (
-                <div style={{ textAlign: 'center', padding: '40px', background: '#f8f9fa', borderRadius: '20px' }}>
-                  <CheckCircle size={40} style={{ color: 'var(--secondary)', marginBottom: '15px' }} />
-                  <p style={{ fontWeight: '700' }}>Your service area is set to:</p>
-                  <p style={{ color: 'var(--primary)', fontWeight: '800', fontSize: '1.2rem' }}>{formData.block}, {formData.district}</p>
+                <div className="text-center py-12 bg-gray-50 rounded-3xl px-6">
+                  <CheckCircle size={48} className="mx-auto text-secondary mb-4 animate-bounce" />
+                  <p className="text-gray-500 font-bold">Your service area is set to:</p>
+                  <p className="text-xl md:text-2xl font-black text-primary mt-2">{formData.block}, {formData.district}</p>
                 </div>
               )}
 
-              <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
-                <button type="button" onClick={prevStep} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>Back</button>
-                <button type="button" onClick={nextStep} className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>Continue</button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
+                <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">Continue</button>
               </div>
             </motion.div>
           )}
 
           {step === 5 && (
-            <motion.div key="step5" {...fadeInUp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Password</label>
-                  <div style={{ position: 'relative' }}>
-                    <Lock size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-                    <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="********" style={{ padding: '14px 14px 14px 45px', borderRadius: '14px', border: '1px solid #eee', width: '100%' }} required />
+            <motion.div key="step5" {...fadeInUp} className="flex flex-col gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-black text-gray-700">Password</label>
+                  <div className="relative">
+                    <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="********" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Confirm Password</label>
-                  <div style={{ position: 'relative' }}>
-                    <Lock size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-                    <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="********" style={{ padding: '14px 14px 14px 45px', borderRadius: '14px', border: '1px solid #eee', width: '100%' }} required />
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-black text-gray-700">Confirm Password</label>
+                  <div className="relative">
+                    <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="********" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                   </div>
                 </div>
               </div>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#f8f9fa', padding: '15px', borderRadius: '15px', border: '1px solid #eee' }}>
-                <input type="checkbox" id="terms" required style={{ width: '18px', height: '18px' }} />
-                <label htmlFor="terms" style={{ fontSize: '0.85rem', color: '#666' }}>I agree to the terms and conditions and privacy policy of SakhiHub.</label>
+              <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <input type="checkbox" id="terms" required className="mt-1 w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary transition-all" />
+                <label htmlFor="terms" className="text-xs md:text-sm text-gray-500 leading-relaxed font-medium">I agree to the <span className="text-secondary font-bold">terms and conditions</span> and <span className="text-secondary font-bold">privacy policy</span> of SakhiHub.</label>
               </div>
 
-              {error && <p style={{ color: 'red', fontSize: '0.85rem', textAlign: 'center' }}>{error}</p>}
+              {error && (
+                <div className="p-4 bg-red-50 text-red-500 text-xs md:text-sm rounded-2xl font-bold flex items-center gap-2 border border-red-100">
+                  <AlertCircle size={16} /> {error}
+                </div>
+              )}
               
-              <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
-                <button type="button" onClick={prevStep} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>Back</button>
-                <button type="submit" disabled={loading} className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
+              <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
+                <button type="submit" disabled={loading} className="btn-primary w-full justify-center order-1 sm:order-2 py-4 shadow-xl shadow-primary/20">
                   {loading ? "Registering..." : (formData.role === 'employee' ? "Register as Employee" : "Join Movement")} <Sparkles size={18} />
                 </button>
               </div>

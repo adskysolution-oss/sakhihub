@@ -52,137 +52,53 @@ const HowItWorks = () => {
   const { language } = useLanguage();
   
   return (
-    <section className="section-padding" style={{ background: '#fff', position: 'relative' }}>
-      <div className="container">
-        <div className="section-title" style={{ textAlign: 'center', marginBottom: '100px' }}>
-          <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px', textTransform: 'uppercase' }}>
+    <section className="py-16 md:py-32 bg-white relative overflow-hidden">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto text-center mb-16 md:mb-24">
+          <span className="text-primary font-bold tracking-widest uppercase text-xs md:text-sm block mb-4">
             {language === 'hi' ? 'हमारी प्रक्रिया' : 'Our Process'}
           </span>
-          <h2 style={{ fontSize: '3.5rem', marginTop: '10px' }}>
+          <h2 className="text-3xl md:text-5xl font-bold text-secondary leading-tight">
             {language === 'hi' ? <>यह कैसे <span className="text-gradient">काम करता है</span></> : <>How It <span className="text-gradient">Works</span></>}
           </h2>
         </div>
 
-        <div className="process-flow">
+        <div className="flex flex-col lg:flex-row items-stretch justify-between gap-8 lg:gap-4">
           {steps.map((step, i) => (
             <React.Fragment key={i}>
               <motion.div 
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.6 }}
-                className="process-card-wrapper"
+                transition={{ delay: i * 0.1, duration: 0.6 }}
+                className="flex-1 relative group"
               >
-                <div className="process-card">
-                  <div className="step-number">{i + 1}</div>
-                  <div className="image-circle">
-                    <img src={step.image} alt={step.title.en} />
+                <div className="bg-white p-8 md:p-10 rounded-[40px] text-center h-full border border-gray-100 shadow-xl shadow-black/[0.03] transition-all hover:shadow-primary/10 hover:-translate-y-2 group-hover:border-primary/20">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-gradient-to-br from-primary to-secondary text-white rounded-full flex items-center justify-center font-bold text-sm shadow-lg shadow-primary/30 z-10">
+                    {i + 1}
                   </div>
-                  <h3 className="step-title">{language === 'hi' ? step.title.hi : step.title.en}</h3>
-                  <p className="step-desc">{language === 'hi' ? step.desc.hi : step.desc.en}</p>
+                  
+                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden mx-auto mb-8 border-4 border-white shadow-xl shadow-black/10 group-hover:scale-110 transition-transform duration-500">
+                    <img src={step.image} className="w-full h-full object-cover" alt={step.title.en} />
+                  </div>
+                  
+                  <h3 className="text-xl md:text-2xl font-bold text-secondary mb-4">
+                    {language === 'hi' ? step.title.hi : step.title.en}
+                  </h3>
+                  <p className="text-sm md:text-base text-gray-500 leading-relaxed font-medium">
+                    {language === 'hi' ? step.desc.hi : step.desc.en}
+                  </p>
                 </div>
               </motion.div>
+              
               {i < steps.length - 1 && (
-                <div className="process-arrow">
-                  <ArrowRight size={24} />
+                <div className="hidden lg:flex items-center justify-center text-primary/20">
+                  <ArrowRight size={24} className="animate-pulse" />
                 </div>
               )}
             </React.Fragment>
           ))}
         </div>
-
-        <style jsx>{`
-          .process-flow {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 20px;
-            width: 100%;
-          }
-          .process-card-wrapper {
-            flex: 1;
-            position: relative;
-          }
-          .process-card {
-            text-align: center;
-            background: white;
-            padding: 40px 20px;
-            border-radius: 35px;
-            transition: 0.4s;
-            border: 1px solid #f0f0f0;
-            box-shadow: 0 15px 45px rgba(0,0,0,0.05);
-            height: 100%;
-          }
-          .process-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 30px 60px rgba(233, 30, 99, 0.1);
-            border-color: var(--primary);
-          }
-          .image-circle {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin: 0 auto 30px;
-            border: 4px solid white;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-          }
-          .image-circle img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-          .step-number {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 40px;
-            background: var(--grad-primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 1.1rem;
-            box-shadow: 0 10px 20px rgba(233, 30, 99, 0.3);
-            z-index: 10;
-          }
-          .step-title {
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: var(--secondary);
-            marginBottom: 15px;
-          }
-          .step-desc {
-            font-size: 0.9rem;
-            color: #666;
-            line-height: 1.6;
-          }
-          .process-arrow {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 220px;
-            color: var(--primary);
-            opacity: 0.3;
-          }
-          @media (max-width: 1100px) {
-            .process-flow {
-              flex-wrap: wrap;
-              justify-content: center;
-              gap: 40px;
-            }
-            .process-card-wrapper {
-              flex: 0 0 280px;
-            }
-            .process-arrow {
-              display: none;
-            }
-          }
-        `}</style>
       </div>
     </section>
   );

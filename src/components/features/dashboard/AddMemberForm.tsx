@@ -67,98 +67,145 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
   };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <button onClick={onCancel} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#666', cursor: 'pointer', marginBottom: '20px', fontWeight: '700' }}>
-        <ArrowLeft size={18} /> Back to Members
+    <div className="max-w-4xl mx-auto p-4">
+      <button 
+        onClick={onCancel} 
+        className="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors font-black text-xs uppercase tracking-widest mb-8 group"
+      >
+        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back to Members
       </button>
 
-      <div style={{ background: 'white', padding: '40px', borderRadius: '30px', boxShadow: '0 20px 60px rgba(0,0,0,0.05)' }}>
-        <div style={{ marginBottom: '40px' }}>
-          <h2 style={{ fontSize: '2rem', fontWeight: '900', color: 'var(--secondary)' }}>Add Women Member</h2>
-          <p style={{ color: 'var(--primary)', fontWeight: '700' }}>Register a new community member under a group</p>
+      <div className="bg-white p-8 md:p-14 rounded-[40px] shadow-2xl shadow-black/5 border border-gray-50">
+        <div className="mb-10 md:mb-14">
+          <h2 className="text-3xl md:text-5xl font-black text-secondary tracking-tight">Add New Member</h2>
+          <p className="mt-4 text-primary font-bold text-sm md:text-lg flex items-center gap-2">
+            <Sparkles size={18} /> Register a community member under a group
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '25px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <label style={{ fontSize: '0.9rem', fontWeight: '800' }}>Member Name</label>
-              <input required name="name" value={formData.name} onChange={handleChange} placeholder="Full Name" style={{ padding: '15px', borderRadius: '15px', border: '1px solid #eee' }} />
+        <form onSubmit={handleSubmit} className="grid gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Member Name</label>
+              <input 
+                required 
+                name="name" 
+                value={formData.name} 
+                onChange={handleChange} 
+                placeholder="Full Name" 
+                className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" 
+              />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <label style={{ fontSize: '0.9rem', fontWeight: '800' }}>Mobile Number</label>
-              <input required type="tel" name="mobile" value={formData.mobile} onChange={handleChange} placeholder="10 Digit Number" style={{ padding: '15px', borderRadius: '15px', border: '1px solid #eee' }} />
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Mobile Number</label>
+              <input 
+                required 
+                type="tel" 
+                name="mobile" 
+                value={formData.mobile} 
+                onChange={handleChange} 
+                placeholder="10 Digit Number" 
+                className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" 
+              />
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <label style={{ fontSize: '0.9rem', fontWeight: '800' }}>Age</label>
-              <input required type="number" name="age" value={formData.age} onChange={handleChange} placeholder="Age" style={{ padding: '15px', borderRadius: '15px', border: '1px solid #eee' }} />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+             <div className="flex flex-col gap-3">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Age</label>
+              <input 
+                required 
+                type="number" 
+                name="age" 
+                value={formData.age} 
+                onChange={handleChange} 
+                placeholder="Age" 
+                className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" 
+              />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <label style={{ fontSize: '0.9rem', fontWeight: '800' }}>Marital Status</label>
-              <select name="maritalStatus" value={formData.maritalStatus} onChange={handleChange} style={{ padding: '15px', borderRadius: '15px', border: '1px solid #eee', background: 'white' }}>
-                <option value="Married">Married</option>
-                <option value="Unmarried">Unmarried</option>
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Marital Status</label>
+              <div className="relative">
+                <select 
+                  name="maritalStatus" 
+                  value={formData.maritalStatus} 
+                  onChange={handleChange} 
+                  className="w-full p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary appearance-none"
+                >
+                  <option value="Married">Married</option>
+                  <option value="Unmarried">Unmarried</option>
+                </select>
+                <ChevronDown size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              </div>
+            </div>
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Occupation</label>
+              <div className="relative">
+                <select 
+                  required 
+                  name="occupation" 
+                  value={formData.occupation} 
+                  onChange={handleChange} 
+                  className="w-full p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary appearance-none"
+                >
+                  <option value="">Select Occupation</option>
+                  {occupations.map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+                <ChevronDown size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Select Group</label>
+            <div className="relative">
+              <select 
+                required 
+                name="groupId" 
+                value={formData.groupId} 
+                onChange={handleChange} 
+                className="w-full p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary appearance-none"
+              >
+                <option value="">Choose a Group</option>
+                {groups.map(g => <option key={g._id} value={g._id}>{g.groupName} ({g.village})</option>)}
               </select>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <label style={{ fontSize: '0.9rem', fontWeight: '800' }}>Occupation</label>
-              <select required name="occupation" value={formData.occupation} onChange={handleChange} style={{ padding: '15px', borderRadius: '15px', border: '1px solid #eee', background: 'white' }}>
-                <option value="">Select Occupation</option>
-                {occupations.map(o => <option key={o} value={o}>{o}</option>)}
-              </select>
+              <Users size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '800' }}>Select Group</label>
-            <select required name="groupId" value={formData.groupId} onChange={handleChange} style={{ padding: '15px', borderRadius: '15px', border: '1px solid #eee', background: 'white' }}>
-              <option value="">Choose a Group</option>
-              {groups.map(g => <option key={g._id} value={g._id}>{g.groupName} ({g.village})</option>)}
-              <option value="temp">Example Group - Village A</option>
-            </select>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <input required name="village" value={formData.village} onChange={handleChange} placeholder="Village" className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
+            <input required name="block" value={formData.block} onChange={handleChange} placeholder="Block" className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
+            <input required name="district" value={formData.district} onChange={handleChange} placeholder="District" className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
-            <input required name="village" value={formData.village} onChange={handleChange} placeholder="Village" style={{ padding: '15px', borderRadius: '15px', border: '1px solid #eee' }} />
-            <input required name="block" value={formData.block} onChange={handleChange} placeholder="Block" style={{ padding: '15px', borderRadius: '15px', border: '1px solid #eee' }} />
-            <input required name="district" value={formData.district} onChange={handleChange} placeholder="District" style={{ padding: '15px', borderRadius: '15px', border: '1px solid #eee' }} />
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '800' }}>Interested In (Multiple Selection)</label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          <div className="flex flex-col gap-6">
+            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Interested In (Multiple Selection)</label>
+            <div className="flex flex-wrap gap-3">
               {interestOptions.map(option => (
                 <button
                   key={option}
                   type="button"
                   onClick={() => toggleInterest(option)}
-                  style={{
-                    padding: '10px 20px',
-                    borderRadius: '100px',
-                    border: '1px solid',
-                    borderColor: formData.interests.includes(option) ? 'var(--primary)' : '#eee',
-                    background: formData.interests.includes(option) ? '#FFF5F8' : 'white',
-                    color: formData.interests.includes(option) ? 'var(--primary)' : '#666',
-                    fontSize: '0.85rem',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    transition: '0.2s'
-                  }}
+                  className={`px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 border ${
+                    formData.interests.includes(option) 
+                      ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-105' 
+                      : 'bg-gray-50 text-gray-400 border-gray-100 hover:border-primary/30'
+                  }`}
                 >
-                  {formData.interests.includes(option) && <CheckCircle size={14} />}
+                  {formData.interests.includes(option) ? <CheckCircle size={14} /> : <div className="w-3.5 h-3.5 rounded-full border-2 border-current opacity-20" />}
                   {option}
                 </button>
               ))}
             </div>
           </div>
 
-          <button disabled={loading} type="submit" className="btn-primary" style={{ padding: '20px', justifyContent: 'center', fontSize: '1.1rem', marginTop: '10px' }}>
-            {loading ? "Adding Member..." : "Complete Registration"} <Sparkles size={20} />
+          <button 
+            disabled={loading} 
+            type="submit" 
+            className="btn-primary w-full py-5 rounded-[24px] text-lg font-black mt-4 shadow-2xl shadow-primary/30 disabled:opacity-50 disabled:transform-none"
+          >
+            {loading ? "Registering..." : "Complete Registration"} <Sparkles size={22} className="ml-2" />
           </button>
         </form>
       </div>

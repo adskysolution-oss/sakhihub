@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import { Phone, Lock, Heart, ShieldCheck, Users, Briefcase, AlertCircle, Sparkles } from "lucide-react";
+import { Phone, Lock, Heart, ShieldCheck, Users, Briefcase, AlertCircle, Sparkles, ArrowRight, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
 type Role = 'employee' | 'member';
@@ -57,112 +58,175 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div className="glass-card" style={{ maxWidth: '480px', width: '100%', padding: '50px', background: 'white', borderRadius: '40px', boxShadow: '0 30px 100px rgba(0,0,0,0.05)' }}>
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <div style={{ display: 'inline-flex', padding: '15px', background: 'var(--accent)', borderRadius: '25px', color: 'var(--primary)', marginBottom: '20px' }}>
-            <Heart size={40} fill="var(--primary)" />
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#FFF5F8] overflow-hidden">
+      {/* Left Side - Visual (Desktop Only) */}
+      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-secondary-dark via-secondary to-primary relative overflow-hidden items-center justify-center p-12">
+        <div className="absolute top-0 right-0 w-full h-full opacity-10">
+          <div className="absolute -top-20 -right-20 w-80 h-80 bg-white rounded-full blur-[100px]"></div>
+          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-white rounded-full blur-[100px]"></div>
+        </div>
+        
+        <div className="relative z-10 text-white max-w-md">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-20 h-20 bg-white/20 backdrop-blur-xl rounded-3xl flex items-center justify-center mb-10 border border-white/30"
+          >
+            <Heart size={45} fill="white" className="drop-shadow-lg" />
+          </motion.div>
+          
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-6xl font-black mb-6 leading-tight"
+          >
+            Empowering <br/> Rural <span className="text-primary-dark">Sakhis.</span>
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-xl opacity-80 leading-relaxed mb-12"
+          >
+            Access your unified SakhiHub dashboard to manage field operations, member compliance and community impact.
+          </motion.p>
+          
+          <div className="grid gap-6">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+              className="flex items-center gap-5 bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20"
+            >
+              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-primary shadow-xl shadow-black/10">
+                <ShieldCheck size={28} />
+              </div>
+              <div>
+                <p className="font-black text-lg">Secure Access Control</p>
+                <p className="text-xs opacity-60">Identity verified & encrypted</p>
+              </div>
+            </motion.div>
           </div>
-          <h2 style={{ fontSize: '2.5rem', fontWeight: '900', color: 'var(--secondary)', marginBottom: '10px' }}>SakhiHub Portal</h2>
-          <p style={{ color: 'var(--text-muted)', fontWeight: '600' }}>Login to access your field dashboard</p>
+        </div>
+      </div>
+
+      {/* Right Side - Form */}
+      <div className="flex-1 flex items-center justify-center p-4 md:p-8 lg:p-12 relative overflow-y-auto">
+        {/* Mobile Header Decor */}
+        <div className="lg:hidden absolute top-0 left-0 w-full h-[220px] bg-gradient-to-br from-secondary to-primary z-0 rounded-b-[40px] shadow-2xl overflow-hidden">
+          <div className="absolute top-10 left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
         </div>
 
-        {error && (
-          <div style={{ padding: '15px', background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: '15px', color: '#ef4444', fontSize: '0.85rem', display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '25px', fontWeight: '700' }}>
-            <AlertCircle size={18} /> {error}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-[500px] bg-white rounded-[40px] shadow-2xl p-8 md:p-12 relative z-10 my-10"
+        >
+          <div className="mb-10 text-center lg:text-left">
+            <Link href="/" className="inline-block text-3xl font-black text-secondary no-underline mb-6 group">
+              Sakhi<span className="text-primary transition-all group-hover:pl-1">Hub</span>
+            </Link>
+            <h2 className="text-3xl md:text-4xl font-black text-secondary leading-tight">Member Portal</h2>
+            <p className="text-gray-400 font-bold mt-2">Welcome back! Please login to continue.</p>
           </div>
-        )}
 
-        {success && (
-          <div style={{ padding: '15px', background: '#f0fdf4', border: '1px solid #dcfce7', borderRadius: '15px', color: '#10b981', fontSize: '0.85rem', display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '25px', fontWeight: '700' }}>
-            <ShieldCheck size={18} /> {success}
-          </div>
-        )}
-
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-          {/* Role Selection */}
-          <div style={{ display: 'flex', gap: '15px', marginBottom: '10px' }}>
+          <div className="flex gap-3 mb-10 p-1.5 bg-gray-50 rounded-3xl border border-gray-100">
             {(['member', 'employee'] as Role[]).map((r) => (
               <button
                 key={r}
                 type="button"
                 onClick={() => setRole(r)}
-                style={{
-                  flex: 1,
-                  padding: '20px 15px',
-                  borderRadius: '20px',
-                  border: '2.5px solid',
-                  borderColor: role === r ? 'var(--primary)' : '#f0f0f0',
-                  background: role === r ? '#FFF5F8' : 'white',
-                  color: role === r ? 'var(--primary)' : '#999',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '8px',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  cursor: 'pointer'
-                }}
+                className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-[22px] transition-all duration-300 font-black text-sm uppercase tracking-wider ${role === r ? 'bg-white text-primary shadow-xl shadow-gray-200' : 'text-gray-400 hover:text-gray-600'}`}
               >
-                {r === 'employee' ? <Briefcase size={22} strokeWidth={2.5} /> : <Users size={22} strokeWidth={2.5} />}
-                <span style={{ fontSize: '0.9rem', fontWeight: '800', textTransform: 'capitalize' }}>{r}</span>
+                {r === 'employee' ? <Briefcase size={18} /> : <Users size={18} />}
+                {r}
               </button>
             ))}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#444' }}>Mobile Number / Email</label>
-            <div style={{ position: 'relative' }}>
-              <Phone size={18} style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-              <input
-                required
-                name="identifier"
-                value={formData.identifier}
-                onChange={handleChange}
-                type="text"
-                placeholder="Enter Mobile or Email"
-                style={{ padding: '16px 16px 16px 50px', borderRadius: '15px', border: '1px solid #eee', width: '100%', fontSize: '1rem', background: '#fcfcfc' }}
-              />
+          <form onSubmit={handleLogin} className="flex flex-col gap-6">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-black text-gray-500 uppercase tracking-widest pl-2">Mobile / Email</label>
+              <div className="relative group">
+                <Phone size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" />
+                <input 
+                  type="text" 
+                  name="identifier"
+                  value={formData.identifier}
+                  onChange={handleChange}
+                  placeholder="Enter Mobile or Email" 
+                  className="w-full pl-14 pr-5 py-4 md:py-5 rounded-2xl md:rounded-3xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/30 transition-all font-bold text-lg"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between items-center px-2">
+                <label className="text-xs font-black text-gray-500 uppercase tracking-widest">Password</label>
+                <Link href="/forgot" className="text-xs text-primary font-black hover:underline">Forgot Password?</Link>
+              </div>
+              <div className="relative group">
+                <Lock size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" />
+                <input 
+                  type="password" 
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="********" 
+                  className="w-full pl-14 pr-5 py-4 md:py-5 rounded-2xl md:rounded-3xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/30 transition-all font-bold text-lg"
+                  required
+                />
+              </div>
+            </div>
+
+            <AnimatePresence>
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="p-4 bg-red-50 text-red-500 text-sm rounded-2xl font-bold flex items-center gap-3 border border-red-100"
+                >
+                  <AlertCircle size={18} className="flex-shrink-0" /> {error}
+                </motion.div>
+              )}
+              {success && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="p-4 bg-green-50 text-green-600 text-sm rounded-2xl font-bold flex items-center gap-3 border border-green-100"
+                >
+                  <ShieldCheck size={18} className="flex-shrink-0" /> {success}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="btn-primary w-full py-5 md:py-6 justify-center text-lg shadow-2xl shadow-primary/25 mt-4 transition-all active:scale-95 disabled:opacity-50"
+            >
+              {loading ? 'Verifying...' : `Login as ${role.charAt(0).toUpperCase() + role.slice(1)}`}
+              {!loading && <ArrowRight size={22} className="ml-2" />}
+            </button>
+          </form>
+
+          <div className="mt-12 text-center pt-8 border-t border-gray-50">
+            <p className="text-gray-400 font-bold text-base">
+              New to SakhiHub? 
+              <Link href="/register" className="text-primary hover:text-secondary transition-colors ml-2 border-b-2 border-primary/20 hover:border-primary">Create Account</Link>
+            </p>
+            <div className="mt-6">
+               <Link href="/admin/login" className="text-xs text-gray-300 font-bold uppercase tracking-widest hover:text-secondary flex items-center justify-center gap-2">
+                 Admin Access <ChevronRight size={14} />
+               </Link>
             </div>
           </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <label style={{ fontSize: '0.95rem', fontWeight: '800', color: '#444' }}>Password</label>
-              <Link href="/forgot" style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: '800' }}>Forgot?</Link>
-            </div>
-            <div style={{ position: 'relative' }}>
-              <Lock size={18} style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-              <input
-                required
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                type="password"
-                placeholder="Enter Password"
-                style={{ padding: '16px 16px 16px 50px', borderRadius: '15px', border: '1px solid #eee', width: '100%', fontSize: '1rem', background: '#fcfcfc' }}
-              />
-            </div>
-          </div>
-
-          <button disabled={loading} type="submit" className="btn-primary" style={{ justifyContent: 'center', padding: '18px', borderRadius: '18px', fontSize: '1.1rem', boxShadow: '0 20px 40px rgba(233, 30, 99, 0.2)' }}>
-            {loading ? 'Verifying...' : 'Login to Dashboard'} <Sparkles size={20} style={{ marginLeft: '10px' }} />
-          </button>
-        </form>
-
-        <div style={{ marginTop: '35px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', fontWeight: '600' }}>
-            {role === 'member' ? "New to SakhiHub Movement?" : "Want to join our workforce?"} {' '}
-            <Link href="/register" style={{ color: 'var(--primary)', fontWeight: '800', borderBottom: '2px solid var(--primary)' }}>Register Now</Link>
-          </p>
-          <hr style={{ border: 'none', borderTop: '1px solid #f0f0f0', margin: '10px 0' }} />
-          <Link href="/admin/login" style={{ fontSize: '0.85rem', color: '#aaa', fontWeight: '700', textDecoration: 'none' }}>
-            Access Super Admin Portal
-          </Link>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
 }
-
-
-
