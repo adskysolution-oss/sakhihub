@@ -18,6 +18,7 @@ export interface IUser extends Document {
   district?: string;
   block?: string;
   area?: string;
+  pincode?: string;
   address?: string;
   qualification?: string;
   experience?: string;
@@ -57,6 +58,7 @@ const UserSchema: Schema = new Schema(
     district: { type: String },
     block: { type: String },
     area: { type: String },
+    pincode: { type: String },
     address: { type: String },
     qualification: { type: String },
     experience: { type: String },

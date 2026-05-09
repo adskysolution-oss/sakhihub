@@ -98,7 +98,7 @@ const Footer = () => {
 
         <div className={styles.bottomBar}>
           <div className={styles.bottomLeft}>
-            <p>© {new Date().getFullYear()} SakhiHub. All rights reserved.</p>
+            <p suppressHydrationWarning>© {new Date().getFullYear()} SakhiHub. All rights reserved.</p>
             <p className={styles.missionText}>Designed for Women Empowerment & Community Development</p>
           </div>
           <div className={styles.bottomRight}>

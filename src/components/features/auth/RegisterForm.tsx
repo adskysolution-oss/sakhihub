@@ -14,7 +14,8 @@ const steps = [
   { id: 1, name: "Role", hindi: "भूमिका" },
   { id: 2, name: "Details", hindi: "विवरण" },
   { id: 3, name: "Location", hindi: "स्थान" },
-  { id: 4, name: "Security", hindi: "सुरक्षा" },
+  { id: 4, name: "Connect", hindi: "जुड़ें" },
+  { id: 5, name: "Security", hindi: "सुरक्षा" },
 ];
 
 const designations = [
@@ -45,10 +46,67 @@ export default function RegisterForm() {
     district: "",
     block: "",
     area: "",
+    pincode: "",
     address: "",
     password: "",
     confirmPassword: "",
+    assignedEmployeeId: "",
   });
+
+  const [nearbyEmployees, setNearbyEmployees] = useState<any[]>([]);
+  const [pincodeLoading, setPincodeLoading] = useState(false);
+  const [discoveryLoading, setDiscoveryLoading] = useState(false);
+  const [requestStatus, setRequestStatus] = useState<{[key: string]: string}>({});
+
+  React.useEffect(() => {
+    if (formData.pincode.length === 6) {
+      handlePincodeLookup(formData.pincode);
+    }
+  }, [formData.pincode]);
+
+  const handlePincodeLookup = async (code: string) => {
+    setPincodeLoading(true);
+    try {
+      const res = await fetch(`/api/pincode/${code}`);
+      const result = await res.json();
+      if (result.success) {
+        setFormData(prev => ({
+          ...prev,
+          state: result.data.state,
+          district: result.data.district,
+          block: result.data.block,
+          area: result.data.area[0] || ""
+        }));
+        fetchNearbyEmployees(code, result.data.district, result.data.block);
+      }
+    } catch (err) {
+      console.error("Pincode lookup failed", err);
+    } finally {
+      setPincodeLoading(false);
+    }
+  };
+
+  const fetchNearbyEmployees = async (pincode: string, district: string, block: string) => {
+    setDiscoveryLoading(true);
+    try {
+      const res = await fetch(`/api/employees/nearby?pincode=${pincode}&district=${district}&block=${block}`);
+      const result = await res.json();
+      if (result.success) {
+        setNearbyEmployees(result.data);
+      }
+    } catch (err) {
+      console.error("Nearby discovery failed", err);
+    } finally {
+      setDiscoveryLoading(false);
+    }
+  };
+
+  const handleConnect = async (employeeId: string) => {
+    setFormData(prev => ({ ...prev, assignedEmployeeId: employeeId }));
+    // If user is already registered, we would send API request here.
+    // But since this is registration flow, we will save it during registration.
+    setRequestStatus(prev => ({ ...prev, [employeeId]: 'selected' }));
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -230,6 +288,15 @@ export default function RegisterForm() {
 
           {step === 3 && (
             <motion.div key="step3" {...fadeInUp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Pincode</label>
+                <div style={{ position: 'relative' }}>
+                  <MapPin size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
+                  <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} placeholder="6 Digit Pincode" maxLength={6} style={{ padding: '14px 14px 14px 45px', borderRadius: '14px', border: '1px solid #eee', width: '100%' }} required />
+                  {pincodeLoading && <div className="spinner-small" style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)' }}></div>}
+                </div>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>State</label>
@@ -241,33 +308,91 @@ export default function RegisterForm() {
                 </div>
               </div>
               
-              {formData.role === 'employee' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Block / Tehsil</label>
-                    <input type="text" name="block" value={formData.block} onChange={handleChange} placeholder="Block Name" style={{ padding: '14px', borderRadius: '14px', border: '1px solid #eee' }} required />
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Panchayat / Area</label>
-                    <input type="text" name="area" value={formData.area} onChange={handleChange} placeholder="Area Name" style={{ padding: '14px', borderRadius: '14px', border: '1px solid #eee' }} required />
-                  </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Block / Tehsil</label>
+                  <input type="text" name="block" value={formData.block} onChange={handleChange} placeholder="Block Name" style={{ padding: '14px', borderRadius: '14px', border: '1px solid #eee' }} required />
                 </div>
-              )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Panchayat / Area</label>
+                  <input type="text" name="area" value={formData.area} onChange={handleChange} placeholder="Area Name" style={{ padding: '14px', borderRadius: '14px', border: '1px solid #eee' }} required />
+                </div>
+              </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Full Address</label>
-                <textarea name="address" value={formData.address} onChange={handleChange} placeholder="Village, Landmark, Pin Code" rows={3} style={{ padding: '14px', borderRadius: '14px', border: '1px solid #eee' }} required></textarea>
+                <textarea name="address" value={formData.address} onChange={handleChange} placeholder="Village, Landmark, etc." rows={3} style={{ padding: '14px', borderRadius: '14px', border: '1px solid #eee' }} required></textarea>
               </div>
 
               <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
                 <button type="button" onClick={prevStep} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>Back</button>
-                <button type="button" onClick={nextStep} className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>Last Step</button>
+                <button type="button" onClick={nextStep} className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>{formData.role === 'member' ? 'Find Nearby Sakhi' : 'Last Step'}</button>
               </div>
             </motion.div>
           )}
 
           {step === 4 && (
             <motion.div key="step4" {...fadeInUp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '800' }}>{formData.role === 'member' ? 'Connect with Local Sakhi' : 'Verify Location'}</h3>
+                <p style={{ fontSize: '0.85rem', color: '#666' }}>{formData.role === 'member' ? 'Choose an employee to assist you with your registration.' : 'Confirm your service area.'}</p>
+              </div>
+
+              {formData.role === 'member' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '350px', overflowY: 'auto', padding: '5px' }}>
+                  {discoveryLoading ? (
+                    <div style={{ textAlign: 'center', padding: '40px' }}>Searching for nearby employees...</div>
+                  ) : nearbyEmployees.length > 0 ? (
+                    nearbyEmployees.map((emp) => (
+                      <div key={emp._id} style={{ 
+                        padding: '15px', borderRadius: '18px', border: '2px solid', 
+                        borderColor: requestStatus[emp._id] ? 'var(--primary)' : '#eee',
+                        background: requestStatus[emp._id] ? '#FFF5F8' : 'white',
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                          <div style={{ width: '45px', height: '45px', background: 'var(--grad-primary)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                            <User size={24} />
+                          </div>
+                          <div>
+                            <h4 style={{ fontSize: '1rem', fontWeight: '800', margin: 0 }}>{emp.fullName}</h4>
+                            <p style={{ fontSize: '0.75rem', color: '#666', margin: 0 }}>Code: {emp.employeeId || 'N/A'}</p>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: '700', margin: 0 }}>{emp.block}, {emp.district}</p>
+                          </div>
+                        </div>
+                        <button type="button" onClick={() => handleConnect(emp._id)} style={{ 
+                          padding: '8px 16px', borderRadius: '10px', border: 'none', 
+                          background: requestStatus[emp._id] ? 'var(--primary)' : 'var(--secondary)',
+                          color: 'white', fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer'
+                        }}>
+                          {requestStatus[emp._id] ? 'Selected' : 'Connect'}
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '40px', background: '#f8f9fa', borderRadius: '20px' }}>
+                      <p style={{ color: '#666', fontSize: '0.9rem' }}>No active employees found in your area yet.</p>
+                      <button type="button" onClick={nextStep} style={{ color: 'var(--primary)', fontWeight: '700', background: 'none', border: 'none', cursor: 'pointer' }}>Continue without connecting</button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '40px', background: '#f8f9fa', borderRadius: '20px' }}>
+                  <CheckCircle size={40} style={{ color: 'var(--secondary)', marginBottom: '15px' }} />
+                  <p style={{ fontWeight: '700' }}>Your service area is set to:</p>
+                  <p style={{ color: 'var(--primary)', fontWeight: '800', fontSize: '1.2rem' }}>{formData.block}, {formData.district}</p>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+                <button type="button" onClick={prevStep} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>Back</button>
+                <button type="button" onClick={nextStep} className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>Continue</button>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 5 && (
+            <motion.div key="step5" {...fadeInUp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Password</label>

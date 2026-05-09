@@ -72,6 +72,11 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (savedLang) setLanguage(savedLang);
   }, []);
 
+  // Sync html lang attribute
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
   const handleSetLanguage = (lang: Language) => {
     setLanguage(lang);
     localStorage.setItem('sakhihub_lang', lang);

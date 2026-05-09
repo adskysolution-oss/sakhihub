@@ -1,38 +1,71 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IWomenMember extends Document {
+  userId: mongoose.Types.ObjectId;
   name: string;
   mobile: string;
-  age: number;
-  village: string;
-  district: string;
-  block: string;
-  maritalStatus: 'Married' | 'Unmarried';
-  occupation: string;
-  interests: string[]; // Health Awareness, Sakhi Care Pads, Employment, etc.
-  groupId: mongoose.Types.ObjectId;
-  createdBy: mongoose.Types.ObjectId; // Employee ID
-  membershipStatus: 'pending' | 'paid';
+  age?: number;
+  village?: string;
+  district?: string;
+  block?: string;
+  state?: string;
+  pincode?: string;
+  address?: string;
+  maritalStatus?: 'Married' | 'Unmarried';
+  occupation?: string;
+  interests?: string[]; // Health Awareness, Sakhi Care Pads, Employment, etc.
+  groupId?: mongoose.Types.ObjectId;
+  assignedEmployeeId?: mongoose.Types.ObjectId; // The employee managing this member
+  createdBy: mongoose.Types.ObjectId; // User ID of who created this (Self or Employee)
+  
+  // New Status System
+  accountStatus: 'active' | 'inactive';
+  connectionStatus: 'unassigned' | 'pending_request' | 'approved' | 'rejected';
+  membershipStatus: 'free' | 'pending_paid' | 'paid';
+  
   createdAt: Date;
   updatedAt: Date;
 }
 
 const WomenMemberSchema: Schema = new Schema(
   {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', unique: true, sparse: true },
     name: { type: String, required: true },
     mobile: { type: String, required: true },
-    age: { type: Number, required: true },
-    village: { type: String, required: true },
-    district: { type: String, required: true },
-    block: { type: String, required: true },
-    maritalStatus: { type: String, enum: ['Married', 'Unmarried'], required: true },
-    occupation: { type: String, required: true },
+    age: { type: Number },
+    village: { type: String },
+    district: { type: String },
+    block: { type: String },
+    state: { type: String },
+    pincode: { type: String },
+    address: { type: String },
+    maritalStatus: { type: String, enum: ['Married', 'Unmarried'] },
+    occupation: { type: String },
     interests: [{ type: String }],
-    groupId: { type: Schema.Types.ObjectId, ref: 'Group', required: true },
+    groupId: { type: Schema.Types.ObjectId, ref: 'Group' },
+    assignedEmployeeId: { type: Schema.Types.ObjectId, ref: 'User' },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    membershipStatus: { type: String, enum: ['pending', 'paid'], default: 'pending' },
+    
+    accountStatus: { 
+      type: String, 
+      enum: ['active', 'inactive'], 
+      default: 'active' 
+    },
+    connectionStatus: { 
+      type: String, 
+      enum: ['unassigned', 'pending_request', 'approved', 'rejected'], 
+      default: 'unassigned' 
+    },
+    membershipStatus: { 
+      type: String, 
+      enum: ['free', 'pending_paid', 'paid'], 
+      default: 'free' 
+    },
   },
   { timestamps: true }
 );
+
+// Add index for faster searching by pincode/district
+WomenMemberSchema.index({ pincode: 1, district: 1, block: 1 });
 
 export default mongoose.models.WomenMember || mongoose.model<IWomenMember>('WomenMember', WomenMemberSchema);

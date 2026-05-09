@@ -109,6 +109,13 @@ export default function EmployeeDashboard({ user }: { user: any }) {
                 <p style={{ fontSize: '0.75rem', color: '#777', margin: '5px 0 0' }}>Form a new village unit</p>
               </button>
             </Link>
+            <Link href="/employee/requests" style={{ textDecoration: 'none' }}>
+              <button style={{ width: '100%', padding: '20px', borderRadius: '20px', border: '2px solid var(--accent)', background: '#FFF5F8', textAlign: 'left', cursor: 'pointer', transition: '0.2s' }}>
+                <div style={{ color: 'var(--primary)', marginBottom: '10px' }}><Bell size={24} /></div>
+                <p style={{ fontWeight: '800', margin: 0, color: 'var(--secondary)' }}>Member Requests</p>
+                <p style={{ fontSize: '0.75rem', color: '#777', margin: '5px 0 0' }}>Pending connection requests</p>
+              </button>
+            </Link>
             <Link href="/employee/membership" style={{ textDecoration: 'none' }}>
               <button style={{ width: '100%', padding: '20px', borderRadius: '20px', border: '1px solid #eee', background: '#f8f9fa', textAlign: 'left', cursor: 'pointer', transition: '0.2s' }}>
                 <div style={{ color: '#2e7d32', marginBottom: '10px' }}><IndianRupee size={24} /></div>

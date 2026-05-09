@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import WomenMember from '@/models/WomenMember';
 import Membership from '@/models/Membership';
+import User from '@/models/User';
+import Group from '@/models/Group';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 
@@ -27,6 +29,7 @@ export async function GET(req: NextRequest) {
 
     const members = await WomenMember.find(query)
       .populate('groupId', 'groupName village district')
+      .populate('assignedEmployeeId', 'fullName mobile employeeId')
       .sort({ createdAt: -1 });
 
     // Attach membership status to each member
@@ -37,8 +40,10 @@ export async function GET(req: NextRequest) {
       const membership = memberships.find(m => m.memberId.toString() === member._id.toString());
       return {
         ...member.toObject(),
-        paymentStatus: membership?.paymentStatus || 'Pending',
-        membershipId: membership?.membershipId || 'N/A'
+        paymentStatus: member.membershipStatus === 'paid' ? 'Paid' : 'Pending', // Sync with new status field
+        membershipId: membership?.membershipId || 'N/A',
+        accountStatus: member.accountStatus,
+        connectionStatus: member.connectionStatus
       };
     });
 

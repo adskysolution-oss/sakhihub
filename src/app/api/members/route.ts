@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import WomenMember from '@/models/WomenMember';
+import Group from '@/models/Group';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 
@@ -25,6 +26,10 @@ export async function POST(req: NextRequest) {
     const member = await WomenMember.create({
       ...body,
       createdBy: (session as any).id,
+      assignedEmployeeId: (session as any).id,
+      connectionStatus: 'approved',
+      accountStatus: 'active',
+      membershipStatus: 'free'
     });
 
     return successResponse(member, 'Member added successfully', 201);
@@ -48,7 +53,7 @@ export async function GET(req: NextRequest) {
     const groupId = searchParams.get('groupId');
 
     if (role === 'employee') {
-      query.createdBy = userId;
+      query.$or = [{ createdBy: userId }, { assignedEmployeeId: userId }];
     }
 
     if (groupId) {

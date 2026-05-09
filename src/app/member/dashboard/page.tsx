@@ -24,6 +24,9 @@ export default function MemberDashboardPage() {
         const res = await axios.get('/api/member/dashboard');
         if (res.data.success) {
           setData(res.data.data);
+          if (res.data.data.fieldRecord?.pincode) {
+            fetchNearbyEmployees(res.data.data.fieldRecord.pincode);
+          }
         }
       } catch (err: any) {
         setError("Failed to load dashboard data");
@@ -35,6 +38,43 @@ export default function MemberDashboardPage() {
 
     if (user) fetchData();
   }, [user]);
+
+  const [nearbyEmployees, setNearbyEmployees] = useState<any[]>([]);
+  const [discoveryLoading, setDiscoveryLoading] = useState(false);
+  const [requestStatus, setRequestStatus] = useState<string>("");
+
+  const fetchNearbyEmployees = async (pincode: string) => {
+    setDiscoveryLoading(true);
+    try {
+      const res = await fetch(`/api/employees/nearby?pincode=${pincode}`);
+      const result = await res.json();
+      if (result.success) {
+        setNearbyEmployees(result.data);
+      }
+    } catch (err) {
+      console.error("Nearby discovery failed", err);
+    } finally {
+      setDiscoveryLoading(false);
+    }
+  };
+
+  const handleConnect = async (employeeId: string) => {
+    setRequestStatus(employeeId);
+    try {
+      const res = await axios.post('/api/member/request', {
+        employeeId,
+        pincode: data.fieldRecord.pincode
+      });
+      if (res.data.success) {
+        // Refresh data
+        const refresh = await axios.get('/api/member/dashboard');
+        setData(refresh.data.data);
+      }
+    } catch (err) {
+      console.error("Connect failed", err);
+      setRequestStatus("");
+    }
+  };
 
   if (authLoading || loading) {
     return (
@@ -133,6 +173,82 @@ export default function MemberDashboardPage() {
           
           {/* Main Column */}
           <div style={{ display: 'grid', gap: '30px' }}>
+            
+            {/* Connection Status & Discovery */}
+            {fieldRecord?.connectionStatus === 'unassigned' && (
+              <section className="glass-card" style={{ padding: '35px', background: '#FFF5F8', borderRadius: '30px', border: '1px dashed var(--primary)' }}>
+                <div style={{ textAlign: 'center', marginBottom: '25px' }}>
+                  <Users size={40} style={{ color: 'var(--primary)', marginBottom: '15px' }} />
+                  <h2 style={{ fontSize: '1.6rem', fontWeight: '900', color: 'var(--secondary)' }}>Connect with Local Sakhi</h2>
+                  <p style={{ color: '#666' }}>Find and connect with an active field employee in your area to get your membership verified and join a group.</p>
+                </div>
+
+                <div style={{ display: 'grid', gap: '15px' }}>
+                  {discoveryLoading ? (
+                    <div style={{ textAlign: 'center', padding: '20px' }}>Searching for nearby Sakhis...</div>
+                  ) : nearbyEmployees.length > 0 ? (
+                    nearbyEmployees.map((emp) => (
+                      <div key={emp._id} style={{ 
+                        padding: '20px', borderRadius: '20px', background: 'white', 
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
+                      }}>
+                        <div>
+                          <h4 style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--secondary)' }}>{emp.fullName}</h4>
+                          <p style={{ fontSize: '0.8rem', color: '#666' }}>{emp.area}, {emp.block}</p>
+                        </div>
+                        <button 
+                          onClick={() => handleConnect(emp._id)}
+                          disabled={requestStatus === emp._id}
+                          className="btn-primary" 
+                          style={{ padding: '8px 20px', fontSize: '0.85rem' }}
+                        >
+                          {requestStatus === emp._id ? 'Connecting...' : 'Connect'}
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                      No active employees found in your pincode ({fieldRecord?.pincode}) yet. 
+                      Our team will reach out to you soon.
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
+
+            {fieldRecord?.connectionStatus === 'pending_request' && (
+              <section className="glass-card" style={{ padding: '35px', background: '#FEFCE8', borderRadius: '30px', border: '1px solid #FEF08A' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                  <div style={{ padding: '15px', background: '#FEF9C3', borderRadius: '20px', color: '#854d0e' }}>
+                    <Clock size={30} />
+                  </div>
+                  <div>
+                    <h2 style={{ fontSize: '1.4rem', fontWeight: '900', color: '#854d0e' }}>Connection Request Pending</h2>
+                    <p style={{ color: '#713f12', marginTop: '5px' }}>Your request to connect with our local field employee is awaiting approval. You will be notified once they accept.</p>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {fieldRecord?.connectionStatus === 'approved' && fieldRecord?.assignedEmployeeId && (
+              <section className="glass-card" style={{ padding: '35px', background: '#F0FDF4', borderRadius: '30px', border: '1px solid #BBF7D0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ padding: '15px', background: '#DCFCE7', borderRadius: '20px', color: '#166534' }}>
+                      <ShieldCheck size={30} />
+                    </div>
+                    <div>
+                      <h2 style={{ fontSize: '1.4rem', fontWeight: '900', color: '#166534' }}>Connected with {fieldRecord.assignedEmployeeId.fullName}</h2>
+                      <p style={{ color: '#15803d', marginTop: '5px' }}>Your account is managed by our local Sakhi Hero. You can contact them for any support.</p>
+                    </div>
+                  </div>
+                  <a href={`tel:${fieldRecord.assignedEmployeeId.mobile}`} className="btn-primary" style={{ background: '#16a34a', boxShadow: '0 10px 20px rgba(22, 163, 74, 0.2)' }}>
+                    <Phone size={18} /> Call Sakhi
+                  </a>
+                </div>
+              </section>
+            )}
             
             {/* Detailed Profile Section */}
             <section className="glass-card" style={{ padding: '35px', background: 'white', borderRadius: '30px', border: '1px solid #eee' }}>

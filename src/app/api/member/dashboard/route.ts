@@ -23,9 +23,10 @@ export async function GET(req: NextRequest) {
       return errorResponse('User not found', 404);
     }
 
-    // Try to find the linked field record using mobile number
-    const fieldRecord = await WomenMember.findOne({ mobile: user.mobile })
+    // Find the linked field record using userId
+    const fieldRecord = await WomenMember.findOne({ userId: user._id })
       .populate('groupId', 'name village district block')
+      .populate('assignedEmployeeId', 'fullName mobile employeeId')
       .populate('createdBy', 'fullName mobile');
 
     let membership = null;
