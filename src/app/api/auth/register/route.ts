@@ -88,6 +88,7 @@ export async function POST(req: NextRequest) {
           memberId: newUser._id,
           employeeId: assignedEmployeeId,
           pincode: pincode,
+          requestedBy: 'member',
           status: 'pending'
         });
       }

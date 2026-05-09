@@ -6,6 +6,7 @@ import WomenMember from '@/models/WomenMember';
 import Membership from '@/models/Membership';
 import Group from '@/models/Group';
 import User from '@/models/User';
+import MemberRequest from '@/models/MemberRequest';
 
 export async function GET(req: NextRequest) {
   try {
@@ -35,10 +36,17 @@ export async function GET(req: NextRequest) {
         .sort({ createdAt: -1 });
     }
 
+    // Fetch any pending requests for this member
+    const pendingRequests = await MemberRequest.find({
+      memberId: user._id,
+      status: 'pending'
+    }).populate('employeeId', 'fullName mobile employeeId area block');
+
     return successResponse({
       profile: user,
       fieldRecord: fieldRecord || null,
       membership: membership || null,
+      pendingRequests: pendingRequests || []
     }, 'Member dashboard data fetched successfully');
 
   } catch (error: any) {

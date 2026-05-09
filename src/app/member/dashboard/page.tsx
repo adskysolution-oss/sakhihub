@@ -76,6 +76,19 @@ export default function MemberDashboardPage() {
     }
   };
 
+  const handleResponseRequest = async (id: string, status: 'approved' | 'rejected') => {
+    try {
+      const res = await axios.patch('/api/member/request', { id, status });
+      if (res.data.success) {
+        // Refresh data
+        const refresh = await axios.get('/api/member/dashboard');
+        setData(refresh.data.data);
+      }
+    } catch (err) {
+      console.error("Response failed", err);
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <DashboardLayout>
@@ -88,13 +101,43 @@ export default function MemberDashboardPage() {
     );
   }
 
-  const { profile, fieldRecord, membership } = data || {};
-  const isVerified = membership?.paymentStatus === 'Paid';
+  const { profile, fieldRecord, membership, pendingRequests } = data || {};
+  const isVerified = membership?.membershipStatus === 'paid';
 
   return (
     <DashboardLayout>
       <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gap: '30px' }}>
         
+        {/* Connection Requests from Employees */}
+        {pendingRequests?.length > 0 && pendingRequests.some((r: any) => r.requestedBy === 'employee') && (
+          <section className="glass-card" style={{ padding: '30px', background: 'var(--grad-primary)', borderRadius: '30px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              <div style={{ padding: '15px', background: 'rgba(255,255,255,0.2)', borderRadius: '20px' }}>
+                <Users size={30} />
+              </div>
+              <div>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: '900', margin: 0 }}>Connection Request Received</h2>
+                <p style={{ margin: '5px 0 0', opacity: 0.9 }}>
+                  A SakhiHub Hero ({pendingRequests.find((r: any) => r.requestedBy === 'employee').employeeId?.fullName}) wants to connect with you.
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button 
+                onClick={() => handleResponseRequest(pendingRequests.find((r: any) => r.requestedBy === 'employee')._id, 'rejected')}
+                style={{ padding: '10px 20px', borderRadius: '12px', background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', fontWeight: '700', cursor: 'pointer' }}
+              >
+                Reject
+              </button>
+              <button 
+                onClick={() => handleResponseRequest(pendingRequests.find((r: any) => r.requestedBy === 'employee')._id, 'approved')}
+                style={{ padding: '10px 25px', borderRadius: '12px', background: 'white', border: 'none', color: 'var(--primary)', fontWeight: '900', cursor: 'pointer', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}
+              >
+                Approve & Connect
+              </button>
+            </div>
+          </section>
+        )}
         {/* Header / Welcome Section */}
         <section className="glass-card" style={{ 
           background: 'var(--grad-primary)', 

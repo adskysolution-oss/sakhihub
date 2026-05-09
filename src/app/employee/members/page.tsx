@@ -8,17 +8,21 @@ import { UserPlus, Plus, Search, Filter, Phone, MapPin, IndianRupee, CheckCircle
 import axios from "axios";
 
 export default function EmployeeMembersPage() {
+  const [activeTab, setActiveTab] = useState<'my-members' | 'discovery'>('my-members');
   const [showAdd, setShowAdd] = useState(false);
   const [selectedMember, setSelectedMember] = useState<any>(null);
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
   const [filterGroup, setFilterGroup] = useState("all");
 
   const fetchMembers = async () => {
+    setLoading(true);
     try {
-      const res = await axios.get('/api/members');
+      const mode = activeTab === 'discovery' ? 'mode=discovery' : '';
+      const res = await axios.get(`/api/members?${mode}&search=${search}`);
       if (res.data.success) setMembers(res.data.data);
     } catch (err) {
       console.error(err);
@@ -29,15 +33,33 @@ export default function EmployeeMembersPage() {
 
   useEffect(() => {
     fetchMembers();
-  }, []);
+  }, [activeTab, search]);
+
+  const handleSendRequest = async (memberUserId: string) => {
+    setActionLoading(memberUserId);
+    try {
+      const res = await axios.post('/api/employee/request', { memberUserId });
+      if (res.data.success) {
+        alert("Request sent successfully");
+        fetchMembers();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleGroupAssign = (member: any) => {
+    setSelectedMember(member);
+    // This will open the modal, which we should update to include group selection
+  };
 
   const groups = Array.from(new Set(members.map(m => m.groupId?.groupName).filter(Boolean)));
 
   const filteredMembers = members.filter(m => {
-    const matchesSearch = m.name.toLowerCase().includes(search.toLowerCase()) || 
-                          m.mobile.includes(search);
     const matchesGroup = filterGroup === "all" || m.groupId?.groupName === filterGroup;
-    return matchesSearch && matchesGroup;
+    return matchesGroup;
   });
 
   if (showAdd) {
@@ -52,11 +74,37 @@ export default function EmployeeMembersPage() {
     <DashboardLayout>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
         <div>
-          <h2 style={{ fontSize: '2rem', fontWeight: '900', color: 'var(--secondary)' }}>Women Members</h2>
-          <p style={{ color: 'var(--text-muted)' }}>Manage and view all women members registered by you.</p>
+          <h2 style={{ fontSize: '2rem', fontWeight: '900', color: 'var(--secondary)' }}>{activeTab === 'discovery' ? 'Discover Members' : 'My Women Members'}</h2>
+          <p style={{ color: 'var(--text-muted)' }}>{activeTab === 'discovery' ? 'Find unassigned members in your area to connect.' : 'Manage members connected to you.'}</p>
         </div>
         <button onClick={() => setShowAdd(true)} className="btn-primary" style={{ gap: '10px' }}>
           <Plus size={20} /> Add New Member
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display: 'flex', gap: '20px', marginBottom: '25px', borderBottom: '1px solid #eee' }}>
+        <button 
+          onClick={() => setActiveTab('my-members')}
+          style={{ 
+            padding: '12px 25px', background: 'none', border: 'none', cursor: 'pointer',
+            borderBottom: activeTab === 'my-members' ? '3px solid var(--primary)' : 'none',
+            color: activeTab === 'my-members' ? 'var(--primary)' : '#666',
+            fontWeight: '800', fontSize: '1rem'
+          }}
+        >
+          My Members
+        </button>
+        <button 
+          onClick={() => setActiveTab('discovery')}
+          style={{ 
+            padding: '12px 25px', background: 'none', border: 'none', cursor: 'pointer',
+            borderBottom: activeTab === 'discovery' ? '3px solid var(--primary)' : 'none',
+            color: activeTab === 'discovery' ? 'var(--primary)' : '#666',
+            fontWeight: '800', fontSize: '1rem'
+          }}
+        >
+          Discover (Nearby)
         </button>
       </div>
 
@@ -65,25 +113,27 @@ export default function EmployeeMembersPage() {
             <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
             <input 
               type="text" 
-              placeholder="Search members by name or mobile..." 
+              placeholder="Search by name or mobile..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '12px', border: '1px solid #eee', outline: 'none' }} 
             />
          </div>
-         <div style={{ display: 'flex', gap: '10px' }}>
-            <div style={{ position: 'relative' }}>
-              <Filter size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-              <select 
-                value={filterGroup}
-                onChange={(e) => setFilterGroup(e.target.value)}
-                style={{ padding: '12px 15px 12px 40px', borderRadius: '12px', border: '1px solid #eee', background: 'white', fontWeight: '700', appearance: 'none', minWidth: '160px' }}
-              >
-                <option value="all">All Groups</option>
-                {groups.map(g => <option key={g as string} value={g as string}>{g as string}</option>)}
-              </select>
-            </div>
-         </div>
+         {activeTab === 'my-members' && (
+           <div style={{ display: 'flex', gap: '10px' }}>
+              <div style={{ position: 'relative' }}>
+                <Filter size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
+                <select 
+                  value={filterGroup}
+                  onChange={(e) => setFilterGroup(e.target.value)}
+                  style={{ padding: '12px 15px 12px 40px', borderRadius: '12px', border: '1px solid #eee', background: 'white', fontWeight: '700', appearance: 'none', minWidth: '160px' }}
+                >
+                  <option value="all">All Groups</option>
+                  {groups.map(g => <option key={g as string} value={g as string}>{g as string}</option>)}
+                </select>
+              </div>
+           </div>
+         )}
       </div>
 
       <div style={{ background: 'white', borderRadius: '24px', overflowX: 'auto', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
@@ -91,15 +141,15 @@ export default function EmployeeMembersPage() {
           <thead style={{ background: '#f8f9fa' }}>
             <tr>
               <th style={{ padding: '20px', color: '#666', fontSize: '0.9rem', fontWeight: '800' }}>Member Name</th>
-              <th style={{ padding: '20px', color: '#666', fontSize: '0.9rem', fontWeight: '800' }}>Mobile & Village</th>
-              <th style={{ padding: '20px', color: '#666', fontSize: '0.9rem', fontWeight: '800' }}>Group</th>
+              <th style={{ padding: '20px', color: '#666', fontSize: '0.9rem', fontWeight: '800' }}>Contact & Location</th>
+              <th style={{ padding: '20px', color: '#666', fontSize: '0.9rem', fontWeight: '800' }}>{activeTab === 'discovery' ? 'Area' : 'Group'}</th>
               <th style={{ padding: '20px', color: '#666', fontSize: '0.9rem', fontWeight: '800' }}>Status</th>
               <th style={{ padding: '20px', color: '#666', fontSize: '0.9rem', fontWeight: '800' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={5} style={{ padding: '40px', textAlign: 'center' }}>Loading Members...</td></tr>
+              <tr><td colSpan={5} style={{ padding: '40px', textAlign: 'center' }}>Loading...</td></tr>
             ) : filteredMembers.map((member) => (
               <tr key={member._id} style={{ borderTop: '1px solid #f5f5f5' }}>
                 <td style={{ padding: '20px' }}>
@@ -113,33 +163,52 @@ export default function EmployeeMembersPage() {
                 <td style={{ padding: '20px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: '#555' }}><Phone size={14} /> {member.mobile}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: '#888' }}><MapPin size={14} /> {member.village}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: '#888' }}><MapPin size={14} /> {member.block}, {member.district}</div>
                   </div>
                 </td>
                 <td style={{ padding: '20px', fontWeight: '700', fontSize: '0.9rem', color: 'var(--secondary)' }}>
-                  {member.groupId?.groupName || 'No Group'}
+                  {activeTab === 'discovery' ? (member.area || 'N/A') : (member.groupId?.groupName || 'No Group')}
                 </td>
                 <td style={{ padding: '20px' }}>
-                  {member.membershipStatus === 'paid' ? (
-                    <span style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem', fontWeight: '800' }}>
-                      <CheckCircle2 size={16} /> Verified
-                    </span>
+                  <span style={{ 
+                    padding: '6px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '800',
+                    background: member.connectionStatus === 'approved' ? '#ecfdf5' : '#f3f4f6',
+                    color: member.connectionStatus === 'approved' ? '#059669' : '#666'
+                  }}>
+                    {(member.connectionStatus || 'Unassigned').toUpperCase()}
+                  </span>
+                </td>
+                <td style={{ padding: '20px' }}>
+                  {activeTab === 'discovery' ? (
+                    <button 
+                      onClick={() => handleSendRequest(member.userId)}
+                      disabled={!!actionLoading || member.connectionStatus === 'pending_request'}
+                      className="btn-primary" 
+                      style={{ padding: '8px 15px', fontSize: '0.8rem' }}
+                    >
+                      {member.connectionStatus === 'pending_request' ? 'Request Sent' : (actionLoading === member.userId ? 'Sending...' : 'Send Request')}
+                    </button>
                   ) : (
-                    <span style={{ color: '#f59e0b', fontSize: '0.85rem', fontWeight: '800' }}>Pending Fee</span>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                       <button 
+                        onClick={() => setSelectedMember(member)}
+                        style={{ color: 'var(--primary)', fontWeight: '800', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.9rem' }}
+                       >Details</button>
+                       {!member.groupId && (
+                         <button 
+                          onClick={() => handleGroupAssign(member)}
+                          style={{ color: '#6a1b9a', fontWeight: '800', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.9rem' }}
+                         >+ Group</button>
+                       )}
+                    </div>
                   )}
-                </td>
-                <td style={{ padding: '20px' }}>
-                   <button 
-                    onClick={() => setSelectedMember(member)}
-                    style={{ color: 'var(--primary)', fontWeight: '800', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.9rem' }}
-                   >View Details</button>
                 </td>
               </tr>
             ))}
             {filteredMembers.length === 0 && !loading && (
               <tr>
                 <td colSpan={5} style={{ padding: '100px', textAlign: 'center', color: '#999' }}>
-                   No members found matching your search.
+                   No members found in this category.
                 </td>
               </tr>
             )}
@@ -150,7 +219,10 @@ export default function EmployeeMembersPage() {
       {selectedMember && (
         <MemberDetailsModal 
           member={selectedMember} 
-          onClose={() => setSelectedMember(null)} 
+          onClose={() => {
+            setSelectedMember(null);
+            fetchMembers();
+          }} 
         />
       )}
     </DashboardLayout>

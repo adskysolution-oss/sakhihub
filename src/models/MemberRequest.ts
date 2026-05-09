@@ -6,6 +6,7 @@ export interface IMemberRequest extends Document {
   status: 'pending' | 'approved' | 'rejected';
   pincode: string;
   message?: string;
+  requestedBy: 'member' | 'employee';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +22,7 @@ const MemberRequestSchema: Schema = new Schema(
     },
     pincode: { type: String, required: true },
     message: { type: String },
+    requestedBy: { type: String, enum: ['member', 'employee'], default: 'member' }
   },
   { timestamps: true }
 );

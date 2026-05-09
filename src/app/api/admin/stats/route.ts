@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
     const Group = (await import('@/models/Group')).default;
     const WomenMember = (await import('@/models/WomenMember')).default;
     const Membership = (await import('@/models/Membership')).default;
+    const MemberRequest = (await import('@/models/MemberRequest')).default;
 
     const totalUsers = await User.countDocuments();
     const totalEmployees = await User.countDocuments({ role: 'employee' });
@@ -25,6 +26,8 @@ export async function GET(req: NextRequest) {
     const rejectedEmployees = await User.countDocuments({ role: 'employee', status: 'rejected' });
     
     const totalMembers = await WomenMember.countDocuments();
+    const unassignedMembers = await WomenMember.countDocuments({ connectionStatus: 'unassigned' });
+    const pendingConnections = await MemberRequest.countDocuments({ status: 'pending' });
     const totalGroups = await Group.countDocuments();
     
     const collections = await Membership.aggregate([
@@ -95,6 +98,8 @@ export async function GET(req: NextRequest) {
         pendingEmployees,
         rejectedEmployees,
         totalMembers,
+        unassignedMembers,
+        pendingConnections,
         totalGroups,
         totalCollections,
         districtStats,

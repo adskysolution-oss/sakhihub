@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import WomenMember from '@/models/WomenMember';
 import Group from '@/models/Group';
+import MemberRequest from '@/models/MemberRequest';
+import User from '@/models/User';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 
@@ -27,6 +29,7 @@ export async function POST(req: NextRequest) {
       ...body,
       createdBy: (session as any).id,
       assignedEmployeeId: (session as any).id,
+      requestedBy: 'employee',
       connectionStatus: 'approved',
       accountStatus: 'active',
       membershipStatus: 'free'
@@ -46,13 +49,26 @@ export async function GET(req: NextRequest) {
     await dbConnect();
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search');
+    const mode = searchParams.get('mode');
     const role = (session as any).role;
     const userId = (session as any).id;
 
     let query: any = {};
     const groupId = searchParams.get('groupId');
 
-    if (role === 'employee') {
+    if (mode === 'discovery' && role === 'employee') {
+      const employee = await User.findById(userId);
+      if (!employee) return errorResponse('Employee not found', 404);
+      
+      query = {
+        connectionStatus: 'unassigned',
+        $or: [
+          { block: employee.block },
+          { district: employee.district }
+        ],
+        userId: { $exists: true } // Only show members who have a user account (self-registered)
+      };
+    } else if (role === 'employee') {
       query.$or = [{ createdBy: userId }, { assignedEmployeeId: userId }];
     }
 
@@ -61,10 +77,23 @@ export async function GET(req: NextRequest) {
     }
 
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { mobile: { $regex: search, $options: 'i' } }
-      ];
+      const searchRegex = { $regex: search, $options: 'i' };
+      if (query.$or) {
+        // If we already have $or (like in normal employee mode), we need to handle it carefully
+        query.$and = [
+          { $or: query.$or },
+          { $or: [
+            { name: searchRegex },
+            { mobile: searchRegex }
+          ]}
+        ];
+        delete query.$or;
+      } else {
+        query.$or = [
+          { name: searchRegex },
+          { mobile: searchRegex }
+        ];
+      }
     }
 
     const members = await WomenMember.find(query)

@@ -13,7 +13,43 @@ interface MemberDetailsModalProps {
   onClose: () => void;
 }
 
+import axios from 'axios';
+
 export default function MemberDetailsModal({ member, onClose }: MemberDetailsModalProps) {
+  const [groups, setGroups] = React.useState<any[]>([]);
+  const [selectedGroup, setSelectedGroup] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [assigning, setAssigning] = React.useState(false);
+
+  React.useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const res = await axios.get('/api/groups');
+        if (res.data.success) setGroups(res.data.data);
+      } catch (err) {
+        console.error("Failed to fetch groups", err);
+      }
+    };
+    fetchGroups();
+  }, []);
+
+  const handleAssign = async () => {
+    if (!selectedGroup) return;
+    setAssigning(true);
+    try {
+      const res = await axios.patch(`/api/member/${member._id}/group-assign`, { groupId: selectedGroup });
+      if (res.data.success) {
+        alert("Member assigned to group successfully");
+        onClose();
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to assign group");
+    } finally {
+      setAssigning(false);
+    }
+  };
+
   if (!member) return null;
 
   return (
@@ -125,6 +161,32 @@ export default function MemberDetailsModal({ member, onClose }: MemberDetailsMod
                   <Users size={14} /> Created By: {member.createdBy?.fullName || 'Self'}
                 </div>
               </div>
+
+              {/* Group Assignment Section (for Employees/Admins) */}
+              {!member.groupId && (
+                <div style={{ marginTop: '20px', padding: '25px', background: '#f5f3ff', borderRadius: '25px', border: '1px solid #ddd6fe' }}>
+                  <SectionTitle icon={Users} title="Assign to Group" />
+                  <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>This member is not assigned to any group. Select a group to connect them.</p>
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                    <select 
+                      value={selectedGroup}
+                      onChange={(e) => setSelectedGroup(e.target.value)}
+                      style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #c4b5fd', outline: 'none', background: 'white', fontWeight: '700' }}
+                    >
+                      <option value="">Select a Group...</option>
+                      {groups.map(g => <option key={g._id} value={g._id}>{g.groupName}</option>)}
+                    </select>
+                    <button 
+                      onClick={handleAssign}
+                      disabled={!selectedGroup || assigning}
+                      className="btn-primary"
+                      style={{ padding: '12px 25px', fontSize: '0.9rem', background: 'var(--grad-primary)' }}
+                    >
+                      {assigning ? 'Assigning...' : 'Assign'}
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #eee' }}>
                 <SectionTitle icon={IndianRupee} title="Payment History" />

@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
       employeeId,
       pincode,
       message,
+      requestedBy: 'member',
       status: 'pending'
     });
 
@@ -47,6 +48,54 @@ export async function POST(req: NextRequest) {
     return successResponse(newRequest, 'Connection request sent successfully', 201);
   } catch (error: any) {
     console.error('Member Request Error:', error);
+    return errorResponse('Internal Server Error', 500);
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const session = await getAuthSession();
+    if (!session || (session as any).role !== 'member') {
+      return errorResponse('Unauthorized', 401);
+    }
+
+    await dbConnect();
+    const { id, status } = await req.json();
+
+    if (!id || !['approved', 'rejected'].includes(status)) {
+      return errorResponse('Valid Request ID and status (approved/rejected) are required', 400);
+    }
+
+    const updatedRequest = await MemberRequest.findOneAndUpdate(
+      { _id: id, memberId: (session as any).id },
+      { status },
+      { new: true }
+    );
+
+    if (!updatedRequest) {
+      return errorResponse('Request not found or unauthorized', 404);
+    }
+
+    // Sync with WomenMember profile
+    const WomenMember = (await import('@/models/WomenMember')).default;
+    if (status === 'approved') {
+      await WomenMember.findOneAndUpdate(
+        { userId: (session as any).id },
+        { 
+          connectionStatus: 'approved',
+          assignedEmployeeId: updatedRequest.employeeId
+        }
+      );
+    } else if (status === 'rejected') {
+      await WomenMember.findOneAndUpdate(
+        { userId: (session as any).id },
+        { connectionStatus: 'unassigned' } // Member rejected, back to unassigned
+      );
+    }
+
+    return successResponse(updatedRequest, `Request ${status} successfully`);
+  } catch (error: any) {
+    console.error('Update Request Error:', error);
     return errorResponse('Internal Server Error', 500);
   }
 }
