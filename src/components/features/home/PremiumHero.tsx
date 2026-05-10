@@ -17,7 +17,7 @@ const PremiumHero = () => {
       <div className="container relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-12 md:gap-16 lg:gap-20 items-center">
           {/* Left Content */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
@@ -26,7 +26,7 @@ const PremiumHero = () => {
             <span className="text-primary font-bold tracking-[2px] uppercase text-xs md:text-sm block mb-4">
               {t('campaign')}
             </span>
-            
+
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold leading-[1.1] mb-6 text-secondary tracking-tight">
               {t('hero_title').split(',').map((part, i) => (
                 <React.Fragment key={i}>
@@ -35,17 +35,17 @@ const PremiumHero = () => {
                 </React.Fragment>
               ))}
             </h1>
-            
+
             <p className="text-base md:text-xl text-text-muted leading-relaxed mb-10 max-w-2xl mx-auto lg:mx-0">
               {t('hero_subtitle')}
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link href="/register" className="btn-primary py-4 px-10 text-base md:text-lg rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-primary/20">
-                {t('employee_join_cta') || 'Join as Employee'} <ArrowRight size={20} />
+                Join Movement <ArrowRight size={20} />
               </Link>
-              <Link href="/verify-membership" className="btn-secondary py-4 px-10 text-base md:text-lg rounded-2xl bg-white text-secondary border-2 border-secondary/10 flex items-center justify-center">
-                {t('verify_btn') || 'Verify Membership'}
+              <Link href="/campaign" className="btn-secondary py-4 px-10 text-base md:text-lg rounded-2xl bg-white text-secondary border-2 border-secondary/10 flex items-center justify-center">
+                Explore Campaigns
               </Link>
             </div>
 
@@ -64,22 +64,22 @@ const PremiumHero = () => {
           </motion.div>
 
           {/* Right Image */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="relative w-full max-w-xl mx-auto lg:max-w-none"
           >
             <div className="rounded-[40px] overflow-hidden shadow-2xl shadow-secondary/15 h-[350px] sm:h-[450px] md:h-[600px] border-4 md:border-8 border-white relative z-10">
-              <img 
-                src="/images/about_mission.png" 
-                className="w-full h-full object-cover" 
-                alt="SakhiHub Women Empowerment" 
+              <img
+                src="/images/about_mission.png"
+                className="w-full h-full object-cover"
+                alt="SakhiHub Women Empowerment"
               />
             </div>
 
             {/* Floating Badge */}
-            <motion.div 
+            <motion.div
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 4, repeat: Infinity }}
               className="absolute -bottom-6 left-6 md:bottom-10 md:-left-10 bg-white p-6 md:p-10 rounded-[32px] shadow-2xl border border-black/5 z-20 text-center md:text-left min-w-[180px]"

@@ -65,25 +65,25 @@ export default function LoginPage() {
           <div className="absolute -top-20 -right-20 w-80 h-80 bg-white rounded-full blur-[100px]"></div>
           <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-white rounded-full blur-[100px]"></div>
         </div>
-        
+
         <div className="relative z-10 text-white max-w-md">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             className="w-20 h-20 bg-white/20 backdrop-blur-xl rounded-3xl flex items-center justify-center mb-10 border border-white/30"
           >
             <Heart size={45} fill="white" className="drop-shadow-lg" />
           </motion.div>
-          
-          <motion.h1 
+
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             className="text-6xl font-black mb-6 leading-tight"
           >
-            Empowering <br/> Rural <span className="text-primary-dark">Sakhis.</span>
+            Empowering <br /> Rural <span className="text-primary-dark">Sakhis.</span>
           </motion.h1>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -91,9 +91,9 @@ export default function LoginPage() {
           >
             Access your unified SakhiHub dashboard to manage field operations, member compliance and community impact.
           </motion.p>
-          
+
           <div className="grid gap-6">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
@@ -119,7 +119,7 @@ export default function LoginPage() {
           <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
         </div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-[500px] bg-white rounded-[40px] shadow-2xl p-8 md:p-12 relative z-10 my-10"
@@ -151,12 +151,12 @@ export default function LoginPage() {
               <label className="text-xs font-black text-gray-500 uppercase tracking-widest pl-2">Mobile / Email</label>
               <div className="relative group">
                 <Phone size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   name="identifier"
                   value={formData.identifier}
                   onChange={handleChange}
-                  placeholder="Enter Mobile or Email" 
+                  placeholder="Enter Mobile or Email"
                   className="w-full pl-14 pr-5 py-4 md:py-5 rounded-2xl md:rounded-3xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/30 transition-all font-bold text-lg"
                   required
                 />
@@ -170,12 +170,12 @@ export default function LoginPage() {
               </div>
               <div className="relative group">
                 <Lock size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" />
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="********" 
+                  placeholder="********"
                   className="w-full pl-14 pr-5 py-4 md:py-5 rounded-2xl md:rounded-3xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/30 transition-all font-bold text-lg"
                   required
                 />
@@ -184,7 +184,7 @@ export default function LoginPage() {
 
             <AnimatePresence>
               {error && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
@@ -194,7 +194,7 @@ export default function LoginPage() {
                 </motion.div>
               )}
               {success && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   className="p-4 bg-green-50 text-green-600 text-sm rounded-2xl font-bold flex items-center gap-3 border border-green-100"
@@ -204,8 +204,8 @@ export default function LoginPage() {
               )}
             </AnimatePresence>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className="btn-primary w-full py-5 md:py-6 justify-center text-lg shadow-2xl shadow-primary/25 mt-4 transition-all active:scale-95 disabled:opacity-50"
             >
@@ -216,13 +216,13 @@ export default function LoginPage() {
 
           <div className="mt-12 text-center pt-8 border-t border-gray-50">
             <p className="text-gray-400 font-bold text-base">
-              New to SakhiHub? 
+              New to SakhiHub?
               <Link href="/register" className="text-primary hover:text-secondary transition-colors ml-2 border-b-2 border-primary/20 hover:border-primary">Create Account</Link>
             </p>
             <div className="mt-6">
-               <Link href="/admin/login" className="text-xs text-gray-300 font-bold uppercase tracking-widest hover:text-secondary flex items-center justify-center gap-2">
-                 Admin Access <ChevronRight size={14} />
-               </Link>
+              <Link href="/admin/login" className="text-xs text-gray-300 font-bold uppercase tracking-widest hover:text-secondary flex items-center justify-center gap-2">
+                Admin Access <ChevronRight size={14} />
+              </Link>
             </div>
           </div>
         </motion.div>

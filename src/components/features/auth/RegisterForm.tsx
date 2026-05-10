@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Phone, MapPin, Lock, Upload, CheckCircle,
-  ArrowRight, ArrowLeft, Users, Briefcase, GraduationCap, Sparkles, ShieldCheck, 
+  ArrowRight, ArrowLeft, Users, Briefcase, GraduationCap, Sparkles, ShieldCheck,
   MessageCircle, ClipboardList, BookOpen, Clock
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -56,7 +56,7 @@ export default function RegisterForm() {
   const [nearbyEmployees, setNearbyEmployees] = useState<any[]>([]);
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [discoveryLoading, setDiscoveryLoading] = useState(false);
-  const [requestStatus, setRequestStatus] = useState<{[key: string]: string}>({});
+  const [requestStatus, setRequestStatus] = useState<{ [key: string]: string }>({});
 
   React.useEffect(() => {
     if (formData.pincode.length === 6) {
@@ -164,8 +164,8 @@ export default function RegisterForm() {
       {/* Step Indicator */}
       <div className="flex justify-between mb-8 md:mb-12 relative px-2">
         <div className="absolute top-[16px] left-0 w-full h-[2px] bg-gray-100 z-0"></div>
-        <div 
-          className="absolute top-[16px] left-0 h-[2px] bg-gradient-to-r from-primary to-secondary z-0 transition-all duration-500" 
+        <div
+          className="absolute top-[16px] left-0 h-[2px] bg-gradient-to-r from-primary to-secondary z-0 transition-all duration-500"
           style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
         ></div>
 
@@ -190,8 +190,8 @@ export default function RegisterForm() {
         <AnimatePresence mode="wait">
           {step === 1 && (
             <motion.div key="step1" {...fadeInUp} className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-              <div 
-                onClick={() => setFormData({ ...formData, role: "employee" })} 
+              <div
+                onClick={() => setFormData({ ...formData, role: "employee" })}
                 className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "employee" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
               >
                 <div className="w-12 h-12 md:w-16 md:h-16 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary"><Briefcase size={28} /></div>
@@ -200,8 +200,8 @@ export default function RegisterForm() {
                   <p className="text-xs md:text-sm text-gray-400">Field worker / Lead</p>
                 </div>
               </div>
-              <div 
-                onClick={() => setFormData({ ...formData, role: "member" })} 
+              <div
+                onClick={() => setFormData({ ...formData, role: "member" })}
                 className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "member" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
               >
                 <div className="w-12 h-12 md:w-16 md:h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"><Users size={28} /></div>
@@ -312,7 +312,7 @@ export default function RegisterForm() {
                   <input type="text" name="district" value={formData.district} onChange={handleChange} placeholder="District" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-black text-gray-700">Block / Tehsil</label>
@@ -347,8 +347,8 @@ export default function RegisterForm() {
                 <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto px-2 pb-4 scrollbar-hide">
                   {discoveryLoading ? (
                     <div className="text-center py-12 flex flex-col items-center gap-3">
-                       <div className="w-8 h-8 border-4 border-gray-100 border-t-primary rounded-full animate-spin"></div>
-                       <p className="text-gray-400 font-bold">Searching for nearby employees...</p>
+                      <div className="w-8 h-8 border-4 border-gray-100 border-t-primary rounded-full animate-spin"></div>
+                      <p className="text-gray-400 font-bold">Searching for nearby employees...</p>
                     </div>
                   ) : nearbyEmployees.length > 0 ? (
                     nearbyEmployees.map((emp) => (
@@ -409,7 +409,7 @@ export default function RegisterForm() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
                 <input type="checkbox" id="terms" required className="mt-1 w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary transition-all" />
                 <label htmlFor="terms" className="text-xs md:text-sm text-gray-500 leading-relaxed font-medium">I agree to the <span className="text-secondary font-bold">terms and conditions</span> and <span className="text-secondary font-bold">privacy policy</span> of SakhiHub.</label>
@@ -420,7 +420,7 @@ export default function RegisterForm() {
                   <AlertCircle size={16} /> {error}
                 </div>
               )}
-              
+
               <div className="flex flex-col sm:flex-row gap-3 mt-4">
                 <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
                 <button type="submit" disabled={loading} className="btn-primary w-full justify-center order-1 sm:order-2 py-4 shadow-xl shadow-primary/20">
@@ -436,7 +436,7 @@ export default function RegisterForm() {
 }
 
 const Mail = ({ size, style }: { size: number, style?: React.CSSProperties }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
 );
 
 

@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { 
-  Users, UserPlus, IndianRupee, MapPin, 
+import {
+  Users, UserPlus, IndianRupee, MapPin,
   Target, TrendingUp, Calendar, ArrowRight,
   ClipboardList, Bell, ShieldCheck
 } from 'lucide-react';
@@ -35,18 +35,18 @@ export default function EmployeeDashboard({ user }: { user: any }) {
   return (
     <div className="flex flex-col gap-6 md:gap-10 p-2 md:p-4">
       {/* Welcome Banner */}
-      <section className="relative p-8 md:p-14 bg-gradient-to-br from-primary to-secondary-dark rounded-[40px] text-white overflow-hidden shadow-2xl shadow-primary/20">
+      <section className="relative p-6 sm:p-10 lg:p-14 bg-gradient-to-br from-primary to-secondary-dark rounded-[30px] md:rounded-[40px] text-white overflow-hidden shadow-2xl shadow-primary/20">
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="text-center md:text-left">
-            <h1 className="text-3xl md:text-5xl font-black mb-4 leading-tight">Hello, {user?.fullName}!</h1>
-            <p className="text-sm md:text-xl opacity-90 leading-relaxed max-w-xl">
-              You are currently assigned to <span className="font-bold border-b-2 border-white/30">{user?.block}, {user?.district}</span> area.
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold mb-4 leading-tight">Hello, {user?.fullName}!</h1>
+            <p className="text-xs sm:text-lg lg:text-xl opacity-90 leading-relaxed max-w-xl">
+              You are currently assigned to <span className="font-semibold border-b-2 border-white/30">{user?.block}, {user?.district}</span> area.
             </p>
             <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-8">
-              <span className="px-4 py-2 bg-white/20 backdrop-blur-md rounded-2xl text-[10px] md:text-xs font-black tracking-widest uppercase">
+              <span className="px-4 py-2 bg-white/20 backdrop-blur-md rounded-2xl text-[10px] md:text-xs font-bold tracking-widest uppercase">
                 ID: {user?.employeeId || 'Pending'}
               </span>
-              <span className="px-4 py-2 bg-white/20 backdrop-blur-md rounded-2xl text-[10px] md:text-xs font-black tracking-widest uppercase">
+              <span className="px-4 py-2 bg-white/20 backdrop-blur-md rounded-2xl text-[10px] md:text-xs font-bold tracking-widest uppercase">
                 Role: {user?.designation}
               </span>
             </div>
@@ -61,20 +61,20 @@ export default function EmployeeDashboard({ user }: { user: any }) {
       {/* Stats Grid */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {stats.map((stat, i) => (
-          <motion.div 
+          <motion.div
             key={i}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1 }}
-            className="p-6 md:p-8 bg-white rounded-[32px] border border-gray-100 flex items-center gap-5 shadow-soft hover:border-primary/30 transition-all group"
+            className="p-5 sm:p-6 lg:p-8 bg-white rounded-[24px] sm:rounded-[32px] border border-gray-100 flex items-center gap-4 sm:gap-5 shadow-soft hover:border-primary/30 transition-all group"
           >
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform" style={{ background: `${stat.color}15`, color: stat.color }}>
-              <stat.icon size={28} />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0" style={{ background: `${stat.color}15`, color: stat.color }}>
+              <stat.icon size={24} />
             </div>
-            <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{stat.label}</p>
-              <h3 className="text-xl md:text-2xl font-black text-secondary mt-0.5">{stat.value}</h3>
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-widest truncate">{stat.label}</p>
+              <h3 className="text-base sm:text-lg lg:text-2xl font-bold text-secondary mt-0.5 truncate">{stat.value}</h3>
             </div>
           </motion.div>
         ))}
@@ -83,54 +83,54 @@ export default function EmployeeDashboard({ user }: { user: any }) {
       {/* Main Actions & Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10">
         {/* Quick Actions */}
-        <section className="lg:col-span-7 p-8 md:p-12 bg-white rounded-[40px] border border-gray-100 shadow-soft">
-          <h3 className="text-2xl md:text-3xl font-black text-secondary mb-10 flex items-center gap-4">
+        <section className="lg:col-span-7 p-6 sm:p-10 lg:p-12 bg-white rounded-[30px] md:rounded-[40px] border border-gray-100 shadow-soft">
+          <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-secondary mb-8 sm:mb-10 flex items-center gap-4">
             <ClipboardList size={28} className="text-primary" /> Quick Actions
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4 md:gap-6">
             <Link href="/employee/members" className="group no-underline">
-              <button className="w-full p-6 md:p-8 rounded-[32px] border border-gray-100 bg-gray-50 hover:bg-white hover:border-primary/30 hover:shadow-medium transition-all text-left h-full flex flex-col gap-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform"><UserPlus size={24} /></div>
-                <div>
-                  <p className="text-lg font-black text-secondary leading-tight">Add New Member</p>
-                  <p className="text-xs text-gray-400 font-bold mt-1">Register a woman in a group</p>
+              <button className="w-full p-5 sm:p-6 rounded-[24px] sm:rounded-[32px] border border-gray-100 bg-gray-50 hover:bg-white hover:border-primary/30 hover:shadow-medium transition-all text-left h-full flex flex-col gap-4">
+                <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform shrink-0"><UserPlus size={24} /></div>
+                <div className="min-w-0">
+                  <p className="text-base sm:text-lg font-bold text-secondary leading-tight truncate">Add Member</p>
+                  <p className="text-[10px] sm:text-xs text-gray-400 font-semibold mt-1">Register a new woman</p>
                 </div>
               </button>
             </Link>
             <Link href="/employee/groups" className="group no-underline">
-              <button className="w-full p-6 md:p-8 rounded-[32px] border border-gray-100 bg-gray-50 hover:bg-white hover:border-primary/30 hover:shadow-medium transition-all text-left h-full flex flex-col gap-4">
-                <div className="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary group-hover:scale-110 transition-transform"><Users size={24} /></div>
-                <div>
-                  <p className="text-lg font-black text-secondary leading-tight">Create Group</p>
-                  <p className="text-xs text-gray-400 font-bold mt-1">Form a new village unit</p>
+              <button className="w-full p-5 sm:p-6 rounded-[24px] sm:rounded-[32px] border border-gray-100 bg-gray-50 hover:bg-white hover:border-primary/30 hover:shadow-medium transition-all text-left h-full flex flex-col gap-4">
+                <div className="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shrink-0"><Users size={24} /></div>
+                <div className="min-w-0">
+                  <p className="text-base sm:text-lg font-bold text-secondary leading-tight truncate">Create Group</p>
+                  <p className="text-[10px] sm:text-xs text-gray-400 font-semibold mt-1">Form a new unit</p>
                 </div>
               </button>
             </Link>
             <Link href="/employee/requests" className="group no-underline sm:col-span-2">
-              <button className="w-full p-6 md:p-8 rounded-[32px] border-2 border-primary/20 bg-primary/5 hover:bg-white hover:border-primary transition-all text-left flex flex-col sm:flex-row sm:items-center gap-6">
-                <div className="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform"><Bell size={28} /></div>
-                <div>
-                  <p className="text-xl font-black text-secondary leading-tight">Member Requests</p>
-                  <p className="text-sm text-gray-400 font-bold mt-1">Check and approve pending connection requests</p>
+              <button className="w-full p-5 sm:p-6 rounded-[24px] sm:rounded-[32px] border-2 border-primary/20 bg-primary/5 hover:bg-white hover:border-primary transition-all text-left flex flex-col sm:flex-row sm:items-center gap-6">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform shrink-0"><Bell size={24} /></div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-lg sm:text-xl font-bold text-secondary leading-tight">Member Requests</p>
+                  <p className="text-xs sm:text-sm text-gray-400 font-semibold mt-1">Check pending connection requests</p>
                 </div>
-                <div className="sm:ml-auto"><ArrowRight className="text-primary group-hover:translate-x-2 transition-transform" /></div>
+                <div className="hidden sm:block sm:ml-auto"><ArrowRight className="text-primary group-hover:translate-x-2 transition-transform" /></div>
               </button>
             </Link>
             <Link href="/employee/membership" className="group no-underline">
-              <button className="w-full p-6 md:p-8 rounded-[32px] border border-gray-100 bg-gray-50 hover:bg-white hover:border-primary/30 hover:shadow-medium transition-all text-left h-full flex flex-col gap-4">
-                <div className="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform"><IndianRupee size={24} /></div>
-                <div>
-                  <p className="text-lg font-black text-secondary leading-tight">Membership Fee</p>
-                  <p className="text-xs text-gray-400 font-bold mt-1">Collect ₹100 from member</p>
+              <button className="w-full p-5 sm:p-6 rounded-[24px] sm:rounded-[32px] border border-gray-100 bg-gray-50 hover:bg-white hover:border-primary/30 hover:shadow-medium transition-all text-left h-full flex flex-col gap-4">
+                <div className="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform shrink-0"><IndianRupee size={24} /></div>
+                <div className="min-w-0">
+                  <p className="text-base sm:text-lg font-bold text-secondary leading-tight truncate">Membership Fee</p>
+                  <p className="text-[10px] sm:text-xs text-gray-400 font-semibold mt-1">Collect from member</p>
                 </div>
               </button>
             </Link>
             <Link href="/employee/reports" className="group no-underline">
-              <button className="w-full p-6 md:p-8 rounded-[32px] border border-gray-100 bg-gray-50 hover:bg-white hover:border-primary/30 hover:shadow-medium transition-all text-left h-full flex flex-col gap-4">
-                <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 group-hover:scale-110 transition-transform"><TrendingUp size={24} /></div>
-                <div>
-                  <p className="text-lg font-black text-secondary leading-tight">Daily Report</p>
-                  <p className="text-xs text-gray-400 font-bold mt-1">Submit today's summary</p>
+              <button className="w-full p-5 sm:p-6 rounded-[24px] sm:rounded-[32px] border border-gray-100 bg-gray-50 hover:bg-white hover:border-primary/30 hover:shadow-medium transition-all text-left h-full flex flex-col gap-4">
+                <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 group-hover:scale-110 transition-transform shrink-0"><TrendingUp size={24} /></div>
+                <div className="min-w-0">
+                  <p className="text-base sm:text-lg font-bold text-secondary leading-tight truncate">Daily Report</p>
+                  <p className="text-[10px] sm:text-xs text-gray-400 font-semibold mt-1">Submit summary</p>
                 </div>
               </button>
             </Link>
@@ -139,18 +139,18 @@ export default function EmployeeDashboard({ user }: { user: any }) {
 
         {/* Targets & Performance */}
         <aside className="lg:col-span-5 flex flex-col gap-6 md:gap-10">
-          <section className="p-8 md:p-12 bg-white rounded-[40px] border border-gray-100 shadow-soft">
-            <h3 className="text-2xl font-black text-secondary mb-10 flex items-center gap-4">
+          <section className="p-6 sm:p-10 lg:p-12 bg-white rounded-[30px] md:rounded-[40px] border border-gray-100 shadow-soft">
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-secondary mb-8 sm:mb-10 flex items-center gap-4">
               <Target size={28} className="text-primary" /> Targets & Score
             </h3>
             <div className="flex flex-col gap-10">
               <div>
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-sm font-black text-gray-400 uppercase tracking-widest">Monthly Members</span>
-                  <span className="text-sm font-black text-secondary">{data?.monthlyMembers || 0} / 200</span>
+                  <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Monthly Members</span>
+                  <span className="text-sm font-bold text-secondary">{data?.monthlyMembers || 0} / 200</span>
                 </div>
                 <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                  <motion.div 
+                  <motion.div
                     initial={{ width: 0 }}
                     whileInView={{ width: `${Math.min(((data?.monthlyMembers || 0) / 200) * 100, 100)}%` }}
                     className="h-full bg-gradient-to-r from-primary to-secondary"
@@ -159,11 +159,11 @@ export default function EmployeeDashboard({ user }: { user: any }) {
               </div>
               <div>
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-sm font-black text-gray-400 uppercase tracking-widest">Group Creation</span>
-                  <span className="text-sm font-black text-secondary">{data?.totalGroups || 0} / 15</span>
+                  <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Group Creation</span>
+                  <span className="text-sm font-bold text-secondary">{data?.totalGroups || 0} / 15</span>
                 </div>
                 <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                  <motion.div 
+                  <motion.div
                     initial={{ width: 0 }}
                     whileInView={{ width: `${Math.min(((data?.totalGroups || 0) / 15) * 100, 100)}%` }}
                     className="h-full bg-gradient-to-r from-secondary to-secondary-dark"
@@ -171,9 +171,9 @@ export default function EmployeeDashboard({ user }: { user: any }) {
                 </div>
               </div>
               <div className="mt-4 p-8 bg-primary/5 rounded-[32px] border border-dashed border-primary/30 text-center">
-                <p className="text-xs font-black text-primary uppercase tracking-widest mb-2">Efficiency Score</p>
-                <h4 className="text-5xl font-black text-secondary mb-4">{Math.round(((data?.monthlyMembers || 0) / 200) * 100)}%</h4>
-                <p className="text-xs text-gray-400 font-bold leading-relaxed px-4">
+                <p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Efficiency Score</p>
+                <h4 className="text-5xl font-bold text-secondary mb-4">{Math.round(((data?.monthlyMembers || 0) / 200) * 100)}%</h4>
+                <p className="text-xs text-gray-400 font-semibold leading-relaxed px-4">
                   {((data?.monthlyMembers || 0) / 200) >= 0.8 ? 'You are performing exceptionally well!' : 'Keep pushing to reach your monthly targets and help more women.'}
                 </p>
               </div>

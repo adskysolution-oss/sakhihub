@@ -102,7 +102,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             className="fixed lg:relative top-0 left-0 h-full w-[280px] bg-white border-r border-[#eee] flex flex-col z-50 shadow-2xl lg:shadow-none"
           >
             <div className="p-6 md:p-8 border-b border-[#f5f5f5] flex justify-between items-center">
-              <Link href="/" className="text-2xl font-black text-secondary no-underline">
+              <Link href="/" className="text-2xl font-bold text-secondary no-underline">
                 Sakhi<span className="text-primary">Hub</span>
               </Link>
               <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-gray-400">
@@ -117,7 +117,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                     key={item.name}
                     href={item.href}
                     onClick={() => window.innerWidth < 1024 && setSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 no-underline ${pathname === item.href ? 'text-primary bg-[#FFF5F8] font-bold shadow-sm' : 'text-gray-500 font-medium hover:bg-gray-50'}`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 no-underline ${pathname === item.href ? 'text-primary bg-[#FFF5F8] font-semibold shadow-sm' : 'text-gray-500 font-medium hover:bg-gray-50'}`}
                   >
                     <item.icon size={20} />
                     <span>{item.name}</span>
@@ -140,9 +140,9 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
         {/* Dashboard Header */}
-        <header className="h-[70px] md:h-[80px] bg-white border-b border-[#eee] flex items-center justify-between px-4 md:px-8 z-40 sticky top-0">
+        <header className="h-[70px] md:h-[80px] bg-white border-b border-[#eee] flex items-center justify-between px-4 sm:px-6 md:px-8 z-40 sticky top-0">
           <div className="flex items-center gap-2 md:gap-5">
             <button
               onClick={() => setSidebarOpen(!isSidebarOpen)}
@@ -165,13 +165,13 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               <Bell size={20} />
               <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-white"></span>
             </button>
-            
+
             <div className="flex items-center gap-3 pl-3 md:pl-5 border-l border-[#eee]">
               <div className="text-right hidden sm:block">
-                <p className="font-bold text-secondary text-sm truncate max-w-[120px]">{user?.fullName}</p>
-                <p className="text-[10px] text-gray-400 uppercase tracking-widest font-black">{user?.role}</p>
+                <p className="font-semibold text-secondary text-sm truncate max-w-[120px]">{user?.fullName}</p>
+                <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">{user?.role}</p>
               </div>
-              <div className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-gradient-to-br from-primary to-secondary text-white flex items-center justify-center font-black text-sm md:text-base shadow-lg shadow-primary/20 ring-2 ring-white">
+              <div className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-gradient-to-br from-primary to-secondary text-white flex items-center justify-center font-bold text-sm md:text-base shadow-lg shadow-primary/20 ring-2 ring-white">
                 {user?.fullName?.charAt(0)}
               </div>
             </div>
@@ -179,7 +179,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
         </header>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-10">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10">
           {children}
         </div>
       </main>

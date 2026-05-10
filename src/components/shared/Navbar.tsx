@@ -13,7 +13,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  
+
   const pathname = usePathname();
   const { language, setLanguage, t } = useLanguage();
 
@@ -36,8 +36,8 @@ const Navbar = () => {
 
   const navLinks = [
     { name: t('Home'), href: '/' },
-    { 
-      name: t('about_us'), 
+    {
+      name: t('about_us'),
       href: '/about',
       subLinks: [
         { name: 'Vision', href: '/vision', icon: Eye },
@@ -45,8 +45,8 @@ const Navbar = () => {
         { name: 'Our Team', href: '/team', icon: Users2 },
       ]
     },
-    { 
-      name: t('programs'), 
+    {
+      name: t('programs'),
       href: '/programs',
       subLinks: [
         { name: 'Health & Hygiene', href: '/programs/health', icon: Activity },
@@ -63,9 +63,9 @@ const Navbar = () => {
   return (
     <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ''} px-4 md:px-[5%]`}>
       <Link href="/" className={`${styles.logo} scale-90 md:scale-100`}>
-        <img 
-          src="/logo.png" 
-          alt="SakhiHub Logo" 
+        <img
+          src="/logo.png"
+          alt="SakhiHub Logo"
           className="h-[45px] md:h-[60px] w-auto"
           onError={(e) => {
             e.currentTarget.style.display = 'none';
@@ -80,8 +80,8 @@ const Navbar = () => {
 
       <div className={`${styles.navLinks} hidden lg:flex`} style={{ gap: '35px' }}>
         {navLinks.map((link) => (
-          <div 
-            key={link.name} 
+          <div
+            key={link.name}
             className={styles.navItemWrapper}
             onMouseEnter={() => link.subLinks && setActiveDropdown(link.name)}
             onMouseLeave={() => setActiveDropdown(null)}
@@ -151,8 +151,8 @@ const Navbar = () => {
       <div className={`${styles.actions} gap-2 md:gap-[15px]`}>
         {/* Language Selector */}
         <div className="hidden sm:block" style={{ position: 'relative' }}>
-          <button 
-            className="btn-secondary" 
+          <button
+            className="btn-secondary"
             style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #eee', borderRadius: '12px' }}
             onClick={() => setLangOpen(!langOpen)}
           >
@@ -160,7 +160,7 @@ const Navbar = () => {
             <span style={{ fontSize: '0.85rem' }}>{languages.find(l => l.code === language)?.name}</span>
             <ChevronDown size={14} style={{ transform: langOpen ? 'rotate(180deg)' : 'none', transition: '0.3s' }} />
           </button>
-          
+
           <AnimatePresence>
             {langOpen && (
               <motion.div
@@ -209,7 +209,7 @@ const Navbar = () => {
         </div>
 
         {/* Member Portal Dropdown */}
-        <div 
+        <div
           className={`${styles.portalWrapper} hidden sm:block`}
           onMouseEnter={() => setActiveDropdown('portal')}
           onMouseLeave={() => setActiveDropdown(null)}
@@ -265,10 +265,10 @@ const Navbar = () => {
                 {link.subLinks && (
                   <div style={{ paddingLeft: '20px', marginBottom: '10px' }} className="border-l-2 border-primary ml-2">
                     {link.subLinks.map(sub => (
-                      <Link 
-                        key={sub.name} 
-                        href={sub.href} 
-                        className={styles.mobileNavLink} 
+                      <Link
+                        key={sub.name}
+                        href={sub.href}
+                        className={styles.mobileNavLink}
                         style={{ fontSize: '0.9rem', opacity: 0.8, padding: '8px 0', border: 'none' }}
                         onClick={() => setIsOpen(false)}
                       >
@@ -283,12 +283,12 @@ const Navbar = () => {
               <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Select Language</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                 {languages.map(l => (
-                  <button 
+                  <button
                     key={l.code}
                     onClick={() => setLanguage(l.code as any)}
-                    style={{ 
-                      padding: '12px 8px', 
-                      borderRadius: '12px', 
+                    style={{
+                      padding: '12px 8px',
+                      borderRadius: '12px',
                       background: language === l.code ? 'var(--primary)' : '#f8f9fa',
                       color: language === l.code ? 'white' : 'var(--secondary)',
                       fontSize: '0.8rem',
@@ -301,16 +301,36 @@ const Navbar = () => {
                 ))}
               </div>
               <div className="h-px bg-gray-100 my-2"></div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                <Link href="/login" className="btn-secondary py-4" style={{ justifyContent: 'center' }} onClick={() => setIsOpen(false)}>
+              <div className="grid grid-cols-2 gap-2 md:gap-3">
+                <Link
+                  href="/login"
+                  className="btn-secondary py-3 px-2"
+                  style={{ justifyContent: 'center', fontSize: '0.85rem', borderRadius: '12px' }}
+                  onClick={() => setIsOpen(false)}
+                >
                   {t('login')}
                 </Link>
-                <Link href="/register" className="btn-primary py-4" style={{ justifyContent: 'center' }} onClick={() => setIsOpen(false)}>
+                <Link
+                  href="/register"
+                  className="btn-primary py-3 px-2"
+                  style={{ justifyContent: 'center', fontSize: '0.85rem', borderRadius: '12px' }}
+                  onClick={() => setIsOpen(false)}
+                >
                   {t('join_btn')}
                 </Link>
               </div>
-              <a href="tel:8076611842" className="btn-primary py-4" style={{ justifyContent: 'center', borderRadius: '120px', background: 'var(--secondary)', boxShadow: 'none' }}>
-                <Phone size={18} />
+              <a
+                href="tel:8076611842"
+                className="btn-primary py-3 px-4"
+                style={{
+                  justifyContent: 'center',
+                  borderRadius: '120px',
+                  background: 'var(--secondary)',
+                  boxShadow: 'none',
+                  fontSize: '0.85rem'
+                }}
+              >
+                <Phone size={16} />
                 <span>Call Us</span>
               </a>
             </div>
