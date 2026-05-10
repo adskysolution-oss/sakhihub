@@ -29,6 +29,10 @@ export interface IUser extends Document {
     photo?: string;
   };
   joiningDate?: Date;
+  lastOtpSentAt?: Date;
+  otpAttempts?: number;
+  emailVerified: boolean;
+  welcomeEmailSent: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -68,6 +72,10 @@ const UserSchema: Schema = new Schema(
       idProof: { type: String },
       photo: { type: String },
     },
+    lastOtpSentAt: { type: Date },
+    otpAttempts: { type: Number, default: 0 },
+    emailVerified: { type: Boolean, default: false },
+    welcomeEmailSent: { type: Boolean, default: false },
     joiningDate: { type: Date },
   },
   { timestamps: true }

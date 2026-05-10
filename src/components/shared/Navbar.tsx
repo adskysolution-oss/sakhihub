@@ -73,7 +73,7 @@ const Navbar = () => {
             if (fallback) (fallback as HTMLElement).style.display = 'block';
           }}
         />
-        <div className="logo-fallback" style={{ display: 'none', fontWeight: '800', color: 'var(--secondary)' }} className="text-xl md:text-3xl">
+        <div className="logo-fallback text-xl md:text-3xl" style={{ display: 'none', fontWeight: '800', color: 'var(--secondary)' }}>
           Sakhi<span style={{ color: 'var(--primary)' }}>Hub</span>
         </div>
       </Link>

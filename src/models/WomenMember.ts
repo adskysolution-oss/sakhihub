@@ -11,6 +11,7 @@ export interface IWomenMember extends Document {
   state?: string;
   pincode?: string;
   address?: string;
+  email?: string;
   maritalStatus?: 'Married' | 'Unmarried';
   occupation?: string;
   interests?: string[]; // Health Awareness, Sakhi Care Pads, Employment, etc.
@@ -22,6 +23,10 @@ export interface IWomenMember extends Document {
   accountStatus: 'active' | 'inactive';
   connectionStatus: 'unassigned' | 'pending_request' | 'approved' | 'rejected';
   membershipStatus: 'free' | 'pending_paid' | 'paid';
+  
+  membershipReceiptEmailSent?: boolean;
+  invitationEmailSent?: boolean;
+  requestEmailSent?: boolean;
   
   createdAt: Date;
   updatedAt: Date;
@@ -61,6 +66,10 @@ const WomenMemberSchema: Schema = new Schema(
       enum: ['free', 'pending_paid', 'paid'], 
       default: 'free' 
     },
+    email: { type: String },
+    membershipReceiptEmailSent: { type: Boolean, default: false },
+    invitationEmailSent: { type: Boolean, default: false },
+    requestEmailSent: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -5,6 +5,10 @@ import WomenMember from '@/models/WomenMember';
 import MemberRequest from '@/models/MemberRequest';
 import { hashPassword } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
+import { generateOTP, hashOTP } from '@/lib/otp';
+import { sendEmail } from '@/lib/email';
+import { getOTPTemplate } from '@/lib/emailTemplates';
+import EmailLog from '@/models/EmailLog';
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,9 +42,18 @@ export async function POST(req: NextRequest) {
     const userRole = role || 'member';
 
     // Business Logic: 
-    // - Employees start as 'pending' (Admin approval required)
-    // - Members start as 'active' (Login allowed immediately)
-    const userStatus = userRole === 'member' ? 'active' : 'pending';
+    const userStatus = 'pending'; // Always pending until OTP/Admin approval
+    
+    // OTP logic
+    let otp = undefined;
+    let otpExpires = undefined;
+    let rawOtp = undefined;
+
+    if (email) {
+      rawOtp = generateOTP();
+      otp = hashOTP(rawOtp);
+      otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    }
 
     const newUser = await User.create({
       fullName,
@@ -59,7 +72,29 @@ export async function POST(req: NextRequest) {
       pincode,
       address,
       status: userStatus,
+      otp,
+      otpExpires,
+      lastOtpSentAt: email ? new Date() : undefined,
+      emailVerified: false
     });
+
+    // Send Email asynchronously if email provided
+    if (email && rawOtp) {
+      sendEmail(
+        email, 
+        'Verify your SakhiHub account', 
+        getOTPTemplate(fullName, rawOtp, 'Registration')
+      ).then(async (res) => {
+        await EmailLog.create({
+          recipient: email,
+          subject: 'Verify your SakhiHub account',
+          type: 'registration_otp',
+          status: res.success ? 'success' : 'failed',
+          error: res.success ? undefined : (res.error as any)?.message,
+          relatedId: newUser._id
+        });
+      });
+    }
 
     // If role is member, create the business profile in WomenMember collection
     if (userRole === 'member') {
@@ -67,6 +102,7 @@ export async function POST(req: NextRequest) {
         userId: newUser._id,
         name: fullName,
         mobile,
+        email,
         state,
         district,
         block,
@@ -91,15 +127,19 @@ export async function POST(req: NextRequest) {
           requestedBy: 'member',
           status: 'pending'
         });
+        
+        // Notify employee
+        const { notifyMemberRequest } = await import('@/lib/notifications');
+        notifyMemberRequest(assignedEmployeeId, newUser._id);
       }
     }
 
-    const message = userRole === 'member' 
-      ? 'Registration successful. You can login now.' 
-      : 'Registration successful. Your account is pending admin approval.';
+    const message = email 
+      ? 'Registration successful. Please verify the OTP sent to your email.' 
+      : 'Registration successful. Your account is pending review.';
 
     return successResponse(
-      { id: newUser._id, role: newUser.role, status: newUser.status },
+      { id: newUser._id, role: newUser.role, status: newUser.status, requiresOtp: !!email },
       message,
       201
     );

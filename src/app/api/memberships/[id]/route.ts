@@ -5,10 +5,12 @@ import WomenMember from '@/models/WomenMember';
 import Group from '@/models/Group';
 import User from '@/models/User';
 import { successResponse, errorResponse } from '@/utils/response';
+import { getAuthSession } from '@/lib/auth';
+import { notifyMembershipPayment } from '@/lib/notifications';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
@@ -36,7 +38,7 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
@@ -65,6 +67,8 @@ export async function PATCH(
       await WomenMember.findByIdAndUpdate(membership.memberId, { membershipStatus: 'unpaid' });
     } else if (status === 'Paid') {
       await WomenMember.findByIdAndUpdate(membership.memberId, { membershipStatus: 'paid' });
+      // Notify member
+      notifyMembershipPayment(membership._id);
     }
 
     return successResponse(membership, `Membership marked as ${status}`);

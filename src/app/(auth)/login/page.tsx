@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { Phone, Lock, Heart, ShieldCheck, Users, Briefcase, AlertCircle, Sparkles, ArrowRight, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -9,7 +9,7 @@ import axios from "axios";
 
 type Role = 'employee' | 'member';
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [role, setRole] = useState<Role>('member');
@@ -228,5 +228,13 @@ export default function LoginPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#FFF5F8] text-primary font-black">Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }

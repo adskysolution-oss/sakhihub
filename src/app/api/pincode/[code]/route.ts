@@ -3,10 +3,10 @@ import { successResponse, errorResponse } from '@/utils/response';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { code: string } }
+  { params }: { params: Promise<{ code: string }> }
 ) {
   try {
-    const { code } = params;
+    const { code } = await params;
 
     if (!code || code.length !== 6) {
       return errorResponse('Invalid pincode. Must be 6 digits.', 400);

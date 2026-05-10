@@ -13,7 +13,19 @@ export default function MemberSettingsPage() {
   const { user, logout } = useAuth();
   const [notifications, setNotifications] = useState(true);
 
-  const settingSections = [
+  interface SettingItem {
+    label: string;
+    value?: string;
+    icon: React.ReactNode;
+    toggle?: boolean;
+  }
+
+  interface SettingSection {
+    title: string;
+    items: SettingItem[];
+  }
+
+  const settingSections: SettingSection[] = [
     {
       title: "Account Preferences",
       items: [

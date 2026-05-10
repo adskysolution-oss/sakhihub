@@ -46,7 +46,7 @@ export default function MemberReceiptPage() {
           <ArrowLeft size={18} /> Back to Dashboard
         </Link>
       </div>
-      <DigitalReceipt data={data} />
+      <DigitalReceipt receipt={data} />
     </div>
   );
 }

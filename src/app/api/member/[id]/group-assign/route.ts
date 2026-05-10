@@ -7,7 +7,7 @@ import { successResponse, errorResponse } from '@/utils/response';
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;

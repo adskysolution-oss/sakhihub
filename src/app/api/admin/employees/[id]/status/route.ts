@@ -3,10 +3,13 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
+import { sendEmail } from '@/lib/email';
+import { getWelcomeTemplate } from '@/lib/emailTemplates';
+import EmailLog from '@/models/EmailLog';
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
@@ -33,6 +36,25 @@ export async function PATCH(
 
     if (!user) {
       return errorResponse('Employee not found', 404);
+    }
+
+    // Send Welcome Email if activated and not already sent
+    if (status === 'active' && user.email && !user.welcomeEmailSent) {
+      const welcomeHtml = getWelcomeTemplate(user.fullName, user.role, false);
+      sendEmail(user.email, 'Welcome to SakhiHub!', welcomeHtml).then(async (res) => {
+        if (res.success) {
+          await User.findByIdAndUpdate(user._id, { welcomeEmailSent: true });
+        }
+        
+        await EmailLog.create({
+          recipient: user.email!,
+          subject: 'Welcome to SakhiHub!',
+          type: 'welcome_email_admin_approval',
+          status: res.success ? 'success' : 'failed',
+          error: res.success ? undefined : (res.error as any)?.message,
+          relatedId: user._id
+        });
+      });
     }
 
     return successResponse(user, `Employee status updated to ${status}`);

@@ -3,6 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import MemberRequest from '@/models/MemberRequest';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
+import { notifyMemberRequest } from '@/lib/notifications';
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,6 +45,9 @@ export async function POST(req: NextRequest) {
       { userId: (session as any).id },
       { connectionStatus: 'pending_request' }
     );
+
+    // Notify employee asynchronously
+    notifyMemberRequest(employeeId, (session as any).id);
 
     return successResponse(newRequest, 'Connection request sent successfully', 201);
   } catch (error: any) {

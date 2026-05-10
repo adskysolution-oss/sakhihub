@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Phone, MapPin, Lock, Upload, CheckCircle,
   ArrowRight, ArrowLeft, Users, Briefcase, GraduationCap, Sparkles, ShieldCheck,
-  MessageCircle, ClipboardList, BookOpen, Clock
+  MessageCircle, ClipboardList, BookOpen, Clock, AlertCircle, Mail
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
@@ -28,10 +28,13 @@ const designations = [
 
 export default function RegisterForm() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { language } = useLanguage();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showOtpStep, setShowOtpStep] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [resendTimer, setResendTimer] = useState(0);
 
   const [formData, setFormData] = useState({
     role: "",
@@ -57,6 +60,13 @@ export default function RegisterForm() {
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [discoveryLoading, setDiscoveryLoading] = useState(false);
   const [requestStatus, setRequestStatus] = useState<{ [key: string]: string }>({});
+
+  React.useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendTimer]);
 
   React.useEffect(() => {
     if (formData.pincode.length === 6) {
@@ -103,8 +113,6 @@ export default function RegisterForm() {
 
   const handleConnect = async (employeeId: string) => {
     setFormData(prev => ({ ...prev, assignedEmployeeId: employeeId }));
-    // If user is already registered, we would send API request here.
-    // But since this is registration flow, we will save it during registration.
     setRequestStatus(prev => ({ ...prev, [employeeId]: 'selected' }));
   };
 
@@ -141,11 +149,62 @@ export default function RegisterForm() {
         throw new Error(result.message || "Registration failed");
       }
 
-      // Success
-      router.push('/login?registered=true');
+      if (result.data.requiresOtp) {
+        setShowOtpStep(true);
+        setResendTimer(60);
+      } else {
+        router.push('/login?registered=true');
+      }
     } catch (err: any) {
       console.error("Registration error:", err);
       setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otp.length !== 6) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email, otp, purpose: 'Registration' })
+      });
+      const result = await res.json();
+      if (result.success) {
+        router.push('/login?registered=true');
+      } else {
+        throw new Error(result.message || "OTP Verification failed");
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendTimer > 0) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch('/api/auth/resend-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email, purpose: 'Registration' })
+      });
+      const result = await res.json();
+      if (result.success) {
+        setResendTimer(60);
+      } else {
+        throw new Error(result.message || "Resend failed");
+      }
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -159,284 +218,340 @@ export default function RegisterForm() {
   };
 
   return (
-  return (
     <div className="w-full max-w-[650px] px-2 md:px-0 mx-auto">
-      {/* Step Indicator */}
-      <div className="flex justify-between mb-8 md:mb-12 relative px-2">
-        <div className="absolute top-[16px] left-0 w-full h-[2px] bg-gray-100 z-0"></div>
-        <div
-          className="absolute top-[16px] left-0 h-[2px] bg-gradient-to-r from-primary to-secondary z-0 transition-all duration-500"
-          style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
-        ></div>
-
-        {steps.map((s) => (
-          <div key={s.id} className="relative z-10 flex flex-col items-center gap-2">
-            <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xs md:text-sm font-black transition-all duration-300 ${step >= s.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white text-gray-300 border-2 border-gray-100'}`}>
-              {step > s.id ? <CheckCircle size={16} /> : s.id}
+      <AnimatePresence mode="wait">
+        {showOtpStep ? (
+          <motion.div
+            key="otp-step"
+            {...fadeInUp}
+            className="bg-white p-8 md:p-12 rounded-[40px] shadow-2xl shadow-primary/10 border border-primary/10"
+          >
+            <div className="text-center mb-10">
+              <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <ShieldCheck size={40} className="text-primary" />
+              </div>
+              <h2 className="text-3xl font-black text-secondary">Verify Your Email</h2>
+              <p className="text-gray-400 font-bold mt-2">
+                We've sent a 6-digit code to <br />
+                <span className="text-primary">{formData.email}</span>
+              </p>
             </div>
-            <span className={`text-[10px] md:text-xs font-black uppercase tracking-tighter md:tracking-widest ${step >= s.id ? 'text-secondary' : 'text-gray-300'}`}>
-              {language === 'hi' ? s.hindi : s.name}
-            </span>
-          </div>
-        ))}
-      </div>
 
-      <div className="mb-6 md:mb-10 text-center md:text-left">
-        <h2 className="text-2xl md:text-4xl font-black text-secondary leading-tight">{steps[step - 1].name} Details</h2>
-        <p className="text-primary font-bold text-sm md:text-lg">{steps[step - 1].hindi} विवरण</p>
-      </div>
-
-      <form onSubmit={handleRegister}>
-        <AnimatePresence mode="wait">
-          {step === 1 && (
-            <motion.div key="step1" {...fadeInUp} className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-              <div
-                onClick={() => setFormData({ ...formData, role: "employee" })}
-                className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "employee" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
-              >
-                <div className="w-12 h-12 md:w-16 md:h-16 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary"><Briefcase size={28} /></div>
-                <div>
-                  <h3 className="text-lg md:text-xl font-black text-secondary">Employee</h3>
-                  <p className="text-xs md:text-sm text-gray-400">Field worker / Lead</p>
-                </div>
-              </div>
-              <div
-                onClick={() => setFormData({ ...formData, role: "member" })}
-                className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "member" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
-              >
-                <div className="w-12 h-12 md:w-16 md:h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"><Users size={28} /></div>
-                <div>
-                  <h3 className="text-lg md:text-xl font-black text-secondary">Member</h3>
-                  <p className="text-xs md:text-sm text-gray-400">Community user</p>
-                </div>
-              </div>
-              <div className="sm:col-span-2">
-                <button type="button" disabled={!formData.role} onClick={nextStep} className="btn-primary w-full py-4 justify-center text-sm md:text-base">Continue <ArrowRight size={20} /></button>
-              </div>
-            </motion.div>
-          )}
-
-          {step === 2 && (
-            <motion.div key="step2" {...fadeInUp} className="flex flex-col gap-4 md:gap-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-black text-gray-700">Full Name</label>
-                  <div className="relative">
-                    <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Full Name" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-black text-gray-700">Mobile</label>
-                  <div className="relative">
-                    <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input type="tel" name="mobile" value={formData.mobile} onChange={handleChange} placeholder="Mobile No" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
-                  </div>
-                </div>
-              </div>
-
-              {formData.role === 'employee' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-black text-gray-700">WhatsApp No</label>
-                    <div className="relative">
-                      <MessageCircle size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleChange} placeholder="WhatsApp No" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-black text-gray-700">Apply For</label>
-                    <div className="relative">
-                      <ClipboardList size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <select name="designation" value={formData.designation} onChange={handleChange} className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none bg-white font-bold" required>
-                        <option value="">Select Designation</option>
-                        {designations.map(d => <option key={d} value={d}>{d}</option>)}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {formData.role === 'employee' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-black text-gray-700">Qualification</label>
-                    <div className="relative">
-                      <BookOpen size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input type="text" name="qualification" value={formData.qualification} onChange={handleChange} placeholder="B.A, 12th, etc." className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-black text-gray-700">Experience</label>
-                    <div className="relative">
-                      <Clock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input type="text" name="experience" value={formData.experience} onChange={handleChange} placeholder="Years/Details" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-black text-gray-700">Email (Optional)</label>
-                <div className="relative">
-                  <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="email@example.com" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
-                <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">Next Step</button>
-              </div>
-            </motion.div>
-          )}
-
-          {step === 3 && (
-            <motion.div key="step3" {...fadeInUp} className="flex flex-col gap-4 md:gap-6">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-black text-gray-700">Pincode</label>
-                <div className="relative">
-                  <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} placeholder="6 Digit Pincode" maxLength={6} className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 font-black text-lg" required />
-                  {pincodeLoading && <div className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 border-2 border-gray-200 border-t-primary rounded-full animate-spin"></div>}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-black text-gray-700">State</label>
-                  <input type="text" name="state" value={formData.state} onChange={handleChange} placeholder="State" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-black text-gray-700">District</label>
-                  <input type="text" name="district" value={formData.district} onChange={handleChange} placeholder="District" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-black text-gray-700">Block / Tehsil</label>
-                  <input type="text" name="block" value={formData.block} onChange={handleChange} placeholder="Block Name" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-black text-gray-700">Panchayat / Area</label>
-                  <input type="text" name="area" value={formData.area} onChange={handleChange} placeholder="Area Name" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-black text-gray-700">Full Address</label>
-                <textarea name="address" value={formData.address} onChange={handleChange} placeholder="Village, Landmark, etc." rows={3} className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required></textarea>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
-                <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">{formData.role === 'member' ? 'Find Nearby Sakhi' : 'Last Step'}</button>
-              </div>
-            </motion.div>
-          )}
-
-          {step === 4 && (
-            <motion.div key="step4" {...fadeInUp} className="flex flex-col gap-6">
-              <div className="text-center">
-                <h3 className="text-xl md:text-2xl font-black text-secondary">{formData.role === 'member' ? 'Connect with Local Sakhi' : 'Verify Location'}</h3>
-                <p className="text-gray-400 text-sm mt-1">{formData.role === 'member' ? 'Choose an employee to assist you with your registration.' : 'Confirm your service area.'}</p>
-              </div>
-
-              {formData.role === 'member' ? (
-                <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto px-2 pb-4 scrollbar-hide">
-                  {discoveryLoading ? (
-                    <div className="text-center py-12 flex flex-col items-center gap-3">
-                      <div className="w-8 h-8 border-4 border-gray-100 border-t-primary rounded-full animate-spin"></div>
-                      <p className="text-gray-400 font-bold">Searching for nearby employees...</p>
-                    </div>
-                  ) : nearbyEmployees.length > 0 ? (
-                    nearbyEmployees.map((emp) => (
-                      <div key={emp._id} className={`p-5 rounded-3xl border-2 transition-all flex justify-between items-center gap-4 ${requestStatus[emp._id] ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white'}`}>
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                            <User size={24} />
-                          </div>
-                          <div>
-                            <h4 className="font-black text-secondary">{emp.fullName}</h4>
-                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">CODE: {emp.employeeId || 'N/A'}</p>
-                            <p className="text-xs text-primary font-black mt-0.5">{emp.block}, {emp.district}</p>
-                          </div>
-                        </div>
-                        <button type="button" onClick={() => handleConnect(emp._id)} className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${requestStatus[emp._id] ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-                          {requestStatus[emp._id] ? 'Selected' : 'Connect'}
-                        </button>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-12 bg-gray-50 rounded-3xl px-6">
-                      <AlertCircle size={40} className="mx-auto text-gray-200 mb-4" />
-                      <p className="text-gray-500 font-bold">No active employees found in your area yet.</p>
-                      <button type="button" onClick={nextStep} className="text-primary font-black mt-4 underline">Continue without connecting</button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-12 bg-gray-50 rounded-3xl px-6">
-                  <CheckCircle size={48} className="mx-auto text-secondary mb-4 animate-bounce" />
-                  <p className="text-gray-500 font-bold">Your service area is set to:</p>
-                  <p className="text-xl md:text-2xl font-black text-primary mt-2">{formData.block}, {formData.district}</p>
-                </div>
-              )}
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
-                <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">Continue</button>
-              </div>
-            </motion.div>
-          )}
-
-          {step === 5 && (
-            <motion.div key="step5" {...fadeInUp} className="flex flex-col gap-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-black text-gray-700">Password</label>
-                  <div className="relative">
-                    <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="********" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-black text-gray-700">Confirm Password</label>
-                  <div className="relative">
-                    <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="********" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                <input type="checkbox" id="terms" required className="mt-1 w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary transition-all" />
-                <label htmlFor="terms" className="text-xs md:text-sm text-gray-500 leading-relaxed font-medium">I agree to the <span className="text-secondary font-bold">terms and conditions</span> and <span className="text-secondary font-bold">privacy policy</span> of SakhiHub.</label>
+            <form onSubmit={handleVerifyOtp} className="flex flex-col gap-8">
+              <div className="flex flex-col gap-4">
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest text-center">Enter Verification Code</label>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                  placeholder="0 0 0 0 0 0"
+                  className="w-full text-center text-4xl font-black tracking-[10px] md:tracking-[20px] py-6 rounded-3xl border-2 border-gray-100 bg-gray-50 focus:outline-none focus:border-primary focus:bg-white transition-all"
+                  required
+                />
               </div>
 
               {error && (
-                <div className="p-4 bg-red-50 text-red-500 text-xs md:text-sm rounded-2xl font-bold flex items-center gap-2 border border-red-100">
-                  <AlertCircle size={16} /> {error}
+                <div className="p-4 bg-red-50 text-red-500 text-sm rounded-2xl font-bold flex items-center gap-3 border border-red-100">
+                  <AlertCircle size={18} /> {error}
                 </div>
               )}
 
-              <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
-                <button type="submit" disabled={loading} className="btn-primary w-full justify-center order-1 sm:order-2 py-4 shadow-xl shadow-primary/20">
-                  {loading ? "Registering..." : (formData.role === 'employee' ? "Register as Employee" : "Join Movement")} <Sparkles size={18} />
+              <div className="flex flex-col gap-4">
+                <button
+                  type="submit"
+                  disabled={loading || otp.length !== 6}
+                  className="btn-primary w-full py-5 justify-center text-lg shadow-xl shadow-primary/20"
+                >
+                  {loading ? "Verifying..." : "Verify & Activate Account"}
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={handleResendOtp}
+                  disabled={loading || resendTimer > 0}
+                  className="text-sm font-black text-gray-400 uppercase tracking-widest hover:text-primary transition-all disabled:opacity-50"
+                >
+                  {resendTimer > 0 ? `Resend Code in ${resendTimer}s` : "Resend Verification Code"}
                 </button>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </form>
+            </form>
+          </motion.div>
+        ) : (
+          <div key="register-steps" className="w-full">
+            {/* Step Indicator */}
+            <div className="flex justify-between mb-8 md:mb-12 relative px-2">
+              <div className="absolute top-[16px] left-0 w-full h-[2px] bg-gray-100 z-0"></div>
+              <div
+                className="absolute top-[16px] left-0 h-[2px] bg-gradient-to-r from-primary to-secondary z-0 transition-all duration-500"
+                style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
+              ></div>
+
+              {steps.map((s) => (
+                <div key={s.id} className="relative z-10 flex flex-col items-center gap-2">
+                  <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xs md:text-sm font-black transition-all duration-300 ${step >= s.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white text-gray-300 border-2 border-gray-100'}`}>
+                    {step > s.id ? <CheckCircle size={16} /> : s.id}
+                  </div>
+                  <span className={`text-[10px] md:text-xs font-black uppercase tracking-tighter md:tracking-widest ${step >= s.id ? 'text-secondary' : 'text-gray-300'}`}>
+                    {language === 'hi' ? s.hindi : s.name}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mb-6 md:mb-10 text-center md:text-left">
+              <h2 className="text-2xl md:text-4xl font-black text-secondary leading-tight">{steps[step - 1].name} Details</h2>
+              <p className="text-primary font-bold text-sm md:text-lg">{steps[step - 1].hindi} विवरण</p>
+            </div>
+
+            <form onSubmit={handleRegister}>
+              <AnimatePresence mode="wait">
+                {step === 1 && (
+                  <motion.div key="step1" {...fadeInUp} className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    <div
+                      onClick={() => setFormData({ ...formData, role: "employee" })}
+                      className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "employee" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
+                    >
+                      <div className="w-12 h-12 md:w-16 md:h-16 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary"><Briefcase size={28} /></div>
+                      <div>
+                        <h3 className="text-lg md:text-xl font-black text-secondary">Employee</h3>
+                        <p className="text-xs md:text-sm text-gray-400">Field worker / Lead</p>
+                      </div>
+                    </div>
+                    <div
+                      onClick={() => setFormData({ ...formData, role: "member" })}
+                      className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "member" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
+                    >
+                      <div className="w-12 h-12 md:w-16 md:h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"><Users size={28} /></div>
+                      <div>
+                        <h3 className="text-lg md:text-xl font-black text-secondary">Member</h3>
+                        <p className="text-xs md:text-sm text-gray-400">Community user</p>
+                      </div>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <button type="button" disabled={!formData.role} onClick={nextStep} className="btn-primary w-full py-4 justify-center text-sm md:text-base">Continue <ArrowRight size={20} /></button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {step === 2 && (
+                  <motion.div key="step2" {...fadeInUp} className="flex flex-col gap-4 md:gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-black text-gray-700">Full Name</label>
+                        <div className="relative">
+                          <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Full Name" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-black text-gray-700">Mobile</label>
+                        <div className="relative">
+                          <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input type="tel" name="mobile" value={formData.mobile} onChange={handleChange} placeholder="Mobile No" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                        </div>
+                      </div>
+                    </div>
+
+                    {formData.role === 'employee' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-black text-gray-700">WhatsApp No</label>
+                          <div className="relative">
+                            <MessageCircle size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleChange} placeholder="WhatsApp No" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-black text-gray-700">Apply For</label>
+                          <div className="relative">
+                            <ClipboardList size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <select name="designation" value={formData.designation} onChange={handleChange} className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none bg-white font-bold" required>
+                              <option value="">Select Designation</option>
+                              {designations.map(d => <option key={d} value={d}>{d}</option>)}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {formData.role === 'employee' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-black text-gray-700">Qualification</label>
+                          <div className="relative">
+                            <BookOpen size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input type="text" name="qualification" value={formData.qualification} onChange={handleChange} placeholder="B.A, 12th, etc." className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-black text-gray-700">Experience</label>
+                          <div className="relative">
+                            <Clock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input type="text" name="experience" value={formData.experience} onChange={handleChange} placeholder="Years/Details" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-black text-gray-700">Email (Optional)</label>
+                      <div className="relative">
+                        <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="email@example.com" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                      <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
+                      <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">Next Step</button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {step === 3 && (
+                  <motion.div key="step3" {...fadeInUp} className="flex flex-col gap-4 md:gap-6">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-black text-gray-700">Pincode</label>
+                      <div className="relative">
+                        <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} placeholder="6 Digit Pincode" maxLength={6} className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 font-black text-lg" required />
+                        {pincodeLoading && <div className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 border-2 border-gray-200 border-t-primary rounded-full animate-spin"></div>}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-black text-gray-700">State</label>
+                        <input type="text" name="state" value={formData.state} onChange={handleChange} placeholder="State" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-black text-gray-700">District</label>
+                        <input type="text" name="district" value={formData.district} onChange={handleChange} placeholder="District" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-black text-gray-700">Block / Tehsil</label>
+                        <input type="text" name="block" value={formData.block} onChange={handleChange} placeholder="Block Name" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-black text-gray-700">Panchayat / Area</label>
+                        <input type="text" name="area" value={formData.area} onChange={handleChange} placeholder="Area Name" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-black text-gray-700">Full Address</label>
+                      <textarea name="address" value={formData.address} onChange={handleChange} placeholder="Village, Landmark, etc." rows={3} className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required></textarea>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                      <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
+                      <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">{formData.role === 'member' ? 'Find Nearby Sakhi' : 'Last Step'}</button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {step === 4 && (
+                  <motion.div key="step4" {...fadeInUp} className="flex flex-col gap-6">
+                    <div className="text-center">
+                      <h3 className="text-xl md:text-2xl font-black text-secondary">{formData.role === 'member' ? 'Connect with Local Sakhi' : 'Verify Location'}</h3>
+                      <p className="text-gray-400 text-sm mt-1">{formData.role === 'member' ? 'Choose an employee to assist you with your registration.' : 'Confirm your service area.'}</p>
+                    </div>
+
+                    {formData.role === 'member' ? (
+                      <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto px-2 pb-4 scrollbar-hide">
+                        {discoveryLoading ? (
+                          <div className="text-center py-12 flex flex-col items-center gap-3">
+                            <div className="w-8 h-8 border-4 border-gray-100 border-t-primary rounded-full animate-spin"></div>
+                            <p className="text-gray-400 font-bold">Searching for nearby employees...</p>
+                          </div>
+                        ) : nearbyEmployees.length > 0 ? (
+                          nearbyEmployees.map((emp) => (
+                            <div key={emp._id} className={`p-5 rounded-3xl border-2 transition-all flex justify-between items-center gap-4 ${requestStatus[emp._id] ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white'}`}>
+                              <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                                  <User size={24} />
+                                </div>
+                                <div>
+                                  <h4 className="font-black text-secondary">{emp.fullName}</h4>
+                                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">CODE: {emp.employeeId || 'N/A'}</p>
+                                  <p className="text-xs text-primary font-black mt-0.5">{emp.block}, {emp.district}</p>
+                                </div>
+                              </div>
+                              <button type="button" onClick={() => handleConnect(emp._id)} className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${requestStatus[emp._id] ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+                                {requestStatus[emp._id] ? 'Selected' : 'Connect'}
+                              </button>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-12 bg-gray-50 rounded-3xl px-6">
+                            <AlertCircle size={40} className="mx-auto text-gray-200 mb-4" />
+                            <p className="text-gray-500 font-bold">No active employees found in your area yet.</p>
+                            <button type="button" onClick={nextStep} className="text-primary font-black mt-4 underline">Continue without connecting</button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12 bg-gray-50 rounded-3xl px-6">
+                        <CheckCircle size={48} className="mx-auto text-secondary mb-4 animate-bounce" />
+                        <p className="text-gray-500 font-bold">Your service area is set to:</p>
+                        <p className="text-xl md:text-2xl font-black text-primary mt-2">{formData.block}, {formData.district}</p>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
+                      <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">Continue</button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {step === 5 && (
+                  <motion.div key="step5" {...fadeInUp} className="flex flex-col gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-black text-gray-700">Password</label>
+                        <div className="relative">
+                          <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="********" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-black text-gray-700">Confirm Password</label>
+                        <div className="relative">
+                          <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="********" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                      <input type="checkbox" id="terms" required className="mt-1 w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary transition-all" />
+                      <label htmlFor="terms" className="text-xs md:text-sm text-gray-500 leading-relaxed font-medium">I agree to the <span className="text-secondary font-bold">terms and conditions</span> and <span className="text-secondary font-bold">privacy policy</span> of SakhiHub.</label>
+                    </div>
+
+                    {error && (
+                      <div className="p-4 bg-red-50 text-red-500 text-xs md:text-sm rounded-2xl font-bold flex items-center gap-2 border border-red-100">
+                        <AlertCircle size={16} /> {error}
+                      </div>
+                    )}
+
+                    <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                      <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
+                      <button type="submit" disabled={loading} className="btn-primary w-full justify-center order-1 sm:order-2 py-4 shadow-xl shadow-primary/20">
+                        {loading ? "Registering..." : (formData.role === 'employee' ? "Register as Employee" : "Join Movement")} <Sparkles size={18} />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </form>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
-
-const Mail = ({ size, style }: { size: number, style?: React.CSSProperties }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
-);
-
-

@@ -4,7 +4,7 @@ import React from 'react';
 import {
   Users, UserPlus, IndianRupee, MapPin,
   Target, TrendingUp, Calendar, ArrowRight,
-  ClipboardList, Bell, ShieldCheck
+  ClipboardList, Bell, ShieldCheck, Heart
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import axios from 'axios';

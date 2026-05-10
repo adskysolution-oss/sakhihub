@@ -4,6 +4,7 @@ import Membership from '@/models/Membership';
 import WomenMember from '@/models/WomenMember';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
+import { notifyMembershipPayment } from '@/lib/notifications';
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,6 +45,9 @@ export async function POST(req: NextRequest) {
 
     // Update member status
     await WomenMember.findByIdAndUpdate(memberId, { membershipStatus: 'paid' });
+
+    // Trigger Email Notification asynchronously
+    notifyMembershipPayment(membership._id);
 
     return successResponse(membership, 'Membership created successfully', 201);
   } catch (error: any) {

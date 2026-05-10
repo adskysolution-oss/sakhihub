@@ -16,6 +16,16 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const logout = async () => {
+    try {
+      await axios.post('/api/auth/logout');
+      window.location.href = '/';
+    } catch (err) {
+      console.error('Logout failed', err);
+      window.location.href = '/';
+    }
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -37,5 +47,5 @@ export function useAuth() {
     fetchUser();
   }, []);
 
-  return { user, loading, error };
+  return { user, loading, error, logout };
 }

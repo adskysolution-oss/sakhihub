@@ -6,6 +6,7 @@ import MemberRequest from '@/models/MemberRequest';
 import User from '@/models/User';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
+import { notifyGroupAddition } from '@/lib/notifications';
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,6 +35,11 @@ export async function POST(req: NextRequest) {
       accountStatus: 'active',
       membershipStatus: 'free'
     });
+
+    // Notify group addition asynchronously
+    if (member.groupId && member.email) {
+      notifyGroupAddition(member._id, member.groupId.toString(), (session as any).id);
+    }
 
     return successResponse(member, 'Member added successfully', 201);
   } catch (error: any) {

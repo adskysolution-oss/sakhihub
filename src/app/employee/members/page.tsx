@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import AddMemberForm from "@/components/features/dashboard/AddMemberForm";
 import MemberDetailsModal from "@/components/features/dashboard/MemberDetailsModal";
+import GroupAssignModal from "@/components/features/dashboard/GroupAssignModal";
 import { 
   UserPlus, Plus, Search, Filter, Phone, MapPin, 
   IndianRupee, CheckCircle2, ChevronDown 
@@ -14,6 +15,7 @@ export default function EmployeeMembersPage() {
   const [activeTab, setActiveTab] = useState<'my-members' | 'discovery'>('my-members');
   const [showAdd, setShowAdd] = useState(false);
   const [selectedMember, setSelectedMember] = useState<any>(null);
+  const [assigningMember, setAssigningMember] = useState<any>(null);
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -54,7 +56,7 @@ export default function EmployeeMembersPage() {
   };
 
   const handleGroupAssign = (member: any) => {
-    setSelectedMember(member);
+    setAssigningMember(member);
   };
 
   const groups = Array.from(new Set(members.map(m => m.groupId?.groupName).filter(Boolean)));
@@ -222,6 +224,16 @@ export default function EmployeeMembersPage() {
           onClose={() => {
             setSelectedMember(null);
             fetchMembers();
+          }} 
+        />
+      )}
+
+      {assigningMember && (
+        <GroupAssignModal 
+          member={assigningMember} 
+          onClose={(assigned) => {
+            setAssigningMember(null);
+            if (assigned) fetchMembers();
           }} 
         />
       )}
