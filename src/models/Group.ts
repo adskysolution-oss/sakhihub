@@ -45,9 +45,6 @@ const GroupSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-if (process.env.NODE_ENV === 'development') {
-  delete mongoose.models.Group;
-}
 
 const Group = mongoose.models.Group || mongoose.model<IGroup>('Group', GroupSchema);
 export default Group;

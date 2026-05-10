@@ -25,6 +25,14 @@ export async function POST(req: NextRequest) {
       return errorResponse('Missing required fields: Name, Mobile, Password', 400);
     }
 
+    if (!/^\d{10}$/.test(mobile)) {
+      return errorResponse('Invalid mobile number. Must be 10 digits.', 400);
+    }
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return errorResponse('Invalid email format', 400);
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ mobile });
     if (existingUser) {

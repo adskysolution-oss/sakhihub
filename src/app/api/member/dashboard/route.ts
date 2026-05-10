@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
 
     // Find the linked field record using userId
     const fieldRecord = await WomenMember.findOne({ userId: user._id })
-      .populate('groupId', 'name village district block')
+      .populate('groupId', 'groupName village district block')
       .populate('assignedEmployeeId', 'fullName mobile employeeId')
       .populate('createdBy', 'fullName mobile');
 

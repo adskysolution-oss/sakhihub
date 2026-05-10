@@ -1,13 +1,27 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
+import axios from 'axios';
 
 const PremiumHero = () => {
   const { t } = useLanguage();
+  const [impact, setImpact] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await axios.get('/api/public/stats');
+        if (res.data.success) setImpact(res.data.data.totalImpact);
+      } catch (err) {
+        console.error("Stats fetch failed", err);
+      }
+    };
+    fetchStats();
+  }, []);
 
   return (
     <section className="relative overflow-hidden bg-white pt-24 pb-12 md:pt-32 md:pb-20">
@@ -41,10 +55,10 @@ const PremiumHero = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link href="/register" className="btn-primary py-4 px-10 text-base md:text-lg rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-primary/20">
+              <Link href="/register" className="btn-primary py-4 px-10 text-base md:text-lg rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-primary/20 no-underline">
                 Join Movement <ArrowRight size={20} />
               </Link>
-              <Link href="/campaign" className="btn-secondary py-4 px-10 text-base md:text-lg rounded-2xl bg-white text-secondary border-2 border-secondary/10 flex items-center justify-center">
+              <Link href="/campaign" className="btn-secondary py-4 px-10 text-base md:text-lg rounded-2xl bg-white text-secondary border-2 border-secondary/10 flex items-center justify-center no-underline">
                 Explore Campaigns
               </Link>
             </div>
@@ -84,7 +98,9 @@ const PremiumHero = () => {
               transition={{ duration: 4, repeat: Infinity }}
               className="absolute -bottom-6 left-6 md:bottom-10 md:-left-10 bg-white p-6 md:p-10 rounded-[32px] shadow-2xl border border-black/5 z-20 text-center md:text-left min-w-[180px]"
             >
-              <h3 className="text-3xl md:text-5xl font-bold text-primary leading-none mb-2">50,000+</h3>
+              <h3 className="text-3xl md:text-5xl font-bold text-primary leading-none mb-2">
+                {impact ? `${impact.toLocaleString()}+` : '...'}
+              </h3>
               <p className="text-[10px] md:text-xs text-secondary font-bold uppercase tracking-widest">{t('impact')} Status</p>
             </motion.div>
 

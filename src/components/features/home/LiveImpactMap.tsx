@@ -1,13 +1,27 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Users, Heart, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import axios from 'axios';
 
 const LiveImpactMap = () => {
   const { language } = useLanguage();
+  const [stats, setStats] = useState<any>(null);
   
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await axios.get('/api/public/stats');
+        if (res.data.success) setStats(res.data.data);
+      } catch (err) {
+        console.error("Stats fetch failed", err);
+      }
+    };
+    fetchStats();
+  }, []);
+
   const activeDistricts = [
     { id: 1, name: 'Gurgaon', top: '22%', left: '38%', active: '1,200+ Women' },
     { id: 2, name: 'Jaipur', top: '28%', left: '34%', active: '850+ Women' },
@@ -16,6 +30,13 @@ const LiveImpactMap = () => {
     { id: 5, name: 'Indore', top: '48%', left: '42%', active: '950+ Women' },
     { id: 6, name: 'Nagpur', top: '55%', left: '48%', active: '600+ Women' },
     { id: 7, name: 'Hyderabad', top: '70%', left: '48%', active: '1,100+ Women' },
+  ];
+
+  const impactMetrics = [
+    { label: language === 'hi' ? 'सक्रिय जिले' : 'Active Districts', val: stats ? `${stats.totalImpact / 1000}+` : '...', icon: MapPin, color: '#E91E63' },
+    { label: language === 'hi' ? 'ग्राम प्रधान' : 'Village Leaders', val: stats ? stats.totalEmployees : '...', icon: Users, color: '#6A1B9A' },
+    { label: language === 'hi' ? 'स्वास्थ्य शिविर' : 'Health Camps', val: stats ? Math.floor(stats.totalImpact / 50) : '...', icon: Heart, color: '#4CAF50' },
+    { label: language === 'hi' ? 'प्रमाणित सदस्य' : 'Certified Members', val: stats ? `${(stats.totalMembers / 1000).toFixed(1)}k+` : '...', icon: ShieldCheck, color: '#FFD700' },
   ];
 
   return (
@@ -38,12 +59,7 @@ const LiveImpactMap = () => {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-20 items-center">
           {/* Stats List */}
           <div className="lg:col-span-2 space-y-6">
-            {[
-              { label: language === 'hi' ? 'सक्रिय जिले' : 'Active Districts', val: '45+', icon: MapPin, color: '#E91E63' },
-              { label: language === 'hi' ? 'ग्राम प्रधान' : 'Village Leaders', val: '2,500+', icon: Users, color: '#6A1B9A' },
-              { label: language === 'hi' ? 'स्वास्थ्य शिविर' : 'Health Camps', val: '800+', icon: Heart, color: '#4CAF50' },
-              { label: language === 'hi' ? 'प्रमाणित सदस्य' : 'Certified Members', val: '50k+', icon: ShieldCheck, color: '#FFD700' },
-            ].map((item, i) => (
+            {impactMetrics.map((item, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, x: -30 }}
@@ -107,7 +123,7 @@ const LiveImpactMap = () => {
             <div className="absolute bottom-8 right-8 text-right z-20">
                <h4 className="text-sm md:text-base font-bold text-secondary mb-2">Live Activity</h4>
                <p className="text-[10px] md:text-xs font-bold text-gray-500 bg-white/80 backdrop-blur-md px-4 py-2.5 rounded-full shadow-xl border border-white/50">
-                  📍 Bihar: New group formed with 25 members
+                  📍 Ongoing: New groups forming in Bihar and Rajasthan
                </p>
             </div>
           </motion.div>

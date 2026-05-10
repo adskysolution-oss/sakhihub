@@ -52,3 +52,29 @@ export async function GET(req: NextRequest) {
     return errorResponse(error.message, 500);
   }
 }
+export async function DELETE(req: NextRequest) {
+  try {
+    const session = await getAuthSession();
+    if (!session || (session as any).role !== 'super_admin') {
+      return errorResponse('Unauthorized', 403);
+    }
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    if (!id) return errorResponse('Member ID required', 400);
+
+    await dbConnect();
+    
+    // Perform Safe Delete / Archive
+    const member = await WomenMember.findByIdAndUpdate(id, { 
+      accountStatus: 'inactive',
+      connectionStatus: 'unassigned' // Release from employee group
+    }, { new: true });
+
+    if (!member) return errorResponse('Member not found', 404);
+
+    return successResponse(member, 'Member archived successfully');
+  } catch (error: any) {
+    return errorResponse(error.message, 500);
+  }
+}

@@ -128,13 +128,25 @@ export default function RegisterForm() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
+    // Validation
+    if (formData.mobile.length !== 10 || !/^\d{10}$/.test(formData.mobile)) {
+      setError("Please enter a valid 10-digit mobile number");
+      return;
+    }
+
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
     setLoading(true);
-    setError("");
 
     try {
       const response = await fetch('/api/auth/register', {

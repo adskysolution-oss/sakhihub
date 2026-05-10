@@ -56,3 +56,39 @@ export async function GET(req: NextRequest) {
     return errorResponse(error.message, 500);
   }
 }
+import WomenMember from '@/models/WomenMember';
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const session = await getAuthSession();
+    if (!session) return errorResponse('Unauthorized', 401);
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    if (!id) return errorResponse('Group ID required', 400);
+
+    await dbConnect();
+    const userId = (session as any).id;
+    const role = (session as any).role;
+
+    const group = await Group.findById(id);
+    if (!group) return errorResponse('Group not found', 404);
+
+    // Permission check
+    if (role !== 'super_admin' && group.createdBy.toString() !== userId) {
+      return errorResponse('Forbidden: You can only delete groups you created', 403);
+    }
+
+    // Handle Cascading Integrity: Update members in this group
+    await WomenMember.updateMany(
+      { groupId: id },
+      { $set: { groupId: null, connectionStatus: 'unassigned' } }
+    );
+
+    await Group.findByIdAndDelete(id);
+
+    return successResponse(null, 'Group deleted and members released successfully');
+  } catch (error: any) {
+    return errorResponse(error.message, 500);
+  }
+}
