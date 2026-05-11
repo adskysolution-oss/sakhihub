@@ -15,7 +15,12 @@ export async function POST(req: NextRequest) {
 
     await dbConnect();
     const body = await req.json();
+    const userId = (session as any).id;
     
+    // Fetch creator's profile for hierarchy
+    const User = (await import('@/models/User')).default;
+    const userProfile = await User.findById(userId);
+
     // Auto-populate district and block from group if missing
     const Group = (await import('@/models/Group')).default;
     const group = await Group.findById(body.groupId);
@@ -28,8 +33,10 @@ export async function POST(req: NextRequest) {
 
     const member = await WomenMember.create({
       ...body,
-      createdBy: (session as any).id,
-      assignedEmployeeId: (session as any).id,
+      createdBy: userId,
+      assignedEmployeeId: userId,
+      vendorCode: userProfile?.vendorCode,
+      subVendorCode: userProfile?.subVendorCode,
       requestedBy: 'employee',
       connectionStatus: 'approved',
       accountStatus: 'active',
@@ -38,7 +45,7 @@ export async function POST(req: NextRequest) {
 
     // Notify group addition asynchronously
     if (member.groupId && member.email) {
-      notifyGroupAddition(member._id, member.groupId.toString(), (session as any).id);
+      notifyGroupAddition(member._id, member.groupId.toString(), userId);
     }
 
     return successResponse(member, 'Member added successfully', 201);
@@ -58,12 +65,14 @@ export async function GET(req: NextRequest) {
     const mode = searchParams.get('mode');
     const role = (session as any).role;
     const userId = (session as any).id;
+    const User = (await import('@/models/User')).default;
+    const userProfile = await User.findById(userId);
 
     let query: any = {};
     const groupId = searchParams.get('groupId');
 
     if (mode === 'discovery' && role === 'employee') {
-      const employee = await User.findById(userId);
+      const employee = userProfile;
       if (!employee) return errorResponse('Employee not found', 404);
       
       query = {
@@ -76,6 +85,12 @@ export async function GET(req: NextRequest) {
       };
     } else if (role === 'employee') {
       query.$or = [{ createdBy: userId }, { assignedEmployeeId: userId }];
+    } else if (role === 'vendor') {
+      query = { vendorCode: userProfile?.vendorCode };
+    } else if (role === 'sub_vendor') {
+      query = { subVendorCode: userProfile?.subVendorCode };
+    } else if (role !== 'super_admin') {
+      return errorResponse('Forbidden', 403);
     }
 
     if (groupId) {
@@ -85,7 +100,6 @@ export async function GET(req: NextRequest) {
     if (search) {
       const searchRegex = { $regex: search, $options: 'i' };
       if (query.$or) {
-        // If we already have $or (like in normal employee mode), we need to handle it carefully
         query.$and = [
           { $or: query.$or },
           { $or: [

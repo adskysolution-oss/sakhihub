@@ -54,7 +54,27 @@ export default function RegisterForm() {
     password: "",
     confirmPassword: "",
     assignedEmployeeId: "",
+    vendorCode: "",
+    subVendorCode: "",
+    campaignId: "",
   });
+
+  React.useEffect(() => {
+    // Auto-fetch from URL for Referral Link logic
+    const params = new URLSearchParams(window.location.search);
+    const vCode = params.get('vendor');
+    const svCode = params.get('subvendor');
+    const cId = params.get('campaign');
+
+    if (vCode || svCode || cId) {
+      setFormData(prev => ({
+        ...prev,
+        vendorCode: vCode || prev.vendorCode,
+        subVendorCode: svCode || prev.subVendorCode,
+        campaignId: cId || prev.campaignId,
+      }));
+    }
+  }, []);
 
   const [nearbyEmployees, setNearbyEmployees] = useState<any[]>([]);
   const [pincodeLoading, setPincodeLoading] = useState(false);
@@ -320,6 +340,26 @@ export default function RegisterForm() {
               <AnimatePresence mode="wait">
                 {step === 1 && (
                   <motion.div key="step1" {...fadeInUp} className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    <div
+                      onClick={() => setFormData({ ...formData, role: "vendor" })}
+                      className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "vendor" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
+                    >
+                      <div className="w-12 h-12 md:w-16 md:h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"><ShieldCheck size={28} /></div>
+                      <div>
+                        <h3 className="text-lg md:text-xl font-black text-secondary">Vendor</h3>
+                        <p className="text-xs md:text-sm text-gray-400">Campaign Partner</p>
+                      </div>
+                    </div>
+                    <div
+                      onClick={() => setFormData({ ...formData, role: "sub_vendor" })}
+                      className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "sub_vendor" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
+                    >
+                      <div className="w-12 h-12 md:w-16 md:h-16 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary"><CheckCircle size={28} /></div>
+                      <div>
+                        <h3 className="text-lg md:text-xl font-black text-secondary">Sub-Vendor</h3>
+                        <p className="text-xs md:text-sm text-gray-400">Regional Partner</p>
+                      </div>
+                    </div>
                     <div
                       onClick={() => setFormData({ ...formData, role: "employee" })}
                       className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "employee" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}

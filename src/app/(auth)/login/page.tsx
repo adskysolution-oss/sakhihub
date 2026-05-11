@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
-type Role = 'employee' | 'member';
+type Role = 'member' | 'employee' | 'vendor' | 'sub_vendor';
 
 function LoginContent() {
   const router = useRouter();
@@ -47,6 +47,8 @@ function LoginContent() {
       if (response.data.success) {
         const user = response.data.data;
         if (user.role === 'super_admin') router.push('/admin/dashboard');
+        else if (user.role === 'vendor') router.push('/vendor/dashboard');
+        else if (user.role === 'sub_vendor') router.push('/sub-vendor/dashboard');
         else if (user.role === 'employee') router.push('/employee/dashboard');
         else router.push('/member/dashboard');
       }
@@ -132,16 +134,16 @@ function LoginContent() {
             <p className="text-gray-400 font-bold mt-2">Welcome back! Please login to continue.</p>
           </div>
 
-          <div className="flex gap-3 mb-10 p-1.5 bg-gray-50 rounded-3xl border border-gray-100">
-            {(['member', 'employee'] as Role[]).map((r) => (
+          <div className="grid grid-cols-2 gap-3 mb-10 p-1.5 bg-gray-50 rounded-3xl border border-gray-100">
+            {(['member', 'employee', 'vendor', 'sub_vendor'] as Role[]).map((r) => (
               <button
                 key={r}
                 type="button"
                 onClick={() => setRole(r)}
-                className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-[22px] transition-all duration-300 font-black text-sm uppercase tracking-wider ${role === r ? 'bg-white text-primary shadow-xl shadow-gray-200' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`flex items-center justify-center gap-2 py-3 rounded-[18px] transition-all duration-300 font-black text-[10px] uppercase tracking-wider ${role === r ? 'bg-white text-primary shadow-xl shadow-gray-200' : 'text-gray-400 hover:text-gray-600'}`}
               >
-                {r === 'employee' ? <Briefcase size={18} /> : <Users size={18} />}
-                {r}
+                {r === 'employee' ? <Briefcase size={14} /> : r === 'vendor' ? <ShieldCheck size={14} /> : r === 'sub_vendor' ? <Sparkles size={14} /> : <Users size={14} />}
+                {r.replace('_', ' ')}
               </button>
             ))}
           </div>

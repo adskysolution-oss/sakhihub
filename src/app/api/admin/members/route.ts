@@ -17,8 +17,13 @@ export async function GET(req: NextRequest) {
     await dbConnect();
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search');
+    const vendorCode = searchParams.get('vendorCode');
+    const subVendorCode = searchParams.get('subVendorCode');
     
     const query: any = {};
+    if (vendorCode) query.vendorCode = vendorCode;
+    if (subVendorCode) query.subVendorCode = subVendorCode;
+    
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },

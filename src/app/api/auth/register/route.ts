@@ -18,7 +18,8 @@ export async function POST(req: NextRequest) {
       fullName, mobile, whatsapp, email, password, role, 
       designation, qualification, experience, state, district, 
       block, area, pincode, address, assignedEmployeeId,
-      age, maritalStatus, occupation, interests
+      age, maritalStatus, occupation, interests,
+      vendorCode, subVendorCode, campaignId
     } = body;
 
     if (!fullName || !mobile || !password) {
@@ -44,6 +45,13 @@ export async function POST(req: NextRequest) {
       if (existingEmail) {
         return errorResponse('User with this email already exists', 400);
       }
+    }
+
+    // Hierarchy Logic: Find Parent Vendor if codes provided
+    let parentVendorId = undefined;
+    if (vendorCode) {
+      const vendor = await User.findOne({ vendorCode, role: 'vendor' });
+      if (vendor) parentVendorId = vendor._id;
     }
 
     const hashedPassword = await hashPassword(password);
@@ -83,7 +91,10 @@ export async function POST(req: NextRequest) {
       otp,
       otpExpires,
       lastOtpSentAt: email ? new Date() : undefined,
-      emailVerified: false
+      emailVerified: false,
+      vendorCode: userRole === 'vendor' ? `VND${Math.random().toString(36).substr(2, 6).toUpperCase()}` : vendorCode,
+      subVendorCode: userRole === 'sub_vendor' ? `SVN${Math.random().toString(36).substr(2, 6).toUpperCase()}` : subVendorCode,
+      parentVendorId
     });
 
     // Send Email asynchronously if email provided

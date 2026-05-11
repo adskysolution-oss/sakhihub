@@ -12,15 +12,18 @@ export async function POST(req: NextRequest) {
 
     await dbConnect();
     const body = await req.json();
-    
-    if (!(session as any).id) {
-      return errorResponse('Session error: User ID missing', 400);
-    }
+    const userId = (session as any).id;
+
+    // Fetch user profile for hierarchy mapping
+    const User = (await import('@/models/User')).default;
+    const userProfile = await User.findById(userId);
     
     const groupData = {
       ...body,
       meetingDate: body.meetingDate ? new Date(body.meetingDate) : new Date(),
-      createdBy: (session as any).id
+      createdBy: userId,
+      vendorCode: userProfile?.vendorCode,
+      subVendorCode: userProfile?.subVendorCode
     };
 
     if (body.campaignId === 'temp' || !body.campaignId) {
@@ -44,10 +47,20 @@ export async function GET(req: NextRequest) {
     await dbConnect();
     const role = (session as any).role;
     const userId = (session as any).id;
+    const User = (await import('@/models/User')).default;
+    const userProfile = await User.findById(userId);
 
-    let query = {};
+    let query: any = {};
+    
+    // Hierarchy-based filtering
     if (role === 'employee') {
       query = { createdBy: userId };
+    } else if (role === 'vendor') {
+      query = { vendorCode: userProfile?.vendorCode };
+    } else if (role === 'sub_vendor') {
+      query = { subVendorCode: userProfile?.subVendorCode };
+    } else if (role !== 'super_admin') {
+      return errorResponse('Forbidden', 403);
     }
 
     const groups = await Group.find(query).sort({ createdAt: -1 }).populate('campaignId', 'title');

@@ -12,7 +12,13 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import { MEMBER_DASHBOARD_LINKS, ADMIN_DASHBOARD_LINKS, EMPLOYEE_DASHBOARD_LINKS } from '@/constants/navigation';
+import { 
+  MEMBER_DASHBOARD_LINKS, 
+  ADMIN_DASHBOARD_LINKS, 
+  EMPLOYEE_DASHBOARD_LINKS,
+  VENDOR_DASHBOARD_LINKS,
+  SUBVENDOR_DASHBOARD_LINKS
+} from '@/constants/navigation';
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -61,6 +67,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   const getMenuItems = () => {
     if (user?.role === 'super_admin') return ADMIN_DASHBOARD_LINKS;
+    if (user?.role === 'vendor') return VENDOR_DASHBOARD_LINKS;
+    if (user?.role === 'sub_vendor') return SUBVENDOR_DASHBOARD_LINKS;
     if (user?.role === 'employee') return EMPLOYEE_DASHBOARD_LINKS;
     return MEMBER_DASHBOARD_LINKS;
   };

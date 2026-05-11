@@ -11,6 +11,8 @@ export interface IGroup extends Document {
   totalMembers: number;
   meetingDate: Date;
   campaignId: mongoose.Types.ObjectId;
+  vendorCode?: string;
+  subVendorCode?: string;
   remarks?: string;
   photo?: string;
   gpsLocation?: {
@@ -34,6 +36,8 @@ const GroupSchema: Schema = new Schema(
     totalMembers: { type: Number, default: 0 },
     meetingDate: { type: Date, required: true },
     campaignId: { type: Schema.Types.ObjectId, ref: 'Campaign', required: false },
+    vendorCode: { type: String },
+    subVendorCode: { type: String },
     remarks: { type: String },
     photo: { type: String },
     gpsLocation: {

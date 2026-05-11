@@ -27,9 +27,17 @@ export async function POST(req: NextRequest) {
 
     await dbConnect();
     const body = await req.json();
-    const campaign = await Campaign.create(body);
     
-    return successResponse(campaign, 'Campaign created successfully', 201);
+    const campaign = await Campaign.create({
+      ...body,
+      referralLink: `/register?campaign=${Math.random().toString(36).substr(2, 9)}` // Initial base link
+    });
+
+    // Update with real ID-based link if needed, or keep unique hash
+    campaign.referralLink = `/register?campaignId=${campaign._id}`;
+    await campaign.save();
+    
+    return successResponse(campaign, 'Campaign launched successfully with referral mapping', 201);
   } catch (error: any) {
     return errorResponse(error.message, 500);
   }

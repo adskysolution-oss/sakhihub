@@ -3,74 +3,70 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'your-fallback-secret'
+  process.env.JWT_SECRET || 'sakhi-hub-secret-key-2026'
 );
 
 export async function proxy(request: NextRequest) {
-  const token = request.cookies.get('token')?.value;
   const { pathname } = request.nextUrl;
+  const token = request.cookies.get('token')?.value;
 
-  // 1. Define Route Categories
-  const isAdminPath = pathname.startsWith('/admin');
-  const isAdminLogin = pathname === '/admin/login';
-  const isAdminProtectedRoute = isAdminPath && !isAdminLogin;
-  
-  const isEmployeeProtectedRoute = pathname.startsWith('/employee');
-  const isMemberProtectedRoute = pathname.startsWith('/member');
-  
-  const isPublicAuthRoute = pathname === '/login' || pathname === '/register';
+  // Define route protections
+  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register');
+  const isAdminPage = pathname.startsWith('/admin');
+  const isVendorPage = pathname.startsWith('/vendor');
+  const isSubVendorPage = pathname.startsWith('/sub-vendor');
+  const isEmployeePage = pathname.startsWith('/employee');
+  const isMemberPage = pathname.startsWith('/member');
+  const isPublicPage = !isAdminPage && !isVendorPage && !isSubVendorPage && !isEmployeePage && !isMemberPage && !isAuthPage;
 
-  // 2. Handle Unauthenticated Access
-  if (!token) {
-    if (isAdminProtectedRoute) {
-      return NextResponse.redirect(new URL('/admin/login', request.url));
-    }
-    if (isEmployeeProtectedRoute || isMemberProtectedRoute) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
+  // 1. Allow public pages
+  if (isPublicPage || pathname === '/' || pathname.startsWith('/api/public') || pathname.startsWith('/_next')) {
     return NextResponse.next();
   }
 
-  // 3. Handle Authenticated Access
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    const role = payload.role as string;
+  // 2. Redirect authenticated users away from auth pages
+  if (isAuthPage && token) {
+    try {
+      const { payload }: any = await jwtVerify(token, JWT_SECRET);
+      if (payload.role === 'super_admin') return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+      if (payload.role === 'vendor') return NextResponse.redirect(new URL('/vendor/dashboard', request.url));
+      if (payload.role === 'sub_vendor') return NextResponse.redirect(new URL('/sub-vendor/dashboard', request.url));
+      if (payload.role === 'employee') return NextResponse.redirect(new URL('/employee/dashboard', request.url));
+      if (payload.role === 'member') return NextResponse.redirect(new URL('/member/dashboard', request.url));
+    } catch (e) {
+      // Invalid token, allow access to login
+      return NextResponse.next();
+    }
+  }
 
-    // A. Prevent logged-in users from visiting login pages
-    if (isPublicAuthRoute || isAdminLogin) {
-      if (role === 'super_admin') return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-      if (role === 'employee') return NextResponse.redirect(new URL('/employee/dashboard', request.url));
-      if (role === 'member') return NextResponse.redirect(new URL('/member/dashboard', request.url));
+  // 3. Protect dashboard routes
+  if (isAdminPage || isVendorPage || isSubVendorPage || isEmployeePage || isMemberPage) {
+    if (!token) {
+      return NextResponse.redirect(new URL(`/login?callbackUrl=${pathname}`, request.url));
     }
 
-    // B. Super Admin Access Control
-    if (role === 'super_admin') {
-      if (isEmployeeProtectedRoute || isMemberProtectedRoute) {
-        return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+    try {
+      const { payload }: any = await jwtVerify(token, JWT_SECRET);
+      
+      // Role-based access control
+      if (isAdminPage && payload.role !== 'super_admin') {
+        return NextResponse.redirect(new URL('/unauthorized', request.url));
       }
-      return NextResponse.next();
+      if (isVendorPage && payload.role !== 'vendor' && payload.role !== 'super_admin') {
+        return NextResponse.redirect(new URL('/unauthorized', request.url));
+      }
+      if (isSubVendorPage && payload.role !== 'sub_vendor' && payload.role !== 'vendor' && payload.role !== 'super_admin') {
+        return NextResponse.redirect(new URL('/unauthorized', request.url));
+      }
+      if (isEmployeePage && !['employee', 'sub_vendor', 'vendor', 'super_admin'].includes(payload.role)) {
+        return NextResponse.redirect(new URL('/unauthorized', request.url));
+      }
+      if (isMemberPage && !['member', 'employee', 'sub_vendor', 'vendor', 'super_admin'].includes(payload.role)) {
+        return NextResponse.redirect(new URL('/unauthorized', request.url));
+      }
+    } catch (e) {
+      return NextResponse.redirect(new URL('/login', request.url));
     }
-
-    // C. Employee Access Control
-    if (role === 'employee') {
-      if (isAdminPath) return NextResponse.redirect(new URL('/login', request.url));
-      if (isMemberProtectedRoute) return NextResponse.redirect(new URL('/employee/dashboard', request.url));
-      return NextResponse.next();
-    }
-
-    // D. Member Access Control
-    if (role === 'member') {
-      if (isAdminPath) return NextResponse.redirect(new URL('/login', request.url));
-      if (isEmployeeProtectedRoute) return NextResponse.redirect(new URL('/member/dashboard', request.url));
-      return NextResponse.next();
-    }
-
-  } catch (error) {
-    const response = NextResponse.redirect(
-      isAdminPath ? new URL('/admin/login', request.url) : new URL('/login', request.url)
-    );
-    response.cookies.delete('token');
-    return response;
   }
 
   return NextResponse.next();
@@ -79,6 +75,8 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     '/admin/:path*',
+    '/vendor/:path*',
+    '/sub-vendor/:path*',
     '/employee/:path*',
     '/member/:path*',
     '/login',

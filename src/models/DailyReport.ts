@@ -3,6 +3,8 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IDailyReport extends Document {
   employeeId: mongoose.Types.ObjectId;
   campaignId?: mongoose.Types.ObjectId;
+  vendorCode?: string;
+  subVendorCode?: string;
   date: Date;
   villagesVisited: string[];
   groupsCreated: number;
@@ -29,6 +31,8 @@ const DailyReportSchema: Schema = new Schema(
   {
     employeeId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     campaignId: { type: Schema.Types.ObjectId, ref: 'Campaign' },
+    vendorCode: { type: String },
+    subVendorCode: { type: String },
     date: { type: Date, required: true, default: Date.now },
     villagesVisited: [{ type: String }],
     groupsCreated: { type: Number, default: 0 },

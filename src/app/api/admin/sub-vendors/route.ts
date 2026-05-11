@@ -4,7 +4,6 @@ import User from '@/models/User';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 
-// GET all employees with filtering
 export async function GET(req: NextRequest) {
   try {
     const session = await getAuthSession();
@@ -14,29 +13,25 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
     const { searchParams } = new URL(req.url);
-    const status = searchParams.get('status');
-    const district = searchParams.get('district');
     const search = searchParams.get('search');
-    const vendorCode = searchParams.get('vendorCode');
-    const subVendorCode = searchParams.get('subVendorCode');
+    const status = searchParams.get('status');
 
-    const query: any = { role: 'employee' };
+    const query: any = { role: 'sub_vendor' };
     if (status && status !== 'all') query.status = status;
-    if (district && district !== 'all') query.district = district;
-    if (vendorCode) query.vendorCode = vendorCode;
-    if (subVendorCode) query.subVendorCode = subVendorCode;
     if (search) {
       query.$or = [
         { fullName: { $regex: search, $options: 'i' } },
-        { mobile: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { employeeId: { $regex: search, $options: 'i' } }
+        { subVendorCode: { $regex: search, $options: 'i' } },
+        { mobile: { $regex: search, $options: 'i' } }
       ];
     }
 
-    const employees = await User.find(query).sort({ createdAt: -1 }).select('-password');
+    const subVendors = await User.find(query)
+      .sort({ createdAt: -1 })
+      .select('-password')
+      .populate('parentVendorId', 'fullName vendorCode');
 
-    return successResponse(employees);
+    return successResponse(subVendors);
   } catch (error: any) {
     return errorResponse(error.message, 500);
   }

@@ -27,12 +27,12 @@ export async function POST(req: NextRequest) {
       if (user.role !== 'super_admin') {
         return errorResponse('Only Super Admin can access this portal', 403);
       }
-    } else if (role === 'member' || role === 'employee') {
+    } else if (role === 'member' || role === 'employee' || role === 'vendor' || role === 'sub_vendor') {
       if (user.role === 'super_admin') {
         return errorResponse('Super Admin must use the Admin Portal', 403);
       }
       if (user.role !== role) {
-        return errorResponse(`Unauthorized for ${role} access`, 403);
+        return errorResponse(`Unauthorized for ${role} access. Your account is registered as ${user.role}.`, 403);
       }
     } else {
       // Default fallback if no role is passed (should not happen with new UI)

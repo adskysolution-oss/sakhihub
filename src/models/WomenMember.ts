@@ -18,6 +18,9 @@ export interface IWomenMember extends Document {
   groupId?: mongoose.Types.ObjectId;
   assignedEmployeeId?: mongoose.Types.ObjectId; // The employee managing this member
   createdBy: mongoose.Types.ObjectId; // User ID of who created this (Self or Employee)
+  vendorCode?: string;
+  subVendorCode?: string;
+  campaignId?: mongoose.Types.ObjectId;
   
   // New Status System
   accountStatus: 'active' | 'inactive';
@@ -50,6 +53,9 @@ const WomenMemberSchema: Schema = new Schema(
     groupId: { type: Schema.Types.ObjectId, ref: 'Group' },
     assignedEmployeeId: { type: Schema.Types.ObjectId, ref: 'User' },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    vendorCode: { type: String },
+    subVendorCode: { type: String },
+    campaignId: { type: Schema.Types.ObjectId, ref: 'Campaign' },
     
     accountStatus: { 
       type: String, 
