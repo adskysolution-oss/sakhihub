@@ -58,9 +58,9 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
   );
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-[40px] overflow-hidden shadow-2xl border border-gray-100">
+    <div className="flex flex-col bg-white rounded-[40px] shadow-2xl border border-gray-100 min-h-full">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-secondary-dark to-secondary p-10 md:p-12 text-white relative shrink-0">
+      <div className="bg-gradient-to-r from-secondary-dark to-secondary p-8 md:p-10 text-white relative shrink-0">
         <button 
           onClick={onClose}
           className="absolute right-6 top-6 md:right-10 md:top-10 w-10 h-10 md:w-12 md:h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all z-20"
@@ -113,7 +113,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar p-10 md:p-12">
+      <div className="p-8 md:p-10">
         {activeTab === 'overview' && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
             {/* Quick Stats Grid */}
@@ -367,7 +367,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
       </div>
 
       {/* Footer / Approval Actions */}
-      <div className="p-8 md:p-10 bg-gray-50 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6 shrink-0">
+      <div className="p-6 md:p-8 bg-gray-50 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6 mt-auto shrink-0">
         <div className="flex items-center gap-4">
            <Activity size={20} className="text-primary animate-pulse" />
            <div>

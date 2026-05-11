@@ -220,7 +220,7 @@ export default function VendorManagement() {
               />
               <motion.div 
                 initial={{ scale: 0.9, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                className="relative bg-white w-full max-w-6xl h-full md:h-full md:max-h-[90vh] rounded-t-[40px] md:rounded-[40px] overflow-hidden shadow-2xl z-10"
+                className="relative bg-white w-full max-w-6xl md:max-h-[90vh] rounded-t-[40px] md:rounded-[40px] overflow-y-auto custom-scrollbar shadow-2xl z-10"
               >
                 {loadingHierarchy ? (
                   <div className="h-[600px] flex flex-col items-center justify-center gap-4">
