@@ -85,10 +85,15 @@ export async function GET(req: NextRequest) {
     const recentGroups = await Group.find().sort({ createdAt: -1 }).limit(5).select('groupName village createdAt');
     const recentMembers = await WomenMember.find().sort({ createdAt: -1 }).limit(5).select('name village createdAt');
 
-    // Recent employee applications
-    const pendingApplications = await User.find({ role: 'employee', status: 'pending' })
+    // Recent partner/employee applications (Option A + C review queue)
+    const pendingApplications = await User.find({ 
+      $or: [
+        { role: { $in: ['employee', 'vendor', 'sub_vendor'] }, status: 'pending' },
+        { assignmentStatus: 'pending', role: { $ne: 'super_admin' } }
+      ]
+    })
       .sort({ createdAt: -1 })
-      .limit(10)
+      .limit(20)
       .select('-password');
 
     return successResponse({

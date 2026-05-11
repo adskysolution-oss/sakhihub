@@ -41,9 +41,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Check status - Block inactive/rejected/suspended
-    if (user.status === 'inactive' || user.status === 'rejected') {
-      return errorResponse('Your account is disabled or rejected.', 403);
+    // Check status - Block disabled/rejected/suspended
+    // Note: 'pending' users ARE allowed to login so they can see their status on the /pending-approval page.
+    if (user.status === 'rejected' || user.status === 'suspended' || user.status === 'inactive') {
+      return errorResponse(`Your account is ${user.status}. Please contact support.`, 403);
     }
 
     const isMatch = await comparePassword(password, user.password);
@@ -55,6 +56,7 @@ export async function POST(req: NextRequest) {
       id: user._id, 
       role: user.role, 
       status: user.status,
+      assignmentStatus: user.assignmentStatus,
       fullName: user.fullName,
       mobile: user.mobile
     });

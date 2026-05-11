@@ -59,20 +59,33 @@ export default function RegisterForm() {
     campaignId: "",
   });
 
+  const [referralContext, setReferralContext] = useState<{ role: string, parent: string } | null>(null);
+
   React.useEffect(() => {
-    // Auto-fetch from URL for Referral Link logic
     const params = new URLSearchParams(window.location.search);
+    const targetRole = params.get('role');
     const vCode = params.get('vendor');
     const svCode = params.get('subvendor');
+    const eCode = params.get('employee');
     const cId = params.get('campaign');
 
-    if (vCode || svCode || cId) {
+    if (targetRole || vCode || svCode || eCode || cId) {
       setFormData(prev => ({
         ...prev,
+        role: targetRole || prev.role,
         vendorCode: vCode || prev.vendorCode,
         subVendorCode: svCode || prev.subVendorCode,
+        assignedEmployeeId: eCode || prev.assignedEmployeeId,
         campaignId: cId || prev.campaignId,
       }));
+
+      if (targetRole) {
+        setStep(2); // Jump to Details step if role is pre-defined
+        setReferralContext({
+          role: targetRole.replace('_', ' '),
+          parent: vCode || svCode || eCode || 'Admin'
+        });
+      }
     }
   }, []);
 
@@ -169,10 +182,15 @@ export default function RegisterForm() {
     setLoading(true);
 
     try {
+      // Clean up empty strings to avoid Cast errors on backend
+      const cleanData = Object.fromEntries(
+        Object.entries(formData).filter(([_, value]) => value !== "")
+      );
+
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(cleanData),
       });
 
       const result = await response.json();
@@ -331,6 +349,22 @@ export default function RegisterForm() {
               ))}
             </div>
 
+            {referralContext && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }} 
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-8 p-6 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-[24px] border border-primary/20 flex items-center gap-5"
+              >
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-primary shadow-sm shrink-0">
+                  <ShieldCheck size={24} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-secondary uppercase tracking-tight">Joining as {referralContext.role}</h4>
+                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Invited by parent: <span className="text-primary">{referralContext.parent}</span></p>
+                </div>
+              </motion.div>
+            )}
+
             <div className="mb-6 md:mb-10 text-center md:text-left">
               <h2 className="text-2xl md:text-4xl font-black text-secondary leading-tight">{steps[step - 1].name} Details</h2>
               <p className="text-primary font-bold text-sm md:text-lg">{steps[step - 1].hindi} विवरण</p>
@@ -341,8 +375,8 @@ export default function RegisterForm() {
                 {step === 1 && (
                   <motion.div key="step1" {...fadeInUp} className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                     <div
-                      onClick={() => setFormData({ ...formData, role: "vendor" })}
-                      className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "vendor" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
+                      onClick={() => !referralContext && setFormData({ ...formData, role: "vendor" })}
+                      className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "vendor" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'} ${referralContext && formData.role !== 'vendor' ? 'opacity-40 grayscale pointer-events-none' : ''}`}
                     >
                       <div className="w-12 h-12 md:w-16 md:h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"><ShieldCheck size={28} /></div>
                       <div>
@@ -351,8 +385,8 @@ export default function RegisterForm() {
                       </div>
                     </div>
                     <div
-                      onClick={() => setFormData({ ...formData, role: "sub_vendor" })}
-                      className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "sub_vendor" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
+                      onClick={() => !referralContext && setFormData({ ...formData, role: "sub_vendor" })}
+                      className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "sub_vendor" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'} ${referralContext && formData.role !== 'sub_vendor' ? 'opacity-40 grayscale pointer-events-none' : ''}`}
                     >
                       <div className="w-12 h-12 md:w-16 md:h-16 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary"><CheckCircle size={28} /></div>
                       <div>
@@ -361,8 +395,8 @@ export default function RegisterForm() {
                       </div>
                     </div>
                     <div
-                      onClick={() => setFormData({ ...formData, role: "employee" })}
-                      className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "employee" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
+                      onClick={() => !referralContext && setFormData({ ...formData, role: "employee" })}
+                      className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "employee" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'} ${referralContext && formData.role !== 'employee' ? 'opacity-40 grayscale pointer-events-none' : ''}`}
                     >
                       <div className="w-12 h-12 md:w-16 md:h-16 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary"><Briefcase size={28} /></div>
                       <div>
@@ -371,8 +405,8 @@ export default function RegisterForm() {
                       </div>
                     </div>
                     <div
-                      onClick={() => setFormData({ ...formData, role: "member" })}
-                      className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "member" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
+                      onClick={() => !referralContext && setFormData({ ...formData, role: "member" })}
+                      className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "member" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'} ${referralContext && formData.role !== 'member' ? 'opacity-40 grayscale pointer-events-none' : ''}`}
                     >
                       <div className="w-12 h-12 md:w-16 md:h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"><Users size={28} /></div>
                       <div>

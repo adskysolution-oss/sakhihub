@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 
 export default function SubVendorManagement() {
   const [subVendors, setSubVendors] = useState<any[]>([]);
@@ -16,6 +17,7 @@ export default function SubVendorManagement() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [selectedSV, setSelectedSV] = useState<any>(null);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   const fetchSubVendors = async () => {
     setLoading(true);
@@ -56,7 +58,10 @@ export default function SubVendorManagement() {
             <h1 className="text-3xl md:text-4xl font-black text-secondary">Sub-Vendor Network</h1>
             <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Manage secondary partners and regional recruitment leads.</p>
           </div>
-          <button className="btn-primary py-4 px-8">
+          <button 
+            onClick={() => setShowRegisterModal(true)}
+            className="btn-primary py-4 px-8"
+          >
             <Plus size={20} /> Add Sub-Vendor
           </button>
         </div>
@@ -248,6 +253,13 @@ export default function SubVendorManagement() {
             </div>
           )}
         </AnimatePresence>
+
+        <RegisterPartnerModal 
+          isOpen={showRegisterModal}
+          onClose={() => setShowRegisterModal(false)}
+          onSuccess={() => fetchSubVendors()}
+          role="sub_vendor"
+        />
       </div>
     </DashboardLayout>
   );

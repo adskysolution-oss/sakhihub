@@ -48,9 +48,16 @@ export async function proxy(request: NextRequest) {
     try {
       const { payload }: any = await jwtVerify(token, JWT_SECRET);
       
-      // Status check for all roles except admin (Admins are active by default or handled differently)
+      // Hierarchy check (Option C) - Skip for Super Admin
+      if (payload.role !== 'super_admin' && payload.assignmentStatus === 'pending') {
+        if (pathname !== '/pending-assignment') {
+          return NextResponse.redirect(new URL('/pending-assignment', request.url));
+        }
+      }
+
+      // Status check (Admin Review Flow)
       if (payload.role !== 'super_admin' && payload.status !== 'active') {
-        if (pathname !== '/pending-approval') {
+        if (pathname !== '/pending-approval' && pathname !== '/pending-assignment') {
           return NextResponse.redirect(new URL('/pending-approval', request.url));
         }
       }
@@ -76,18 +83,24 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Allow access to pending-approval page if authenticated
-  if (pathname === '/pending-approval') {
+  // Handle Landing Pages for Restricted Statuses
+  if (pathname === '/pending-approval' || pathname === '/pending-assignment') {
     if (!token) return NextResponse.redirect(new URL('/login', request.url));
     try {
       const { payload }: any = await jwtVerify(token, JWT_SECRET);
-      if (payload.status === 'active') {
-        // Redirect active users away from pending page
+      
+      // If user is now active and assigned, redirect them to their dashboard
+      if (payload.status === 'active' && payload.assignmentStatus === 'completed') {
         if (payload.role === 'super_admin') return NextResponse.redirect(new URL('/admin/dashboard', request.url));
         if (payload.role === 'vendor') return NextResponse.redirect(new URL('/vendor/dashboard', request.url));
         if (payload.role === 'sub_vendor') return NextResponse.redirect(new URL('/sub-vendor/dashboard', request.url));
         if (payload.role === 'employee') return NextResponse.redirect(new URL('/employee/dashboard', request.url));
         return NextResponse.redirect(new URL('/member/dashboard', request.url));
+      }
+      
+      // If they are on the wrong landing page (e.g., assigned but not approved)
+      if (pathname === '/pending-assignment' && payload.assignmentStatus === 'completed' && payload.status !== 'active') {
+        return NextResponse.redirect(new URL('/pending-approval', request.url));
       }
     } catch (e) {
       return NextResponse.redirect(new URL('/login', request.url));
@@ -107,5 +120,6 @@ export const config = {
     '/login',
     '/register',
     '/pending-approval',
+    '/pending-assignment',
   ],
 };

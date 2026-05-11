@@ -8,16 +8,27 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
+import ReferralLinkCard from "@/components/features/dashboard/ReferralLinkCard";
 
 export default function VendorDashboard() {
   const [stats, setStats] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [registerModal, setRegisterModal] = useState<{ isOpen: boolean, role: 'sub_vendor' | 'employee' | 'member' | 'vendor' }>({ 
+    isOpen: false, 
+    role: 'sub_vendor' 
+  });
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get('/api/vendor/stats');
-        if (res.data.success) setStats(res.data.data);
+        const [statsRes, userRes] = await Promise.all([
+          axios.get('/api/vendor/stats'),
+          axios.get('/api/auth/me')
+        ]);
+        if (statsRes.data.success) setStats(statsRes.data.data);
+        if (userRes.data.success) setUser(userRes.data.data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -39,9 +50,31 @@ export default function VendorDashboard() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-8">
-        <header>
-          <h1 className="text-3xl md:text-4xl font-black text-secondary">Vendor Command Center</h1>
-          <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Manage your recruitment hierarchy and campaign performance</p>
+        <header className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-black text-secondary">Vendor Command Center</h1>
+            <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Manage your recruitment hierarchy and campaign performance</p>
+          </div>
+          <div className="flex gap-4">
+             <button 
+              onClick={() => setRegisterModal({ isOpen: true, role: 'sub_vendor' })}
+              className="hidden md:flex items-center gap-2 px-6 py-3 bg-secondary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
+             >
+               <ShieldCheck size={16} /> Add Sub-Vendor
+             </button>
+             <button 
+              onClick={() => setRegisterModal({ isOpen: true, role: 'employee' })}
+              className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
+             >
+               <User size={16} /> Add Employee
+             </button>
+             <button 
+              onClick={() => setRegisterModal({ isOpen: true, role: 'member' })}
+              className="flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
+             >
+               <Users size={16} /> Register Member
+             </button>
+          </div>
         </header>
 
         {loading ? (
@@ -77,6 +110,11 @@ export default function VendorDashboard() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <ReferralLinkCard 
+            inviterRole="vendor" 
+            vendorCode={user?.vendorCode} 
+          />
+
           {/* Security Deposit Status */}
           <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
             <div className="flex justify-between items-center mb-8">
@@ -121,6 +159,15 @@ export default function VendorDashboard() {
             </button>
           </div>
         </div>
+
+        <RegisterPartnerModal 
+          isOpen={registerModal.isOpen}
+          onClose={() => setRegisterModal({ ...registerModal, isOpen: false })}
+          onSuccess={() => window.location.reload()}
+          role={registerModal.role}
+          parentVendorId={user?._id}
+          vendorCode={user?.vendorCode}
+        />
       </div>
     </DashboardLayout>
   );

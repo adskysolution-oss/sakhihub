@@ -116,9 +116,10 @@ const Footer = () => {
               <p className="text-[10px] font-bold uppercase tracking-widest text-white/20">Empowering Women & Communities</p>
             </div>
           </div>
-          <div className="flex items-center gap-8">
-            <Link href="/privacy" className="text-[10px] font-bold uppercase tracking-widest hover:text-white transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="text-[10px] font-bold uppercase tracking-widest hover:text-white transition-colors">Terms & Conditions</Link>
+          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8">
+            <Link href="/privacy-policy" className="text-[10px] font-bold uppercase tracking-widest hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/terms-and-conditions" className="text-[10px] font-bold uppercase tracking-widest hover:text-white transition-colors">Terms & Conditions</Link>
+            <Link href="/refund-policy" className="text-[10px] font-bold uppercase tracking-widest hover:text-white transition-colors">Refund Policy</Link>
           </div>
         </div>
       </div>

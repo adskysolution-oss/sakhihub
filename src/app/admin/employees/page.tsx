@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 
 export default function EmployeeManagement() {
   const [employees, setEmployees] = useState<any[]>([]);
@@ -16,6 +17,7 @@ export default function EmployeeManagement() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [selectedEmp, setSelectedEmp] = useState<any>(null);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   const fetchEmployees = async () => {
     setLoading(true);
@@ -50,47 +52,38 @@ export default function EmployeeManagement() {
 
   return (
     <DashboardLayout>
-      <div style={{ padding: '10px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '30px', flexWrap: 'wrap', gap: '20px' }}>
+      <div className="flex flex-col gap-8">
+        <div className="flex justify-between items-start flex-wrap gap-6">
           <div>
-            <h2 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'var(--secondary)' }}>Employee Command Center</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Verify, approve, and manage your field force operations.</p>
+            <h1 className="text-3xl md:text-4xl font-black text-secondary">Employee Command Center</h1>
+            <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Verify, approve, and manage your field force operations.</p>
           </div>
-          <button className="btn-primary" style={{ padding: '15px 30px' }}>
+          <button 
+            onClick={() => setShowRegisterModal(true)}
+            className="btn-primary py-4 px-8"
+          >
             <Plus size={20} /> Add New Staff
           </button>
         </div>
 
-        <div className="glass-card" style={{ padding: '30px', background: 'white', borderRadius: '30px', boxShadow: '0 10px 40px rgba(0,0,0,0.03)', marginBottom: '30px' }}>
-          <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', flex: 1, minWidth: '300px' }}>
-              <Search size={18} style={{ position: 'absolute', left: '15px', top: '16px', color: '#999' }} />
+        <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
+          <div className="flex gap-4 mb-8 flex-wrap">
+            <div className="relative flex-1 min-w-[300px]">
+              <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
                 type="text" 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name, ID, mobile or email..." 
-                style={{ padding: '15px 15px 15px 45px', borderRadius: '15px', border: '1px solid #eee', width: '100%', fontSize: '1rem', outline: 'none' }} 
+                className="w-full pl-14 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
               />
             </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div className="flex gap-2 bg-gray-50 p-1.5 rounded-2xl">
                {['all', 'pending', 'active', 'rejected'].map((s) => (
                  <button 
                   key={s}
                   onClick={() => setStatus(s)}
-                  style={{ 
-                    padding: '10px 20px', 
-                    borderRadius: '12px', 
-                    border: '1px solid',
-                    borderColor: status === s ? 'var(--primary)' : '#eee',
-                    background: status === s ? '#FFF5F8' : 'white',
-                    color: status === s ? 'var(--primary)' : '#666',
-                    fontWeight: '800',
-                    fontSize: '0.85rem',
-                    textTransform: 'capitalize',
-                    cursor: 'pointer',
-                    transition: '0.2s'
-                  }}
+                  className={`px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${status === s ? 'bg-white text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                  >
                    {s}
                  </button>
@@ -98,71 +91,63 @@ export default function EmployeeManagement() {
             </div>
           </div>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '900px' }}>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse min-w-[900px]">
               <thead>
-                <tr style={{ textAlign: 'left', borderBottom: '2px solid #f8f9fa' }}>
-                  <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Employee Profile</th>
-                  <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Region & Role</th>
-                  <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Status</th>
-                  <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Joined On</th>
-                  <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Actions</th>
+                <tr className="text-left border-b-2 border-gray-50">
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Employee Profile</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Region & Role</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Joined On</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={5} style={{ padding: '40px', textAlign: 'center', color: '#999' }}>Fetching data from database...</td></tr>
+                   <tr><td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">Syncing with field records...</td></tr>
                 ) : employees.length === 0 ? (
-                  <tr><td colSpan={5} style={{ padding: '40px', textAlign: 'center', color: '#999' }}>No employees found matching the criteria.</td></tr>
+                   <tr><td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">No field staff found matching the criteria.</td></tr>
                 ) : (
-                  employees.map((emp) => (
-                    <tr key={emp._id} style={{ borderBottom: '1px solid #f8f9fa', transition: '0.2s' }} className="table-row">
-                      <td style={{ padding: '15px 20px' }}>
-                        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                          <div style={{ width: '45px', height: '45px', borderRadius: '14px', background: 'var(--grad-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '1.1rem' }}>
+                   employees.map((emp) => (
+                    <tr key={emp._id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer group">
+                      <td className="p-5">
+                        <div className="flex gap-4 items-center">
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-black text-xl shadow-lg">
                             {emp.fullName[0]}
                           </div>
                           <div>
-                            <p style={{ fontWeight: '800', fontSize: '1rem', color: 'var(--secondary)', margin: 0 }}>{emp.fullName}</p>
-                            <p style={{ fontSize: '0.8rem', color: '#999', margin: '2px 0 0' }}>ID: {emp.employeeId || 'N/A'}</p>
+                            <p className="font-black text-secondary leading-tight">{emp.fullName}</p>
+                            <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest">Joined {new Date(emp.createdAt).toLocaleDateString()}</p>
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: '15px 20px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          <span style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--secondary)' }}>{emp.designation || 'Field Staff'}</span>
-                          <span style={{ fontSize: '0.8rem', color: '#666', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <MapPin size={12} color="var(--primary)" /> {emp.block}, {emp.district}
+                      <td className="p-5">
+                        <div className="flex flex-col gap-1">
+                          <span className="font-black text-secondary text-sm">{emp.designation || 'Field Staff'}</span>
+                          <span className="text-xs text-gray-400 font-bold flex items-center gap-1">
+                            <MapPin size={10} className="text-primary" /> {emp.block}, {emp.district}
                           </span>
                         </div>
                       </td>
-                      <td style={{ padding: '15px 20px' }}>
-                        <span style={{ 
-                          padding: '6px 12px', 
-                          borderRadius: '8px', 
-                          fontSize: '0.75rem', 
-                          fontWeight: '800',
-                          textTransform: 'uppercase',
-                          background: emp.status === 'active' ? '#ecfdf5' : emp.status === 'pending' ? '#fffbeb' : '#fef2f2',
-                          color: emp.status === 'active' ? '#059669' : emp.status === 'pending' ? '#d97706' : '#ef4444'
-                        }}>
+                      <td className="p-5">
+                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${emp.status === 'active' ? 'bg-green-100 text-green-600' : emp.status === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-600'}`}>
                           {emp.status}
                         </span>
                       </td>
-                      <td style={{ padding: '15px 20px', color: '#666', fontSize: '0.85rem' }}>
+                      <td className="p-5 text-gray-400 font-bold text-xs uppercase tracking-widest">
                         {new Date(emp.createdAt).toLocaleDateString()}
                       </td>
-                      <td style={{ padding: '15px 20px' }}>
-                        <div style={{ display: 'flex', gap: '10px' }}>
+                      <td className="p-5">
+                        <div className="flex gap-2">
                           <button 
                             onClick={() => setSelectedEmp(emp)}
-                            style={{ padding: '8px 12px', borderRadius: '10px', background: '#f8f9fa', border: '1px solid #eee', color: 'var(--secondary)', fontWeight: '700', fontSize: '0.8rem', cursor: 'pointer' }}
+                            className="px-5 py-2.5 rounded-xl border border-gray-100 bg-white text-secondary font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 transition-all"
                           >Details</button>
                           {emp.status === 'pending' && (
                             <button 
                               onClick={() => handleStatusUpdate(emp._id, 'active')}
-                              style={{ padding: '8px 12px', borderRadius: '10px', background: 'var(--grad-primary)', border: 'none', color: 'white', fontWeight: '700', fontSize: '0.8rem', cursor: 'pointer' }}
-                            >Quick Approve</button>
+                              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 transition-all"
+                            >Approve</button>
                           )}
                         </div>
                       </td>
@@ -254,10 +239,13 @@ export default function EmployeeManagement() {
             </div>
           )}
         </AnimatePresence>
+        <RegisterPartnerModal 
+          isOpen={showRegisterModal}
+          onClose={() => setShowRegisterModal(false)}
+          onSuccess={() => fetchEmployees()}
+          role="employee"
+        />
       </div>
-      <style jsx>{`
-        .table-row:hover { background: #fffcfd !important; cursor: pointer; }
-      `}</style>
     </DashboardLayout>
   );
 }

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 
 export default function VendorManagement() {
   const [vendors, setVendors] = useState<any[]>([]);
@@ -16,6 +17,7 @@ export default function VendorManagement() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [selectedVendor, setSelectedVendor] = useState<any>(null);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   const fetchVendors = async () => {
     setLoading(true);
@@ -56,7 +58,10 @@ export default function VendorManagement() {
             <h1 className="text-3xl md:text-4xl font-black text-secondary">Vendor Network</h1>
             <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Manage your primary recruitment partners and legal entities.</p>
           </div>
-          <button className="btn-primary py-4 px-8">
+          <button 
+            onClick={() => setShowRegisterModal(true)}
+            className="btn-primary py-4 px-8"
+          >
             <Plus size={20} /> Register New Vendor
           </button>
         </div>
@@ -246,6 +251,13 @@ export default function VendorManagement() {
             </div>
           )}
         </AnimatePresence>
+
+        <RegisterPartnerModal 
+          isOpen={showRegisterModal}
+          onClose={() => setShowRegisterModal(false)}
+          onSuccess={() => fetchVendors()}
+          role="vendor"
+        />
       </div>
     </DashboardLayout>
   );

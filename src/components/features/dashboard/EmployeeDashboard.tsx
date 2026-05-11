@@ -9,6 +9,7 @@ import {
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import Link from 'next/link';
+import ReferralLinkCard from './ReferralLinkCard';
 
 export default function EmployeeDashboard({ user }: { user: any }) {
   const [data, setData] = React.useState<any>(null);
@@ -78,6 +79,16 @@ export default function EmployeeDashboard({ user }: { user: any }) {
             </div>
           </motion.div>
         ))}
+      </section>
+
+      {/* Recruitment Link */}
+      <section>
+        <ReferralLinkCard 
+          inviterRole="employee"
+          vendorCode={user?.parentVendorCode || user?.vendorCode}
+          subVendorCode={user?.parentSubVendorCode || user?.subVendorCode}
+          employeeCode={user?.employeeId}
+        />
       </section>
 
       {/* Main Actions & Recent Activity */}

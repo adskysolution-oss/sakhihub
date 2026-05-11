@@ -8,16 +8,24 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
+import ReferralLinkCard from "@/components/features/dashboard/ReferralLinkCard";
 
 export default function SubVendorDashboard() {
   const [stats, setStats] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get('/api/sub-vendor/stats');
-        if (res.data.success) setStats(res.data.data);
+        const [statsRes, userRes] = await Promise.all([
+          axios.get('/api/sub-vendor/stats'),
+          axios.get('/api/auth/me')
+        ]);
+        if (statsRes.data.success) setStats(statsRes.data.data);
+        if (userRes.data.success) setUser(userRes.data.data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -77,19 +85,33 @@ export default function SubVendorDashboard() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Performance Chart Placeholder */}
-          <div className="lg:col-span-2 bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft h-[400px] flex flex-col items-center justify-center text-center">
-            <TrendingUp size={60} className="text-gray-100 mb-6" />
-            <h3 className="text-xl font-black text-secondary">Recruitment Trends</h3>
-            <p className="text-gray-400 font-bold text-sm max-w-xs mt-2">Visualizing your monthly growth and member activation data.</p>
+          {/* Referral Link & Quick Actions */}
+          <div className="lg:col-span-2 flex flex-col gap-8">
+            <ReferralLinkCard 
+              inviterRole="sub_vendor" 
+              vendorCode={user?.vendorCode}
+              subVendorCode={user?.subVendorCode}
+            />
+            
+            <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft flex-1 flex flex-col items-center justify-center text-center min-h-[250px]">
+              <TrendingUp size={60} className="text-gray-100 mb-6" />
+              <h3 className="text-xl font-black text-secondary">Recruitment Trends</h3>
+              <p className="text-gray-400 font-bold text-sm max-w-xs mt-2">Visualizing your monthly growth and member activation data.</p>
+            </div>
           </div>
 
           {/* Quick Actions */}
           <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
             <h2 className="text-xl font-black text-secondary mb-8">Field Actions</h2>
             <div className="flex flex-col gap-3">
+              <button 
+                onClick={() => setShowRegisterModal(true)}
+                className="flex items-center gap-4 p-5 w-full bg-gray-50 hover:bg-primary hover:text-white rounded-2xl text-secondary font-bold text-sm transition-all text-left group"
+              >
+                <User size={20} className="group-hover:scale-110 transition-transform" />
+                Register Employee
+              </button>
               {[
-                { label: 'Register Employee', icon: User },
                 { label: 'New Group Entry', icon: ClipboardList },
                 { label: 'View Reports', icon: TrendingUp },
                 { label: 'Download IDs', icon: ShieldCheck },
@@ -102,6 +124,16 @@ export default function SubVendorDashboard() {
             </div>
           </div>
         </div>
+
+        <RegisterPartnerModal 
+          isOpen={showRegisterModal}
+          onClose={() => setShowRegisterModal(false)}
+          onSuccess={() => window.location.reload()}
+          role="employee"
+          parentVendorId={user?._id}
+          vendorCode={user?.vendorCode}
+          subVendorCode={user?.subVendorCode}
+        />
       </div>
     </DashboardLayout>
   );

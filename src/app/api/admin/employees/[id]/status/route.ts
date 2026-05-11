@@ -26,6 +26,11 @@ export async function PATCH(
       return errorResponse('User not found', 404);
     }
 
+    // Strict Hierarchy Validation (Option C enforcement)
+    if (status === 'active' && userToUpdate.assignmentStatus === 'pending' && userToUpdate.role !== 'super_admin') {
+      return errorResponse('Hierarchy Mapping Required. User must be assigned to a parent role/campaign before activation.', 400);
+    }
+
     const updateData: any = { status };
     if (employeeId) updateData.employeeId = employeeId;
     if (designation) updateData.designation = designation;

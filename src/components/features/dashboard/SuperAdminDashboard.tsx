@@ -3,8 +3,9 @@
 import React from 'react';
 import {
   Users, Layout, UserPlus, IndianRupee,
-  BarChart3, ShieldAlert
+  BarChart3, ShieldAlert, User
 } from 'lucide-react';
+import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import axios from 'axios';
@@ -16,6 +17,11 @@ export default function SuperAdminDashboard({ stats: data }: { stats?: any }) {
     { label: "Total Members", value: data?.stats?.totalMembers || "0", icon: UserPlus, color: "#2e7d32" },
     { label: "Collections", value: `₹${(data?.stats?.totalCollections || 0).toLocaleString()}`, icon: IndianRupee, color: "#ef6c00" },
   ];
+
+  const [registerModal, setRegisterModal] = React.useState<{ isOpen: boolean, role: 'vendor' | 'sub_vendor' | 'employee' | 'member' }>({ 
+    isOpen: false, 
+    role: 'vendor' 
+  });
 
   const handleStatusUpdate = async (id: string, status: string) => {
     try {
@@ -30,6 +36,34 @@ export default function SuperAdminDashboard({ stats: data }: { stats?: any }) {
 
   return (
     <div className="flex flex-col gap-6 md:gap-10">
+      {/* Quick Actions */}
+      <div className="flex flex-wrap gap-4">
+         <button 
+          onClick={() => setRegisterModal({ isOpen: true, role: 'vendor' })}
+          className="flex items-center gap-2 px-6 py-3 bg-secondary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
+         >
+           <UserPlus size={16} /> Register New Vendor
+         </button>
+         <button 
+          onClick={() => setRegisterModal({ isOpen: true, role: 'sub_vendor' })}
+          className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
+         >
+           <ShieldAlert size={16} /> Add Sub-Vendor
+         </button>
+         <button 
+          onClick={() => setRegisterModal({ isOpen: true, role: 'employee' })}
+          className="flex items-center gap-2 px-6 py-3 bg-white text-secondary border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:scale-105 transition-all"
+         >
+           <Users size={16} /> Create Employee
+         </button>
+         <button 
+          onClick={() => setRegisterModal({ isOpen: true, role: 'member' })}
+          className="flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
+         >
+           <User size={16} /> Register Member
+         </button>
+      </div>
+
       {/* Overview Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {stats.map((stat, i) => (
@@ -73,7 +107,17 @@ export default function SuperAdminDashboard({ stats: data }: { stats?: any }) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-secondary text-base truncate">{app.fullName}</p>
-                    <p className="text-xs text-gray-400 font-semibold mt-0.5 truncate">{app.designation || 'Field Employee'} • {app.block}, {app.district}</p>
+                    <p className="text-xs text-gray-400 font-semibold mt-0.5 truncate">
+                      <span className="text-primary font-black uppercase tracking-widest text-[9px] mr-2 px-2 py-0.5 bg-primary/5 rounded-md">
+                        {app.role.replace('_', ' ')}
+                      </span>
+                      {app.assignmentStatus === 'pending' && (
+                        <span className="text-amber-600 font-black uppercase tracking-widest text-[9px] mr-2 px-2 py-0.5 bg-amber-50 rounded-md border border-amber-100">
+                          Assignment Required
+                        </span>
+                      )}
+                      {app.designation || 'Staff'} • {app.block}, {app.district}
+                    </p>
                   </div>
                   <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                     <button 
@@ -157,6 +201,13 @@ export default function SuperAdminDashboard({ stats: data }: { stats?: any }) {
           </div>
         </div>
       </div>
+
+      <RegisterPartnerModal 
+        isOpen={registerModal.isOpen}
+        onClose={() => setRegisterModal({ ...registerModal, isOpen: false })}
+        onSuccess={() => window.location.reload()}
+        role={registerModal.role}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export type UserRole = 'super_admin' | 'vendor' | 'sub_vendor' | 'employee' | 'member';
+export type UserStatus = 'pending' | 'pending_assignment' | 'under_review' | 'approved' | 'active' | 'rejected' | 'suspended';
 
 export interface IUser extends Document {
   fullName: string;
@@ -14,8 +15,11 @@ export interface IUser extends Document {
   vendorCode?: string; // For Vendor/Sub-Vendor
   subVendorCode?: string; // For Sub-Vendor
   parentVendorId?: mongoose.Types.ObjectId; // Hierarchy link
+  campaignId?: mongoose.Types.ObjectId; // Hierarchical Campaign assignment
   assignedCampaigns?: mongoose.Types.ObjectId[]; // For Vendors/Sub-Vendors
-  status: 'pending' | 'active' | 'inactive' | 'rejected';
+  status: UserStatus;
+  assignmentStatus: 'pending' | 'completed';
+  referralSource: 'direct' | 'invite';
   otp?: string;
   otpExpires?: Date;
   state?: string;
@@ -37,6 +41,10 @@ export interface IUser extends Document {
   otpAttempts?: number;
   emailVerified: boolean;
   welcomeEmailSent: boolean;
+  parentVendorCode?: string; // Referral tracking
+  parentSubVendorCode?: string; // Referral tracking
+  parentEmployeeCode?: string; // Referral tracking
+  campaignCode?: string; // Referral tracking
   createdAt: Date;
   updatedAt: Date;
 }
@@ -58,12 +66,15 @@ const UserSchema: Schema = new Schema(
     vendorCode: { type: String, unique: true, sparse: true },
     subVendorCode: { type: String, unique: true, sparse: true },
     parentVendorId: { type: Schema.Types.ObjectId, ref: 'User' },
+    campaignId: { type: Schema.Types.ObjectId, ref: 'Campaign' },
     assignedCampaigns: [{ type: Schema.Types.ObjectId, ref: 'Campaign' }],
     status: { 
       type: String, 
-      enum: ['pending', 'active', 'inactive', 'rejected'], 
+      enum: ['pending', 'pending_assignment', 'under_review', 'approved', 'active', 'rejected', 'suspended'], 
       default: 'pending' 
     },
+    assignmentStatus: { type: String, enum: ['pending', 'completed'], default: 'pending' },
+    referralSource: { type: String, enum: ['direct', 'invite'], default: 'direct' },
     otp: { type: String },
     otpExpires: { type: Date },
     state: { type: String },
@@ -85,6 +96,10 @@ const UserSchema: Schema = new Schema(
     emailVerified: { type: Boolean, default: false },
     welcomeEmailSent: { type: Boolean, default: false },
     joiningDate: { type: Date },
+    parentVendorCode: { type: String },
+    parentSubVendorCode: { type: String },
+    parentEmployeeCode: { type: String },
+    campaignCode: { type: String },
   },
   { timestamps: true }
 );

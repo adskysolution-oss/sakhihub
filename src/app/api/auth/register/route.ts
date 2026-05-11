@@ -47,19 +47,52 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Hierarchy Logic: Find Parent Vendor if codes provided
+    // Hierarchy Logic: A + C Hybrid Enforcement
     let parentVendorId = undefined;
-    if (vendorCode) {
-      const vendor = await User.findOne({ vendorCode, role: 'vendor' });
-      if (vendor) parentVendorId = vendor._id;
+    let referralSource: 'direct' | 'invite' = 'direct';
+    let assignmentStatus: 'pending' | 'completed' = 'pending';
+
+    // 1. Resolve Parent Mapping (Option A: Invite/Referral)
+    const effectiveVendorCode = vendorCode || body.vendor;
+    const effectiveSubVendorCode = subVendorCode || body.subvendor;
+    const effectiveEmployeeCode = assignedEmployeeId || body.employee;
+
+    if (effectiveVendorCode) {
+      const vendor = await User.findOne({ vendorCode: effectiveVendorCode, role: 'vendor' });
+      if (vendor) {
+        parentVendorId = vendor._id;
+        referralSource = 'invite';
+        assignmentStatus = 'completed';
+      }
+    } 
+    
+    if (!parentVendorId && effectiveSubVendorCode) {
+      const subVendor = await User.findOne({ subVendorCode: effectiveSubVendorCode, role: 'sub_vendor' });
+      if (subVendor) {
+        parentVendorId = subVendor._id;
+        referralSource = 'invite';
+        assignmentStatus = 'completed';
+      }
+    } 
+    
+    if (!parentVendorId && effectiveEmployeeCode) {
+      const employee = await User.findOne({ 
+        $or: [{ employeeId: effectiveEmployeeCode }, { _id: effectiveEmployeeCode }], 
+        role: 'employee' 
+      });
+      if (employee) {
+        parentVendorId = employee._id;
+        referralSource = 'invite';
+        assignmentStatus = 'completed';
+      }
     }
 
     const hashedPassword = await hashPassword(password);
     const userRole = role || 'member';
 
-    // Business Logic: 
-    const userStatus = 'pending'; // Always pending until OTP/Admin approval
-    
+    // 2. Status Enforcement
+    const userStatus = userRole === 'super_admin' ? 'active' : 'pending';
+
     // OTP logic
     let otp = undefined;
     let otpExpires = undefined;
@@ -68,10 +101,16 @@ export async function POST(req: NextRequest) {
     if (email) {
       rawOtp = generateOTP();
       otp = hashOTP(rawOtp);
-      otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+      otpExpires = new Date(Date.now() + 10 * 60 * 1000);
     }
 
-    const newUser = await User.create({
+    // 3. Unique Code Generation (Never reuse parent's code as own)
+    const myVendorCode = userRole === 'vendor' ? `VND${Math.random().toString(36).substr(2, 6).toUpperCase()}` : undefined;
+    const mySubVendorCode = userRole === 'sub_vendor' ? `SVN${Math.random().toString(36).substr(2, 6).toUpperCase()}` : undefined;
+    const myEmployeeId = userRole === 'employee' ? `EMP${Math.random().toString(36).substr(2, 6).toUpperCase()}` : undefined;
+
+    // Create the user object, only including unique codes if they are generated
+    const userToCreate: any = {
       fullName,
       mobile,
       whatsapp,
@@ -87,15 +126,27 @@ export async function POST(req: NextRequest) {
       area,
       pincode,
       address,
+      aadhaarNumber: body.aadhaarNumber,
       status: userStatus,
+      assignmentStatus: (userRole === 'super_admin' || userRole === 'vendor') ? 'completed' : assignmentStatus,
+      referralSource,
       otp,
       otpExpires,
       lastOtpSentAt: email ? new Date() : undefined,
       emailVerified: false,
-      vendorCode: userRole === 'vendor' ? `VND${Math.random().toString(36).substr(2, 6).toUpperCase()}` : vendorCode,
-      subVendorCode: userRole === 'sub_vendor' ? `SVN${Math.random().toString(36).substr(2, 6).toUpperCase()}` : subVendorCode,
-      parentVendorId
-    });
+      parentVendorId: parentVendorId || undefined,
+      parentVendorCode: effectiveVendorCode || undefined,
+      parentSubVendorCode: effectiveSubVendorCode || undefined,
+      parentEmployeeCode: effectiveEmployeeCode || undefined,
+      campaignId: campaignId || undefined,
+      campaignCode: body.campaign || undefined
+    };
+
+    if (myVendorCode) userToCreate.vendorCode = myVendorCode;
+    if (mySubVendorCode) userToCreate.subVendorCode = mySubVendorCode;
+    if (myEmployeeId) userToCreate.employeeId = myEmployeeId;
+
+    const newUser = await User.create(userToCreate);
 
     // Send Email asynchronously if email provided
     if (email && rawOtp) {
