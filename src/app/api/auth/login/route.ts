@@ -41,10 +41,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Check status
-    if (user.status === 'pending') {
-      return errorResponse('Your account is pending approval by Admin.', 403);
-    }
+    // Check status - Block inactive/rejected/suspended
     if (user.status === 'inactive' || user.status === 'rejected') {
       return errorResponse('Your account is disabled or rejected.', 403);
     }
@@ -57,6 +54,7 @@ export async function POST(req: NextRequest) {
     const token = signToken({ 
       id: user._id, 
       role: user.role, 
+      status: user.status,
       fullName: user.fullName,
       mobile: user.mobile
     });

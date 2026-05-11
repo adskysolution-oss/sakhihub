@@ -44,23 +44,23 @@ export const ADMIN_DASHBOARD_LINKS = [
 
 export const VENDOR_DASHBOARD_LINKS = [
   { name: 'Overview', icon: LayoutDashboard, href: '/vendor/dashboard' },
-  { name: 'My Campaigns', icon: Target, href: '/vendor/campaigns' },
-  { name: 'Sub-Vendors', icon: Layout, href: '/vendor/sub-vendors' },
-  { name: 'Employees', icon: ClipboardList, href: '/vendor/employees' },
-  { name: 'Groups', icon: Users, href: '/vendor/groups' },
-  { name: 'Members', icon: User, href: '/vendor/members' },
-  { name: 'Payments', icon: IndianRupee, href: '/vendor/payments' },
-  { name: 'Documents', icon: FileText, href: '/vendor/documents' },
-  { name: 'Support', icon: Heart, href: '/vendor/support' },
+  { name: 'My Campaigns', icon: Target, href: '/vendor/dashboard/campaigns' },
+  { name: 'Sub-Vendors', icon: Layout, href: '/vendor/dashboard/sub-vendors' },
+  { name: 'Employees', icon: ClipboardList, href: '/vendor/dashboard/employees' },
+  { name: 'Groups', icon: Users, href: '/vendor/dashboard/groups' },
+  { name: 'Members', icon: User, href: '/vendor/dashboard/members' },
+  { name: 'Payments', icon: IndianRupee, href: '/vendor/dashboard/payments' },
+  { name: 'Documents', icon: FileText, href: '/vendor/dashboard/documents' },
+  { name: 'Support', icon: Heart, href: '/vendor/dashboard/support' },
 ];
 
 export const SUBVENDOR_DASHBOARD_LINKS = [
   { name: 'Overview', icon: LayoutDashboard, href: '/sub-vendor/dashboard' },
-  { name: 'Campaigns', icon: Target, href: '/sub-vendor/campaigns' },
-  { name: 'Employees', icon: ClipboardList, href: '/sub-vendor/employees' },
-  { name: 'Groups', icon: Users, href: '/sub-vendor/groups' },
-  { name: 'Members', icon: User, href: '/sub-vendor/members' },
-  { name: 'Payments', icon: IndianRupee, href: '/sub-vendor/payments' },
-  { name: 'Documents', icon: FileText, href: '/sub-vendor/documents' },
-  { name: 'Support', icon: Heart, href: '/sub-vendor/support' },
+  { name: 'Campaigns', icon: Target, href: '/sub-vendor/dashboard/campaigns' },
+  { name: 'Employees', icon: ClipboardList, href: '/sub-vendor/dashboard/employees' },
+  { name: 'Groups', icon: Users, href: '/sub-vendor/dashboard/groups' },
+  { name: 'Members', icon: User, href: '/sub-vendor/dashboard/members' },
+  { name: 'Payments', icon: IndianRupee, href: '/sub-vendor/dashboard/payments' },
+  { name: 'Documents', icon: FileText, href: '/sub-vendor/dashboard/documents' },
+  { name: 'Support', icon: Heart, href: '/sub-vendor/dashboard/support' },
 ];

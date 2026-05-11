@@ -48,6 +48,13 @@ export async function proxy(request: NextRequest) {
     try {
       const { payload }: any = await jwtVerify(token, JWT_SECRET);
       
+      // Status check for all roles except admin (Admins are active by default or handled differently)
+      if (payload.role !== 'super_admin' && payload.status !== 'active') {
+        if (pathname !== '/pending-approval') {
+          return NextResponse.redirect(new URL('/pending-approval', request.url));
+        }
+      }
+
       // Role-based access control
       if (isAdminPage && payload.role !== 'super_admin') {
         return NextResponse.redirect(new URL('/unauthorized', request.url));
@@ -69,6 +76,24 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  // Allow access to pending-approval page if authenticated
+  if (pathname === '/pending-approval') {
+    if (!token) return NextResponse.redirect(new URL('/login', request.url));
+    try {
+      const { payload }: any = await jwtVerify(token, JWT_SECRET);
+      if (payload.status === 'active') {
+        // Redirect active users away from pending page
+        if (payload.role === 'super_admin') return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+        if (payload.role === 'vendor') return NextResponse.redirect(new URL('/vendor/dashboard', request.url));
+        if (payload.role === 'sub_vendor') return NextResponse.redirect(new URL('/sub-vendor/dashboard', request.url));
+        if (payload.role === 'employee') return NextResponse.redirect(new URL('/employee/dashboard', request.url));
+        return NextResponse.redirect(new URL('/member/dashboard', request.url));
+      }
+    } catch (e) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
+
   return NextResponse.next();
 }
 
@@ -81,5 +106,6 @@ export const config = {
     '/member/:path*',
     '/login',
     '/register',
+    '/pending-approval',
   ],
 };

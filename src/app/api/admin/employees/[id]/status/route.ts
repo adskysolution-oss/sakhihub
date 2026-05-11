@@ -21,13 +21,19 @@ export async function PATCH(
     const { status, employeeId, designation, block, area } = await req.json();
     await dbConnect();
 
+    const userToUpdate = await User.findById(id);
+    if (!userToUpdate) {
+      return errorResponse('User not found', 404);
+    }
+
     const updateData: any = { status };
     if (employeeId) updateData.employeeId = employeeId;
     if (designation) updateData.designation = designation;
     if (block) updateData.block = block;
     if (area) updateData.area = area;
-    if (status === 'active' && !employeeId) {
-       // Generate a simple employee ID if not provided
+
+    // Only generate employeeId for field staff (employees)
+    if (status === 'active' && userToUpdate.role === 'employee' && !userToUpdate.employeeId && !employeeId) {
        const count = await User.countDocuments({ role: 'employee' });
        updateData.employeeId = `SKH-${new Date().getFullYear()}-${1000 + count}`;
     }
