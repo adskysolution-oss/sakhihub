@@ -8,7 +8,8 @@ import {
   Menu,
   X,
   Bell,
-  Search
+  Search,
+  Globe
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -131,6 +132,16 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                     <span>{item.name}</span>
                   </Link>
                 ))}
+              </div>
+
+              <div className="mt-8 pt-8 border-t border-[#f5f5f5] grid gap-2">
+                <Link
+                  href="/"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-secondary font-semibold hover:bg-gray-50 transition-all no-underline"
+                >
+                  <Globe size={20} className="text-primary" />
+                  <span>Visit Website</span>
+                </Link>
               </div>
             </nav>
 

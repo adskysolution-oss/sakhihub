@@ -48,8 +48,8 @@ export async function proxy(request: NextRequest) {
     try {
       const { payload }: any = await jwtVerify(token, JWT_SECRET);
       
-      // Hierarchy check (Option C) - Skip for Super Admin
-      if (payload.role !== 'super_admin' && payload.assignmentStatus === 'pending') {
+      // Hierarchy check (Option C) - Skip for Super Admin and Vendors
+      if (!['super_admin', 'vendor'].includes(payload.role) && payload.assignmentStatus === 'pending') {
         if (pathname !== '/pending-assignment') {
           return NextResponse.redirect(new URL('/pending-assignment', request.url));
         }

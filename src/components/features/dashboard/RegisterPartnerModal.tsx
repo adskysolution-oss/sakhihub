@@ -152,7 +152,7 @@ export default function RegisterPartnerModal({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar">
           <form onSubmit={handleSubmit} className="p-6 md:p-10">
           {error && (
             <div className="mb-6 p-4 bg-red-50 text-red-500 rounded-2xl text-xs font-bold border border-red-100 flex items-center gap-3">

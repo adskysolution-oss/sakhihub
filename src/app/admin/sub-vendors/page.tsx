@@ -10,6 +10,7 @@ import {
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
+import HierarchyDetailView from "@/components/features/dashboard/HierarchyDetailView";
 
 export default function SubVendorManagement() {
   const [subVendors, setSubVendors] = useState<any[]>([]);
@@ -17,7 +18,25 @@ export default function SubVendorManagement() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [selectedSV, setSelectedSV] = useState<any>(null);
+  const [hierarchyData, setHierarchyData] = useState<any>(null);
+  const [loadingHierarchy, setLoadingHierarchy] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [assignTarget, setAssignTarget] = useState<any>(null);
+  const [availableVendors, setAvailableVendors] = useState<any[]>([]);
+  const [isAssigning, setIsAssigning] = useState(false);
+
+  const fetchVendors = async () => {
+    try {
+      const res = await axios.get('/api/admin/vendors?status=active');
+      if (res.data.success) setAvailableVendors(res.data.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchVendors();
+  }, []);
 
   const fetchSubVendors = async () => {
     setLoading(true);
@@ -38,6 +57,33 @@ export default function SubVendorManagement() {
     return () => clearTimeout(timer);
   }, [search, status]);
 
+  // Body Scroll Lock
+  useEffect(() => {
+    if (selectedSV || showRegisterModal || assignTarget) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedSV, showRegisterModal, assignTarget]);
+
+  const fetchHierarchyDetails = async (sv: any) => {
+    setSelectedSV(sv);
+    setLoadingHierarchy(true);
+    try {
+      const res = await axios.get(`/api/admin/users/${sv._id}/hierarchy`);
+      if (res.data.success) {
+        setHierarchyData(res.data.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch hierarchy details", err);
+    } finally {
+      setLoadingHierarchy(false);
+    }
+  };
+
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
       const res = await axios.patch(`/api/admin/employees/${id}/status`, { status: newStatus });
@@ -47,6 +93,24 @@ export default function SubVendorManagement() {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleAssignVendor = async (vendorId: string) => {
+    if (!assignTarget || !vendorId) return;
+    setIsAssigning(true);
+    try {
+      const res = await axios.patch(`/api/admin/users/${assignTarget._id}/assign`, { 
+        parentVendorId: vendorId 
+      });
+      if (res.data.success) {
+        fetchSubVendors();
+        setAssignTarget(null);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsAssigning(false);
     }
   };
 
@@ -123,12 +187,16 @@ export default function SubVendorManagement() {
                       </td>
                       <td className="p-5">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 font-black text-xs">
-                            {sv.parentVendorId?.fullName?.[0] || 'V'}
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs ${sv.assignmentStatus === 'pending' ? 'bg-amber-50 text-amber-500' : 'bg-gray-100 text-gray-500'}`}>
+                            {sv.parentVendorId?.fullName?.[0] || (sv.assignmentStatus === 'pending' ? '?' : 'V')}
                           </div>
                           <div>
-                            <p className="text-xs font-black text-secondary">{sv.parentVendorId?.fullName || 'Direct Admin'}</p>
-                            <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">{sv.parentVendorId?.vendorCode || 'System'}</p>
+                            <p className={`text-xs font-black ${sv.assignmentStatus === 'pending' ? 'text-amber-500' : 'text-secondary'}`}>
+                              {sv.parentVendorId?.fullName || (sv.assignmentStatus === 'pending' ? 'Awaiting Assignment' : 'Direct Admin')}
+                            </p>
+                            <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">
+                              {sv.parentVendorId?.vendorCode || (sv.assignmentStatus === 'pending' ? 'Hierarchy Pending' : 'System')}
+                            </p>
                           </div>
                         </div>
                       </td>
@@ -144,12 +212,39 @@ export default function SubVendorManagement() {
                       </td>
                       <td className="p-5">
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
-                            onClick={() => setSelectedSV(sv)}
-                            className="p-2.5 bg-secondary text-white rounded-xl shadow-lg hover:scale-110 transition-transform"
-                          >
-                            <ExternalLink size={16} />
-                          </button>
+                          {sv.assignmentStatus === 'pending' ? (
+                            <button 
+                              onClick={() => setAssignTarget(sv)}
+                              className="p-2.5 bg-primary text-white rounded-xl shadow-lg hover:scale-110 transition-transform"
+                              title="Assign Vendor"
+                            >
+                              <Link2 size={16} />
+                            </button>
+                          ) : sv.status === 'pending' ? (
+                            <>
+                              <button 
+                                onClick={() => handleStatusUpdate(sv._id, 'active')}
+                                className="p-2.5 bg-green-500 text-white rounded-xl shadow-lg hover:scale-110 transition-transform"
+                                title="Approve Sub-Vendor"
+                              >
+                                <ShieldCheck size={16} />
+                              </button>
+                              <button 
+                                onClick={() => handleStatusUpdate(sv._id, 'rejected')}
+                                className="p-2.5 bg-red-500 text-white rounded-xl shadow-lg hover:scale-110 transition-transform"
+                                title="Reject Sub-Vendor"
+                              >
+                                <ShieldAlert size={16} />
+                              </button>
+                            </>
+                          ) : (
+                            <button 
+                              onClick={() => fetchHierarchyDetails(sv)}
+                              className="p-2.5 bg-secondary text-white rounded-xl shadow-lg hover:scale-110 transition-transform"
+                            >
+                              <ExternalLink size={16} />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -162,92 +257,84 @@ export default function SubVendorManagement() {
 
         <AnimatePresence>
           {selectedSV && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-8 overflow-hidden">
               <motion.div 
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                onClick={() => setSelectedSV(null)}
+                onClick={() => {
+                  setSelectedSV(null);
+                  setHierarchyData(null);
+                }}
                 className="absolute inset-0 bg-secondary/60 backdrop-blur-md" 
               />
               <motion.div 
                 initial={{ scale: 0.9, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                className="relative bg-white w-full max-w-4xl rounded-[40px] overflow-hidden shadow-2xl"
+                className="relative bg-white w-full max-w-6xl h-full md:h-full md:max-h-[90vh] rounded-t-[40px] md:rounded-[40px] overflow-hidden shadow-2xl z-10"
               >
-                <div className="bg-gradient-to-r from-primary to-secondary p-12 text-white relative">
-                  <button 
-                    onClick={() => setSelectedSV(null)}
-                    className="absolute right-8 top-8 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all"
-                  ><X size={20} /></button>
-                  <div className="flex gap-8 items-center">
-                    <div className="w-24 h-24 rounded-[32px] bg-white text-primary flex items-center justify-center text-4xl font-black shadow-2xl shadow-black/20">
-                      {selectedSV.fullName[0]}
-                    </div>
-                    <div>
-                      <h3 className="text-4xl font-black tracking-tight">{selectedSV.fullName}</h3>
-                      <div className="flex items-center gap-4 mt-3">
-                        <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/20">
-                          Sub-Vendor: {selectedSV.subVendorCode}
-                        </span>
-                        <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/20 flex items-center gap-1">
-                          <Link2 size={10} /> {selectedSV.parentVendorId?.fullName || 'Independent'}
-                        </span>
-                      </div>
-                    </div>
+                {loadingHierarchy ? (
+                  <div className="h-[600px] flex flex-col items-center justify-center gap-4">
+                    <div className="w-12 h-12 border-4 border-gray-100 border-t-primary rounded-full animate-spin"></div>
+                    <p className="text-gray-400 font-bold animate-pulse">Assembling Network Hierarchy...</p>
                   </div>
-                </div>
-                
-                <div className="p-12 grid grid-cols-1 md:grid-cols-2 gap-12">
-                  <div className="flex flex-col gap-8">
-                    <div>
-                      <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Identity Information</h4>
-                      <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl">
-                          <Phone size={18} className="text-primary" />
-                          <span className="font-black text-secondary">{selectedSV.mobile}</span>
-                        </div>
-                        <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl">
-                          <Mail size={18} className="text-primary" />
-                          <span className="font-black text-secondary">{selectedSV.email || 'No email provided'}</span>
-                        </div>
-                      </div>
-                    </div>
+                ) : hierarchyData ? (
+                  <HierarchyDetailView 
+                    data={hierarchyData} 
+                    onClose={() => {
+                      setSelectedSV(null);
+                      setHierarchyData(null);
+                    }}
+                    onStatusUpdate={handleStatusUpdate}
+                  />
+                ) : (
+                  <div className="p-20 text-center">
+                    <p className="text-red-500 font-bold">Failed to load hierarchy data. Please try again.</p>
+                    <button onClick={() => setSelectedSV(null)} className="btn-primary px-8 py-3 mt-4">Close</button>
                   </div>
-                  <div className="flex flex-col gap-8">
-                    <div>
-                      <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Operations Detail</h4>
-                      <div className="flex flex-col gap-4">
-                        <div className="p-5 bg-primary/5 rounded-2xl border border-primary/5">
-                          <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-1">Assigned Area</p>
-                          <p className="font-black text-secondary text-lg">{selectedSV.block}, {selectedSV.district}</p>
-                        </div>
-                        <div className="p-5 bg-primary/5 rounded-2xl border border-primary/5">
-                          <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-1">Affiliation</p>
-                          <p className="font-black text-secondary text-lg">{selectedSV.parentVendorId?.fullName || 'Direct'}</p>
-                        </div>
-                      </div>
-                    </div>
+                )}
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {assignTarget && (
+            <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
+              <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                onClick={() => setAssignTarget(null)}
+                className="absolute inset-0 bg-secondary/60 backdrop-blur-md" 
+              />
+              <motion.div 
+                initial={{ scale: 0.9, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 20, opacity: 0 }}
+                className="relative bg-white w-full max-w-md rounded-[40px] p-10 shadow-2xl"
+              >
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 text-primary">
+                    <Link2 size={32} />
                   </div>
+                  <h3 className="text-2xl font-black text-secondary">Assign Vendor</h3>
+                  <p className="text-gray-400 font-bold text-sm mt-1">Select a parent vendor for {assignTarget.fullName}</p>
                 </div>
 
-                <div className="p-8 bg-gray-50 flex gap-4 justify-end">
-                   {selectedSV.status === 'pending' ? (
-                     <>
-                        <button 
-                          onClick={() => handleStatusUpdate(selectedSV._id, 'rejected')}
-                          className="px-8 py-4 rounded-2xl border-2 border-red-100 text-red-500 font-black text-sm uppercase tracking-widest hover:bg-red-50 transition-all"
-                        >Reject</button>
-                        <button 
-                          onClick={() => handleStatusUpdate(selectedSV._id, 'active')}
-                          className="btn-primary px-12 py-4 shadow-xl shadow-primary/20"
-                        >Activate Partner</button>
-                     </>
-                   ) : (
-                     <button 
-                       onClick={() => handleStatusUpdate(selectedSV._id, selectedSV.status === 'active' ? 'inactive' : 'active')}
-                       className={`px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all ${selectedSV.status === 'active' ? 'bg-red-50 text-red-500 hover:bg-red-100' : 'bg-green-50 text-green-600 hover:bg-green-100'}`}
-                     >
-                       {selectedSV.status === 'active' ? 'Revoke Access' : 'Restore Access'}
-                     </button>
-                   )}
+                <div className="flex flex-col gap-4">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Available Vendors</label>
+                  <select 
+                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all appearance-none"
+                    onChange={(e) => handleAssignVendor(e.target.value)}
+                    disabled={isAssigning}
+                    defaultValue=""
+                  >
+                    <option value="" disabled>Choose a vendor...</option>
+                    {availableVendors.map(v => (
+                      <option key={v._id} value={v._id}>{v.fullName} ({v.vendorCode})</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="mt-8 pt-8 border-t border-gray-50 flex gap-3">
+                  <button 
+                    onClick={() => setAssignTarget(null)}
+                    className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-gray-400 hover:bg-gray-50 transition-all"
+                  >Cancel</button>
                 </div>
               </motion.div>
             </div>

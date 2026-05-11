@@ -27,7 +27,7 @@ export async function PATCH(
     }
 
     // Strict Hierarchy Validation (Option C enforcement)
-    if (status === 'active' && userToUpdate.assignmentStatus === 'pending' && userToUpdate.role !== 'super_admin') {
+    if (status === 'active' && userToUpdate.assignmentStatus === 'pending' && !['super_admin', 'vendor'].includes(userToUpdate.role)) {
       return errorResponse('Hierarchy Mapping Required. User must be assigned to a parent role/campaign before activation.', 400);
     }
 

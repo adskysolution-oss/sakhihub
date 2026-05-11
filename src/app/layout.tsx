@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/shared/Navbar";
-import Footer from "@/components/shared/Footer";
-import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import MainLayoutWrapper from "@/components/shared/MainLayoutWrapper";
 import { LanguageProvider } from "@/context/LanguageContext";
 
 export const metadata: Metadata = {
@@ -20,12 +18,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <LanguageProvider>
-          <Navbar />
-          <main style={{ minHeight: 'calc(100vh - 80px)', paddingTop: '80px' }}>
+          <MainLayoutWrapper>
             {children}
-          </main>
-          <Footer />
-          <WhatsAppButton />
+          </MainLayoutWrapper>
         </LanguageProvider>
       </body>
     </html>
