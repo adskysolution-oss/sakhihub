@@ -20,6 +20,9 @@ export async function GET(
     }
 
     await dbConnect();
+    
+    // Explicitly reference models to ensure they are registered for populate()
+    const _Campaign = Campaign; 
 
     // 1. Fetch User Profile with populated parent/campaign
     const user = await User.findById(id)

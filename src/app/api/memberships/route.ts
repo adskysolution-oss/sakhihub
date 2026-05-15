@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
     await dbConnect();
     const body = await req.json();
     const { memberId, groupId, paymentMode } = body;
+    console.log('Membership POST body:', { memberId, groupId, paymentMode });
 
     // Verify member exists
     const member = await WomenMember.findById(memberId);
@@ -25,23 +26,25 @@ export async function POST(req: NextRequest) {
       return errorResponse('Member already has an active membership', 400);
     }
 
-    // Generate Membership ID and Receipt Number
+    // Generate Membership ID and Receipt Number with timestamp for uniqueness
     const count = await Membership.countDocuments();
     const year = new Date().getFullYear();
-    const membershipId = `SH-${year}-${1000 + count + 1}`;
-    const receiptNumber = `REC-${year}-${2000 + count + 1}`;
+    const ts = Date.now().toString().slice(-4);
+    const membershipId = `SH-${year}-${1000 + count + 1}-${ts}`;
+    const receiptNumber = `REC-${year}-${2000 + count + 1}-${ts}`;
 
     const membership = await Membership.create({
       membershipId,
       receiptNumber,
       memberId,
-      groupId,
+      groupId: groupId || null, // Use null for optional fields to satisfy validation
       employeeId: (session as any).id,
       amount: 100,
       paymentMode,
       paymentStatus: 'Paid',
       paymentDate: new Date()
     });
+    console.log('Membership created successfully:', membership._id);
 
     // Update member status
     await WomenMember.findByIdAndUpdate(memberId, { membershipStatus: 'paid' });
@@ -51,6 +54,7 @@ export async function POST(req: NextRequest) {
 
     return successResponse(membership, 'Membership created successfully', 201);
   } catch (error: any) {
+    console.error('Membership Creation Error:', error);
     return errorResponse(error.message, 500);
   }
 }

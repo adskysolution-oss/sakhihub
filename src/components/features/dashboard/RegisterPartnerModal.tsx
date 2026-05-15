@@ -5,10 +5,13 @@ import {
   X, UserPlus, Phone, Mail, 
   MapPin, Briefcase, ShieldCheck, 
   Sparkles, CheckCircle2, ChevronDown, User,
-  Target
+  Target, AlertCircle, ShieldAlert
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import PasswordField from '@/components/ui/PasswordField';
+import { validatePassword } from '@/utils/validation';
+import { usePincodeAutofill } from '@/hooks/usePincodeAutofill';
 
 interface RegisterPartnerModalProps {
   isOpen: boolean;
@@ -29,13 +32,14 @@ export default function RegisterPartnerModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [vendors, setVendors] = useState<any[]>([]);
+  const [showOtpStep, setShowOtpStep] = useState(false);
+  const [otp, setOtp] = useState("");
   
   const [formData, setFormData] = useState({
     fullName: '',
     mobile: '',
-    whatsapp: '',
     email: '',
-    password: 'Password@123',
+    password: '',
     role: role,
     parentVendorId: initialParentId || '',
     vendorCode: initialVendorCode || '',
@@ -66,6 +70,8 @@ export default function RegisterPartnerModal({
   useEffect(() => {
     if (isOpen) {
       setFetching(true);
+      setShowOtpStep(false);
+      setOtp("");
       const fetchData = async () => {
         try {
           const promises: any[] = [axios.get('/api/admin/campaigns?status=active')];
@@ -87,7 +93,11 @@ export default function RegisterPartnerModal({
       fetchData();
       
       // Update role in form if prop changes
-      setFormData(prev => ({ ...prev, role }));
+      setFormData(prev => ({ 
+        ...prev, 
+        role,
+        password: '' // Reset password on open
+      }));
 
       // Body scroll lock
       document.body.style.overflow = 'hidden';
@@ -97,18 +107,66 @@ export default function RegisterPartnerModal({
     }
   }, [isOpen, role, initialParentId]);
 
+  const { loading: pincodeLoading } = usePincodeAutofill(formData.pincode, (data) => {
+    setFormData(prev => ({
+      ...prev,
+      state: data.state,
+      district: data.district,
+      block: data.block,
+      area: data.area[0] || ''
+    }));
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
+    if (!formData.email) {
+      setError("Email is required for verification");
+      return;
+    }
+
+    const passValid = validatePassword(formData.password);
+    if (!passValid.isValid) {
+      setError(`Weak password: ${passValid.errors.join(', ')}`);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await axios.post('/api/auth/register', formData);
+      if (res.data.success) {
+        if (res.data.data.requiresOtp) {
+          setShowOtpStep(true);
+        } else {
+          onSuccess();
+          onClose();
+        }
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otp.length !== 6) return;
     setLoading(true);
     setError("");
     try {
-      const res = await axios.post('/api/auth/register', formData);
+      const res = await axios.post('/api/auth/verify-otp', {
+        email: formData.email,
+        otp,
+        purpose: 'Registration'
+      });
       if (res.data.success) {
         onSuccess();
         onClose();
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Registration failed");
+      setError(err.response?.data?.message || "Verification failed");
     } finally {
       setLoading(false);
     }
@@ -146,301 +204,308 @@ export default function RegisterPartnerModal({
               <UserPlus size={32} className="hidden md:block" />
             </div>
             <div>
-              <h3 className="text-xl md:text-3xl font-black tracking-tight leading-tight">Register {roleTitle}</h3>
-              <p className="text-white/70 font-bold text-[10px] uppercase tracking-[0.2em] mt-1">Onboarding Flow</p>
+              <h3 className="text-xl md:text-3xl font-black tracking-tight leading-tight">
+                {showOtpStep ? "Verify Registration" : `Register ${roleTitle}`}
+              </h3>
+              <p className="text-white/70 font-bold text-[10px] uppercase tracking-[0.2em] mt-1">
+                {showOtpStep ? "Security Verification" : "Onboarding Flow"}
+              </p>
             </div>
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar">
-          <form onSubmit={handleSubmit} className="p-6 md:p-10">
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 text-red-500 rounded-2xl text-xs font-bold border border-red-100 flex items-center gap-3">
-              <ShieldCheck size={18} /> {error}
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {!showOtpStep ? (
+              <motion.div
+                key="form"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+              >
+                <form id="partner-reg-form" onSubmit={handleSubmit} className="p-6 md:p-10">
+                  {error && (
+                    <div className="mb-6 p-4 bg-red-50 text-red-500 rounded-2xl text-xs font-bold border border-red-100 flex items-center gap-3">
+                      <ShieldAlert size={18} /> {error}
+                    </div>
+                  )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
-              <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <input 
-                  required
-                  type="text" 
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                  placeholder="Enter full name"
-                  className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-                />
-              </div>
-            </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
+                      <div className="relative">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <input 
+                          required
+                          type="text" 
+                          value={formData.fullName}
+                          onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                          placeholder="Enter full name"
+                          className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                        />
+                      </div>
+                    </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Mobile Number</label>
-              <div className="relative">
-                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <input 
-                  required
-                  type="tel" 
-                  value={formData.mobile}
-                  onChange={(e) => setFormData({...formData, mobile: e.target.value})}
-                  placeholder="10 digit mobile"
-                  className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-                />
-              </div>
-            </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Mobile Number</label>
+                      <div className="relative">
+                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <input 
+                          required
+                          type="tel" 
+                          value={formData.mobile}
+                          onChange={(e) => setFormData({...formData, mobile: e.target.value})}
+                          placeholder="10 digit mobile"
+                          className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                        />
+                      </div>
+                    </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">WhatsApp Number</label>
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
-                  <Phone size={18} />
-                </div>
-                <input 
-                  type="tel" 
-                  value={formData.whatsapp}
-                  onChange={(e) => setFormData({...formData, whatsapp: e.target.value})}
-                  placeholder="WhatsApp (Optional)"
-                  className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-                />
-              </div>
-            </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
+                      <div className="relative">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <input 
+                          required
+                          type="email" 
+                          value={formData.email}
+                          onChange={(e) => setFormData({...formData, email: e.target.value})}
+                          placeholder="Email (Required)"
+                          className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                        />
+                      </div>
+                    </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <input 
-                  type="email" 
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  placeholder="Email (Optional)"
-                  className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-                />
-              </div>
-            </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Assigned Campaign</label>
+                      <div className="relative">
+                        <Target className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <select 
+                          required
+                          value={formData.campaignId}
+                          onChange={(e) => setFormData({...formData, campaignId: e.target.value})}
+                          className="w-full pl-12 pr-10 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all appearance-none"
+                        >
+                          <option value="">Select Campaign</option>
+                          {campaigns.map(c => (
+                            <option key={c._id} value={c._id}>{c.title}</option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                      </div>
+                    </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Assigned Campaign</label>
-              <div className="relative">
-                <Target className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <select 
-                  required
-                  value={formData.campaignId}
-                  onChange={(e) => setFormData({...formData, campaignId: e.target.value})}
-                  className="w-full pl-12 pr-10 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all appearance-none"
-                >
-                  <option value="">Select Campaign</option>
-                  {campaigns.map(c => (
-                    <option key={c._id} value={c._id}>{c.title}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
-              </div>
-            </div>
+                    <div className="col-span-1 md:col-span-2">
+                       <PasswordField
+                         label="Secure Password"
+                         value={formData.password}
+                         onChange={(e) => setFormData({...formData, password: e.target.value})}
+                         placeholder="Min 8 chars, 1 Upper, 1 Special"
+                         required
+                       />
+                    </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Aadhaar Number</label>
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
-                  <ShieldCheck size={18} />
-                </div>
-                <input 
-                  type="text" 
-                  maxLength={12}
-                  value={formData.aadhaarNumber}
-                  onChange={(e) => setFormData({...formData, aadhaarNumber: e.target.value})}
-                  placeholder="12 digit Aadhaar"
-                  className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-                />
-              </div>
-            </div>
+                    {role !== 'vendor' && role !== 'sub_vendor' && (
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Aadhaar Number</label>
+                        <div className="relative group">
+                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
+                            <ShieldCheck size={18} />
+                          </div>
+                          <input 
+                            type="text" 
+                            maxLength={12}
+                            value={formData.aadhaarNumber}
+                            onChange={(e) => setFormData({...formData, aadhaarNumber: e.target.value})}
+                            placeholder="12 digit Aadhaar"
+                            className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                          />
+                        </div>
+                      </div>
+                    )}
 
-            {/* Role Specific: Vendor Business Details */}
-            {role === 'vendor' && (
-              <>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Business Name</label>
-                  <div className="relative">
-                    <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    <input 
+                    {(role === 'vendor' || role === 'sub_vendor') && (
+                      <div className="space-y-2 col-span-1 md:col-span-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Organization / NGO Name</label>
+                        <div className="relative">
+                          <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                          <input 
+                            required
+                            type="text" 
+                            value={formData.businessName}
+                            onChange={(e) => setFormData({...formData, businessName: e.target.value})}
+                            placeholder="Organization Name"
+                            className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {role === 'member' && (
+                      <>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Age</label>
+                          <input 
+                            required
+                            type="number" 
+                            value={formData.age}
+                            onChange={(e) => setFormData({...formData, age: e.target.value})}
+                            placeholder="Member Age"
+                            className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Marital Status</label>
+                          <select 
+                            value={formData.maritalStatus}
+                            onChange={(e) => setFormData({...formData, maritalStatus: e.target.value as any})}
+                            className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                          >
+                            <option value="Married">Married</option>
+                            <option value="Unmarried">Unmarried</option>
+                          </select>
+                        </div>
+                      </>
+                    )}
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">State</label>
+                      <input 
+                        required
+                        type="text" 
+                        value={formData.state}
+                        onChange={(e) => setFormData({...formData, state: e.target.value})}
+                        placeholder="Enter State"
+                        className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">District</label>
+                      <input 
+                        required
+                        type="text" 
+                        value={formData.district}
+                        onChange={(e) => setFormData({...formData, district: e.target.value})}
+                        placeholder="Enter District"
+                        className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Pincode</label>
+                      <div className="relative">
+                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <input 
+                          required
+                          type="text" 
+                          maxLength={6}
+                          value={formData.pincode}
+                          onChange={(e) => setFormData({...formData, pincode: e.target.value.replace(/\D/g, '')})}
+                          placeholder="6 digit pincode"
+                          className="w-full pl-12 pr-10 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                        />
+                        {pincodeLoading && (
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Address</label>
+                    <textarea 
                       required
-                      type="text" 
-                      value={formData.businessName}
-                      onChange={(e) => setFormData({...formData, businessName: e.target.value})}
-                      placeholder="Organization Name"
-                      className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                      rows={2}
+                      value={formData.address}
+                      onChange={(e) => setFormData({...formData, address: e.target.value})}
+                      placeholder="Residential / Office Address"
+                      className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all resize-none"
                     />
                   </div>
+                </form>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="otp"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="p-8 md:p-12 flex flex-col items-center text-center"
+              >
+                <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                  <ShieldCheck size={40} className="text-primary" />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">PAN Number</label>
-                  <div className="relative">
-                    <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    <input 
-                      required
-                      type="text" 
-                      maxLength={10}
-                      value={formData.panNumber}
-                      onChange={(e) => setFormData({...formData, panNumber: e.target.value.toUpperCase()})}
-                      placeholder="ABCDE1234F"
-                      className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all uppercase"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
+                <h3 className="text-2xl font-black text-secondary mb-2">Verify OTP</h3>
+                <p className="text-gray-500 font-bold mb-8">
+                  A verification code has been sent to <br/>
+                  <span className="text-primary">{formData.email}</span>
+                </p>
 
-            {/* Role Specific: Member Details */}
-            {role === 'member' && (
-              <>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Age</label>
+                <form onSubmit={handleVerifyOtp} className="w-full space-y-6">
                   <input 
                     required
-                    type="number" 
-                    value={formData.age}
-                    onChange={(e) => setFormData({...formData, age: e.target.value})}
-                    placeholder="Member Age"
-                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                    type="text"
+                    maxLength={6}
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                    placeholder="Enter 6-digit OTP"
+                    className="w-full text-center text-3xl font-black tracking-[1em] py-5 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:border-primary transition-all outline-none"
                   />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Marital Status</label>
-                  <select 
-                    value={formData.maritalStatus}
-                    onChange={(e) => setFormData({...formData, maritalStatus: e.target.value as any})}
-                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-                  >
-                    <option value="Married">Married</option>
-                    <option value="Unmarried">Unmarried</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Membership Type</label>
-                  <select 
-                    value={formData.membershipStatus}
-                    onChange={(e) => setFormData({...formData, membershipStatus: e.target.value as any})}
-                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-                  >
-                    <option value="free">Free Member</option>
-                    <option value="paid">Paid Member</option>
-                  </select>
-                </div>
-              </>
+                  
+                  {error && (
+                    <div className="p-4 bg-red-50 text-red-500 rounded-xl text-xs font-bold border border-red-100">
+                      {error}
+                    </div>
+                  )}
+
+                  <div className="flex gap-4">
+                    <button 
+                      type="button"
+                      onClick={() => setShowOtpStep(false)}
+                      className="flex-1 py-4 border-2 border-gray-200 text-gray-500 font-black text-xs uppercase tracking-widest rounded-2xl"
+                    >Back</button>
+                    <button 
+                      type="submit"
+                      disabled={loading || otp.length !== 6}
+                      className="flex-[2] py-4 bg-primary text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-lg shadow-primary/20 disabled:opacity-50"
+                    >
+                      {loading ? "Verifying..." : "Complete Registration"}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
             )}
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">State</label>
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
-                  <MapPin size={18} />
-                </div>
-                <input 
-                  required
-                  type="text" 
-                  value={formData.state}
-                  onChange={(e) => setFormData({...formData, state: e.target.value})}
-                  placeholder="Enter State"
-                  className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">District</label>
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
-                  <MapPin size={18} />
-                </div>
-                <input 
-                  required
-                  type="text" 
-                  value={formData.district}
-                  onChange={(e) => setFormData({...formData, district: e.target.value})}
-                  placeholder="Enter District"
-                  className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Block / Area</label>
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
-                  <MapPin size={18} />
-                </div>
-                <input 
-                  required
-                  type="text" 
-                  value={formData.block}
-                  onChange={(e) => setFormData({...formData, block: e.target.value})}
-                  placeholder="Enter Block"
-                  className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Pincode</label>
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
-                  <MapPin size={18} />
-                </div>
-                <input 
-                  required
-                  type="text" 
-                  maxLength={6}
-                  value={formData.pincode}
-                  onChange={(e) => setFormData({...formData, pincode: e.target.value})}
-                  placeholder="6 digit pincode"
-                  className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 space-y-2">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Address</label>
-            <textarea 
-              required
-              rows={2}
-              value={formData.address}
-              onChange={(e) => setFormData({...formData, address: e.target.value})}
-              placeholder="Residential / Office Address"
-              className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all resize-none"
-            />
-          </div>
-
-          </form>
+          </AnimatePresence>
         </div>
 
-        <div className="p-6 md:p-10 bg-gray-50 border-t border-gray-100 shrink-0">
-          <div className="flex flex-col md:flex-row gap-4">
-            <button 
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-4 rounded-2xl border-2 border-gray-200 text-gray-500 font-black text-xs uppercase tracking-[0.2em] hover:bg-gray-100 transition-all order-2 md:order-1"
-            >Cancel</button>
-            <button 
-              type="button"
-              disabled={loading}
-              onClick={handleSubmit}
-              className="flex-[2] py-4 bg-gradient-to-r from-primary to-secondary text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:scale-100 order-1 md:order-2"
-            >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <><Sparkles size={18} /> Create {roleTitle}</>
-              )}
-            </button>
+        {!showOtpStep && (
+          <div className="p-6 md:p-10 bg-gray-50 border-t border-gray-100 shrink-0">
+            <div className="flex flex-col md:flex-row gap-4">
+              <button 
+                type="button"
+                onClick={onClose}
+                className="flex-1 py-4 rounded-2xl border-2 border-gray-200 text-gray-500 font-black text-xs uppercase tracking-[0.2em] hover:bg-gray-100 transition-all order-2 md:order-1"
+              >Cancel</button>
+              <button 
+                type="submit"
+                form="partner-reg-form"
+                disabled={loading}
+                className="flex-[2] py-4 bg-gradient-to-r from-primary to-secondary text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:scale-100 order-1 md:order-2"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <><Sparkles size={18} /> Send Verification Code</>
+                )}
+              </button>
+            </div>
+            <p className="mt-4 text-center text-[9px] text-gray-400 font-bold uppercase tracking-widest leading-relaxed">
+              Account will be created after OTP verification.
+            </p>
           </div>
-          <p className="mt-4 text-center text-[9px] text-gray-400 font-bold uppercase tracking-widest leading-relaxed">
-            Approval required by Admin before dashboard access.
-          </p>
-        </div>
+        )}
       </motion.div>
     </div>
   );
 }
+

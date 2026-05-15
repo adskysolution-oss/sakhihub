@@ -9,6 +9,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import PasswordField from "@/components/ui/PasswordField";
+import { validatePassword } from "@/utils/validation";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -72,6 +74,11 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match");
+      return;
+    }
+    const passValid = validatePassword(newPassword);
+    if (!passValid.isValid) {
+      setError(`Weak password: ${passValid.errors.join(', ')}`);
       return;
     }
     setLoading(true);
@@ -215,32 +222,24 @@ export default function ForgotPasswordPage() {
               <motion.form key="step3" {...fadeInUp} onSubmit={handleResetPassword} className="flex flex-col gap-6">
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-black text-gray-500 uppercase tracking-widest pl-2">New Password</label>
-                  <div className="relative group">
-                    <Lock size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" />
-                    <input
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="********"
-                      className="w-full pl-14 pr-5 py-4 md:py-5 rounded-3xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/30 transition-all font-bold text-lg"
-                      required
-                    />
-                  </div>
+                  <PasswordField
+                    name="newPassword"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="********"
+                    required
+                  />
                 </div>
 
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-black text-gray-500 uppercase tracking-widest pl-2">Confirm Password</label>
-                  <div className="relative group">
-                    <ShieldCheck size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" />
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="********"
-                      className="w-full pl-14 pr-5 py-4 md:py-5 rounded-3xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/30 transition-all font-bold text-lg"
-                      required
-                    />
-                  </div>
+                  <PasswordField
+                    name="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="********"
+                    required
+                  />
                 </div>
 
                 {error && (

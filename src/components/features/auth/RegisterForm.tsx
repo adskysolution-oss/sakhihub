@@ -5,10 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Phone, MapPin, Lock, Upload, CheckCircle,
   ArrowRight, ArrowLeft, Users, Briefcase, GraduationCap, Sparkles, ShieldCheck,
-  MessageCircle, ClipboardList, BookOpen, Clock, AlertCircle, Mail
+  MessageCircle, ClipboardList, BookOpen, Clock, AlertCircle, Mail, Eye, EyeOff, Check
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
+import PasswordField from "@/components/ui/PasswordField";
+import { validatePassword } from "@/utils/validation";
+import { usePincodeAutofill } from "@/hooks/usePincodeAutofill";
 
 const steps = [
   { id: 1, name: "Role", hindi: "भूमिका" },
@@ -40,7 +43,6 @@ export default function RegisterForm() {
     role: "",
     fullName: "",
     mobile: "",
-    whatsapp: "",
     email: "",
     designation: "",
     qualification: "",
@@ -90,7 +92,6 @@ export default function RegisterForm() {
   }, []);
 
   const [nearbyEmployees, setNearbyEmployees] = useState<any[]>([]);
-  const [pincodeLoading, setPincodeLoading] = useState(false);
   const [discoveryLoading, setDiscoveryLoading] = useState(false);
   const [requestStatus, setRequestStatus] = useState<{ [key: string]: string }>({});
 
@@ -101,33 +102,16 @@ export default function RegisterForm() {
     }
   }, [resendTimer]);
 
-  React.useEffect(() => {
-    if (formData.pincode.length === 6) {
-      handlePincodeLookup(formData.pincode);
-    }
-  }, [formData.pincode]);
-
-  const handlePincodeLookup = async (code: string) => {
-    setPincodeLoading(true);
-    try {
-      const res = await fetch(`/api/pincode/${code}`);
-      const result = await res.json();
-      if (result.success) {
-        setFormData(prev => ({
-          ...prev,
-          state: result.data.state,
-          district: result.data.district,
-          block: result.data.block,
-          area: result.data.area[0] || ""
-        }));
-        fetchNearbyEmployees(code, result.data.district, result.data.block);
-      }
-    } catch (err) {
-      console.error("Pincode lookup failed", err);
-    } finally {
-      setPincodeLoading(false);
-    }
-  };
+  const { loading: pincodeLoading } = usePincodeAutofill(formData.pincode, (data) => {
+    setFormData(prev => ({
+      ...prev,
+      state: data.state,
+      district: data.district,
+      block: data.block,
+      area: data.area[0] || ""
+    }));
+    fetchNearbyEmployees(formData.pincode, data.district, data.block);
+  });
 
   const fetchNearbyEmployees = async (pincode: string, district: string, block: string) => {
     setDiscoveryLoading(true);
@@ -162,6 +146,18 @@ export default function RegisterForm() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!formData.email) {
+      setError("Email is required for verification");
+      return;
+    }
+
+    // Password Strength Validation
+    const passwordValid = validatePassword(formData.password);
+    if (!passwordValid.isValid) {
+      setError(`Password is too weak: ${passwordValid.errors.join(', ')}`);
+      return;
+    }
 
     // Validation
     if (formData.mobile.length !== 10 || !/^\d{10}$/.test(formData.mobile)) {
@@ -442,13 +438,6 @@ export default function RegisterForm() {
                     {formData.role === 'employee' && (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                         <div className="flex flex-col gap-2">
-                          <label className="text-sm font-black text-gray-700">WhatsApp No</label>
-                          <div className="relative">
-                            <MessageCircle size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleChange} placeholder="WhatsApp No" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
-                          </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
                           <label className="text-sm font-black text-gray-700">Apply For</label>
                           <div className="relative">
                             <ClipboardList size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -598,19 +587,41 @@ export default function RegisterForm() {
                 {step === 5 && (
                   <motion.div key="step5" {...fadeInUp} className="flex flex-col gap-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                      <div className="flex flex-col gap-2">
-                        <label className="text-sm font-black text-gray-700">Password</label>
-                        <div className="relative">
-                          <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                          <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="********" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-sm font-black text-gray-700">Confirm Password</label>
-                        <div className="relative">
-                          <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                          <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="********" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
-                        </div>
+                      <PasswordField
+                        label="Password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="********"
+                        required
+                      />
+                      <PasswordField
+                        label="Confirm Password"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        placeholder="********"
+                        required
+                      />
+                    </div>
+
+                    <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100">
+                      <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Password Requirements</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {[
+                          { label: '8+ Characters', check: formData.password.length >= 8 },
+                          { label: 'Uppercase', check: /[A-Z]/.test(formData.password) },
+                          { label: 'Lowercase', check: /[a-z]/.test(formData.password) },
+                          { label: 'Number', check: /[0-9]/.test(formData.password) },
+                          { label: 'Special Char', check: /[!@#$%^&*(),.?":{}|<>]/.test(formData.password) }
+                        ].map((req, i) => (
+                          <div key={i} className="flex items-center gap-2">
+                            <div className={`w-4 h-4 rounded-full flex items-center justify-center ${req.check ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'}`}>
+                              <Check size={10} strokeWidth={4} />
+                            </div>
+                            <span className={`text-[10px] font-bold uppercase tracking-wider ${req.check ? 'text-green-600' : 'text-gray-400'}`}>{req.label}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
 

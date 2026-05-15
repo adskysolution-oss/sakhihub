@@ -12,13 +12,13 @@ const HealthProgram = () => {
       title: "Sanitary Pad Distribution",
       desc: "Providing high-quality, eco-friendly sanitary pads to women in rural and urban areas to ensure menstrual health.",
       icon: ShieldCheck,
-      img: "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?q=80&w=800"
+      img: "/images/campaign_sanitary.png"
     },
     {
       title: "Health Awareness Camps",
       desc: "Regular workshops and camps led by medical professionals to educate women on wellness, nutrition, and hygiene.",
       icon: Activity,
-      img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=800"
+      img: "/images/campaign_health.png"
     },
     {
       title: "Village Health Committees",
@@ -33,7 +33,7 @@ const HealthProgram = () => {
       <PageBanner 
         title="Health & Hygiene" 
         subtitle="Dedicated to promoting wellness and menstrual dignity for every woman in India."
-        image="https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=1500"
+        image="/images/hero_awareness_campaign.png"
       />
 
       {/* Intro Section */}
@@ -69,7 +69,7 @@ const HealthProgram = () => {
             <div className="relative mt-12 lg:mt-0">
               <div className="rounded-[30px] lg:rounded-[40px] overflow-hidden h-[300px] sm:h-[400px] lg:h-[500px] shadow-2xl shadow-black/10">
                 <img 
-                  src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=800" 
+                  src="/images/Health-Awareness.jpeg" 
                   className="w-full h-full object-cover" 
                   alt="Women Health Awareness"
                 />

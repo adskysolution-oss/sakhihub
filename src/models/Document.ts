@@ -23,7 +23,7 @@ const DocumentSchema: Schema = new Schema(
     fileUrl: { type: String, required: true },
     status: { 
       type: String, 
-      enum: ['pending', 'approved', 'rejected'], 
+      enum: ['pending', 'uploaded', 'under_review', 'approved', 'rejected', 'reupload_required'], 
       default: 'pending' 
     },
     adminRemarks: { type: String },

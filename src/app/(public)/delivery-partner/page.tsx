@@ -63,9 +63,8 @@ export default function DeliveryPartnerPage() {
                 
                 <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <a href="/register?role=delivery" className="btn-primary" style={{ justifyContent: 'center' }}>Apply as Delivery Partner</a>
-                  <a href="https://wa.me/918076611842" className="btn-secondary" style={{ justifyContent: 'center' }}>
-                    <MessageCircle size={18} />
-                    WhatsApp Details
+                  <a href="/contact" className="btn-secondary" style={{ justifyContent: 'center' }}>
+                    Request Details
                   </a>
                 </div>
               </div>

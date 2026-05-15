@@ -5,18 +5,16 @@ import RegisterForm from "@/components/features/auth/RegisterForm";
 
 export default function RegisterPage() {
   return (
-    <main style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', background: '#fff' }}>
-      {/* Left: Branding */}
-      <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden' }}>
+    <main className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.1fr_0.8fr] bg-white">
+      {/* Left: Branding - Sticky on desktop, flow on mobile */}
+      <div className="relative lg:sticky lg:top-0 lg:h-screen overflow-hidden">
         <RegisterBranding />
       </div>
 
-      {/* Right: Form */}
-      <div style={{ background: 'white', padding: '80px 60px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflowY: 'auto' }}>
+      {/* Right: Form - Scrollable area */}
+      <div className="bg-white py-12 px-4 md:py-20 md:px-12 lg:px-20 flex items-center justify-center overflow-y-auto">
         <RegisterForm />
       </div>
-      
-      {/* Mobile-responsive helper is handled via standard media queries in globals.css or can be done via inline logic if needed. */}
     </main>
   );
 }

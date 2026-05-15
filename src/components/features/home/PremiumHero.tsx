@@ -63,7 +63,7 @@ const PremiumHero = () => {
               </Link>
             </div>
 
-            <div className="mt-12 flex flex-wrap gap-3 justify-center lg:justify-start">
+            {/* <div className="mt-12 flex flex-wrap gap-3 justify-center lg:justify-start">
               {[
                 { key: 'direct_impact', icon: <CheckCircle2 size={14} /> },
                 { key: 'trust_focused', icon: <CheckCircle2 size={14} /> },
@@ -74,7 +74,7 @@ const PremiumHero = () => {
                   {t(item.key)}
                 </div>
               ))}
-            </div>
+            </div> */}
           </motion.div>
 
           {/* Right Image */}

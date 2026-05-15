@@ -18,7 +18,7 @@ const services = [
       hi: ["मासिक धर्म जागरूकता", "स्वास्थ्य शिक्षा", "ग्रामीण पहुंच"],
       en: ["Period awareness", "Health education", "Village outreach"]
     },
-    image: "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?q=80&w=800",
+    image: "/images/Health-Awareness.jpeg",
     color: "#E91E63"
   },
   { 
@@ -32,7 +32,7 @@ const services = [
       hi: ["स्वच्छ आदतें", "स्वच्छता जागरूकता", "स्वास्थ्य सुरक्षा"],
       en: ["Clean habits", "Sanitation awareness", "Health safety"]
     },
-    image: "https://images.unsplash.com/photo-1550581190-9c1c48d21d6c?q=80&w=800",
+    image: "/images/Hygiene-Education.jpeg",
     color: "#6A1B9A"
   },
   { 
@@ -46,7 +46,7 @@ const services = [
       hi: ["समूह गठन", "नेतृत्व", "सामुदायिक शक्ति"],
       en: ["Group formation", "Leadership", "Community strength"]
     },
-    image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=800",
+    image: "/images/Women-Groups.jpeg",
     color: "#FF9800"
   },
   { 
@@ -60,7 +60,7 @@ const services = [
       hi: ["फील्ड नौकरियां", "स्थानीय कमाई", "करियर विकास"],
       en: ["Field jobs", "Local earning", "Career growth"]
     },
-    image: "https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=800",
+    image: "/images/Employment.jpeg",
     color: "#4CAF50"
   }
 ];

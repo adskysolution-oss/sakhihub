@@ -15,6 +15,7 @@ export async function GET(
     if (!session) return errorResponse('Unauthorized', 401);
 
     await dbConnect();
+    const _Campaign = Campaign; // Touch model
     
     // Authorization check: Employees should only see their own groups
     const userId = (session as any).id;

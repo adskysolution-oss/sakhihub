@@ -35,28 +35,110 @@ export async function GET(req: NextRequest) {
     const members = await WomenMember.find(query)
       .populate('groupId', 'groupName village district')
       .populate('assignedEmployeeId', 'fullName mobile employeeId')
+      .populate({
+        path: 'userId',
+        select: 'parentVendorId parentEmployeeCode parentVendorCode parentSubVendorCode',
+        populate: {
+          path: 'parentVendorId',
+          select: 'fullName mobile employeeId'
+        }
+      })
       .sort({ createdAt: -1 });
 
-    // Attach membership status to each member
+    // Attach membership status to each member and deduplicate by mobile
     const memberIds = members.map(m => m._id);
     const memberships = await Membership.find({ memberId: { $in: memberIds } });
 
-    const data = members.map(member => {
-      const membership = memberships.find(m => m.memberId.toString() === member._id.toString());
-      return {
-        ...member.toObject(),
-        paymentStatus: member.membershipStatus === 'paid' ? 'Paid' : 'Pending', // Sync with new status field
-        membershipId: membership?.membershipId || 'N/A',
-        accountStatus: member.accountStatus,
-        connectionStatus: member.connectionStatus
-      };
+    const uniqueMembersMap = new Map();
+
+    members.forEach(member => {
+      // Use mobile as primary key for uniqueness as per requirements
+      if (!uniqueMembersMap.has(member.mobile)) {
+        const membership = memberships.find(m => m.memberId.toString() === member._id.toString());
+        
+        // Determine the assigned employee: 
+        // 1. Check direct assignment on WomenMember
+        // 2. Check parentVendorId on linked User record (often stores the assigned employee/vendor)
+        const employee = member.assignedEmployeeId || (member.userId as any)?.parentVendorId;
+
+        uniqueMembersMap.set(member.mobile, {
+          ...member.toObject(),
+          assignedEmployeeId: employee, // Unified employee object for UI
+          paymentStatus: member.membershipStatus === 'paid' ? 'Paid' : 'Pending',
+          membershipId: membership?.membershipId || 'N/A',
+          accountStatus: member.accountStatus,
+          connectionStatus: member.connectionStatus
+        });
+      }
     });
+
+    const data = Array.from(uniqueMembersMap.values());
 
     return successResponse(data);
   } catch (error: any) {
     return errorResponse(error.message, 500);
   }
 }
+export async function PATCH(req: NextRequest) {
+  try {
+    const session = await getAuthSession();
+    if (!session || (session as any).role !== 'super_admin') {
+      return errorResponse('Unauthorized', 403);
+    }
+
+    const body = await req.json();
+    const { id, accountStatus, connectionStatus, assignedEmployeeId } = body;
+    if (!id) return errorResponse('Member ID required', 400);
+
+    await dbConnect();
+    
+    const updateData: any = {};
+    if (accountStatus) updateData.accountStatus = accountStatus;
+    if (connectionStatus) updateData.connectionStatus = connectionStatus;
+    
+    if (assignedEmployeeId) {
+      updateData.assignedEmployeeId = assignedEmployeeId;
+      updateData.connectionStatus = 'approved';
+    }
+    
+    updateData.updatedAt = new Date();
+
+    const member = await WomenMember.findByIdAndUpdate(id, { $set: updateData }, { new: true });
+    if (!member) return errorResponse('Member not found', 404);
+
+    // Finalize hierarchy if employee is assigned
+    if (assignedEmployeeId) {
+      const employee = await User.findById(assignedEmployeeId);
+      if (employee) {
+        await User.findByIdAndUpdate(member.userId, {
+          parentVendorId: assignedEmployeeId,
+          parentEmployeeCode: employee.employeeId,
+          parentVendorCode: employee.vendorCode,
+          parentSubVendorCode: employee.subVendorCode,
+          assignmentStatus: 'completed',
+          dashboardAccess: true,
+          onboardingCompleted: true,
+          status: 'active'
+        });
+      }
+    }
+
+    // Also sync User status if accountStatus is changed
+    if (accountStatus) {
+      let userStatus = 'pending';
+      if (accountStatus === 'active') userStatus = 'active';
+      if (accountStatus === 'suspended') userStatus = 'suspended';
+      if (accountStatus === 'rejected') userStatus = 'rejected';
+      
+      await User.findByIdAndUpdate(member.userId, { status: userStatus });
+    }
+
+    return successResponse(member, 'Member updated successfully');
+  } catch (error: any) {
+    return errorResponse(error.message, 500);
+  }
+}
+
 export async function DELETE(req: NextRequest) {
   try {
     const session = await getAuthSession();

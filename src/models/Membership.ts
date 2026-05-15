@@ -22,7 +22,7 @@ const MembershipSchema: Schema = new Schema(
     membershipId: { type: String, unique: true, required: true },
     receiptNumber: { type: String, unique: true, required: true },
     memberId: { type: Schema.Types.ObjectId, ref: 'WomenMember', required: true },
-    groupId: { type: Schema.Types.ObjectId, ref: 'Group', required: true },
+    groupId: { type: Schema.Types.ObjectId, ref: 'Group', required: false },
     employeeId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     amount: { type: Number, default: 100 },
     paymentMode: { type: String, enum: ['Cash', 'UPI', 'Online'], required: true },
@@ -35,4 +35,9 @@ const MembershipSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.Membership || mongoose.model<IMembership>('Membership', MembershipSchema);
+// Force re-compilation in development to handle schema changes correctly
+if (mongoose.models.Membership) {
+  delete (mongoose.models as any).Membership;
+}
+
+export default mongoose.model<IMembership>('Membership', MembershipSchema);

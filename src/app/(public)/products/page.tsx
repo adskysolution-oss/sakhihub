@@ -15,7 +15,7 @@ const products = [
     tag: "Most Popular",
     details: "Perfect for daily comfort and high activity days.",
     features: ["Soft Cottony Surface", "Advanced Absorbency", "Anti-Leak Side Walls", "Skin-Safe & Breathable"],
-    image: "https://images.unsplash.com/photo-1583947581924-860bda6a26df?q=80&w=800"
+    image: "/images/product.png"
   },
   {
     name: "Sakhi Care Pads - Family Pack",
@@ -25,7 +25,7 @@ const products = [
     tag: "Best Value",
     details: "All-day and overnight protection for the whole family.",
     features: ["Extra Large Coverage", "Dual-Layer Protection", "Zero Leakage Tech", "Night-Use Optimized", "Eco-Friendly Design"],
-    image: "https://images.unsplash.com/photo-1550581190-9c1c48d21d6c?q=80&w=800"
+    image: "/images/Hygiene-Education.jpeg"
   }
 ];
 
@@ -43,9 +43,9 @@ export default function ProductsPage() {
         title="Premium Products" 
         subtitle="Sakhi Care: High-quality hygiene solutions at accessible prices."
         images={[
-          "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=1500",
-          "https://images.unsplash.com/photo-1583947581924-860bda6a26df?q=80&w=1500",
-          "https://images.unsplash.com/photo-1550581190-9c1c48d21d6c?q=80&w=1500"
+          "/images/campaign_sanitary.png",
+          "/images/product.png",
+          "/images/Hygiene-Education.jpeg"
         ]}
       />
       
@@ -99,13 +99,10 @@ export default function ProductsPage() {
                     ))}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-auto">
-                    <a href="https://wa.me/918076611842" className="flex items-center justify-center gap-3 bg-secondary/5 text-secondary hover:bg-secondary hover:text-white py-5 rounded-2xl font-bold text-sm sm:text-base transition-all border border-secondary/10">
-                      <MessageCircle size={20} /> WhatsApp
-                    </a>
-                    <a href="tel:8076611842" className="flex items-center justify-center gap-3 bg-primary text-white hover:bg-primary/90 py-5 rounded-2xl font-bold text-sm sm:text-base shadow-xl shadow-primary/20 transition-all">
-                      <Phone size={20} /> Call Now
-                    </a>
+                  <div className="mt-auto">
+                    <Link href="/contact" className="flex items-center justify-center gap-3 bg-primary text-white hover:bg-primary/90 py-5 rounded-2xl font-bold text-sm sm:text-base shadow-xl shadow-primary/20 transition-all">
+                      <Info size={20} /> Inquiry for Purchase
+                    </Link>
                   </div>
                 </div>
               </motion.div>

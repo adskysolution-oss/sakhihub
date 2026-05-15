@@ -50,7 +50,7 @@ export default function PrivacyPolicy() {
                 </p>
                 <ul className="list-disc pl-6 space-y-2 mt-4">
                   <li><strong>Identity Data:</strong> Full name, Aadhaar number, PAN number, and profile images.</li>
-                  <li><strong>Contact Data:</strong> Mobile number, WhatsApp number, email address, and residential/office address.</li>
+                  <li><strong>Contact Data:</strong> Mobile number, email address, and residential/office address.</li>
                   <li><strong>Hierarchy Data:</strong> Vendor codes, employee IDs, and recruitment mapping.</li>
                   <li><strong>Financial Data:</strong> Details related to security deposits and campaign payments.</li>
                 </ul>

@@ -50,7 +50,7 @@ const ProgramsPreview = () => {
             {language === 'hi' ? <>हमारी मुख्य <span className="text-gradient">पहल</span></> : <>Our Core <span className="text-gradient">Initiatives</span></>}
           </h2>
           <p className="text-gray-500 text-sm md:text-lg mt-6 max-w-2xl mx-auto leading-relaxed font-medium">
-            {language === 'hi' 
+            {language === 'hi'
               ? 'महिलाओं के जीवन में सकारात्मक बदलाव लाने के लिए जमीनी स्तर की पहल।'
               : 'Ground-level initiatives to drive positive change in women\'s lives.'}
           </p>

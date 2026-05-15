@@ -42,10 +42,10 @@ export async function PATCH(req: NextRequest) {
     const session = await getAuthSession();
     if (!session) return errorResponse('Unauthorized', 401);
 
-    const { whatsapp, address } = await req.json();
+    const { address } = await req.json();
     const user = await User.findByIdAndUpdate(
       (session as any).id,
-      { whatsapp, address },
+      { address },
       { new: true }
     ).select('-password');
 

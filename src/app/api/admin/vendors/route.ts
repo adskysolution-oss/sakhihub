@@ -17,7 +17,14 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get('status');
 
     const query: any = { role: 'vendor' };
-    if (status && status !== 'all') query.status = status;
+    if (status && status !== 'all') {
+      // 'pending' filter shows all pre-approval statuses
+      if (status === 'pending') {
+        query.status = { $in: ['pending', 'documents_uploaded', 'under_review', 'reupload_required'] };
+      } else {
+        query.status = status;
+      }
+    }
     if (search) {
       query.$or = [
         { fullName: { $regex: search, $options: 'i' } },

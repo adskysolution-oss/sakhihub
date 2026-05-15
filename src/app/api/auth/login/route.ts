@@ -58,7 +58,11 @@ export async function POST(req: NextRequest) {
       status: user.status,
       assignmentStatus: user.assignmentStatus,
       fullName: user.fullName,
-      mobile: user.mobile
+      mobile: user.mobile,
+      isVerified: user.isVerified,
+      onboardingCompleted: user.onboardingCompleted,
+      documentsVerified: user.documentsVerified,
+      dashboardAccess: user.dashboardAccess
     });
     
     await setAuthCookie(token);

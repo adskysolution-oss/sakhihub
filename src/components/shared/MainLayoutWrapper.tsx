@@ -4,7 +4,7 @@ import React from 'react';
 import { usePathname } from 'next/navigation';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
-import WhatsAppButton from '@/components/ui/WhatsAppButton';
+import FloatingSupport from '@/components/shared/FloatingSupport';
 
 export default function MainLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -34,7 +34,7 @@ export default function MainLayoutWrapper({ children }: { children: React.ReactN
         {children}
       </main>
       <Footer />
-      <WhatsAppButton />
+      <FloatingSupport />
     </>
   );
 }

@@ -183,11 +183,11 @@ export default function EmployeeMembersPage() {
                   <td className="p-6">
                     {activeTab === 'discovery' ? (
                       <button 
-                        onClick={() => handleSendRequest(member.userId)}
+                        onClick={() => handleSendRequest(member.userId && typeof member.userId === 'object' ? (member.userId as any)._id : member.userId)}
                         disabled={!!actionLoading || member.connectionStatus === 'pending_request'}
                         className="px-6 py-2.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100 shadow-lg shadow-primary/20"
                       >
-                        {member.connectionStatus === 'pending_request' ? 'Request Sent' : (actionLoading === member.userId ? 'Sending...' : 'Send Request')}
+                        {member.connectionStatus === 'pending_request' ? 'Request Sent' : (actionLoading === (member.userId && typeof member.userId === 'object' ? (member.userId as any)._id : member.userId) ? 'Sending...' : 'Send Request')}
                       </button>
                     ) : (
                       <div className="flex gap-4">

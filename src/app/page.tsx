@@ -8,6 +8,7 @@ import TeamSection from '@/components/features/home/TeamSection';
 import WhySakhiHub from '@/components/features/home/WhySakhiHub';
 import LiveImpactMap from '@/components/features/home/LiveImpactMap';
 import ProgramsPreview from '@/components/features/home/ProgramsPreview';
+import ProjectsPreview from '@/components/features/home/ProjectsPreview';
 import CTABanner from '@/components/features/home/CTABanner';
 
 export default function Home() {
@@ -34,7 +35,10 @@ export default function Home() {
       {/* 7. Why SakhiHub (Premium Image Cards) */}
       <WhySakhiHub />
 
-      {/* 8. Live Impact Map (National Footprint) */}
+      {/* 8. Projects Preview (Social Initiatives) */}
+      <ProjectsPreview />
+
+      {/* 9. Live Impact Map (National Footprint) */}
       <LiveImpactMap />
 
       {/* 9. Programs Preview */}

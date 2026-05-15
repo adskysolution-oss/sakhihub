@@ -15,7 +15,7 @@ export default function MemberProfilePage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({ whatsapp: '', address: '' });
+  const [formData, setFormData] = useState({ address: '' });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -25,7 +25,6 @@ export default function MemberProfilePage() {
         if (res.data.success) {
           setData(res.data.data);
           setFormData({
-            whatsapp: res.data.data.user.whatsapp || '',
             address: res.data.data.user.address || ''
           });
         }
@@ -116,20 +115,6 @@ export default function MemberProfilePage() {
                 <p style={{ margin: '5px 0 0', fontWeight: '700', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <Phone size={18} color="var(--primary)" /> {profile.mobile}
                 </p>
-              </div>
-              <div style={{ padding: '15px', background: '#f8f9fa', borderRadius: '15px' }}>
-                <label style={{ fontSize: '0.75rem', color: '#999', fontWeight: '800', textTransform: 'uppercase' }}>WhatsApp Number</label>
-                {isEditing ? (
-                  <input 
-                    value={formData.whatsapp} 
-                    onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                    style={{ width: '100%', marginTop: '5px', padding: '8px', borderRadius: '8px', border: '1px solid #ddd' }}
-                  />
-                ) : (
-                  <p style={{ margin: '5px 0 0', fontWeight: '700', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <MessageSquare size={18} color="#25D366" /> {profile.whatsapp || 'Not linked'}
-                  </p>
-                )}
               </div>
               <div style={{ padding: '15px', background: '#f8f9fa', borderRadius: '15px' }}>
                 <label style={{ fontSize: '0.75rem', color: '#999', fontWeight: '800', textTransform: 'uppercase' }}>Current Address</label>

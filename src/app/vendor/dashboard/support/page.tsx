@@ -50,12 +50,8 @@ export default function VendorSupport() {
                 
                 <div className="space-y-4">
                   <div className="p-4 bg-white/10 rounded-2xl border border-white/10">
-                    <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-1">Email Support</p>
-                    <p className="font-bold">partners@sakhihub.org</p>
-                  </div>
-                  <div className="p-4 bg-white/10 rounded-2xl border border-white/10">
-                    <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-1">WhatsApp Hub</p>
-                    <p className="font-bold">+91 98765 43210</p>
+                    <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-1">Official Support Email</p>
+                    <p className="font-bold">support@sakhihub.com</p>
                   </div>
                 </div>
              </div>

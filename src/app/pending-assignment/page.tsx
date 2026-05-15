@@ -1,19 +1,59 @@
 'use client';
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { 
   Network, 
   MapPin, 
   UserPlus, 
   ShieldAlert, 
   RefreshCcw, 
-  LogOut 
+  LogOut,
+  ShieldCheck
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { motion } from "framer-motion";
 
 export default function PendingAssignmentPage() {
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  const checkStatus = async () => {
+    try {
+      const res = await axios.get('/api/auth/me');
+      if (res.data.success) {
+        const userData = res.data.data;
+        setUser(userData);
+        
+        // If assignment is now completed, redirect to the appropriate dashboard
+        if (userData.assignmentStatus === 'completed') {
+          const dashMap: any = {
+            super_admin: '/admin/dashboard',
+            vendor: '/vendor/dashboard',
+            sub_vendor: '/sub-vendor/dashboard',
+            employee: '/employee/dashboard',
+            member: '/member/dashboard'
+          };
+          router.push(dashMap[userData.role] || '/');
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Status check failed:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    checkStatus();
+    
+    // Optional: Poll every 30 seconds to catch admin changes without refresh
+    const interval = setInterval(checkStatus, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -23,6 +63,29 @@ export default function PendingAssignmentPage() {
       console.error('Logout failed:', error);
     }
   };
+
+  const handleRequestAction = async (requestId: string, status: 'approved' | 'rejected') => {
+    setActionLoading(requestId);
+    try {
+      const res = await axios.patch('/api/member/request', { id: requestId, status });
+      if (res.data.success) {
+        checkStatus(); // Re-fetch user data to check if assignment is completed
+      }
+    } catch (error) {
+      console.error('Action failed:', error);
+      alert('Failed to process request');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FDFCFB] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] flex flex-col items-center justify-center p-6 text-center">
@@ -49,50 +112,97 @@ export default function PendingAssignmentPage() {
           <span className="text-secondary font-bold"> Campaign area</span>.
         </p>
 
-        {/* Status Indicators */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
-          <div className="p-6 bg-white rounded-[32px] border border-gray-100 shadow-soft flex flex-col items-center">
-            <UserPlus className="text-green-500 mb-3" size={24} />
-            <p className="text-[10px] font-black uppercase text-gray-400 tracking-wider">Registration</p>
-            <p className="font-bold text-secondary">Completed</p>
+        {/* Status Steps */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          <div className="p-6 bg-white rounded-[32px] border border-gray-100 shadow-sm flex flex-col items-center gap-3">
+            <div className="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center">
+              <ShieldCheck size={20} />
+            </div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Step 1</p>
+            <p className="text-sm font-bold text-secondary">Docs Verified</p>
           </div>
-          <div className="p-6 bg-white rounded-[32px] border border-primary/20 shadow-soft flex flex-col items-center ring-4 ring-primary/5">
-            <Network className="text-primary mb-3 animate-pulse" size={24} />
-            <p className="text-[10px] font-black uppercase text-primary tracking-wider">Mapping</p>
-            <p className="font-bold text-secondary">In Progress</p>
+
+          <div className="p-6 bg-white rounded-[32px] border border-gray-100 shadow-sm flex flex-col items-center gap-3 ring-2 ring-primary/20">
+            <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center animate-pulse">
+              <Network size={20} />
+            </div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-primary">Step 2</p>
+            <p className="text-sm font-bold text-secondary">Hierarchy Mapping</p>
           </div>
-          <div className="p-6 bg-gray-50/50 rounded-[32px] border border-dashed border-gray-200 flex flex-col items-center opacity-50">
-            <ShieldAlert className="text-gray-400 mb-3" size={24} />
-            <p className="text-[10px] font-black uppercase text-gray-400 tracking-wider">Activation</p>
-            <p className="font-bold text-gray-400">Locked</p>
+
+          <div className="p-6 bg-white rounded-[32px] border border-gray-100 shadow-sm flex flex-col items-center gap-3 opacity-50">
+            <div className="w-10 h-10 bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center">
+              <RefreshCcw size={20} />
+            </div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Step 3</p>
+            <p className="text-sm font-bold text-secondary">Dashboard Access</p>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button 
-            onClick={() => window.location.reload()}
-            className="px-8 py-5 bg-secondary text-white rounded-[24px] text-xs font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
+        {/* Pending Requests Section */}
+        {user?.pendingRequests && user.pendingRequests.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-16 text-left"
           >
-            <RefreshCcw size={18} />
-            Check Mapping Status
+            <h3 className="text-xl font-black text-secondary mb-6 px-4">Incoming Connections</h3>
+            <div className="flex flex-col gap-4">
+              {user.pendingRequests.map((req: any) => (
+                <div key={req._id} className="bg-white p-6 md:p-8 rounded-[40px] border border-primary/20 shadow-xl shadow-primary/5 flex flex-col md:flex-row justify-between items-center gap-6">
+                  <div className="flex items-center gap-5 w-full md:w-auto">
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
+                      <ShieldCheck size={32} />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-black text-secondary leading-tight">{req.employeeId?.fullName}</h4>
+                      <p className="text-[10px] text-primary font-black uppercase tracking-widest mt-1">Field Hero (Employee)</p>
+                      <p className="text-xs text-gray-400 font-bold mt-2">ID: {req.employeeId?.employeeId}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4 w-full md:w-auto">
+                    <button 
+                      onClick={() => handleRequestAction(req._id, 'rejected')}
+                      disabled={!!actionLoading}
+                      className="flex-1 md:flex-none px-8 py-4 border-2 border-red-50 text-red-500 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-50 transition-all"
+                    >
+                      Reject
+                    </button>
+                    <button 
+                      onClick={() => handleRequestAction(req._id, 'approved')}
+                      disabled={!!actionLoading}
+                      className="flex-[2] md:flex-none px-10 py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                    >
+                      {actionLoading === req._id ? 'Processing...' : 'Accept & Finish'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Footer Actions */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+          <button 
+            onClick={checkStatus}
+            className="flex items-center gap-3 px-8 py-4 bg-secondary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-secondary/20 hover:scale-105 transition-all"
+          >
+            <RefreshCcw size={16} /> Check Status Now
           </button>
           
           <button 
             onClick={handleLogout}
-            className="px-8 py-5 bg-white text-gray-400 border border-gray-100 rounded-[24px] text-xs font-black uppercase tracking-[0.2em] shadow-xl hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all flex items-center justify-center gap-3"
+            className="flex items-center gap-3 px-8 py-4 border-2 border-gray-100 text-gray-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 transition-all"
           >
-            <LogOut size={18} />
-            Sign Out
+            <LogOut size={16} /> Sign Out
           </button>
         </div>
 
-        {/* Footer Note */}
-        <div className="mt-16 flex items-center justify-center gap-3 text-gray-400">
-          <MapPin size={16} />
-          <p className="text-xs font-bold uppercase tracking-widest">
-            SakhiHub Network Operations Center
-          </p>
+        <div className="mt-20 flex items-center justify-center gap-3 text-gray-300">
+          <ShieldAlert size={16} />
+          <p className="text-[10px] font-black uppercase tracking-[0.2em]">SakhiHub Protocol 2026</p>
         </div>
       </div>
     </div>

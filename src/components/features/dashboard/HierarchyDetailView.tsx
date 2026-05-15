@@ -6,9 +6,17 @@ import {
   Users, Briefcase, Sparkles, Target, 
   FileText, CreditCard, PieChart, Activity,
   ChevronRight, Link2, ExternalLink, Calendar,
-  CheckCircle2, Clock, AlertCircle, X
+  CheckCircle2, Clock, AlertCircle, X,
+  FileCheck, Landmark, UserCheck, RefreshCw
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { 
+  getDocumentViewUrl, 
+  isDocumentUploaded, 
+  REQUIRED_DOCS_BY_ROLE, 
+  getDocComplianceSummary 
+} from '@/utils/documents';
+import DocumentReviewCard from '@/components/features/dashboard/DocumentReviewCard';
 
 interface HierarchyDetailViewProps {
   data: {
@@ -31,7 +39,7 @@ interface HierarchyDetailViewProps {
     };
   };
   onClose: () => void;
-  onStatusUpdate?: (id: string, status: string) => void;
+  onStatusUpdate?: (id: string, status: string, remarks?: string) => void;
 }
 
 export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: HierarchyDetailViewProps) {
@@ -134,7 +142,6 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {[
                       { label: 'Mobile', value: user.mobile, icon: Phone },
-                      { label: 'WhatsApp', value: user.whatsapp || 'N/A', icon: Phone },
                       { label: 'Email', value: user.email || 'N/A', icon: Mail },
                       { label: 'Joined', value: new Date(user.createdAt).toLocaleDateString(), icon: Calendar },
                       { label: 'Area', value: `${user.block || 'All Blocks'}, ${user.district}`, icon: MapPin },
@@ -200,26 +207,6 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                   </div>
                 </div>
 
-                <div>
-                  <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                    <ShieldCheck size={14} /> Document Status
-                  </h4>
-                  <div className="space-y-4">
-                     {[
-                       { label: 'KYC Documents', status: 'verified', icon: CheckCircle2, color: 'text-green-500' },
-                       { label: 'Partnership Agreement', status: 'signed', icon: CheckCircle2, color: 'text-green-500' },
-                       { label: 'Bank Details', status: 'verified', icon: CheckCircle2, color: 'text-green-500' },
-                       { label: 'Security Deposit', status: 'pending', icon: Clock, color: 'text-amber-500' }
-                     ].map((doc, idx) => (
-                       <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                         <span className="text-xs font-bold text-gray-500">{doc.label}</span>
-                         <div className={`flex items-center gap-1 text-[10px] font-black uppercase tracking-widest ${doc.color}`}>
-                           <doc.icon size={14} /> {doc.status}
-                         </div>
-                       </div>
-                     ))}
-                  </div>
-                </div>
               </div>
             </div>
           </motion.div>
@@ -347,21 +334,79 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
 
         {activeTab === 'docs' && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {['ID Proof', 'Organization Photo', 'KYC Document', 'Agreement Copy'].map((doc, idx) => (
-                  <div key={idx} className="p-8 bg-white border border-gray-100 rounded-[32px] shadow-sm group hover:border-primary transition-all">
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
-                        <FileText size={24} />
-                      </div>
-                      <span className="px-3 py-1 bg-green-100 text-green-600 rounded-lg text-[9px] font-black uppercase tracking-widest">Verified</span>
-                    </div>
-                    <h5 className="font-black text-secondary text-lg mb-1">{doc}</h5>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-6">Uploaded on Oct 12, 2026</p>
-                    <button className="w-full py-3 bg-gray-50 text-secondary font-black text-[10px] uppercase tracking-widest rounded-xl border border-gray-100 group-hover:bg-secondary group-hover:text-white transition-all">View Document</button>
-                  </div>
-                ))}
-             </div>
+            <div className="flex flex-col lg:flex-row gap-12">
+              <div className="flex-1 space-y-8">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <FileText size={14} /> Document Review Workspace
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6">
+                  {(REQUIRED_DOCS_BY_ROLE[user.role as keyof typeof REQUIRED_DOCS_BY_ROLE] || []).map((type) => (
+                    <DocumentReviewCard 
+                      key={type}
+                      type={type}
+                      docInfo={user.documents?.[type]}
+                      onStatusUpdate={async (type, status, remarks) => {
+                        await onStatusUpdate?.(user._id, `doc:${type}:${status}`, remarks);
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Verification Summary Sidebar */}
+              <div className="lg:w-80 space-y-8">
+                <div className="bg-secondary-dark p-8 rounded-[40px] text-white shadow-2xl relative overflow-hidden">
+                   <div className="absolute top-[-20px] right-[-20px] w-32 h-32 bg-primary/20 rounded-full blur-3xl"></div>
+                   <h4 className="text-xl font-black mb-6 relative z-10">Compliance Summary</h4>
+                   <div className="space-y-6 relative z-10">
+                      {(() => {
+                        const summary = getDocComplianceSummary(user.documents, user.role);
+                        
+                        return (
+                          <>
+                            {[
+                              { label: 'Total Required', value: summary.total, icon: FileText, color: 'bg-white/10' },
+                              { label: 'Uploaded', value: summary.uploaded, icon: CheckCircle2, color: 'bg-primary/40' },
+                              { label: 'Approved', value: summary.approved, icon: ShieldCheck, color: 'bg-green-500' },
+                              { label: 'Rejected', value: summary.rejected, icon: AlertCircle, color: 'bg-red-500' }
+                            ].map((item, idx) => (
+                              <div key={idx} className="flex items-center gap-4">
+                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${item.color}`}>
+                                   <item.icon size={20} />
+                                 </div>
+                                 <div>
+                                   <p className="text-[9px] font-black uppercase tracking-widest opacity-60">{item.label}</p>
+                                   <p className="text-lg font-black">{item.value}</p>
+                                 </div>
+                              </div>
+                            ))}
+
+                            <div className="mt-8 pt-6 border-t border-white/10">
+                              <div className={`p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-center ${
+                                summary.isFullyApproved ? 'bg-green-500 text-white' : 'bg-white/10 text-white/60'
+                              }`}>
+                                {summary.isFullyApproved ? 'All Documents Verified' : 'Verification Pending'}
+                              </div>
+                            </div>
+                          </>
+                        );
+                      })()}
+                   </div>
+                </div>
+
+                <div className="bg-amber-50 p-6 rounded-[32px] border border-amber-100">
+                   <h5 className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-3 flex items-center gap-2">
+                      <Clock size={14} /> Review Policy
+                   </h5>
+                   <p className="text-[11px] text-amber-800 font-bold leading-relaxed">
+                      Final approval should only be granted once all mandatory documents are marked as "approved". Rejected documents will prompt the partner to re-upload.
+                   </p>
+                </div>
+              </div>
+            </div>
           </motion.div>
         )}
       </div>
@@ -372,27 +417,60 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
            <Activity size={20} className="text-primary animate-pulse" />
            <div>
              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Network Health</p>
-             <p className="font-bold text-secondary text-sm">Operational & Active</p>
+             <p className="font-bold text-secondary text-sm">
+               {user.status === 'active' ? 'Operational & Active' : 
+                user.status === 'approved' ? 'Verified but Not Activated' :
+                'Account Under Review'}
+             </p>
            </div>
         </div>
 
         <div className="flex gap-4">
-           {user.status === 'pending' ? (
+           {user.status !== 'active' ? (
              <>
                <button 
-                 onClick={() => onStatusUpdate?.(user._id, 'rejected')}
+                 onClick={() => {
+                   const reason = prompt("Please provide a mandatory reason for rejecting this partner:");
+                   if (reason !== null && reason.trim() !== "") {
+                     onStatusUpdate?.(user._id, 'rejected', reason);
+                   } else if (reason !== null) {
+                     alert("A reason is required to reject the partner.");
+                   }
+                 }}
                  className="px-8 py-4 rounded-2xl border-2 border-red-100 text-red-500 font-black text-[10px] uppercase tracking-widest hover:bg-red-50 transition-all"
                >Reject Partner</button>
                <button 
-                 onClick={() => onStatusUpdate?.(user._id, 'active')}
+                 onClick={() => {
+                   const requiredDocs = REQUIRED_DOCS_BY_ROLE[user.role as keyof typeof REQUIRED_DOCS_BY_ROLE] || [];
+                   const allApproved = requiredDocs.every(id => user.documents?.[id]?.status === 'approved');
+                   
+                   if (user.role === 'vendor' && !allApproved) {
+                     alert("Cannot activate vendor: All required documents must be individually approved first. Go to the Compliance tab to verify them.");
+                     return;
+                   }
+                   onStatusUpdate?.(user._id, 'active');
+                 }}
                  className="px-10 py-4 bg-secondary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-secondary/20 hover:scale-105 transition-all"
-               >Approve Partner</button>
+               >Approve & Activate</button>
              </>
            ) : (
-             <button 
-               onClick={onClose}
-               className="px-10 py-4 bg-secondary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-secondary/20 hover:scale-105 transition-all"
-             >Close Record</button>
+             <>
+               <button 
+                 onClick={() => {
+                   const reason = prompt("Please provide a reason for suspending this partner:");
+                   if (reason !== null && reason.trim() !== "") {
+                     onStatusUpdate?.(user._id, 'suspended', reason);
+                   } else if (reason !== null) {
+                     alert("A reason is required to suspend the partner.");
+                   }
+                 }}
+                 className="px-8 py-4 rounded-2xl border-2 border-amber-100 text-amber-600 font-black text-[10px] uppercase tracking-widest hover:bg-amber-50 transition-all"
+               >Suspend Partner</button>
+               <button 
+                 onClick={onClose}
+                 className="px-10 py-4 bg-secondary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-secondary/20 hover:scale-105 transition-all"
+               >Close Record</button>
+             </>
            )}
         </div>
       </div>

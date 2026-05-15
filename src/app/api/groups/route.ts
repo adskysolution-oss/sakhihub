@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
     if (!session) return errorResponse('Unauthorized', 401);
 
     await dbConnect();
+    const _Campaign = Campaign; // Touch model to register it
     const body = await req.json();
     const userId = (session as any).id;
 
@@ -45,6 +46,7 @@ export async function GET(req: NextRequest) {
     if (!session) return errorResponse('Unauthorized', 401);
 
     await dbConnect();
+    const _Campaign = Campaign; // Touch model to register it
     const role = (session as any).role;
     const userId = (session as any).id;
     const User = (await import('@/models/User')).default;

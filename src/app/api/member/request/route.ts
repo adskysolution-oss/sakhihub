@@ -83,13 +83,30 @@ export async function PATCH(req: NextRequest) {
     // Sync with WomenMember profile
     const WomenMember = (await import('@/models/WomenMember')).default;
     if (status === 'approved') {
+      const User = (await import('@/models/User')).default;
+      const employee = await User.findById(updatedRequest.employeeId);
+      
       await WomenMember.findOneAndUpdate(
         { userId: (session as any).id },
         { 
           connectionStatus: 'approved',
-          assignedEmployeeId: updatedRequest.employeeId
+          assignedEmployeeId: updatedRequest.employeeId,
+          vendorCode: employee?.vendorCode,
+          subVendorCode: employee?.subVendorCode
         }
       );
+
+      // Update User for dashboard access
+      await User.findByIdAndUpdate((session as any).id, {
+        parentVendorId: updatedRequest.employeeId,
+        parentEmployeeCode: employee?.employeeId,
+        parentVendorCode: employee?.vendorCode,
+        parentSubVendorCode: employee?.subVendorCode,
+        assignmentStatus: 'completed',
+        dashboardAccess: true,
+        onboardingCompleted: true,
+        status: 'active'
+      });
     } else if (status === 'rejected') {
       await WomenMember.findOneAndUpdate(
         { userId: (session as any).id },

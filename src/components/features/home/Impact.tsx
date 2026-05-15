@@ -15,7 +15,7 @@ const Impact = () => {
   return (
     <section className="relative py-20 md:py-32 overflow-hidden flex items-center min-h-[500px]">
       {/* Background with Parallax effect (fixed bg) */}
-      <div 
+      <div
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat bg-fixed opacity-60 md:opacity-100"
         style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1500)' }}
       ></div>
@@ -31,8 +31,8 @@ const Impact = () => {
             { label: 'Awareness Drives', val: '350+', desc: 'Health & empowerment programs running', icon: <Target size={24} /> },
             { label: 'Field Team', val: '1,200+', desc: 'Working at ground level across districts', icon: <Shield size={24} /> },
           ].map((stat, idx) => (
-            <motion.div 
-              key={idx} 
+            <motion.div
+              key={idx}
               {...fadeInUp}
               whileHover={{ y: -10 }}
               className="p-8 md:p-10 bg-white rounded-[40px] text-center shadow-2xl shadow-black/20 border border-white/40 transition-all hover:shadow-primary/20"

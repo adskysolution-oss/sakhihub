@@ -6,6 +6,20 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import { 
+  Heart as HeartIcon, 
+  ShieldCheck as ShieldIcon, 
+  Briefcase as BriefIcon, 
+  Users as UsersIcon,
+  Sparkles as SparkleIcon,
+  ArrowRight as ArrowIcon,
+  ChevronRight as ChevronIcon,
+  Lock as LockIcon,
+  AlertCircle as AlertIcon,
+  Eye as EyeIcon,
+  EyeOff as EyeOffIcon
+} from "lucide-react";
+import PasswordField from "@/components/ui/PasswordField";
 
 type Role = 'member' | 'employee' | 'vendor' | 'sub_vendor';
 
@@ -23,10 +37,16 @@ function LoginContent() {
   });
 
   useEffect(() => {
+    // If redirected here with an admin callbackUrl, send to admin login page
+    const callbackUrl = searchParams.get('callbackUrl');
+    if (callbackUrl && callbackUrl.startsWith('/admin')) {
+      router.replace(`/admin/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+      return;
+    }
     if (searchParams.get('registered')) {
       setSuccess("Registration successful! Please login.");
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,11 +66,18 @@ function LoginContent() {
 
       if (response.data.success) {
         const user = response.data.data;
-        if (user.role === 'super_admin') router.push('/admin/dashboard');
-        else if (user.role === 'vendor') router.push('/vendor/dashboard');
-        else if (user.role === 'sub_vendor') router.push('/sub-vendor/dashboard');
-        else if (user.role === 'employee') router.push('/employee/dashboard');
-        else router.push('/member/dashboard');
+        const callbackUrl = searchParams.get('callbackUrl');
+
+        if (callbackUrl) {
+          window.location.href = decodeURIComponent(callbackUrl);
+          return;
+        }
+
+        if (user.role === 'super_admin') window.location.href = '/admin/dashboard';
+        else if (user.role === 'vendor') window.location.href = '/vendor/dashboard';
+        else if (user.role === 'sub_vendor') window.location.href = '/sub-vendor/dashboard';
+        else if (user.role === 'employee') window.location.href = '/employee/dashboard';
+        else window.location.href = '/member/dashboard';
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Invalid credentials or unauthorized access");
@@ -74,7 +101,7 @@ function LoginContent() {
             animate={{ opacity: 1, scale: 1 }}
             className="w-20 h-20 bg-white/20 backdrop-blur-xl rounded-3xl flex items-center justify-center mb-10 border border-white/30"
           >
-            <Heart size={45} fill="white" className="drop-shadow-lg" />
+            <HeartIcon size={45} fill="white" className="drop-shadow-lg" />
           </motion.div>
 
           <motion.h1
@@ -102,7 +129,7 @@ function LoginContent() {
               className="flex items-center gap-5 bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20"
             >
               <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-primary shadow-xl shadow-black/10">
-                <ShieldCheck size={28} />
+                <ShieldIcon size={28} />
               </div>
               <div>
                 <p className="font-black text-lg">Secure Access Control</p>
@@ -142,7 +169,7 @@ function LoginContent() {
                 onClick={() => setRole(r)}
                 className={`flex items-center justify-center gap-2 py-3 rounded-[18px] transition-all duration-300 font-black text-[10px] uppercase tracking-wider ${role === r ? 'bg-white text-primary shadow-xl shadow-gray-200' : 'text-gray-400 hover:text-gray-600'}`}
               >
-                {r === 'employee' ? <Briefcase size={14} /> : r === 'vendor' ? <ShieldCheck size={14} /> : r === 'sub_vendor' ? <Sparkles size={14} /> : <Users size={14} />}
+                {r === 'employee' ? <BriefIcon size={14} /> : r === 'vendor' ? <ShieldIcon size={14} /> : r === 'sub_vendor' ? <SparkleIcon size={14} /> : <UsersIcon size={14} />}
                 {r.replace('_', ' ')}
               </button>
             ))}
@@ -150,15 +177,15 @@ function LoginContent() {
 
           <form onSubmit={handleLogin} className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-black text-gray-500 uppercase tracking-widest pl-2">Mobile / Email</label>
+              <label className="text-xs font-black text-gray-500 uppercase tracking-widest pl-2">Email or Mobile Number</label>
               <div className="relative group">
-                <Phone size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" />
+                <ShieldIcon size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" />
                 <input
                   type="text"
                   name="identifier"
                   value={formData.identifier}
                   onChange={handleChange}
-                  placeholder="Enter Mobile or Email"
+                  placeholder="Enter Email or Mobile Number"
                   className="w-full pl-14 pr-5 py-4 md:py-5 rounded-2xl md:rounded-3xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/30 transition-all font-bold text-lg"
                   required
                 />
@@ -170,18 +197,13 @@ function LoginContent() {
                 <label className="text-xs font-black text-gray-500 uppercase tracking-widest">Password</label>
                 <Link href="/forgot" className="text-xs text-primary font-black hover:underline">Forgot Password?</Link>
               </div>
-              <div className="relative group">
-                <Lock size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" />
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="********"
-                  className="w-full pl-14 pr-5 py-4 md:py-5 rounded-2xl md:rounded-3xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/30 transition-all font-bold text-lg"
-                  required
-                />
-              </div>
+              <PasswordField
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="********"
+                required
+              />
             </div>
 
             <AnimatePresence>
@@ -192,7 +214,7 @@ function LoginContent() {
                   exit={{ opacity: 0, height: 0 }}
                   className="p-4 bg-red-50 text-red-500 text-sm rounded-2xl font-bold flex items-center gap-3 border border-red-100"
                 >
-                  <AlertCircle size={18} className="flex-shrink-0" /> {error}
+                  <AlertIcon size={18} className="flex-shrink-0" /> {error}
                 </motion.div>
               )}
               {success && (
@@ -201,7 +223,7 @@ function LoginContent() {
                   animate={{ opacity: 1, height: 'auto' }}
                   className="p-4 bg-green-50 text-green-600 text-sm rounded-2xl font-bold flex items-center gap-3 border border-green-100"
                 >
-                  <ShieldCheck size={18} className="flex-shrink-0" /> {success}
+                  <ShieldIcon size={18} className="flex-shrink-0" /> {success}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -212,7 +234,7 @@ function LoginContent() {
               className="btn-primary w-full py-5 md:py-6 justify-center text-lg shadow-2xl shadow-primary/25 mt-4 transition-all active:scale-95 disabled:opacity-50"
             >
               {loading ? 'Verifying...' : `Login as ${role.charAt(0).toUpperCase() + role.slice(1)}`}
-              {!loading && <ArrowRight size={22} className="ml-2" />}
+              {!loading && <ArrowIcon size={22} className="ml-2" />}
             </button>
           </form>
 
@@ -223,7 +245,7 @@ function LoginContent() {
             </p>
             <div className="mt-6">
               <Link href="/admin/login" className="text-xs text-gray-300 font-bold uppercase tracking-widest hover:text-secondary flex items-center justify-center gap-2">
-                Admin Access <ChevronRight size={14} />
+                Admin Access <ChevronIcon size={14} />
               </Link>
             </div>
           </div>

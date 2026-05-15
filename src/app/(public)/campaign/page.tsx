@@ -40,9 +40,9 @@ export default function CampaignPage() {
         title="Awareness Campaigns" 
         subtitle="Bringing health and dignity to the heart of every village."
         images={[
-          "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=1500",
-          "https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1500",
-          "https://images.unsplash.com/photo-1550581190-9c1c48d21d6c?q=80&w=1500"
+          "/images/campaign_health.png",
+          "/images/campaign_sanitary.png",
+          "/images/Hygiene-Education.jpeg"
         ]}
       />
       
@@ -90,7 +90,7 @@ export default function CampaignPage() {
                   >
                     <div className="rounded-[40px] lg:rounded-[60px] overflow-hidden h-[300px] sm:h-[450px] lg:h-[550px] shadow-2xl shadow-black/10 border-[6px] lg:border-[10px] border-gray-50">
                       <img 
-                        src={camp.bannerImage || "https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=800"} 
+                        src={camp.bannerImage || "/images/campaign_membership.png"} 
                         className="w-full h-full object-cover" 
                         alt={camp.title}
                       />

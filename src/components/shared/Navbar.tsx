@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Phone, Globe, ChevronDown, Activity, Users, BookOpen, Briefcase, Target, Eye, Users2 } from 'lucide-react';
+import { Menu, X, Phone, Globe, ChevronDown, Activity, Users, BookOpen, Briefcase, Target, Eye, Users2, Mail } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 import styles from './Navbar.module.css';
@@ -42,7 +42,7 @@ const Navbar = () => {
       subLinks: [
         { name: 'Vision', href: '/vision', icon: Eye },
         { name: 'Mission', href: '/mission', icon: Target },
-        { name: 'Our Team', href: '/team', icon: Users2 },
+        // { name: 'Our Team', href: '/team', icon: Users2 },
       ]
     },
     {
@@ -55,6 +55,7 @@ const Navbar = () => {
         { name: 'Community', href: '/programs/community', icon: Users },
       ]
     },
+    { name: t('Projects') || 'Projects', href: '/projects' },
     { name: t('campaign'), href: '/campaign' },
     { name: t('Products'), href: '/products' },
     { name: t('contact'), href: '/contact' },
@@ -150,15 +151,14 @@ const Navbar = () => {
 
       <div className={`${styles.actions} gap-2 md:gap-[15px]`}>
         {/* Language Selector */}
-        <div className="hidden sm:block" style={{ position: 'relative' }}>
+        <div className="relative">
           <button
-            className="btn-secondary"
-            style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #eee', borderRadius: '12px' }}
+            className="btn-secondary !p-2 md:!px-3 md:!py-2 flex items-center gap-1.5 border border-gray-100 rounded-xl"
             onClick={() => setLangOpen(!langOpen)}
           >
             <Globe size={16} />
-            <span style={{ fontSize: '0.85rem' }}>{languages.find(l => l.code === language)?.name}</span>
-            <ChevronDown size={14} style={{ transform: langOpen ? 'rotate(180deg)' : 'none', transition: '0.3s' }} />
+            <span className="text-[10px] md:text-xs font-bold uppercase hidden min-[400px]:block">{languages.find(l => l.code === language)?.name}</span>
+            <ChevronDown size={12} className={`transition-transform duration-300 ${langOpen ? 'rotate-180' : ''}`} />
           </button>
 
           <AnimatePresence>
@@ -167,18 +167,7 @@ const Navbar = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
-                style={{
-                  position: 'absolute',
-                  top: '100%',
-                  right: 0,
-                  marginTop: '10px',
-                  background: 'white',
-                  borderRadius: '12px',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                  overflow: 'hidden',
-                  zIndex: 100,
-                  width: '150px'
-                }}
+                className="absolute top-full right-0 mt-2 bg-white rounded-xl shadow-xl overflow-hidden z-[100] w-[140px] border border-gray-100"
               >
                 {languages.map((l) => (
                   <button
@@ -187,18 +176,7 @@ const Navbar = () => {
                       setLanguage(l.code as any);
                       setLangOpen(false);
                     }}
-                    style={{
-                      width: '100%',
-                      padding: '12px 20px',
-                      textAlign: 'left',
-                      fontSize: '0.9rem',
-                      background: language === l.code ? '#FFF5F8' : 'white',
-                      color: language === l.code ? 'var(--primary)' : 'var(--secondary)',
-                      fontWeight: language === l.code ? '700' : '500',
-                      border: 'none',
-                      cursor: 'pointer',
-                      display: 'block'
-                    }}
+                    className={`w-full px-4 py-3 text-left text-xs font-bold transition-colors ${language === l.code ? 'bg-primary/5 text-primary' : 'text-secondary hover:bg-gray-50'}`}
                   >
                     {l.name}
                   </button>
@@ -210,14 +188,14 @@ const Navbar = () => {
 
         {/* Member Portal Dropdown */}
         <div
-          className={`${styles.portalWrapper} hidden sm:block`}
+          className={`${styles.portalWrapper}`}
           onMouseEnter={() => setActiveDropdown('portal')}
           onMouseLeave={() => setActiveDropdown(null)}
         >
-          <button className="btn-primary" style={{ padding: '10px 20px', fontSize: '0.9rem', borderRadius: '120px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button className="btn-primary !p-2 md:!px-5 md:!py-2.5 !rounded-xl md:!rounded-full flex items-center gap-2">
             <Users2 size={18} />
-            <span className={styles.portalText}>Member Portal</span>
-            <ChevronDown size={14} className={styles.portalChevron} style={{ transform: activeDropdown === 'portal' ? 'rotate(180deg)' : 'none', transition: '0.3s' }} />
+            <span className={`${styles.portalText} hidden lg:block text-xs font-bold`}>Member Portal</span>
+            <ChevronDown size={14} className={`${styles.portalChevron} hidden lg:block transition-transform duration-300 ${activeDropdown === 'portal' ? 'rotate-180' : ''}`} />
           </button>
 
           <AnimatePresence>
@@ -228,11 +206,11 @@ const Navbar = () => {
                 exit={{ opacity: 0, y: 15 }}
                 className={styles.portalDropdown}
               >
-                <Link href="/login" className={styles.dropdownLink} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 15px', borderRadius: '12px', color: 'var(--secondary)', textDecoration: 'none', fontWeight: '600' }}>
-                  <Briefcase size={16} color="var(--primary)" /> {t('login')}
+                <Link href="/login" className="flex items-center gap-3 p-3 rounded-xl text-secondary hover:bg-primary/5 transition-colors no-underline font-bold text-xs">
+                  <Briefcase size={16} className="text-primary" /> {t('login')}
                 </Link>
-                <Link href="/register" className={styles.dropdownLink} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 15px', borderRadius: '12px', color: 'var(--secondary)', textDecoration: 'none', fontWeight: '600' }}>
-                  <Users size={16} color="var(--primary)" /> {t('join_btn')}
+                <Link href="/register" className="flex items-center gap-3 p-3 rounded-xl text-secondary hover:bg-primary/5 transition-colors no-underline font-bold text-xs">
+                  <Users size={16} className="text-primary" /> {t('join_btn')}
                 </Link>
               </motion.div>
             )}
@@ -240,7 +218,7 @@ const Navbar = () => {
         </div>
 
         <button className={`${styles.mobileMenuBtn} flex lg:hidden`} onClick={() => setIsOpen(!isOpen)} style={{ zIndex: 101 }}>
-          {isOpen ? <X size={28} /> : <Menu size={28} />}
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
@@ -320,7 +298,7 @@ const Navbar = () => {
                 </Link>
               </div>
               <a
-                href="tel:8076611842"
+                href="mailto:info@sakhihub.com"
                 className="btn-primary py-3 px-4"
                 style={{
                   justifyContent: 'center',
@@ -330,8 +308,8 @@ const Navbar = () => {
                   fontSize: '0.85rem'
                 }}
               >
-                <Phone size={16} />
-                <span>Call Us</span>
+                <Mail size={16} />
+                <span>Email Us</span>
               </a>
             </div>
           </motion.div>

@@ -89,6 +89,11 @@
 }
 
 @media (max-width: 1024px) {
+  .navbar {
+    height: 70px;
+    padding: 0 15px;
+  }
+
   .navLinks {
     display: none;
   }
@@ -106,7 +111,7 @@
   }
 
   .actions {
-    gap: 8px;
+    gap: 6px;
   }
 }
 

@@ -1,48 +1,76 @@
 'use client';
 
-import React from 'react';
-import { MessageCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { HelpCircle } from 'lucide-react';
+import SupportModal from './SupportModal';
 
-const WhatsAppButton = () => {
+const SupportButton = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <>
-      <a 
-        href="https://wa.me/918076611842" 
-        className="whatsapp-float"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Contact on WhatsApp"
+      <button 
+        onClick={() => setIsOpen(true)}
+        className="support-float"
+        aria-label="Contact Support"
       >
-        <MessageCircle size={32} />
-      </a>
+        <HelpCircle size={32} />
+        <span className="tooltip text-[10px] font-black uppercase tracking-widest">Support</span>
+      </button>
+
+      <SupportModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
 
       <style jsx global>{`
-        .whatsapp-float {
+        .support-float {
           position: fixed;
           bottom: 30px;
           right: 30px;
           width: 60px;
           height: 60px;
-          background-color: #25d366;
+          background: linear-gradient(135deg, #E91E63 0%, #6A1B9A 100%);
           color: white;
-          border-radius: 50px;
+          border-radius: 20px;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 10px 30px rgba(233, 30, 99, 0.3);
           z-index: 999;
-          transition: all 0.3s ease;
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          border: none;
+          cursor: pointer;
         }
-        .whatsapp-float:hover {
-          transform: scale(1.1);
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        .support-float:hover {
+          transform: translateY(-5px) scale(1.05);
+          box-shadow: 0 15px 40px rgba(233, 30, 99, 0.4);
+        }
+        .support-float .tooltip {
+          position: absolute;
+          right: 100%;
+          margin-right: 15px;
+          background: #2D1B36;
+          color: white;
+          padding: 8px 12px;
+          border-radius: 12px;
+          opacity: 0;
+          visibility: hidden;
+          transition: 0.3s;
+          white-space: nowrap;
+        }
+        .support-float:hover .tooltip {
+          opacity: 1;
+          visibility: visible;
+          transform: translateX(-5px);
         }
         @media (max-width: 768px) {
-          .whatsapp-float {
+          .support-float {
             bottom: 20px;
             right: 20px;
             width: 50px;
             height: 50px;
+            border-radius: 15px;
+          }
+          .support-float .tooltip {
+            display: none;
           }
         }
       `}</style>
@@ -50,5 +78,5 @@ const WhatsAppButton = () => {
   );
 };
 
-export default WhatsAppButton;
+export default SupportButton;
 

@@ -18,11 +18,9 @@ export async function POST(req: NextRequest) {
     const userId = (session as any).id;
     
     // Fetch creator's profile for hierarchy
-    const User = (await import('@/models/User')).default;
     const userProfile = await User.findById(userId);
 
     // Auto-populate district and block from group if missing
-    const Group = (await import('@/models/Group')).default;
     const group = await Group.findById(body.groupId);
     if (!group) {
       return errorResponse('Associated group not found', 404);
@@ -65,7 +63,6 @@ export async function GET(req: NextRequest) {
     const mode = searchParams.get('mode');
     const role = (session as any).role;
     const userId = (session as any).id;
-    const User = (await import('@/models/User')).default;
     const userProfile = await User.findById(userId);
 
     let query: any = {};
@@ -84,7 +81,15 @@ export async function GET(req: NextRequest) {
         userId: { $exists: true } // Only show members who have a user account (self-registered)
       };
     } else if (role === 'employee') {
-      query.$or = [{ createdBy: userId }, { assignedEmployeeId: userId }];
+      // Find all members who registered using this employee's code (mapped in User model)
+      const mappedUsers = await User.find({ parentVendorId: userId, role: 'member' }).select('_id');
+      const mappedUserIds = mappedUsers.map(u => u._id);
+
+      query.$or = [
+        { createdBy: userId }, 
+        { assignedEmployeeId: userId },
+        { userId: { $in: mappedUserIds } }
+      ];
     } else if (role === 'vendor') {
       query = { vendorCode: userProfile?.vendorCode };
     } else if (role === 'sub_vendor') {
@@ -118,9 +123,37 @@ export async function GET(req: NextRequest) {
 
     const members = await WomenMember.find(query)
       .sort({ createdAt: -1 })
-      .populate('groupId', 'groupName village');
+      .populate('groupId', 'groupName village')
+      .populate('assignedEmployeeId', 'fullName mobile employeeId')
+      .populate({
+        path: 'userId',
+        select: 'parentVendorId parentEmployeeCode parentVendorCode parentSubVendorCode',
+        populate: {
+          path: 'parentVendorId',
+          select: 'fullName mobile employeeId'
+        }
+      });
 
-    return successResponse(members);
+    // Deduplicate and process members
+    const uniqueMembersMap = new Map();
+
+    members.forEach(member => {
+      // Use mobile as unique key
+      if (!uniqueMembersMap.has(member.mobile)) {
+        // Determine the assigned employee fallback
+        const employee = member.assignedEmployeeId || (member.userId as any)?.parentVendorId;
+
+        uniqueMembersMap.set(member.mobile, {
+          ...member.toObject(),
+          assignedEmployeeId: employee, // Unified employee field
+          paymentStatus: member.membershipStatus === 'paid' ? 'Paid' : 'Pending',
+          accountStatus: member.accountStatus,
+          connectionStatus: member.connectionStatus
+        });
+      }
+    });
+
+    return successResponse(Array.from(uniqueMembersMap.values()));
   } catch (error: any) {
     return errorResponse(error.message, 500);
   }

@@ -13,79 +13,56 @@ export default function RegisterBranding() {
   ];
 
   return (
-    <div style={{ 
-      background: 'linear-gradient(135deg, #2E0249, #570A57)', 
-      padding: '60px', 
-      color: 'white', 
-      position: 'relative', 
-      overflow: 'hidden',
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: '100%',
-      justifyContent: 'space-between'
-    }}>
+    <div className="relative min-h-full overflow-hidden bg-gradient-to-br from-[#2E0249] to-[#570A57] p-8 md:p-12 lg:p-16 text-white flex flex-col justify-between">
       {/* Dynamic Background Overlays */}
-      <div style={{ position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', opacity: 0.1, zIndex: 1 }}>
+      <div className="absolute inset-0 opacity-10 z-0">
         <Image 
           src="/assets/register-hero.png" 
           alt="Impact Background" 
           fill
-          style={{ objectFit: 'cover' }}
+          className="object-cover"
         />
       </div>
       
       {/* Glassmorphic Background Blobs */}
-      <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '400px', height: '400px', background: 'rgba(233, 30, 99, 0.15)', borderRadius: '50%', filter: 'blur(100px)', zIndex: 1 }}></div>
-      <div style={{ position: 'absolute', bottom: '10%', right: '-5%', width: '300px', height: '300px', background: 'rgba(106, 27, 154, 0.3)', borderRadius: '50%', filter: 'blur(80px)', zIndex: 1 }}></div>
+      <div className="absolute -top-10 -left-10 w-64 h-64 md:w-[400px] md:h-[400px] bg-pink-500/15 rounded-full blur-[100px] z-0"></div>
+      <div className="absolute bottom-10 -right-5 w-48 h-48 md:w-[300px] md:h-[300px] bg-purple-600/30 rounded-full blur-[80px] z-0"></div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        style={{ position: 'relative', zIndex: 5 }}
+        className="relative z-10"
       >
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '60px', textDecoration: 'none' }}>
-          <div style={{ width: '44px', height: '44px', background: 'var(--grad-primary)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(233, 30, 99, 0.3)' }}>
-            <Users size={24} color="white" />
+        <Link href="/" className="flex items-center gap-3 mb-10 md:mb-16 no-underline">
+          <div className="w-10 h-10 md:w-11 md:h-11 bg-gradient-to-r from-primary to-secondary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
+            <Users size={24} className="text-white" />
           </div>
-          <span style={{ fontSize: '1.75rem', fontWeight: '900', color: 'white', letterSpacing: '0.5px' }}>SakhiHub</span>
+          <span className="text-xl md:text-3xl font-black tracking-tight text-white">SakhiHub</span>
         </Link>
 
-        <div style={{ 
-          display: 'inline-flex', 
-          alignItems: 'center', 
-          gap: '10px', 
-          padding: '10px 20px', 
-          background: 'rgba(255, 255, 255, 0.1)', 
-          backdropFilter: 'blur(10px)', 
-          borderRadius: '100px', 
-          color: 'white', 
-          fontSize: '0.85rem', 
-          fontWeight: '700', 
-          marginBottom: '32px', 
-          border: '1px solid rgba(255, 255, 255, 0.1)' 
-        }}>
-          <Sparkles size={16} color="#E91E63" />
+        <div className="inline-flex items-center gap-2.5 px-4 md:px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-full text-white text-[10px] md:text-sm font-bold mb-8 border border-white/10">
+          <Sparkles size={16} className="text-primary" />
           Real People • Real Impact • Real Trust
         </div>
 
-        <h1 style={{ fontSize: '3.8rem', fontWeight: '900', lineHeight: '1.1', marginBottom: '24px', letterSpacing: '-1px' }}>
+        <h1 className="text-4xl md:text-6xl lg:text-[3.8rem] font-black leading-[1.1] mb-6 tracking-tighter">
           The Hearts Behind <br />
-          <span className="text-gradient" style={{ filter: 'brightness(1.8)' }}>SakhiHub</span>
+          <span className="text-gradient brightness-[1.8]">SakhiHub</span>
         </h1>
         
-        <p style={{ fontSize: '1.25rem', opacity: 0.9, lineHeight: '1.7', maxWidth: '520px', marginBottom: '40px', color: '#E0E0E0' }}>
+        <p className="text-base md:text-xl opacity-90 leading-relaxed max-w-lg mb-10 text-gray-200">
           Our field team works at the grassroots level, connecting directly with women in villages to build a stronger, independent India.
         </p>
 
         {/* Feature List */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '50px' }}>
+        <div className="flex flex-col gap-4 mb-12">
           {['Ground-level Awareness', 'Trust-based Community', 'Verified Growth Network'].map((item, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ background: 'rgba(233, 30, 99, 0.2)', padding: '4px', borderRadius: '50%' }}>
-                <CheckCircle2 size={18} color="#E91E63" />
+            <div key={i} className="flex items-center gap-3">
+              <div className="bg-primary/20 p-1 rounded-full">
+                <CheckCircle2 size={18} className="text-primary" />
               </div>
-              <span style={{ fontWeight: '600', fontSize: '1.1rem' }}>{item}</span>
+              <span className="font-bold text-sm md:text-lg">{item}</span>
             </div>
           ))}
         </div>
@@ -96,57 +73,23 @@ export default function RegisterBranding() {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3, duration: 1 }}
-        style={{ position: 'relative', zIndex: 5, padding: '20px' }}
+        className="relative z-10 p-2 md:p-5"
       >
-        <div style={{ position: 'relative', height: '240px', width: '100%' }}>
+        <div className="relative h-44 md:h-60 w-full">
           {/* Main Image Overlay */}
-          <div style={{ 
-            position: 'absolute', 
-            left: '0', 
-            bottom: '0', 
-            width: '280px', 
-            height: '180px', 
-            borderRadius: '24px', 
-            overflow: 'hidden', 
-            border: '4px solid rgba(255,255,255,0.1)',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.3)'
-          }}>
-            <Image src="/assets/women-group.png" alt="Women Group" fill style={{ objectFit: 'cover' }} />
+          <div className="absolute left-0 bottom-0 w-40 md:w-72 h-28 md:h-44 rounded-2xl overflow-hidden border-2 md:border-4 border-white/10 shadow-2xl">
+            <Image src="/assets/women-group.png" alt="Women Group" fill className="object-cover" />
           </div>
 
           {/* Secondary Image Overlay */}
-          <div style={{ 
-            position: 'absolute', 
-            right: '20px', 
-            top: '0', 
-            width: '200px', 
-            height: '220px', 
-            borderRadius: '24px', 
-            overflow: 'hidden', 
-            border: '4px solid rgba(255,255,255,0.1)',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.3)'
-          }}>
-            <Image src="/assets/field-work.png" alt="Field Work" fill style={{ objectFit: 'cover' }} />
+          <div className="absolute right-0 top-0 w-28 md:w-52 h-32 md:h-52 rounded-2xl overflow-hidden border-2 md:border-4 border-white/10 shadow-2xl">
+            <Image src="/assets/field-work.png" alt="Field Work" fill className="object-cover" />
           </div>
 
           {/* Floating Stats Badge */}
-          <div style={{ 
-            position: 'absolute', 
-            left: '50%', 
-            top: '50%', 
-            transform: 'translate(-50%, -50%)',
-            background: 'white',
-            padding: '16px 24px',
-            borderRadius: '20px',
-            color: '#2E0249',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            zIndex: 10
-          }}>
-            <span style={{ fontSize: '1.5rem', fontWeight: '900', color: '#E91E63' }}>50k+</span>
-            <span style={{ fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', opacity: 0.6 }}>Active Sakhis</span>
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-4 md:px-6 py-3 md:py-4 rounded-2xl text-[#2E0249] shadow-2xl flex flex-col items-center z-20 min-w-[100px] md:min-w-[140px]">
+            <span className="text-lg md:text-2xl font-black text-primary">50k+</span>
+            <span className="text-[8px] md:text-[10px] font-black uppercase opacity-60">Active Sakhis</span>
           </div>
         </div>
       </motion.div>

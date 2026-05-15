@@ -13,23 +13,19 @@ export async function GET(req: NextRequest) {
     }
 
     await dbConnect();
+    const _Campaign = (await import('@/models/Campaign')).default; // Ensure Campaign is registered
     
     const vendor = await User.findById((session as any).id);
     if (!vendor) return errorResponse('Vendor not found', 404);
 
-    // Find all groups where the assigned employee belongs to this vendor's network
-    // This requires a join/populate or multiple queries. 
-    // Simplified for now: Get all groups, we'll need to filter by employee network later.
-    const groups = await Group.find({})
-      .populate('assignedEmployeeId', 'fullName employeeId vendorCode subVendorCode');
+    // Fetch groups directly associated with this vendor's code
+    const groups = await Group.find({ vendorCode: vendor.vendorCode })
+      .populate('createdBy', 'fullName employeeId vendorCode subVendorCode')
+      .populate('campaignId', 'title');
 
-    // Filter groups where the assigned employee belongs to this vendor
-    const filteredGroups = groups.filter(g => 
-      (g.assignedEmployeeId as any)?.vendorCode === vendor.vendorCode
-    );
-
-    return successResponse(filteredGroups);
+    return successResponse(groups);
   } catch (error: any) {
+    console.error('Vendor Groups Error:', error);
     return errorResponse(error.message, 500);
   }
 }

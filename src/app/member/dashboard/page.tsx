@@ -301,7 +301,6 @@ export default function MemberDashboardPage() {
                 {[
                   { label: 'Full Name', value: profile?.fullName, icon: <User size={18} /> },
                   { label: 'Mobile Number', value: profile?.mobile, icon: <Phone size={18} /> },
-                  { label: 'WhatsApp', value: profile?.whatsapp || 'Not provided', icon: <MessageSquare size={18} /> },
                   { label: 'Member ID', value: membership?.membershipId || 'Generating...', icon: <ShieldCheck size={18} /> },
                   { label: 'District', value: profile?.district || fieldRecord?.district, icon: <MapPin size={18} /> },
                   { label: 'Block', value: profile?.block || fieldRecord?.block, icon: <Home size={18} /> },

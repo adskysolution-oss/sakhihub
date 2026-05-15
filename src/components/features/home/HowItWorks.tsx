@@ -73,8 +73,8 @@ const HowItWorks = () => {
                 transition={{ delay: i * 0.1, duration: 0.6 }}
                 className="flex-1 relative group"
               >
-                <div className="bg-white p-8 md:p-10 rounded-[40px] text-center h-full border border-gray-100 shadow-xl shadow-black/[0.03] transition-all hover:shadow-primary/10 hover:-translate-y-2 group-hover:border-primary/20">
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-gradient-to-br from-primary to-secondary text-white rounded-full flex items-center justify-center font-bold text-sm shadow-lg shadow-primary/30 z-10">
+                <div className="bg-white pt-12 pb-8 px-8 md:p-10 rounded-[40px] text-center h-full border border-gray-100 shadow-xl shadow-black/[0.03] transition-all hover:shadow-primary/10 hover:-translate-y-2 group-hover:border-primary/20 relative mt-4 md:mt-0">
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary to-secondary text-white rounded-2xl flex items-center justify-center font-bold text-sm md:text-base shadow-lg shadow-primary/30 z-10 rotate-12 group-hover:rotate-0 transition-transform">
                     {i + 1}
                   </div>
                   

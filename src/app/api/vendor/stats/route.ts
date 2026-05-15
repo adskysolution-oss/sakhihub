@@ -7,6 +7,19 @@ import SecurityDeposit from '@/models/SecurityDeposit';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 
+const resolveVendorUser = async (session: any) => {
+  const query: any[] = [{ _id: session.id }];
+
+  if (session.mobile) {
+    query.push({ mobile: session.mobile });
+  }
+
+  return User.findOne({
+    role: 'vendor',
+    $or: query,
+  });
+};
+
 export async function GET(req: NextRequest) {
   try {
     const session = await getAuthSession();
@@ -15,12 +28,13 @@ export async function GET(req: NextRequest) {
     }
 
     await dbConnect();
-    const vendorId = (session as any).id;
-    const user = await User.findById(vendorId);
+    const _Campaign = Campaign; // Ensure registration
+  const user = await resolveVendorUser(session);
 
     if (!user || !user.vendorCode) return errorResponse('Vendor profile not found', 404);
 
-    const vendorCode = user.vendorCode;
+  const vendorId = user._id;
+  const vendorCode = user.vendorCode;
 
     // Fetch Stats with Hierarchy Filtering
     const [

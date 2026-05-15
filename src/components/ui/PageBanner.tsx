@@ -42,7 +42,7 @@ const PageBanner = ({ title, subtitle, images, image }: PageBannerProps) => {
       </AnimatePresence>
 
       <div className="container" style={{ position: 'relative', zIndex: 10 }}>
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
@@ -59,8 +59,8 @@ const PageBanner = ({ title, subtitle, images, image }: PageBannerProps) => {
       {slideImages.length > 1 && (
         <div className={styles.indicators}>
           {slideImages.map((_, i) => (
-            <div 
-              key={i} 
+            <div
+              key={i}
               className={`${styles.indicator} ${i === current ? styles.active : ''}`}
               onClick={() => setCurrent(i)}
             />
