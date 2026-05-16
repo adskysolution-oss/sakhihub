@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Phone, Globe, ChevronDown, Activity, Users, BookOpen, Briefcase, Target, Eye, Users2, Mail } from 'lucide-react';
+import { Menu, X, Globe, ChevronDown, Activity, Users, BookOpen, Briefcase, Target, Eye, Users2, Mail } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 import styles from './Navbar.module.css';
@@ -15,7 +15,7 @@ const Navbar = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   const pathname = usePathname();
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,26 +27,25 @@ const Navbar = () => {
 
   const languages = [
     { code: 'en', name: 'English' },
-    { code: 'hi', name: 'हिन्दी' },
-    { code: 'mr', name: 'मराठी' },
-    { code: 'bn', name: 'বাংলা' },
-    { code: 'ta', name: 'தமிழ்' },
-    { code: 'te', name: 'తెలుగు' },
+    { code: 'hi', name: 'Hindi' },
+    { code: 'mr', name: 'Marathi' },
+    { code: 'bn', name: 'Bengali' },
+    { code: 'ta', name: 'Tamil' },
+    { code: 'te', name: 'Telugu' },
   ];
 
   const navLinks = [
-    { name: t('Home'), href: '/' },
+    { name: 'Home', href: '/' },
     {
-      name: t('about_us'),
+      name: 'About Us',
       href: '/about',
       subLinks: [
         { name: 'Vision', href: '/vision', icon: Eye },
         { name: 'Mission', href: '/mission', icon: Target },
-        // { name: 'Our Team', href: '/team', icon: Users2 },
       ]
     },
     {
-      name: t('programs'),
+      name: 'Programs',
       href: '/programs',
       subLinks: [
         { name: 'Health & Hygiene', href: '/programs/health', icon: Activity },
@@ -55,10 +54,10 @@ const Navbar = () => {
         { name: 'Community', href: '/programs/community', icon: Users },
       ]
     },
-    { name: t('Projects') || 'Projects', href: '/projects' },
-    { name: t('campaign'), href: '/campaign' },
-    { name: t('Products'), href: '/products' },
-    { name: t('contact'), href: '/contact' },
+    { name: 'Projects', href: '/projects' },
+    // { name: 'Campaign', href: '/campaign' },
+    { name: 'Products', href: '/products' },
+    { name: 'Contact', href: '/contact' },
   ];
 
   return (
@@ -150,7 +149,6 @@ const Navbar = () => {
       </div>
 
       <div className={`${styles.actions} gap-2 md:gap-[15px]`}>
-        {/* Language Selector */}
         <div className="relative">
           <button
             className="btn-secondary !p-2 md:!px-3 md:!py-2 flex items-center gap-1.5 border border-gray-100 rounded-xl"
@@ -186,7 +184,6 @@ const Navbar = () => {
           </AnimatePresence>
         </div>
 
-        {/* Member Portal Dropdown */}
         <div
           className={`${styles.portalWrapper}`}
           onMouseEnter={() => setActiveDropdown('portal')}
@@ -207,10 +204,10 @@ const Navbar = () => {
                 className={styles.portalDropdown}
               >
                 <Link href="/login" className="flex items-center gap-3 p-3 rounded-xl text-secondary hover:bg-primary/5 transition-colors no-underline font-bold text-xs">
-                  <Briefcase size={16} className="text-primary" /> {t('login')}
+                  <Briefcase size={16} className="text-primary" /> Employee Login
                 </Link>
                 <Link href="/register" className="flex items-center gap-3 p-3 rounded-xl text-secondary hover:bg-primary/5 transition-colors no-underline font-bold text-xs">
-                  <Users size={16} className="text-primary" /> {t('join_btn')}
+                  <Users size={16} className="text-primary" /> Join Movement
                 </Link>
               </motion.div>
             )}
@@ -263,7 +260,10 @@ const Navbar = () => {
                 {languages.map(l => (
                   <button
                     key={l.code}
-                    onClick={() => setLanguage(l.code as any)}
+                    onClick={() => {
+                      setLanguage(l.code as any);
+                      setIsOpen(false);
+                    }}
                     style={{
                       padding: '12px 8px',
                       borderRadius: '12px',
@@ -286,7 +286,7 @@ const Navbar = () => {
                   style={{ justifyContent: 'center', fontSize: '0.85rem', borderRadius: '12px' }}
                   onClick={() => setIsOpen(false)}
                 >
-                  {t('login')}
+                  Login
                 </Link>
                 <Link
                   href="/register"
@@ -294,7 +294,7 @@ const Navbar = () => {
                   style={{ justifyContent: 'center', fontSize: '0.85rem', borderRadius: '12px' }}
                   onClick={() => setIsOpen(false)}
                 >
-                  {t('join_btn')}
+                  Join Now
                 </Link>
               </div>
               <a
@@ -320,4 +320,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

@@ -24,7 +24,7 @@ const HealthProgram = () => {
       title: "Village Health Committees",
       desc: "Forming local committees to monitor and support the health needs of the community at the grassroots level.",
       icon: Users,
-      img: "https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=800"
+      img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=800"
     }
   ];
 

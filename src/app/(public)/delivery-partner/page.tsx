@@ -1,6 +1,6 @@
 import PageBanner from "@/components/ui/PageBanner";
 import React from "react";
-import { Truck, IndianRupee, ShieldCheck, ClipboardList, MessageCircle } from "lucide-react";
+import { Truck, IndianRupee, ShieldCheck } from "lucide-react";
 
 export default function DeliveryPartnerPage() {
   return (
@@ -17,7 +17,7 @@ export default function DeliveryPartnerPage() {
             <div>
               <h2 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '25px' }}>Business Opportunity</h2>
               <p style={{ fontSize: '1.1rem', color: 'var(--text-main)', lineHeight: '1.8', marginBottom: '30px' }}>
-                SakhiHub Delivery Partner model में partner को hiring, marketing या group बनाना नहीं है। Company ready orders, customers, product material और support देगी। Partner को अपने Tehsil/Block में product delivery करनी है।
+                In the SakhiHub Delivery Partner model, the partner does not need to handle hiring, marketing, or group formation. The company provides ready orders, customers, product material, and full operational support. The partner is responsible for local product delivery within their assigned Tehsil/Block.
               </p>
               
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '40px' }}>
@@ -46,25 +46,25 @@ export default function DeliveryPartnerPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div style={{ display: 'flex', gap: '15px' }}>
                   <div style={{ minWidth: '32px', height: '32px', background: 'var(--accent)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', fontWeight: '700' }}>1</div>
-                  <p style={{ fontSize: '0.95rem' }}>Ready orders receive करना</p>
+                  <p style={{ fontSize: '0.95rem' }}>Receiving ready orders from the company</p>
                 </div>
                 <div style={{ display: 'flex', gap: '15px' }}>
                   <div style={{ minWidth: '32px', height: '32px', background: 'var(--accent)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', fontWeight: '700' }}>2</div>
-                  <p style={{ fontSize: '0.95rem' }}>Customer को delivery करना</p>
+                  <p style={{ fontSize: '0.95rem' }}>Ensuring timely delivery to customers</p>
                 </div>
                 <div style={{ display: 'flex', gap: '15px' }}>
                   <div style={{ minWidth: '32px', height: '32px', background: 'var(--accent)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', fontWeight: '700' }}>3</div>
-                  <p style={{ fontSize: '0.95rem' }}>COD हो तो payment collect करना</p>
+                  <p style={{ fontSize: '0.95rem' }}>Collecting payments for COD (Cash on Delivery) orders</p>
                 </div>
                 <div style={{ display: 'flex', gap: '15px' }}>
                   <div style={{ minWidth: '32px', height: '32px', background: 'var(--accent)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', fontWeight: '700' }}>4</div>
-                  <p style={{ fontSize: '0.95rem' }}>Daily delivery report भेजना</p>
+                  <p style={{ fontSize: '0.95rem' }}>Submitting daily delivery and collection reports</p>
                 </div>
                 
                 <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <a href="/register?role=delivery" className="btn-primary" style={{ justifyContent: 'center' }}>Apply as Delivery Partner</a>
                   <a href="/contact" className="btn-secondary" style={{ justifyContent: 'center' }}>
-                    Request Details
+                    Request More Details
                   </a>
                 </div>
               </div>
@@ -75,4 +75,3 @@ export default function DeliveryPartnerPage() {
     </>
   );
 }
-

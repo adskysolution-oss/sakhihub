@@ -5,11 +5,11 @@ import { motion } from 'framer-motion';
 import { Users, Briefcase, Truck, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import styles from './JoinMovement.module.css';
+import PosterGenerator from '@/components/ui/PosterGenerator';
 
 const joinOptions = [
   {
     title: 'Join Campaign',
-    hindi: 'अभियान से जुड़ें',
     desc: 'Become a volunteer and help us spread health awareness in your village.',
     link: '/campaign',
     icon: <Users size={32} />,
@@ -17,7 +17,6 @@ const joinOptions = [
   },
   {
     title: 'Join as Employee',
-    hindi: 'नौकरी के लिए आवेदन करें',
     desc: 'Apply for Block Level Employee or District Coordinator roles.',
     link: '/hiring',
     icon: <Briefcase size={32} />,
@@ -25,7 +24,6 @@ const joinOptions = [
   },
   {
     title: 'Delivery Partner',
-    hindi: 'वितरण भागीदार बनें',
     desc: 'Manage product delivery in your Tehsil/Block and earn a steady income.',
     link: '/delivery-partner',
     icon: <Truck size={32} />,
@@ -33,15 +31,13 @@ const joinOptions = [
   }
 ];
 
-import PosterGenerator from '@/components/ui/PosterGenerator';
-
 const JoinMovement = () => {
   return (
     <section className="section-padding">
       <div className="container">
         <div className="section-title">
           <span>Join the Movement</span>
-          <h2>बदलाव का <span className="text-gradient">हिस्सा बनें</span></h2>
+          <h2>Be the <span className="text-gradient">Change</span></h2>
         </div>
 
         <div className={styles.grid}>
@@ -56,7 +52,6 @@ const JoinMovement = () => {
               style={{ '--accent-color': item.color } as any}
             >
               <div className={styles.iconWrapper}>{item.icon}</div>
-              <h4 className="hindi">{item.hindi}</h4>
               <h3>{item.title}</h3>
               <p>{item.desc}</p>
               <Link href={item.link} className={styles.link}>
@@ -75,4 +70,3 @@ const JoinMovement = () => {
 };
 
 export default JoinMovement;
-

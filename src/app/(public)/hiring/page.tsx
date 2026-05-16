@@ -2,7 +2,7 @@
 
 import PageBanner from "@/components/ui/PageBanner";
 import React, { useState } from "react";
-import { Briefcase, IndianRupee, MapPin, CheckCircle, ArrowRight, Star, Users, ShieldCheck, Heart, Zap, Globe } from "lucide-react";
+import { Briefcase, IndianRupee, MapPin, CheckCircle, ArrowRight, Star, ShieldCheck, Heart, Zap, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
@@ -125,8 +125,8 @@ export default function HiringPage() {
                   <h4 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '20px' }}>What you will do:</h4>
                   <div style={{ display: 'grid', gap: '15px', marginBottom: '45px' }}>
                     {(activeTab === 'block' ? 
-                      ['गांव-गांव जाकर महिलाओं को जागरूक करना', 'पीरियड हाइजीन पर वर्कशॉप लेना', 'सेल्फ-हेल्प ग्रुप (SHG) बनाना', 'डेली प्रोग्रेस रिपोर्ट सबमिट करना'] : 
-                      ['पूरी डिस्ट्रिक्ट टीम को मैनेज करना', 'ब्लॉक लेवल ऑपरेशंस की मॉनिटरिंग', '5-10 ब्लॉक्स का नियमित दौरा', 'हायर लेवल मैनेजमेंट को रिपोर्टिंग']
+                      ['Going village to village to create awareness', 'Conducting workshops on period hygiene', 'Forming Self-Help Groups (SHG)', 'Submitting daily progress reports'] : 
+                      ['Managing the entire district team', 'Monitoring block-level operations', 'Regular visits to 5-10 blocks', 'Reporting to higher-level management']
                     ).map((p, i) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '600', color: '#555' }}>
                         <CheckCircle size={20} color="var(--primary)" /> {p}
@@ -193,4 +193,3 @@ export default function HiringPage() {
     </div>
   );
 }
-

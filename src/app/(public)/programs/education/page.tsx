@@ -107,7 +107,7 @@ const EducationProgram = () => {
             </motion.div>
             <div className="rounded-[30px] lg:rounded-[40px] overflow-hidden h-[300px] sm:h-[450px] lg:h-[500px] border-[6px] lg:border-[10px] border-white/10 shadow-2xl">
               <img 
-                src="https://images.unsplash.com/photo-1524178232363-1fb28f74b671?q=80&w=800" 
+                src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?q=80&w=800" 
                 className="w-full h-full object-cover" 
                 alt="Workshop Session"
               />

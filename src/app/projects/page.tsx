@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Navbar from '@/components/shared/Navbar';
-import Footer from '@/components/shared/Footer';
 import { motion } from 'framer-motion';
 import {
   Sparkles, ArrowRight, Target,
@@ -38,7 +36,6 @@ export default function PublicProjectsPage() {
 
   return (
     <main className="min-h-screen bg-[#FFF5F8]">
-      <Navbar />
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden bg-secondary">
@@ -173,7 +170,6 @@ export default function PublicProjectsPage() {
         </div>
       </section>
 
-      <Footer />
     </main>
   );
 }

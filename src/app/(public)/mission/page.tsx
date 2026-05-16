@@ -6,7 +6,7 @@ export default function MissionPage() {
     <>
       <PageBanner
         title="Our Mission"
-        subtitle="हमारा मिशन"
+        subtitle="Empowering women through information, health products, and skill development."
         image="https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1500"
       />
 
@@ -14,15 +14,15 @@ export default function MissionPage() {
         <div className="container">
           <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
             <h2 className="text-gradient" style={{ fontSize: '3rem', marginBottom: '40px' }}>
-              हमारा मिशन
+              Our Mission
             </h2>
             <div className="glass-card" style={{ padding: '60px 40px', fontSize: '1.3rem', color: 'var(--text-main)', lineHeight: '2', display: 'flex', flexDirection: 'column', gap: '30px' }}>
               <p>
-                SakhiHub का मिशन महिलाओं तक सही स्वास्थ्य जानकारी, Period Hygiene Awareness, सुरक्षित sanitary products, skill support और रोजगार के अवसर पहुँचाना है।
-                हम गांव-गांव जाकर Women Groups, Awareness Campaigns, Training Programs और Micro Industry Initiatives के माध्यम से महिलाओं को आत्मनिर्भर बनाने का कार्य कर रहे हैं।
+                SakhiHub&apos;s mission is to provide women with accurate health information, period hygiene awareness, safe sanitary products, skill support, and employment opportunities.
+                We work village to village through women&apos;s groups, awareness campaigns, training programs, and micro-industry initiatives to make women self-reliant.
               </p>
               <p style={{ fontWeight: '600', color: 'var(--secondary)' }}>
-                हमारा उद्देश्य हर Block और हर Tehsil तक पहुँचकर एक स्वस्थ, जागरूक और सशक्त भारत का निर्माण करना है।
+                Our objective is to reach every block and tehsil, building a healthy, aware, and empowered India.
               </p>
             </div>
           </div>
@@ -31,4 +31,3 @@ export default function MissionPage() {
     </>
   );
 }
-

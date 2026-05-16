@@ -3,22 +3,22 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  User, Phone, MapPin, Lock, Upload, CheckCircle,
-  ArrowRight, ArrowLeft, Users, Briefcase, GraduationCap, Sparkles, ShieldCheck,
-  MessageCircle, ClipboardList, BookOpen, Clock, AlertCircle, Mail, Eye, EyeOff, Check
+  User, Phone, MapPin, ShieldCheck,
+  ArrowRight, ArrowLeft, Users, Briefcase, Sparkles,
+  ClipboardList, BookOpen, Clock, AlertCircle, Mail, Check,
+  CheckCircle
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useLanguage } from "@/context/LanguageContext";
 import PasswordField from "@/components/ui/PasswordField";
 import { validatePassword } from "@/utils/validation";
 import { usePincodeAutofill } from "@/hooks/usePincodeAutofill";
 
 const steps = [
-  { id: 1, name: "Role", hindi: "भूमिका" },
-  { id: 2, name: "Details", hindi: "विवरण" },
-  { id: 3, name: "Location", hindi: "स्थान" },
-  { id: 4, name: "Connect", hindi: "जुड़ें" },
-  { id: 5, name: "Security", hindi: "सुरक्षा" },
+  { id: 1, name: "Role" },
+  { id: 2, name: "Details" },
+  { id: 3, name: "Location" },
+  { id: 4, name: "Connect" },
+  { id: 5, name: "Security" },
 ];
 
 const designations = [
@@ -31,7 +31,6 @@ const designations = [
 
 export default function RegisterForm() {
   const router = useRouter();
-  const { language } = useLanguage();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -311,7 +310,7 @@ export default function RegisterForm() {
                 >
                   {loading ? "Verifying..." : "Verify & Activate Account"}
                 </button>
-                
+
                 <button
                   type="button"
                   onClick={handleResendOtp}
@@ -339,15 +338,15 @@ export default function RegisterForm() {
                     {step > s.id ? <CheckCircle size={16} /> : s.id}
                   </div>
                   <span className={`text-[10px] md:text-xs font-black uppercase tracking-tighter md:tracking-widest ${step >= s.id ? 'text-secondary' : 'text-gray-300'}`}>
-                    {language === 'hi' ? s.hindi : s.name}
+                    {s.name}
                   </span>
                 </div>
               ))}
             </div>
 
             {referralContext && (
-              <motion.div 
-                initial={{ opacity: 0, y: -10 }} 
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-8 p-6 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-[24px] border border-primary/20 flex items-center gap-5"
               >
@@ -363,7 +362,6 @@ export default function RegisterForm() {
 
             <div className="mb-6 md:mb-10 text-center md:text-left">
               <h2 className="text-2xl md:text-4xl font-black text-secondary leading-tight">{steps[step - 1].name} Details</h2>
-              <p className="text-primary font-bold text-sm md:text-lg">{steps[step - 1].hindi} विवरण</p>
             </div>
 
             <form onSubmit={handleRegister}>

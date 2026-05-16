@@ -4,14 +4,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   Heart, ShieldCheck, Zap, Globe, 
-  ArrowRight, CheckCircle2, Star, 
+  ArrowRight, Star, 
   Award, MessageSquareHeart 
 } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
 
 const LiveImpactMap = () => {
-  const { language } = useLanguage();
-
   const achievements = [
     { title: 'Trusted by 50k+ Women', desc: 'Active community support across rural districts.', icon: Heart },
     { title: '98% Safety Rating', desc: 'Highest standards in health and hygiene education.', icon: ShieldCheck },
@@ -41,11 +38,7 @@ const LiveImpactMap = () => {
               </div>
               
               <h2 className="text-4xl md:text-6xl font-black text-secondary leading-[1.1] tracking-tight">
-                {language === 'hi' ? (
-                  <>विश्वास और <span className="text-gradient">बदलाव</span> की एक नई कहानी</>
-                ) : (
-                  <>Building Trust, <span className="text-gradient">Creating Change</span></>
-                )}
+                Building Trust, <span className="text-gradient">Creating Change</span>
               </h2>
               
               <p className="text-gray-500 text-lg md:text-xl font-medium leading-relaxed">

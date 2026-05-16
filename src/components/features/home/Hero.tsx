@@ -19,11 +19,11 @@ const Hero = () => {
           >
             <span className={styles.badge}>Empowering Women Across India</span>
             <h1 className={styles.title}>
-              हर महिला <span className="text-gradient">स्वस्थ</span>, <br />
-              हर महिला <span className="text-gradient">सशक्त</span>
+              Every Woman <span className="text-gradient">Healthy</span>, <br />
+              Every Woman <span className="text-gradient">Empowered</span>
             </h1>
             <p className={styles.subtitle}>
-              SakhiHub महिलाओं के स्वास्थ्य, जागरूकता, शिक्षा, रोजगार और आत्मनिर्भरता के लिए एक समर्पित प्लेटफॉर्म है।
+              SakhiHub is a dedicated platform for women's health, awareness, education, employment, and self-reliance.
             </p>
             
             <div className={styles.btnGroup}>
@@ -60,7 +60,6 @@ const Hero = () => {
           >
             <div className={styles.imageWrapper}>
               <div className={styles.circleBg}></div>
-              {/* Replace with actual high-quality image or illustration */}
               <img 
                 src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1000&auto=format&fit=crop" 
                 alt="Empowered Woman" 
@@ -82,4 +81,3 @@ const Hero = () => {
 };
 
 export default Hero;
-

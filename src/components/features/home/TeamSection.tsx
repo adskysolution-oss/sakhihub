@@ -1,32 +1,31 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Users, Shield, Target, CheckCircle, ArrowRight } from 'lucide-react';
-import Link from 'next/link';
+import { CheckCircle } from 'lucide-react';
 
 const stories = [
   { 
     name: "Sunita Devi", 
     role: "Village Member", 
-    story: "SakhiHub se judne ke baad mujhe swachhta aur health ki sahi jankari mili aur aaj main apne gaon me awareness phaila rahi hu.",
+    story: "After joining SakhiHub, I received the right information about hygiene and health, and today I am spreading awareness in my village.",
     image: "/images/campaign_sanitary.png"
   },
   { 
     name: "Rekha Bai", 
     role: "Field Volunteer", 
-    story: "Main ghar ghar jaakar mahilao ko samjhati hu aur ab main khud financially independent ho chuki hu.",
+    story: "I go door-to-door to educate women, and now I have become financially independent myself.",
     image: "/images/campaign_health.png"
   },
   { 
     name: "Pooja Sharma", 
     role: "Group Leader", 
-    story: "Humne apne gaon me mahila group banaya aur ab sab milkar kaam karte hain aur earn bhi karte hain.",
+    story: "We formed a women's group in our village, and now we all work together and earn a livelihood.",
     image: "/images/about_mission.png"
   },
   { 
     name: "Meena Kumari", 
     role: "Team Leader", 
-    story: "Main chahti hu ki hamare zila ki har mahila apne pairo par khadi ho aur SakhiHub isme puri madad kar raha hai.",
+    story: "I want every woman in our district to stand on her own feet, and SakhiHub is helping completely in this mission.",
     image: "/images/team_field.png"
   }
 ];
@@ -128,4 +127,3 @@ const TeamSection = () => {
 };
 
 export default TeamSection;
-
