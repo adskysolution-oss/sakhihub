@@ -7,9 +7,9 @@ import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
 
 const services = [
-  { 
-    hi: "स्वास्थ्य जागरूकता", 
-    en: "Health Awareness", 
+  {
+    hi: "स्वास्थ्य जागरूकता",
+    en: "Health Awareness",
     desc: {
       hi: "जागरूकता अभियानों के माध्यम से मासिक धर्म स्वच्छता और समग्र महिला स्वास्थ्य को बढ़ावा देना।",
       en: "Promoting menstrual hygiene and overall women health through awareness campaigns."
@@ -21,9 +21,9 @@ const services = [
     image: "/images/Health-Awareness.jpeg",
     color: "#E91E63"
   },
-  { 
-    hi: "स्वच्छता शिक्षा", 
-    en: "Hygiene Education", 
+  {
+    hi: "स्वच्छता शिक्षा",
+    en: "Hygiene Education",
     desc: {
       hi: "स्वच्छता और संक्रमण की रोकथाम के बारे में वैज्ञानिक ज्ञान प्रदान करना।",
       en: "Providing scientific knowledge about hygiene, sanitation, and infection prevention."
@@ -35,9 +35,9 @@ const services = [
     image: "/images/Hygiene-Education.jpeg",
     color: "#6A1B9A"
   },
-  { 
-    hi: "महिला समूह", 
-    en: "Women Groups", 
+  {
+    hi: "महिला समूह",
+    en: "Women Groups",
     desc: {
       hi: "सहायता, सुरक्षा और विकास के लिए मजबूत स्थानीय महिला नेटवर्क बनाना।",
       en: "Creating strong local women networks for support, safety, and growth."
@@ -49,9 +49,9 @@ const services = [
     image: "/images/Women-Groups.jpeg",
     color: "#FF9800"
   },
-  { 
-    hi: "रोजगार अवसर", 
-    en: "Employment", 
+  {
+    hi: "रोजगार अवसर",
+    en: "Employment",
     desc: {
       hi: "ब्लॉक और ग्राम स्तर पर महिलाओं के लिए स्थानीय रोजगार के अवसर पैदा करना।",
       en: "Generating local job opportunities for women at block and village level."
@@ -85,7 +85,7 @@ const WhatWeDo = () => {
             {language === 'hi' ? <>कर्म के माध्यम से <span className="text-gradient">सशक्तिकरण</span></> : <>Empowering Through <span className="text-gradient">Action</span></>}
           </h2>
           <p className="text-gray-500 mt-6 text-sm md:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed">
-            {language === 'hi' 
+            {language === 'hi'
               ? 'साखीहब जागरूकता पैदा करने, समुदायों का निर्माण करने और बेहतर भविष्य के लिए महिलाओं को सशक्त बनाने के लिए जमीनी स्तर पर काम करता है।'
               : 'SakhiHub works at ground level to create awareness, build communities, and empower women for a better future.'}
           </p>
@@ -93,23 +93,26 @@ const WhatWeDo = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
           {services.map((item, idx) => (
-            <motion.div 
-              key={idx} 
+            <motion.div
+              key={idx}
               {...fadeInUp}
               whileHover={{ y: -10 }}
               className="bg-white rounded-[40px] overflow-hidden shadow-2xl shadow-black/5 border border-gray-100 flex flex-col transition-all hover:shadow-primary/5"
             >
-              <div className="relative h-56 md:h-64 overflow-hidden">
-                <img 
-                  src={item.image} 
-                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-110" 
-                  alt={language === 'hi' ? item.hi : item.en} 
+              <div className="relative aspect-[4/5] rounded-[40px] overflow-hidden shadow-2xl mb-8 bg-white border border-gray-100">
+                <img
+                  src={item.image}
+                  className="w-full h-full object-cover transition-transform duration-1000 hover:scale-110"
+                  alt={language === 'hi' ? item.hi : item.en}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 md:opacity-40"></div>
+                
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-secondary via-secondary/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity"></div>
+                
                 <div className="absolute bottom-6 left-6">
-                   <div className="px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-[10px] font-bold text-white uppercase tracking-widest">
-                     {language === 'hi' ? 'विशेषता' : 'Core Service'}
-                   </div>
+                  <div className="px-4 py-1.5 bg-primary/90 text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg backdrop-blur-md border border-white/20">
+                    {language === 'hi' ? 'विशेषता' : 'Core Service'}
+                  </div>
                 </div>
               </div>
               <div className="p-8 md:p-10 flex-1 flex flex-col">
@@ -119,7 +122,7 @@ const WhatWeDo = () => {
                 <p className="text-gray-500 text-sm md:text-base leading-relaxed mb-8 flex-1">
                   {language === 'hi' ? item.desc.hi : item.desc.en}
                 </p>
-                
+
                 <div className="mb-8 space-y-3">
                   {(language === 'hi' ? item.points.hi : item.points.en).map((point, i) => (
                     <div key={i} className="flex items-center gap-3 text-[11px] md:text-xs font-bold text-secondary uppercase tracking-wider">
