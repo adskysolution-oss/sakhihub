@@ -9,13 +9,7 @@ import { useRouter } from 'next/navigation';
 import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary } from '@/utils/documents';
 import DocumentCard from '@/components/features/dashboard/DocumentCard';
 import { useDocumentFlow } from '@/hooks/useDocumentFlow';
-
-const steps = [
-  { id: 1, name: 'Registration', status: 'completed' },
-  { id: 2, name: 'Doc Verification', status: 'current' },
-  { id: 3, name: 'Hierarchy Mapping', status: 'upcoming' },
-  { id: 4, name: 'Dashboard Access', status: 'upcoming' },
-];
+import OnboardingStepper from '@/components/features/onboarding/OnboardingStepper';
 
 export default function SubVendorOnboarding() {
   const router = useRouter();
@@ -30,9 +24,18 @@ export default function SubVendorOnboarding() {
     try {
       const res = await axios.get('/api/auth/me');
       if (res.data.success) {
-        setProfile(res.data.data);
-        if (['active', 'approved'].includes(res.data.data.status) && res.data.data.dashboardAccess && res.data.data.assignmentStatus === 'completed') {
-          router.push('/sub-vendor/dashboard');
+        const user = res.data.data;
+        setProfile(user);
+        
+        // Real-time Auto Redirect Logic
+        if (user.documentsVerified) {
+          if (!user.paymentCompleted) {
+            router.push('/payment-pending');
+          } else if (user.assignmentStatus !== 'completed') {
+            router.push('/pending-assignment');
+          } else if (user.dashboardAccess) {
+            router.push('/sub-vendor/dashboard');
+          }
         }
       }
     } catch (err) {
@@ -44,6 +47,8 @@ export default function SubVendorOnboarding() {
 
   useEffect(() => {
     fetchProfile();
+    const interval = setInterval(fetchProfile, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleLogout = async () => {
@@ -82,25 +87,7 @@ export default function SubVendorOnboarding() {
       </header>
 
       <main className="container max-w-5xl mt-12 px-4">
-        <div className="flex justify-between mb-16 relative">
-          <div className="absolute top-[18px] left-0 w-full h-[2px] bg-gray-100 z-0"></div>
-          {steps.map((step) => (
-            <div key={step.id} className="relative z-10 flex flex-col items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-black transition-all duration-500 ${
-                ['active', 'approved'].includes(profile?.status) && step.id <= 2 ? 'bg-green-500 text-white' :
-                step.id === 1 ? 'bg-green-500 text-white' :
-                step.id === 2 ? 'bg-primary text-white ring-8 ring-primary/10' :
-                profile?.assignmentStatus === 'completed' && step.id === 3 ? 'bg-green-500 text-white' :
-                'bg-white text-gray-300 border-2 border-gray-100'
-              }`}>
-                {step.id === 1 || (step.id === 2 && ['active', 'approved'].includes(profile?.status)) || (step.id === 3 && profile?.assignmentStatus === 'completed') ? <CheckCircle2 size={18} /> : step.id}
-              </div>
-              <span className={`text-[10px] font-black uppercase tracking-widest ${step.id === 2 ? 'text-primary' : 'text-gray-400'}`}>
-                {step.name}
-              </span>
-            </div>
-          ))}
-        </div>
+        {profile && <OnboardingStepper user={profile} />}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2 space-y-8">

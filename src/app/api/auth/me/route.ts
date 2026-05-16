@@ -47,8 +47,9 @@ export async function GET() {
     const hasAccessChanged = user.dashboardAccess !== sessionUser.dashboardAccess;
     const hasAssignmentChanged = user.assignmentStatus !== sessionUser.assignmentStatus;
     const hasDocsVerifiedChanged = user.documentsVerified !== sessionUser.documentsVerified;
+    const hasPaymentChanged = user.paymentCompleted !== sessionUser.paymentCompleted;
 
-    if (hasStatusChanged || hasAccessChanged || hasAssignmentChanged || hasDocsVerifiedChanged) {
+    if (hasStatusChanged || hasAccessChanged || hasAssignmentChanged || hasDocsVerifiedChanged || hasPaymentChanged) {
       // Strip JWT metadata (iat, exp) from existing session to avoid conflict with signToken's expiresIn
       const { iat, exp, ...cleanPayload } = sessionUser;
       
@@ -61,7 +62,8 @@ export async function GET() {
         assignmentStatus: user.assignmentStatus,
         parentVendorId: user.parentVendorId,
         vendorCode: user.vendorCode,
-        subVendorCode: user.subVendorCode
+        subVendorCode: user.subVendorCode,
+        paymentCompleted: user.paymentCompleted
       };
       const newToken = signToken(newPayload);
       await setAuthCookie(newToken);

@@ -13,6 +13,7 @@ import {
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { motion } from "framer-motion";
+import OnboardingStepper from '@/components/features/onboarding/OnboardingStepper';
 
 export default function PendingAssignmentPage() {
   const router = useRouter();
@@ -50,8 +51,8 @@ export default function PendingAssignmentPage() {
   useEffect(() => {
     checkStatus();
     
-    // Optional: Poll every 30 seconds to catch admin changes without refresh
-    const interval = setInterval(checkStatus, 30000);
+    // Optional: Poll every 5 seconds to catch admin changes without refresh
+    const interval = setInterval(checkStatus, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -107,37 +108,13 @@ export default function PendingAssignmentPage() {
         </h1>
         
         <p className="text-gray-500 text-lg md:text-xl font-medium mb-12 leading-relaxed max-w-xl mx-auto">
-          You've successfully registered! Our administration team is now assigning you to the correct 
+          Your documents have been verified and payments completed! Our administration team is now assigning you to the correct 
           <span className="text-secondary font-bold"> Vendor network</span> and 
           <span className="text-secondary font-bold"> Campaign area</span>.
         </p>
 
-        {/* Status Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-          <div className="p-6 bg-white rounded-[32px] border border-gray-100 shadow-sm flex flex-col items-center gap-3">
-            <div className="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center">
-              <ShieldCheck size={20} />
-            </div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Step 1</p>
-            <p className="text-sm font-bold text-secondary">Docs Verified</p>
-          </div>
-
-          <div className="p-6 bg-white rounded-[32px] border border-gray-100 shadow-sm flex flex-col items-center gap-3 ring-2 ring-primary/20">
-            <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center animate-pulse">
-              <Network size={20} />
-            </div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-primary">Step 2</p>
-            <p className="text-sm font-bold text-secondary">Hierarchy Mapping</p>
-          </div>
-
-          <div className="p-6 bg-white rounded-[32px] border border-gray-100 shadow-sm flex flex-col items-center gap-3 opacity-50">
-            <div className="w-10 h-10 bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center">
-              <RefreshCcw size={20} />
-            </div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Step 3</p>
-            <p className="text-sm font-bold text-secondary">Dashboard Access</p>
-          </div>
-        </div>
+        {/* Unified Stepper */}
+        {user && <OnboardingStepper user={user} />}
 
         {/* Pending Requests Section */}
         {user?.pendingRequests && user.pendingRequests.length > 0 && (

@@ -10,6 +10,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 import ReferralLinkCard from "@/components/features/dashboard/ReferralLinkCard";
+import PaymentReceiptCard from "@/components/features/dashboard/PaymentReceiptCard";
 
 export default function SubVendorDashboard() {
   const [stats, setStats] = useState<any>(null);
@@ -93,10 +94,13 @@ export default function SubVendorDashboard() {
               subVendorCode={user?.subVendorCode}
             />
             
-            <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft flex-1 flex flex-col items-center justify-center text-center min-h-[250px]">
-              <TrendingUp size={60} className="text-gray-100 mb-6" />
-              <h3 className="text-xl font-black text-secondary">Recruitment Trends</h3>
-              <p className="text-gray-400 font-bold text-sm max-w-xs mt-2">Visualizing your monthly growth and member activation data.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
+              <PaymentReceiptCard />
+              <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft flex flex-col items-center justify-center text-center min-h-[250px]">
+                <TrendingUp size={60} className="text-gray-100 mb-6" />
+                <h3 className="text-xl font-black text-secondary">Recruitment Trends</h3>
+                <p className="text-gray-400 font-bold text-sm max-w-xs mt-2">Visualizing your monthly growth and member activation data.</p>
+              </div>
             </div>
           </div>
 

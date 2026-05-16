@@ -10,6 +10,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 import ReferralLinkCard from "@/components/features/dashboard/ReferralLinkCard";
+import PaymentReceiptCard from "@/components/features/dashboard/PaymentReceiptCard";
 
 export default function VendorDashboard() {
   const [stats, setStats] = useState<any>(null);
@@ -115,29 +116,7 @@ export default function VendorDashboard() {
             vendorCode={user?.vendorCode}
           />
 
-          {/* Security Deposit Status */}
-          <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-xl font-black text-secondary">Security Deposit Status</h2>
-              <button className="text-primary font-black text-xs uppercase tracking-widest">Pay Now</button>
-            </div>
-            <div className="flex flex-col gap-6">
-              {stats?.deposits?.map((d: any, i: number) => (
-                <div key={i} className="p-6 bg-gray-50 rounded-3xl flex justify-between items-center">
-                  <div>
-                    <h4 className="font-bold text-secondary">{d.campaignName}</h4>
-                    <p className="text-xs text-gray-400 mt-1">Due: ₹{d.amount}</p>
-                  </div>
-                  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${d.status === 'paid' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>
-                    {d.status}
-                  </span>
-                </div>
-              ))}
-              {!stats?.deposits?.length && (
-                <p className="text-center text-gray-400 font-bold py-10 italic">No security deposits linked yet.</p>
-              )}
-            </div>
-          </div>
+          <PaymentReceiptCard />
 
           {/* Recent Activity */}
           <div className="bg-secondary p-8 rounded-[40px] text-white shadow-2xl">

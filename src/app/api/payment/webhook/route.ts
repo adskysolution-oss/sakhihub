@@ -1,0 +1,107 @@
+import { NextRequest, NextResponse } from 'next/server';
+import dbConnect from '@/lib/mongodb';
+import User from '@/models/User';
+import PaymentConfig from '@/models/PaymentConfig';
+import PaymentTransaction from '@/models/PaymentTransaction';
+import { verifyCashfreeWebhook } from '@/lib/cashfree';
+
+export async function POST(req: NextRequest) {
+  try {
+    await dbConnect();
+
+    const rawBody = await req.text();
+    const timestamp = req.headers.get('x-webhook-timestamp') || '';
+    const signature = req.headers.get('x-webhook-signature') || '';
+
+    // Verify webhook signature (skip in development if not configured)
+    if (process.env.NODE_ENV === 'production') {
+      if (!verifyCashfreeWebhook(rawBody, timestamp, signature)) {
+        console.error('Cashfree Webhook: Invalid signature');
+        return NextResponse.json({ success: false, message: 'Invalid signature' }, { status: 401 });
+      }
+    }
+
+    const body = JSON.parse(rawBody);
+    const eventType = body.type;
+
+    if (eventType === 'PAYMENT_SUCCESS_WEBHOOK' || eventType === 'PAYMENT_STATUS') {
+      const data = body.data || {};
+      const orderId = data.order?.order_id;
+      const paymentStatus = data.payment?.payment_status;
+
+      if (!orderId) {
+        return NextResponse.json({ success: false, message: 'Missing order ID' }, { status: 400 });
+      }
+
+      const transaction = await PaymentTransaction.findOne({ cashfreeOrderId: orderId });
+      if (!transaction) {
+        console.error('Cashfree Webhook: Transaction not found for order', orderId);
+        return NextResponse.json({ success: false, message: 'Transaction not found' }, { status: 404 });
+      }
+
+      // Already processed
+      if (transaction.status === 'paid') {
+        return NextResponse.json({ success: true, message: 'Already processed' });
+      }
+
+      if (paymentStatus === 'SUCCESS') {
+        transaction.status = 'paid';
+        transaction.paidAt = new Date();
+        transaction.cashfreePaymentId = data.payment?.cf_payment_id?.toString();
+        transaction.paymentMethod = typeof data.payment?.payment_method === 'object'
+          ? JSON.stringify(data.payment.payment_method)
+          : data.payment?.payment_method;
+        transaction.gatewayResponse = data;
+        await transaction.save();
+
+        // Update user flags
+        const user = await User.findById(transaction.userId);
+        if (user) {
+          if (transaction.type === 'subscription') user.subscriptionPaid = true;
+          if (transaction.type === 'deposit') user.depositPaid = true;
+          await user.save();
+
+          // Check full payment completion
+          const roleKey = user.role as 'vendor' | 'sub_vendor' | 'employee';
+          let config = await PaymentConfig.findOne({ key: 'default' });
+
+          if (config) {
+            const subRequired = config.paymentRequired[roleKey] && config.subscriptionRequired[roleKey];
+            const depRequired = config.paymentRequired[roleKey] && config.depositRequired[roleKey];
+            const subPaid = user.subscriptionPaid || !subRequired;
+            const depPaid = user.depositPaid || !depRequired;
+
+            if (subPaid && depPaid) {
+              user.paymentCompleted = true;
+              if (user.documentsVerified) {
+                if (user.role === 'vendor') {
+                  user.dashboardAccess = true;
+                  user.onboardingCompleted = true;
+                  user.status = 'active';
+                }
+                if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
+                  user.dashboardAccess = true;
+                  user.onboardingCompleted = true;
+                  user.status = 'active';
+                }
+              }
+              await user.save();
+            }
+          }
+        }
+      } else if (['FAILED', 'CANCELLED', 'VOID'].includes(paymentStatus)) {
+        transaction.status = 'failed';
+        transaction.failureReason = paymentStatus;
+        transaction.gatewayResponse = data;
+        await transaction.save();
+      }
+
+      return NextResponse.json({ success: true, message: 'Webhook processed' });
+    }
+
+    return NextResponse.json({ success: true, message: 'Event type not handled' });
+  } catch (error: any) {
+    console.error('Cashfree Webhook Error:', error);
+    return NextResponse.json({ success: false, message: 'Webhook processing failed' }, { status: 500 });
+  }
+}

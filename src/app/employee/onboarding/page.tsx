@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary } from '@/utils/documents';
 import DocumentCard from '@/components/features/dashboard/DocumentCard';
 import { useDocumentFlow } from '@/hooks/useDocumentFlow';
+import OnboardingStepper from '@/components/features/onboarding/OnboardingStepper';
 
 export default function EmployeeOnboarding() {
   const router = useRouter();
@@ -33,17 +34,15 @@ export default function EmployeeOnboarding() {
           return;
         }
 
-        // STRICT GATE: Only allow access to dashboard if both compliance and hierarchy are done
-        if (user.dashboardAccess && user.documentsVerified && user.assignmentStatus === 'completed') {
-          router.push('/employee/dashboard');
-          return;
-        }
-
-        // Mid-flow Redirect to Hierarchy Assignment Page
-        // Only trigger if documents are fully verified but hierarchy is still pending
-        if (user.documentsVerified && user.assignmentStatus === 'pending') {
-          router.push('/pending-assignment');
-          return;
+        // Real-time Auto Redirect Logic
+        if (user.documentsVerified) {
+          if (!user.paymentCompleted) {
+            router.push('/payment-pending');
+          } else if (user.assignmentStatus !== 'completed') {
+            router.push('/pending-assignment');
+          } else if (user.dashboardAccess) {
+            router.push('/employee/dashboard');
+          }
         }
       }
     } catch (err) {
@@ -55,6 +54,8 @@ export default function EmployeeOnboarding() {
 
   useEffect(() => {
     fetchProfile();
+    const interval = setInterval(fetchProfile, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleLogout = async () => {
@@ -77,13 +78,6 @@ export default function EmployeeOnboarding() {
   // Use actual database flag for strict flow control
   const isComplianceDone = profile?.documentsVerified === true;
 
-  const steps = [
-    { id: 1, name: 'Registration', status: 'completed', icon: CheckCircle2 },
-    { id: 2, name: 'Verification', status: isComplianceDone ? 'completed' : 'current', icon: ShieldCheck },
-    { id: 3, name: 'Hierarchy', status: isComplianceDone ? 'current' : 'upcoming', icon: Network },
-    { id: 4, name: 'Dashboard', status: 'upcoming', icon: Lock },
-  ];
-
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20">
       <header className="bg-white border-b border-gray-100 py-6 sticky top-0 z-30">
@@ -103,28 +97,7 @@ export default function EmployeeOnboarding() {
 
       <main className="container max-w-5xl mt-12 px-4">
         {/* Strict Pipeline Tracker */}
-        <div className="flex justify-between mb-16 relative">
-          <div className="absolute top-[18px] left-0 w-full h-[2px] bg-gray-100 z-0"></div>
-          {steps.map((step) => {
-            const isCompleted = step.status === 'completed';
-            const isCurrent = step.status === 'current';
-            
-            return (
-              <div key={step.id} className="relative z-10 flex flex-col items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-black transition-all duration-500 ${
-                  isCompleted ? 'bg-green-500 text-white' :
-                  isCurrent ? 'bg-primary text-white ring-8 ring-primary/10' :
-                  'bg-white text-gray-300 border-2 border-gray-100'
-                }`}>
-                  {isCompleted ? <CheckCircle2 size={18} /> : step.id}
-                </div>
-                <span className={`text-[10px] font-black uppercase tracking-widest ${isCurrent ? 'text-primary' : 'text-gray-400'}`}>
-                  {step.name}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+        {profile && <OnboardingStepper user={profile} />}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2 space-y-8">

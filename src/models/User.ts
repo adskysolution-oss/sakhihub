@@ -63,6 +63,9 @@ export interface IUser extends Document {
   onboardingCompleted: boolean;
   documentsVerified: boolean;
   dashboardAccess: boolean;
+  subscriptionPaid: boolean;
+  depositPaid: boolean;
+  paymentCompleted: boolean;
   parentVendorCode?: string; // Referral tracking
   parentSubVendorCode?: string; // Referral tracking
   parentEmployeeCode?: string; // Referral tracking
@@ -176,6 +179,9 @@ const UserSchema: Schema = new Schema(
     onboardingCompleted: { type: Boolean, default: false },
     documentsVerified: { type: Boolean, default: false },
     dashboardAccess: { type: Boolean, default: false },
+    subscriptionPaid: { type: Boolean, default: false },
+    depositPaid: { type: Boolean, default: false },
+    paymentCompleted: { type: Boolean, default: false },
     parentVendorCode: { type: String },
     parentSubVendorCode: { type: String },
     parentEmployeeCode: { type: String },

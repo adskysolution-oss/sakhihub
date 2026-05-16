@@ -39,22 +39,26 @@ export async function PATCH(
       if (status === 'active') {
         updateData.isVerified = true;
         
-        // STRICT ACCESS RULE: Sub-vendors and Employees require BOTH document approval AND hierarchy assignment
+        // STRICT ACCESS RULE: Sub-vendors and Employees require BOTH document approval AND hierarchy assignment AND payment completion
         if (['sub_vendor', 'employee'].includes(userToUpdate.role)) {
            // Check actual documentsVerified flag or re-verify
            const allDocsOk = areAllDocsApproved(userToUpdate);
-            if (allDocsOk && userToUpdate.assignmentStatus === 'completed' && userToUpdate.parentVendorId) {
+            if (allDocsOk && userToUpdate.paymentCompleted && userToUpdate.assignmentStatus === 'completed' && userToUpdate.parentVendorId) {
               updateData.dashboardAccess = true;
               updateData.documentsVerified = true;
               updateData.onboardingCompleted = true;
             } else {
-              // Mark as active but keep dashboard blocked until BOTH conditions are met
+              // Mark as active but keep dashboard blocked until ALL conditions are met
               updateData.dashboardAccess = false;
               updateData.documentsVerified = allDocsOk;
               updateData.onboardingCompleted = false;
             }
+        } else if (userToUpdate.role === 'vendor') {
+           // Vendors get immediate access on activation ONLY if payment is completed
+           updateData.dashboardAccess = userToUpdate.paymentCompleted;
+           updateData.documentsVerified = true;
         } else {
-           // Vendors and other roles get immediate access on activation
+           // Members get immediate access
            updateData.dashboardAccess = true;
            updateData.documentsVerified = true;
         }
@@ -106,9 +110,9 @@ export async function PATCH(
       user.documentsVerified = areAllDocsApproved(user);
 
       // DUAL-GATE ACCESS LOGIC:
-      // If all docs are approved AND hierarchy is already set (e.g. via referral),
+      // If all docs are approved AND payment is completed AND (hierarchy is already set or role is vendor),
       // we can automatically unlock dashboard access.
-      if (user.documentsVerified && user.assignmentStatus === 'completed' && ['active', 'approved', 'documents_uploaded'].includes(user.status)) {
+      if (user.documentsVerified && user.paymentCompleted && (user.role === 'vendor' || user.assignmentStatus === 'completed') && ['active', 'approved', 'documents_uploaded'].includes(user.status)) {
          user.dashboardAccess = true;
          user.onboardingCompleted = true;
       }

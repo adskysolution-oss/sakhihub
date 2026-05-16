@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import Link from 'next/link';
 import ReferralLinkCard from './ReferralLinkCard';
+import PaymentReceiptCard from './PaymentReceiptCard';
 
 export default function EmployeeDashboard({ user }: { user: any }) {
   const [data, setData] = React.useState<any>(null);
@@ -190,6 +191,7 @@ export default function EmployeeDashboard({ user }: { user: any }) {
               </div>
             </div>
           </section>
+          <PaymentReceiptCard />
         </aside>
       </div>
     </div>

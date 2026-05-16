@@ -12,7 +12,7 @@ import DocumentCard from '@/components/features/dashboard/DocumentCard';
 import { useDocumentFlow } from '@/hooks/useDocumentFlow';
 import PaymentReceiptCard from "@/components/features/dashboard/PaymentReceiptCard";
 
-export default function SubVendorDocuments() {
+export default function EmployeeDocuments() {
   const [documents, setDocuments] = useState<any>({});
   const [loading, setLoading] = useState(true);
 
@@ -37,8 +37,8 @@ export default function SubVendorDocuments() {
     fetchDocuments();
   }, []);
 
-  const compliance = getDocComplianceSummary(documents, 'sub_vendor');
-  const docTypes = REQUIRED_DOCS_BY_ROLE.sub_vendor;
+  const compliance = getDocComplianceSummary(documents, 'employee');
+  const docTypes = REQUIRED_DOCS_BY_ROLE.employee;
 
   if (loading) {
     return (
@@ -140,7 +140,7 @@ export default function SubVendorDocuments() {
                 <button className="flex items-center justify-between p-5 bg-gray-50 hover:bg-secondary hover:text-white rounded-3xl transition-all group text-left">
                   <div className="flex items-center gap-4">
                     <ShieldCheck size={20} className="text-primary group-hover:text-white" />
-                    <span className="font-bold text-sm">Sub-Vendor Certificate</span>
+                    <span className="font-bold text-sm">Employee ID Card</span>
                   </div>
                   <Download size={18} className="opacity-40 group-hover:opacity-100" />
                 </button>

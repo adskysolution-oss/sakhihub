@@ -1,0 +1,180 @@
+import { NextRequest } from 'next/server';
+import dbConnect from '@/lib/mongodb';
+import { getAuthSession, signToken, setAuthCookie } from '@/lib/auth';
+import { successResponse, errorResponse } from '@/utils/response';
+import User from '@/models/User';
+import PaymentConfig from '@/models/PaymentConfig';
+import PaymentTransaction from '@/models/PaymentTransaction';
+import { getCashfreeOrderStatus, getCashfreePayments } from '@/lib/cashfree';
+
+/**
+ * Check if all required payments are completed for a user and update flags accordingly.
+ * Returns true if paymentCompleted was set to true.
+ */
+async function checkAndUpdatePaymentCompletion(userId: string): Promise<boolean> {
+  const user = await User.findById(userId);
+  if (!user) return false;
+
+  const roleKey = user.role as 'vendor' | 'sub_vendor' | 'employee';
+  let config = await PaymentConfig.findOne({ key: 'default' });
+
+  if (!config) {
+    // No config means no payment required
+    user.paymentCompleted = true;
+    user.subscriptionPaid = true;
+    user.depositPaid = true;
+    await user.save();
+    return true;
+  }
+
+  // Check if payments are required for this role
+  const subRequired = config.paymentRequired[roleKey] && config.subscriptionRequired[roleKey];
+  const depRequired = config.paymentRequired[roleKey] && config.depositRequired[roleKey];
+
+  const subPaid = user.subscriptionPaid || !subRequired;
+  const depPaid = user.depositPaid || !depRequired;
+
+  if (subPaid && depPaid) {
+    user.paymentCompleted = true;
+
+    // If docs verified + payment done + (for vendor, or assignment completed for others) => grant dashboard access
+    if (user.documentsVerified) {
+      if (user.role === 'vendor') {
+        user.dashboardAccess = true;
+        user.onboardingCompleted = true;
+        user.status = 'active';
+      }
+      // For sub_vendor and employee, dashboardAccess also depends on assignmentStatus
+      if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
+        user.dashboardAccess = true;
+        user.onboardingCompleted = true;
+        user.status = 'active';
+      }
+    }
+
+    await user.save();
+    return true;
+  }
+
+  return false;
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const session = await getAuthSession();
+    if (!session) return errorResponse('Unauthorized', 401);
+
+    const { orderId } = await req.json();
+    if (!orderId) return errorResponse('Order ID is required', 400);
+
+    await dbConnect();
+
+    const sessionUser = session as any;
+
+    // Find the transaction
+    const transaction = await PaymentTransaction.findOne({
+      cashfreeOrderId: orderId,
+      userId: sessionUser.id,
+    });
+
+    if (!transaction) return errorResponse('Transaction not found', 404);
+
+    // If already paid, just return success
+    if (transaction.status === 'paid') {
+      return successResponse({ status: 'paid', type: transaction.type }, 'Payment already verified');
+    }
+
+    // Verify with Cashfree
+    const orderStatus = await getCashfreeOrderStatus(orderId);
+    
+    if (orderStatus.order_status === 'PAID') {
+      // Fetch payment details
+      let paymentDetails: any = null;
+      try {
+        const payments = await getCashfreePayments(orderId);
+        if (payments && payments.length > 0) {
+          paymentDetails = payments[0];
+        }
+      } catch (e) {
+        // Non-critical, continue without payment details
+      }
+
+      // Update transaction
+      transaction.status = 'paid';
+      transaction.paidAt = new Date();
+      transaction.gatewayResponse = orderStatus;
+      if (paymentDetails) {
+        transaction.cashfreePaymentId = paymentDetails.cf_payment_id?.toString();
+        transaction.paymentMethod = typeof paymentDetails.payment_method === 'object' 
+          ? JSON.stringify(paymentDetails.payment_method) 
+          : paymentDetails.payment_method;
+      }
+      await transaction.save();
+
+      // Update user payment flags
+      const user = await User.findById(sessionUser.id);
+      if (user) {
+        if (transaction.type === 'subscription') user.subscriptionPaid = true;
+        if (transaction.type === 'deposit') user.depositPaid = true;
+        await user.save();
+
+        // Check if all payments are now complete
+        const completed = await checkAndUpdatePaymentCompletion(sessionUser.id);
+
+        // Refresh JWT token with updated payment status
+        const updatedUser = await User.findById(sessionUser.id);
+        if (updatedUser) {
+          const newToken = signToken({
+            id: updatedUser._id,
+            role: updatedUser.role,
+            status: updatedUser.status,
+            assignmentStatus: updatedUser.assignmentStatus,
+            fullName: updatedUser.fullName,
+            mobile: updatedUser.mobile,
+            isVerified: updatedUser.isVerified,
+            onboardingCompleted: updatedUser.onboardingCompleted,
+            documentsVerified: updatedUser.documentsVerified,
+            dashboardAccess: updatedUser.dashboardAccess,
+            paymentCompleted: updatedUser.paymentCompleted,
+          });
+          await setAuthCookie(newToken);
+        }
+
+        return successResponse({
+          status: 'paid',
+          type: transaction.type,
+          paymentCompleted: completed,
+          dashboardAccess: updatedUser?.dashboardAccess || false,
+        }, 'Payment verified successfully');
+      }
+    } else if (['EXPIRED', 'CANCELLED', 'VOID'].includes(orderStatus.order_status)) {
+      transaction.status = 'failed';
+      transaction.failureReason = orderStatus.order_status;
+      transaction.gatewayResponse = orderStatus;
+      await transaction.save();
+
+      return successResponse({
+        status: 'failed',
+        type: transaction.type,
+        reason: orderStatus.order_status,
+      }, 'Payment failed or expired');
+    } else {
+      // Still pending
+      transaction.status = 'pending';
+      transaction.gatewayResponse = orderStatus;
+      await transaction.save();
+
+      return successResponse({
+        status: 'pending',
+        type: transaction.type,
+      }, 'Payment is still being processed');
+    }
+
+    return successResponse({ status: transaction.status, type: transaction.type });
+  } catch (error: any) {
+    console.error('Verify Payment Error:', error);
+    return errorResponse(error.message || 'Failed to verify payment', 500);
+  }
+}
+
+export { checkAndUpdatePaymentCompletion };

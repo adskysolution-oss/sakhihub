@@ -9,13 +9,7 @@ import { useRouter } from 'next/navigation';
 import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary } from '@/utils/documents';
 import DocumentCard from '@/components/features/dashboard/DocumentCard';
 import { useDocumentFlow } from '@/hooks/useDocumentFlow';
-
-const steps = [
-  { id: 1, name: 'Basic Info', status: 'completed' },
-  { id: 2, name: 'Document Upload', status: 'current' },
-  { id: 3, name: 'Admin Verification', status: 'upcoming' },
-  { id: 4, name: 'Dashboard Access', status: 'upcoming' },
-];
+import OnboardingStepper from '@/components/features/onboarding/OnboardingStepper';
 
 export default function VendorOnboarding() {
   const router = useRouter();
@@ -30,9 +24,16 @@ export default function VendorOnboarding() {
     try {
       const res = await axios.get('/api/auth/me');
       if (res.data.success) {
-        setProfile(res.data.data);
-        if (['active', 'approved'].includes(res.data.data.status) && res.data.data.dashboardAccess) {
-          router.push('/vendor/dashboard');
+        const user = res.data.data;
+        setProfile(user);
+        
+        // Real-time Auto Redirect Logic
+        if (user.documentsVerified) {
+          if (!user.paymentCompleted) {
+            router.push('/payment-pending');
+          } else if (user.dashboardAccess) {
+            router.push('/vendor/dashboard');
+          }
         }
       }
     } catch (err) {
@@ -44,6 +45,8 @@ export default function VendorOnboarding() {
 
   useEffect(() => {
     fetchProfile();
+    const interval = setInterval(fetchProfile, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleLogout = async () => {
@@ -82,24 +85,7 @@ export default function VendorOnboarding() {
       </header>
 
       <main className="container max-w-5xl mt-12 px-4">
-        <div className="flex justify-between mb-16 relative">
-          <div className="absolute top-[18px] left-0 w-full h-[2px] bg-gray-100 z-0"></div>
-          {steps.map((step) => (
-            <div key={step.id} className="relative z-10 flex flex-col items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-black transition-all duration-500 ${
-                ['active', 'approved'].includes(profile?.status) ? 'bg-green-500 text-white' :
-                step.id === 1 ? 'bg-green-500 text-white' :
-                step.id === 2 ? 'bg-primary text-white ring-8 ring-primary/10' :
-                'bg-white text-gray-300 border-2 border-gray-100'
-              }`}>
-                {step.id < 2 || ['active', 'approved'].includes(profile?.status) ? <CheckCircle2 size={18} /> : step.id}
-              </div>
-              <span className={`text-[10px] font-black uppercase tracking-widest ${step.id === 2 ? 'text-primary' : 'text-gray-400'}`}>
-                {step.name}
-              </span>
-            </div>
-          ))}
-        </div>
+        {profile && <OnboardingStepper user={profile} />}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2 space-y-8">

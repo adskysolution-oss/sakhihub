@@ -44,6 +44,7 @@ export const ADMIN_DASHBOARD_LINKS = [
   { name: 'Support Queries', icon: Mail, href: '/admin/support-requests' },
   { name: 'Manage Projects', icon: Sparkles, href: '/admin/projects' },
   { name: 'My Profile', icon: User, href: '/admin/profile' },
+  { name: 'Payment Config', icon: IndianRupee, href: '/admin/payment-config' },
   { name: 'CMS Manage', icon: Settings, href: '/admin/cms' },
 ];
 

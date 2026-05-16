@@ -62,7 +62,8 @@ export async function POST(req: NextRequest) {
       isVerified: user.isVerified,
       onboardingCompleted: user.onboardingCompleted,
       documentsVerified: user.documentsVerified,
-      dashboardAccess: user.dashboardAccess
+      dashboardAccess: user.dashboardAccess,
+      paymentCompleted: user.paymentCompleted
     });
     
     await setAuthCookie(token);
