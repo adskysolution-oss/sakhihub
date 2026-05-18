@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Membership from '@/models/Membership';
 import WomenMember from '@/models/WomenMember';
+import CommissionConfig from '@/models/CommissionConfig';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 import { notifyMembershipPayment } from '@/lib/notifications';
@@ -27,6 +28,10 @@ export async function POST(req: NextRequest) {
       return errorResponse('Member already has an active membership', 400);
     }
 
+    // Load dynamic membership configuration
+    const config = await CommissionConfig.findOne({ key: 'default' });
+    const feeAmount = config ? (config.membershipFee ?? 100) : 100;
+
     // Generate Membership ID and Receipt Number with timestamp for uniqueness
     const count = await Membership.countDocuments();
     const year = new Date().getFullYear();
@@ -40,7 +45,7 @@ export async function POST(req: NextRequest) {
       memberId,
       groupId: groupId || null, // Use null for optional fields to satisfy validation
       employeeId: (session as any).id,
-      amount: 100,
+      amount: feeAmount,
       paymentMode,
       paymentStatus: 'Paid',
       paymentDate: new Date()
@@ -52,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     // Trigger upline commission distribution
     try {
-      await distributeCommission(memberId.toString(), 'membership', 100, membership.membershipId);
+      await distributeCommission(memberId.toString(), 'membership', feeAmount, membership.membershipId);
     } catch (err) {
       console.error('[Commission Error] Failed to distribute membership registration commission:', err);
     }

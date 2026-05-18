@@ -20,15 +20,23 @@ export async function GET(req: NextRequest) {
     const vendorCode = searchParams.get('vendorCode');
     const subVendorCode = searchParams.get('subVendorCode');
     
-    const query: any = {};
+    const query: any = {
+      accountStatus: { $ne: 'inactive' }
+    };
     if (vendorCode) query.vendorCode = vendorCode;
     if (subVendorCode) query.subVendorCode = subVendorCode;
     
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { mobile: { $regex: search, $options: 'i' } },
-        { village: { $regex: search, $options: 'i' } }
+      // Combine query for safe search
+      query.$and = [
+        { accountStatus: { $ne: 'inactive' } },
+        {
+          $or: [
+            { name: { $regex: search, $options: 'i' } },
+            { mobile: { $regex: search, $options: 'i' } },
+            { village: { $regex: search, $options: 'i' } }
+          ]
+        }
       ];
     }
 
@@ -37,7 +45,7 @@ export async function GET(req: NextRequest) {
       .populate('assignedEmployeeId', 'fullName mobile employeeId')
       .populate({
         path: 'userId',
-        select: 'parentVendorId parentEmployeeCode parentVendorCode parentSubVendorCode',
+        select: 'status parentVendorId parentEmployeeCode parentVendorCode parentSubVendorCode',
         populate: {
           path: 'parentVendorId',
           select: 'fullName mobile employeeId'
@@ -52,6 +60,11 @@ export async function GET(req: NextRequest) {
     const uniqueMembersMap = new Map();
 
     members.forEach(member => {
+      // Exclude members whose linked user account was completely deleted from the database
+      if (!member.userId) {
+        return;
+      }
+
       // Use mobile as primary key for uniqueness as per requirements
       if (!uniqueMembersMap.has(member.mobile)) {
         const membership = memberships.find(m => m.memberId.toString() === member._id.toString());
@@ -66,7 +79,7 @@ export async function GET(req: NextRequest) {
           assignedEmployeeId: employee, // Unified employee object for UI
           paymentStatus: member.membershipStatus === 'paid' ? 'Paid' : 'Pending',
           membershipId: membership?.membershipId || 'N/A',
-          accountStatus: member.accountStatus,
+          accountStatus: (member.userId as any)?.status || member.accountStatus || 'pending',
           connectionStatus: member.connectionStatus
         });
       }
@@ -93,7 +106,9 @@ export async function PATCH(req: NextRequest) {
     await dbConnect();
     
     const updateData: any = {};
-    if (accountStatus) updateData.accountStatus = accountStatus;
+    if (accountStatus) {
+      updateData.accountStatus = accountStatus === 'active' ? 'active' : 'inactive';
+    }
     if (connectionStatus) updateData.connectionStatus = connectionStatus;
     
     if (assignedEmployeeId) {

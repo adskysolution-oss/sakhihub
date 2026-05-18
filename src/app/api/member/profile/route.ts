@@ -40,14 +40,31 @@ export async function PATCH(req: NextRequest) {
   try {
     await dbConnect();
     const session = await getAuthSession();
-    if (!session) return errorResponse('Unauthorized', 401);
+    if (!session || (session as any).role !== 'member') {
+      return errorResponse('Unauthorized', 401);
+    }
 
-    const { address } = await req.json();
-    const user = await User.findByIdAndUpdate(
-      (session as any).id,
-      { address },
-      { new: true }
-    ).select('-password');
+    const { mobile, address, village, district, block, pincode, occupation } = await req.json();
+    const userId = (session as any).id;
+
+    // Update User record
+    const updateFields: any = {};
+    if (address !== undefined) updateFields.address = address;
+    if (mobile !== undefined) updateFields.mobile = mobile;
+
+    const user = await User.findByIdAndUpdate(userId, { $set: updateFields }, { new: true }).select('-password');
+
+    // Update linked WomenMember record
+    const wmUpdateFields: any = {};
+    if (address !== undefined) wmUpdateFields.address = address;
+    if (mobile !== undefined) wmUpdateFields.mobile = mobile;
+    if (village !== undefined) wmUpdateFields.village = village;
+    if (district !== undefined) wmUpdateFields.district = district;
+    if (block !== undefined) wmUpdateFields.block = block;
+    if (pincode !== undefined) wmUpdateFields.pincode = pincode;
+    if (occupation !== undefined) wmUpdateFields.occupation = occupation;
+
+    await WomenMember.findOneAndUpdate({ userId }, { $set: wmUpdateFields }, { new: true });
 
     return successResponse(user, 'Profile updated successfully');
   } catch (error: any) {

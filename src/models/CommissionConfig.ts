@@ -24,6 +24,8 @@ export interface ICommissionConfig extends Document {
     minWithdrawalAmount: number; // e.g. 500
     allowAutoSettle: boolean;
   };
+  membershipFee: number; // e.g. 100
+  membershipPaymentEnabled: boolean; // true/false
   updatedBy?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -54,6 +56,8 @@ const CommissionConfigSchema: Schema = new Schema(
       minWithdrawalAmount: { type: Number, default: 500 },
       allowAutoSettle: { type: Boolean, default: false }
     },
+    membershipFee: { type: Number, default: 100 },
+    membershipPaymentEnabled: { type: Boolean, default: true },
     updatedBy: { type: Schema.Types.ObjectId, ref: 'User' }
   },
   { timestamps: true }

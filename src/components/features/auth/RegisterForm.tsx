@@ -61,6 +61,7 @@ export default function RegisterForm() {
   });
 
   const [referralContext, setReferralContext] = useState<{ role: string, parent: string } | null>(null);
+  const [referredEmployee, setReferredEmployee] = useState<any>(null);
 
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -76,9 +77,37 @@ export default function RegisterForm() {
         role: targetRole || prev.role,
         vendorCode: vCode || prev.vendorCode,
         subVendorCode: svCode || prev.subVendorCode,
-        assignedEmployeeId: eCode || prev.assignedEmployeeId,
         campaignId: cId || prev.campaignId,
       }));
+
+      const inviterCode = eCode || svCode || vCode;
+      if (inviterCode) {
+        // Fetch the details of the inviter by their code (can be Employee, Sub-Vendor, or Vendor)
+        const resolveInviter = async () => {
+          try {
+            const res = await fetch(`/api/employees/nearby?employeeCode=${inviterCode}`);
+            const result = await res.json();
+            if (result.success && result.data) {
+              setReferredEmployee(result.data);
+              
+              setFormData(prev => {
+                const update: any = { ...prev };
+                if (result.data.role === 'employee') {
+                  update.assignedEmployeeId = result.data._id;
+                } else if (result.data.role === 'sub_vendor') {
+                  update.subVendorCode = result.data.subVendorCode;
+                } else if (result.data.role === 'vendor') {
+                  update.vendorCode = result.data.vendorCode;
+                }
+                return update;
+              });
+            }
+          } catch (err) {
+            console.error("Failed to resolve referred inviter", err);
+          }
+        };
+        resolveInviter();
+      }
 
       if (targetRole) {
         setStep(2); // Jump to Details step if role is pre-defined
@@ -529,50 +558,81 @@ export default function RegisterForm() {
 
                 {step === 4 && (
                   <motion.div key="step4" {...fadeInUp} className="flex flex-col gap-6">
-                    <div className="text-center">
-                      <h3 className="text-xl md:text-2xl font-black text-secondary">{formData.role === 'member' ? 'Connect with Local Sakhi' : 'Verify Location'}</h3>
-                      <p className="text-gray-400 text-sm mt-1">{formData.role === 'member' ? 'Choose an employee to assist you with your registration.' : 'Confirm your service area.'}</p>
-                    </div>
+                    {referredEmployee ? (
+                      <>
+                        <div className="text-center">
+                          <h3 className="text-xl md:text-2xl font-black text-secondary">Connection Confirmed</h3>
+                          <p className="text-gray-400 text-sm mt-1">You are automatically connecting with your inviting partner.</p>
+                        </div>
 
-                    {formData.role === 'member' ? (
-                      <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto px-2 pb-4 scrollbar-hide">
-                        {discoveryLoading ? (
-                          <div className="text-center py-12 flex flex-col items-center gap-3">
-                            <div className="w-8 h-8 border-4 border-gray-100 border-t-primary rounded-full animate-spin"></div>
-                            <p className="text-gray-400 font-bold">Searching for nearby employees...</p>
-                          </div>
-                        ) : nearbyEmployees.length > 0 ? (
-                          nearbyEmployees.map((emp) => (
-                            <div key={emp._id} className={`p-5 rounded-3xl border-2 transition-all flex justify-between items-center gap-4 ${requestStatus[emp._id] ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white'}`}>
-                              <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                                  <User size={24} />
-                                </div>
-                                <div>
-                                  <h4 className="font-black text-secondary">{emp.fullName}</h4>
-                                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">CODE: {emp.employeeId || 'N/A'}</p>
-                                  <p className="text-xs text-primary font-black mt-0.5">{emp.block}, {emp.district}</p>
-                                </div>
-                              </div>
-                              <button type="button" onClick={() => handleConnect(emp._id)} className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${requestStatus[emp._id] ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-                                {requestStatus[emp._id] ? 'Selected' : 'Connect'}
-                              </button>
+                        <div className="p-6 rounded-3xl border-2 border-green-200 bg-green-50/50 flex justify-between items-center gap-4 shadow-md text-left">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center text-white shadow-lg shrink-0">
+                              <Check size={24} strokeWidth={3} />
                             </div>
-                          ))
+                            <div>
+                              <h4 className="font-black text-secondary text-base leading-tight">{referredEmployee.fullName}</h4>
+                              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">
+                                {referredEmployee.role === 'vendor' ? 'Inviting Vendor' : referredEmployee.role === 'sub_vendor' ? 'Inviting Sub-Vendor' : 'Inviting Hero'}: {referredEmployee.employeeId || referredEmployee.subVendorCode || referredEmployee.vendorCode}
+                              </p>
+                              <p className="text-xs text-green-600 font-black mt-0.5">
+                                {referredEmployee.block || 'Regional'}, {referredEmployee.district || 'Partner'}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="px-4 py-2 bg-green-100 text-green-700 rounded-xl text-xs font-black uppercase tracking-wider shrink-0">
+                            Linked
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-center">
+                          <h3 className="text-xl md:text-2xl font-black text-secondary">{formData.role === 'member' ? 'Connect with Local Sakhi' : 'Verify Location'}</h3>
+                          <p className="text-gray-400 text-sm mt-1">{formData.role === 'member' ? 'Choose an employee to assist you with your registration.' : 'Confirm your service area.'}</p>
+                        </div>
+
+                        {formData.role === 'member' ? (
+                          <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto px-2 pb-4 scrollbar-hide">
+                            {discoveryLoading ? (
+                              <div className="text-center py-12 flex flex-col items-center gap-3">
+                                <div className="w-8 h-8 border-4 border-gray-100 border-t-primary rounded-full animate-spin"></div>
+                                <p className="text-gray-400 font-bold">Searching for nearby employees...</p>
+                              </div>
+                            ) : nearbyEmployees.length > 0 ? (
+                              nearbyEmployees.map((emp) => (
+                                <div key={emp._id} className={`p-5 rounded-3xl border-2 transition-all flex justify-between items-center gap-4 ${requestStatus[emp._id] ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white'}`}>
+                                  <div className="flex items-center gap-4 text-left">
+                                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                                      <User size={24} />
+                                    </div>
+                                    <div>
+                                      <h4 className="font-black text-secondary">{emp.fullName}</h4>
+                                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">CODE: {emp.employeeId || 'N/A'}</p>
+                                      <p className="text-xs text-primary font-black mt-0.5">{emp.block}, {emp.district}</p>
+                                    </div>
+                                  </div>
+                                  <button type="button" onClick={() => handleConnect(emp._id)} className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${requestStatus[emp._id] ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+                                    {requestStatus[emp._id] ? 'Selected' : 'Connect'}
+                                  </button>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="text-center py-12 bg-gray-50 rounded-3xl px-6">
+                                <AlertCircle size={40} className="mx-auto text-gray-200 mb-4" />
+                                <p className="text-gray-500 font-bold">No active employees found in your area yet.</p>
+                                <button type="button" onClick={nextStep} className="text-primary font-black mt-4 underline">Continue without connecting</button>
+                              </div>
+                            )}
+                          </div>
                         ) : (
                           <div className="text-center py-12 bg-gray-50 rounded-3xl px-6">
-                            <AlertCircle size={40} className="mx-auto text-gray-200 mb-4" />
-                            <p className="text-gray-500 font-bold">No active employees found in your area yet.</p>
-                            <button type="button" onClick={nextStep} className="text-primary font-black mt-4 underline">Continue without connecting</button>
+                            <CheckCircle size={48} className="mx-auto text-secondary mb-4 animate-bounce" />
+                            <p className="text-gray-500 font-bold">Your service area is set to:</p>
+                            <p className="text-xl md:text-2xl font-black text-primary mt-2">{formData.block}, {formData.district}</p>
                           </div>
                         )}
-                      </div>
-                    ) : (
-                      <div className="text-center py-12 bg-gray-50 rounded-3xl px-6">
-                        <CheckCircle size={48} className="mx-auto text-secondary mb-4 animate-bounce" />
-                        <p className="text-gray-500 font-bold">Your service area is set to:</p>
-                        <p className="text-xl md:text-2xl font-black text-primary mt-2">{formData.block}, {formData.district}</p>
-                      </div>
+                      </>
                     )}
 
                     <div className="flex flex-col sm:flex-row gap-3">

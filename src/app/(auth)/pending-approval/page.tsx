@@ -1,15 +1,55 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Clock, ShieldAlert, LogOut, RefreshCw, Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import axios from 'axios';
 
 export default function PendingApprovalPage() {
   const router = useRouter();
   const { user, logout, loading } = useAuth();
+
+  // Poll status every 4 seconds to detect active status
+  useEffect(() => {
+    if (!user) return;
+
+    // If already active, immediately route to correct dashboard
+    if (user.status === 'active') {
+      const targetDashboard = 
+        user.role === 'super_admin' ? '/admin/dashboard' :
+        user.role === 'vendor' ? '/vendor/dashboard' :
+        user.role === 'sub_vendor' ? '/sub-vendor/dashboard' :
+        user.role === 'employee' ? '/employee/dashboard' :
+        '/member/dashboard';
+      window.location.href = targetDashboard;
+      return;
+    }
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await axios.get('/api/auth/me');
+        if (res.data.success) {
+          const freshUser = res.data.data;
+          if (freshUser && freshUser.status === 'active') {
+            const targetDashboard = 
+              freshUser.role === 'super_admin' ? '/admin/dashboard' :
+              freshUser.role === 'vendor' ? '/vendor/dashboard' :
+              freshUser.role === 'sub_vendor' ? '/sub-vendor/dashboard' :
+              freshUser.role === 'employee' ? '/employee/dashboard' :
+              '/member/dashboard';
+            window.location.href = targetDashboard;
+          }
+        }
+      } catch (err) {
+        console.error("Error polling user status", err);
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [user, router]);
 
   if (loading) {
     return (

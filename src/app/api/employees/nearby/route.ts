@@ -10,12 +10,36 @@ export async function GET(req: NextRequest) {
     const pincode = searchParams.get('pincode');
     const district = searchParams.get('district');
     const block = searchParams.get('block');
+    const employeeCode = searchParams.get('employeeCode');
 
-    if (!pincode && !district && !block) {
-      return errorResponse('Pincode, district or block is required for search', 400);
+    if (!pincode && !district && !block && !employeeCode) {
+      return errorResponse('Pincode, district, block or Employee Code is required for search', 400);
     }
 
-    // Build query
+    // Handle Inviter Code Resolution
+    if (employeeCode) {
+      const code = employeeCode.trim().toUpperCase();
+      let queryKey = 'employeeId';
+      let searchRole = 'employee';
+      
+      if (code.startsWith('SVN')) {
+        queryKey = 'subVendorCode';
+        searchRole = 'sub_vendor';
+      } else if (code.startsWith('VND')) {
+        queryKey = 'vendorCode';
+        searchRole = 'vendor';
+      }
+
+      const inviter = await User.findOne({
+        [queryKey]: { $regex: new RegExp(`^${code}$`, 'i') },
+        role: searchRole,
+        status: 'active'
+      }).select('fullName employeeId vendorCode subVendorCode role area block district status pincode');
+
+      return successResponse(inviter, 'Inviter resolved successfully');
+    }
+
+    // Build query for pincode nearby discovery
     const query: any = {
       role: 'employee',
       status: 'active'

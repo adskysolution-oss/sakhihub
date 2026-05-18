@@ -34,7 +34,14 @@ export async function POST(req: NextRequest) {
 
     await dbConnect();
     const body = await req.json();
-    const { subscriptionCommission, depositCommission, memberCommission, payoutRules } = body;
+    const { 
+      subscriptionCommission, 
+      depositCommission, 
+      memberCommission, 
+      payoutRules,
+      membershipFee,
+      membershipPaymentEnabled
+    } = body;
 
     let config = await CommissionConfig.findOne({ key: 'default' });
     if (!config) {
@@ -73,6 +80,14 @@ export async function POST(req: NextRequest) {
         minWithdrawalAmount: Number(payoutRules.minWithdrawalAmount),
         allowAutoSettle: Boolean(payoutRules.allowAutoSettle),
       };
+    }
+
+    if (membershipFee !== undefined) {
+      config.membershipFee = Number(membershipFee);
+    }
+
+    if (membershipPaymentEnabled !== undefined) {
+      config.membershipPaymentEnabled = Boolean(membershipPaymentEnabled);
     }
 
     config.updatedBy = (session as any).id;

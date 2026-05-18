@@ -14,6 +14,8 @@ export const PUBLIC_LINKS = [
 export const MEMBER_DASHBOARD_LINKS = [
   { name: 'Overview', icon: LayoutDashboard, href: '/member/dashboard' },
   { name: 'My Group', icon: Users, href: '/member/my-group' },
+  { name: 'Campaigns', icon: Target, href: '/member/campaigns' },
+  { name: 'My Receipt', icon: FileText, href: '/member/receipt' },
   { name: 'Resources', icon: Heart, href: '/member/resources' },
   { name: 'My Profile', icon: User, href: '/member/dashboard/profile' },
   { name: 'Verify Membership', icon: ShieldCheck, href: '/member/verify' },
