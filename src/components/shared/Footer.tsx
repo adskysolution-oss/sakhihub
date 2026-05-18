@@ -105,12 +105,15 @@ const Footer = () => {
         <div className="h-px bg-white/5 my-16"></div>
 
         <div className="flex flex-col lg:flex-row justify-between items-center gap-8">
-          <div className="text-center lg:text-left">
-            <p className="text-[10px] font-bold tracking-widest opacity-40 uppercase" suppressHydrationWarning>© {new Date().getFullYear()} SakhiHub. All rights reserved.</p>
+          <div className="text-center lg:text-left text-[10px] font-bold tracking-widest uppercase">
+            <p className="opacity-40" suppressHydrationWarning>© {new Date().getFullYear()} SAKHIHUB. ALL RIGHTS RESERVED.</p>
             <div className="flex items-center gap-2 mt-2 justify-center lg:justify-start">
               <Heart size={12} className="text-primary" />
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/20">Empowering Women & Communities</p>
+              <p className="text-white/20">Empowering Women & COMMUNITY</p>
             </div>
+            <p className="opacity-40 mt-2 leading-relaxed">
+              SakhiHub is a Sole Proprietorship owned and operated by Anil Raseniya
+            </p>
           </div>
         </div>
       </div>
