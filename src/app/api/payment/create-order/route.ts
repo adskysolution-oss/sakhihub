@@ -7,6 +7,8 @@ import PaymentConfig from '@/models/PaymentConfig';
 import PaymentTransaction from '@/models/PaymentTransaction';
 import { createCashfreeOrder, generateOrderId, isCashfreeConfigured } from '@/lib/cashfree';
 
+import CommissionConfig from '@/models/CommissionConfig';
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 export async function POST(req: NextRequest) {
@@ -29,7 +31,7 @@ export async function POST(req: NextRequest) {
     if (!user) return errorResponse('User not found', 404);
 
     // Check if user's role requires payment
-    if (!['vendor', 'sub_vendor', 'employee'].includes(user.role)) {
+    if (!['vendor', 'sub_vendor', 'employee', 'member'].includes(user.role)) {
       return errorResponse('Payment is not required for your role', 400);
     }
 
@@ -41,33 +43,43 @@ export async function POST(req: NextRequest) {
       return errorResponse('Security deposit is already paid', 400);
     }
 
-    // Get payment config
-    let config = await PaymentConfig.findOne({ key: 'default' });
-    if (!config) {
-      // Create default config if none exists
-      config = await PaymentConfig.create({
-        key: 'default',
-        subscriptionAmount: { vendor: 5000, sub_vendor: 3000, employee: 1000 },
-        depositAmount: { vendor: 10000, sub_vendor: 5000, employee: 2000 },
-        paymentRequired: { vendor: true, sub_vendor: true, employee: true },
-        subscriptionRequired: { vendor: true, sub_vendor: true, employee: true },
-        depositRequired: { vendor: true, sub_vendor: true, employee: true },
-      });
-    }
+    let amount = 0;
 
-    const roleKey = user.role as 'vendor' | 'sub_vendor' | 'employee';
+    if (user.role === 'member') {
+      if (type !== 'subscription') {
+        return errorResponse('Only subscription payment is supported for members', 400);
+      }
+      const commConfig = await CommissionConfig.findOne({ key: 'default' });
+      amount = commConfig ? (commConfig.membershipFee ?? 100) : 100;
+    } else {
+      // Get payment config
+      let config = await PaymentConfig.findOne({ key: 'default' });
+      if (!config) {
+        // Create default config if none exists
+        config = await PaymentConfig.create({
+          key: 'default',
+          subscriptionAmount: { vendor: 5000, sub_vendor: 3000, employee: 1000 },
+          depositAmount: { vendor: 10000, sub_vendor: 5000, employee: 2000 },
+          paymentRequired: { vendor: true, sub_vendor: true, employee: true },
+          subscriptionRequired: { vendor: true, sub_vendor: true, employee: true },
+          depositRequired: { vendor: true, sub_vendor: true, employee: true },
+        });
+      }
 
-    // Check if this payment type is required for the role
-    if (type === 'subscription' && !config.subscriptionRequired[roleKey]) {
-      return errorResponse('Subscription is not required for your role', 400);
-    }
-    if (type === 'deposit' && !config.depositRequired[roleKey]) {
-      return errorResponse('Security deposit is not required for your role', 400);
-    }
+      const roleKey = user.role as 'vendor' | 'sub_vendor' | 'employee';
 
-    const amount = type === 'subscription'
-      ? config.subscriptionAmount[roleKey]
-      : config.depositAmount[roleKey];
+      // Check if this payment type is required for the role
+      if (type === 'subscription' && !config.subscriptionRequired[roleKey]) {
+        return errorResponse('Subscription is not required for your role', 400);
+      }
+      if (type === 'deposit' && !config.depositRequired[roleKey]) {
+        return errorResponse('Security deposit is not required for your role', 400);
+      }
+
+      amount = type === 'subscription'
+        ? config.subscriptionAmount[roleKey]
+        : config.depositAmount[roleKey];
+    }
 
     if (!amount || amount <= 0) {
       return errorResponse('Payment amount is not configured. Please contact admin.', 400);
@@ -100,7 +112,9 @@ export async function POST(req: NextRequest) {
     const orderId = generateOrderId(user._id.toString(), type);
 
     // Cashfree Production requires HTTPS URLs
-    let returnUrl = `${BASE_URL}/payment-pending?order_id=${orderId}&type=${type}`;
+    let returnUrl = user.role === 'member'
+      ? `${BASE_URL}/member/receipt?order_id=${orderId}&type=${type}`
+      : `${BASE_URL}/payment-pending?order_id=${orderId}&type=${type}`;
     let notifyUrl = `${BASE_URL}/api/payment/webhook`;
     
     if (process.env.CASHFREE_ENV === 'production' || process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production') {

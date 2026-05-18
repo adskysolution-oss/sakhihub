@@ -190,16 +190,18 @@ export default function GroupDetailsPage() {
           
           <div style={{ background: 'var(--grad-primary)', padding: '25px', borderRadius: '25px', color: 'white' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
-              <IndianRupee size={24} />
-              <h4 style={{ margin: 0, fontWeight: '900' }}>Revenue Stats</h4>
+              <CheckCircle size={24} />
+              <h4 style={{ margin: 0, fontWeight: '900' }}>Activation Stats</h4>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
               <span>Paid Members:</span>
-              <span style={{ fontWeight: '800' }}>{members.filter(m => m.membershipStatus === 'paid').length}</span>
+              <span style={{ fontWeight: '800' }}>{members.filter(m => m.membershipStatus === 'paid').length} / {members.length}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Total Collections:</span>
-              <span style={{ fontWeight: '900', fontSize: '1.2rem' }}>₹{members.filter(m => m.membershipStatus === 'paid').length * 100}</span>
+              <span>Activation Rate:</span>
+              <span style={{ fontWeight: '900', fontSize: '1.2rem' }}>
+                {members.length > 0 ? Math.round((members.filter(m => m.membershipStatus === 'paid').length / members.length) * 100) : 0}%
+              </span>
             </div>
           </div>
         </div>

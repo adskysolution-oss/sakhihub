@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import WomenMember from '@/models/WomenMember';
 import Group from '@/models/Group';
-import Membership from '@/models/Membership';
+import Wallet from '@/models/Wallet';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 
@@ -16,14 +16,13 @@ export async function GET(req: NextRequest) {
     await dbConnect();
     const userId = (session as any).id;
 
-    const [totalGroups, totalMembers, totalCollection] = await Promise.all([
+    const [totalGroups, totalMembers, wallet] = await Promise.all([
       Group.countDocuments({ createdBy: userId }),
       WomenMember.countDocuments({ createdBy: userId }),
-      Membership.aggregate([
-        { $match: { employeeId: userId, paymentStatus: 'Paid' } },
-        { $group: { _id: null, total: { $sum: '$amount' } } }
-      ])
+      Wallet.findOne({ userId })
     ]);
+
+    const walletBalance = wallet ? wallet.balance : 0;
 
     // Monthly stats
     const startOfMonth = new Date();
@@ -38,7 +37,7 @@ export async function GET(req: NextRequest) {
       stats: {
         totalGroups,
         totalMembers,
-        totalCollection: totalCollection[0]?.total || 0,
+        walletBalance,
         monthlyMembers
       }
     });

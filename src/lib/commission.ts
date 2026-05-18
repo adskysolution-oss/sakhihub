@@ -166,23 +166,28 @@ export async function distributeCommission(
         return false;
       }
 
-      // Tier 1: Recruiter Direct Commission & Tiers
-      let recruiterCommission = 20;
-      let parentCommission = 10;
-      let grandparentCommission = 5;
+      // Tier 1: Recruiter Direct Commission & Tiers (Percentage based)
+      let recruiterCommissionPct = 20;
+      let parentCommissionPct = 10;
+      let grandparentCommissionPct = 5;
 
       const memConfig = config.memberCommission;
       if (recruiter.role === 'employee') {
-        recruiterCommission = memConfig.employeeRecruiter;
-        parentCommission = memConfig.subVendorParent;
+        recruiterCommissionPct = memConfig.employeeRecruiter;
+        parentCommissionPct = memConfig.subVendorParent;
       } else if (recruiter.role === 'sub_vendor') {
-        recruiterCommission = memConfig.subVendorRecruiter;
-        parentCommission = memConfig.vendorParentDirect;
+        recruiterCommissionPct = memConfig.subVendorRecruiter;
+        parentCommissionPct = memConfig.vendorParentDirect;
       } else if (recruiter.role === 'vendor') {
-        recruiterCommission = memConfig.vendorRecruiter;
-        parentCommission = 0;
+        recruiterCommissionPct = memConfig.vendorRecruiter;
+        parentCommissionPct = 0;
       }
-      grandparentCommission = memConfig.vendorGrandparent;
+      grandparentCommissionPct = memConfig.vendorGrandparent;
+
+      // Dynamically calculate actual commission amounts based on configured percentages
+      const recruiterCommission = Math.round(totalAmount * (recruiterCommissionPct / 100));
+      const parentCommission = Math.round(totalAmount * (parentCommissionPct / 100));
+      const grandparentCommission = Math.round(totalAmount * (grandparentCommissionPct / 100));
 
       // 1. Credit Recruiter
       await creditCommissionWallet(

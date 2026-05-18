@@ -15,11 +15,118 @@ import {
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+
 export default function MemberDashboardPage() {
+  return (
+    <Suspense fallback={
+      <DashboardLayout>
+        <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
+          <div className="spinner" style={{ width: '40px', height: '40px', border: '4px solid #f3f3f3', borderTop: '4px solid var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+          <p style={{ color: '#666', fontWeight: '600' }}>Loading your Member Dashboard...</p>
+        </div>
+        <style jsx>{` @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } `}</style>
+      </DashboardLayout>
+    }>
+      <MemberDashboardContent />
+    </Suspense>
+  );
+}
+
+function MemberDashboardContent() {
   const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [cashfree, setCashfree] = useState<any>(null);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [payingOnline, setPayingOnline] = useState(false);
+  const [verifyingPayment, setVerifyingPayment] = useState(false);
+
+  // Load Cashfree SDK
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+    script.async = true;
+    script.onload = () => {
+      setScriptLoaded(true);
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  // Initialize Cashfree dynamically
+  useEffect(() => {
+    if (scriptLoaded && data && (window as any).Cashfree && !cashfree) {
+      const mode = process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' ? 'production' : 'sandbox';
+      console.log('Initializing Cashfree for Member in mode:', mode);
+      setCashfree((window as any).Cashfree({ mode }));
+    }
+  }, [scriptLoaded, data, cashfree]);
+
+  // Handle Cashfree verification callback
+  const handleVerifyCallback = async () => {
+    const orderId = searchParams.get('order_id');
+    if (orderId && !verifyingPayment) {
+      setVerifyingPayment(true);
+      try {
+        await axios.post('/api/payment/verify', { orderId });
+        router.replace('/member/dashboard');
+        alert("Payment verified successfully! Welcome to SakhiHub paid membership.");
+      } catch (error) {
+        console.error('Verification failed', error);
+        alert("Payment verification failed. Please contact admin if amount was deducted.");
+      } finally {
+        setVerifyingPayment(false);
+        fetchData();
+      }
+    }
+  };
+
+  useEffect(() => {
+    handleVerifyCallback();
+  }, [searchParams]);
+
+  const handleInitiateOnlinePayment = async () => {
+    setPayingOnline(true);
+    try {
+      const res = await axios.post('/api/payment/create-order', { type: 'subscription' });
+      if (res.data.success && res.data.data.paymentSessionId) {
+        if (cashfree) {
+          cashfree.checkout({
+            paymentSessionId: res.data.data.paymentSessionId,
+            redirectTarget: "_self"
+          });
+        } else {
+          const mode = process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' ? 'production' : 'sandbox';
+          if ((window as any).Cashfree) {
+            const cf = (window as any).Cashfree({ mode });
+            setCashfree(cf);
+            cf.checkout({
+              paymentSessionId: res.data.data.paymentSessionId,
+              redirectTarget: "_self"
+            });
+          } else {
+            alert('Payment gateway is still loading. Please wait a moment.');
+            setPayingOnline(false);
+          }
+        }
+      } else {
+        alert(res.data.message || 'Failed to initiate payment');
+        setPayingOnline(false);
+      }
+    } catch (error: any) {
+      console.error('Payment initiation failed:', error);
+      alert(error.response?.data?.message || 'Failed to initiate payment');
+      setPayingOnline(false);
+    }
+  };
 
   // Campaign participation states
   const [campaigns, setCampaigns] = useState<{ assigned: any[]; requested: any[]; available: any[] }>({
@@ -660,14 +767,69 @@ export default function MemberDashboardPage() {
                   </div>
                 </div>
               ) : (
-                <div className="p-10 text-center bg-pink-50/20 rounded-3xl border border-pink-100">
-                  <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center text-primary mx-auto mb-4 animate-pulse">
+                <div className="p-8 sm:p-12 text-center bg-gradient-to-br from-pink-50/50 via-white to-primary/5 rounded-3xl border border-pink-100 shadow-sm">
+                  <div className="w-16 h-16 bg-pink-100/80 rounded-2xl flex items-center justify-center text-primary mx-auto mb-6 animate-pulse">
                     <ShieldAlert size={32} />
                   </div>
-                  <h3 className="text-base font-bold text-secondary leading-tight">No Verified Payments Found</h3>
-                  <p className="text-gray-400 text-xs font-semibold max-w-sm mx-auto leading-relaxed mt-2">
-                    Please coordinate with your local Sakhi Hero (Employee) to register your ₹100 membership fee offline. A dynamic verified receipt will instantly generate here.
+                  <h3 className="text-xl font-black text-secondary leading-tight">Membership Payment Pending</h3>
+                  <p className="text-gray-500 text-xs font-semibold max-w-md mx-auto leading-relaxed mt-3 mb-10">
+                    To activate your dynamic digital membership card, join local community groups, and qualify for campaign kits, please complete your ₹100 membership fee.
                   </p>
+                  
+                  {verifyingPayment ? (
+                    <div className="py-6 flex flex-col items-center justify-center gap-3">
+                      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest animate-pulse">Verifying online transaction...</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                      {/* Option 1: Pay Online */}
+                      <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-soft flex flex-col justify-between text-left">
+                        <div>
+                          <span className="px-3 py-1 bg-green-50 text-green-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-green-100">
+                            Recommended
+                          </span>
+                          <h4 className="text-sm font-black text-secondary mt-3">Pay Online Instantly</h4>
+                          <p className="text-[11px] text-gray-400 font-bold leading-relaxed mt-2">
+                            Secure payment via Cashfree. Your receipt and dynamic ID card will be activated instantly.
+                          </p>
+                        </div>
+                        <button
+                          onClick={handleInitiateOnlinePayment}
+                          disabled={payingOnline}
+                          className="mt-6 w-full py-3.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-md hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                        >
+                          {payingOnline ? 'Initiating...' : 'Pay ₹100 Online'}
+                        </button>
+                      </div>
+
+                      {/* Option 2: Pay Offline */}
+                      <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-soft flex flex-col justify-between text-left">
+                        <div>
+                          <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-amber-100">
+                            Offline Mode
+                          </span>
+                          <h4 className="text-sm font-black text-secondary mt-3">Pay Cash to Sakhi Hero</h4>
+                          <p className="text-[11px] text-gray-400 font-bold leading-relaxed mt-2">
+                            Hand over ₹100 to your regional hero/employee. They will register it on their portal to activate your account.
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const heroSec = document.getElementById("hero-details-section");
+                            if (heroSec) {
+                              heroSec.scrollIntoView({ behavior: 'smooth' });
+                            } else {
+                              alert("Please contact your local employee. You can find their number in the sidebar.");
+                            }
+                          }}
+                          className="mt-6 w-full py-3.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-secondary hover:text-primary rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"
+                        >
+                          Contact Sakhi Hero
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </section>
@@ -679,7 +841,7 @@ export default function MemberDashboardPage() {
 
             {/* SAKHI HERO / EMPLOYEE DETAILS PANEL */}
             {fieldRecord?.assignedEmployeeId && (
-              <section className="p-6 bg-emerald-50 rounded-[35px] border border-emerald-100 shadow-soft">
+              <section id="hero-details-section" className="p-6 bg-emerald-50 rounded-[35px] border border-emerald-100 shadow-soft">
                 <h3 className="text-sm font-black text-emerald-950 uppercase tracking-widest mb-4 flex items-center gap-2">
                   <ShieldCheck size={18} className="text-emerald-600" /> Your Sakhi Hero
                 </h3>

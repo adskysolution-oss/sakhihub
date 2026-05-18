@@ -30,7 +30,7 @@ export default function EmployeeDashboard({ user }: { user: any }) {
   const stats = [
     { label: "Groups Created", value: data?.totalGroups || "0", icon: Users, color: "#6a1b9a" },
     { label: "Women Members", value: data?.totalMembers || "0", icon: UserPlus, color: "#e91e63" },
-    { label: "Total Collection", value: `₹${(data?.totalCollection || 0).toLocaleString()}`, icon: IndianRupee, color: "#2e7d32" },
+    { label: "Wallet Balance", value: `₹${(data?.walletBalance || 0).toLocaleString()}`, icon: IndianRupee, color: "#2e7d32" },
     { label: "Monthly Goal", value: `${data?.monthlyMembers || 0} / 200`, icon: Target, color: "#ef6c00" },
   ];
 
@@ -128,12 +128,12 @@ export default function EmployeeDashboard({ user }: { user: any }) {
                 <div className="hidden sm:block sm:ml-auto"><ArrowRight className="text-primary group-hover:translate-x-2 transition-transform" /></div>
               </button>
             </Link>
-            <Link href="/employee/membership" className="group no-underline">
+            <Link href="/employee/wallet" className="group no-underline">
               <button className="w-full p-5 sm:p-6 rounded-[24px] sm:rounded-[32px] border border-gray-100 bg-gray-50 hover:bg-white hover:border-primary/30 hover:shadow-medium transition-all text-left h-full flex flex-col gap-4">
                 <div className="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform shrink-0"><IndianRupee size={24} /></div>
                 <div className="min-w-0">
-                  <p className="text-base sm:text-lg font-bold text-secondary leading-tight truncate">Membership Fee</p>
-                  <p className="text-[10px] sm:text-xs text-gray-400 font-semibold mt-1">Collect from member</p>
+                  <p className="text-base sm:text-lg font-bold text-secondary leading-tight truncate">My Wallet</p>
+                  <p className="text-[10px] sm:text-xs text-gray-400 font-semibold mt-1">Check earnings & withdraw</p>
                 </div>
               </button>
             </Link>

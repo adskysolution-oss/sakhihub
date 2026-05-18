@@ -3,8 +3,11 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import PaymentConfig from '@/models/PaymentConfig';
 import PaymentTransaction from '@/models/PaymentTransaction';
+import WomenMember from '@/models/WomenMember';
+import Membership from '@/models/Membership';
 import { verifyCashfreeWebhook } from '@/lib/cashfree';
 import { distributeCommission } from '@/lib/commission';
+import { notifyMembershipPayment } from '@/lib/notifications';
 
 export async function POST(req: NextRequest) {
   try {
@@ -70,39 +73,67 @@ export async function POST(req: NextRequest) {
         // Update user flags
         const user = await User.findById(transaction.userId);
         if (user) {
-          if (transaction.type === 'subscription') user.subscriptionPaid = true;
-          if (transaction.type === 'deposit') user.depositPaid = true;
-          await user.save();
-
-          // Check full payment completion (robust fallback if config not found)
-          const roleKey = user.role as 'vendor' | 'sub_vendor' | 'employee';
-          let config = await PaymentConfig.findOne({ key: 'default' });
-
-          if (!config) {
-            user.paymentCompleted = true;
+          if (user.role === 'member') {
             user.subscriptionPaid = true;
-            user.depositPaid = true;
-            if (user.documentsVerified) {
-              if (user.role === 'vendor') {
-                user.dashboardAccess = true;
-                user.onboardingCompleted = true;
-                user.status = 'active';
-              }
-              if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
-                user.dashboardAccess = true;
-                user.onboardingCompleted = true;
-                user.status = 'active';
+            user.paymentCompleted = true;
+            user.status = 'active';
+            user.dashboardAccess = true;
+            user.onboardingCompleted = true;
+            await user.save();
+
+            const member = await WomenMember.findOne({ userId: user._id });
+            if (member) {
+              member.membershipStatus = 'paid';
+              member.accountStatus = 'active';
+              await member.save();
+
+              const existing = await Membership.findOne({ memberId: member._id });
+              if (!existing) {
+                const count = await Membership.countDocuments();
+                const year = new Date().getFullYear();
+                const ts = Date.now().toString().slice(-4);
+                const membershipId = `SH-${year}-${1000 + count + 1}-${ts}`;
+                const receiptNumber = `REC-${year}-${2000 + count + 1}-${ts}`;
+
+                const membership = await Membership.create({
+                  membershipId,
+                  receiptNumber,
+                  memberId: member._id,
+                  groupId: member.groupId || null,
+                  employeeId: member.assignedEmployeeId || null,
+                  amount: transaction.amount,
+                  paymentMode: 'Online',
+                  paymentStatus: 'Paid',
+                  paymentDate: new Date(),
+                  cashfreeOrderId: orderId
+                });
+
+                try {
+                  await distributeCommission(member._id.toString(), 'membership', transaction.amount, membership.membershipId);
+                } catch (err) {
+                  console.error('[Commission Error] Failed to distribute membership registration commission:', err);
+                }
+
+                try {
+                  notifyMembershipPayment(membership._id.toString());
+                } catch (err) {
+                  console.error('Failed to notify membership payment', err);
+                }
               }
             }
-            await user.save();
           } else {
-            const subRequired = config.paymentRequired[roleKey] && config.subscriptionRequired[roleKey];
-            const depRequired = config.paymentRequired[roleKey] && config.depositRequired[roleKey];
-            const subPaid = user.subscriptionPaid || !subRequired;
-            const depPaid = user.depositPaid || !depRequired;
+            if (transaction.type === 'subscription') user.subscriptionPaid = true;
+            if (transaction.type === 'deposit') user.depositPaid = true;
+            await user.save();
 
-            if (subPaid && depPaid) {
+            // Check full payment completion (robust fallback if config not found)
+            const roleKey = user.role as 'vendor' | 'sub_vendor' | 'employee';
+            let config = await PaymentConfig.findOne({ key: 'default' });
+
+            if (!config) {
               user.paymentCompleted = true;
+              user.subscriptionPaid = true;
+              user.depositPaid = true;
               if (user.documentsVerified) {
                 if (user.role === 'vendor') {
                   user.dashboardAccess = true;
@@ -116,6 +147,28 @@ export async function POST(req: NextRequest) {
                 }
               }
               await user.save();
+            } else {
+              const subRequired = config.paymentRequired[roleKey] && config.subscriptionRequired[roleKey];
+              const depRequired = config.paymentRequired[roleKey] && config.depositRequired[roleKey];
+              const subPaid = user.subscriptionPaid || !subRequired;
+              const depPaid = user.depositPaid || !depRequired;
+
+              if (subPaid && depPaid) {
+                user.paymentCompleted = true;
+                if (user.documentsVerified) {
+                  if (user.role === 'vendor') {
+                    user.dashboardAccess = true;
+                    user.onboardingCompleted = true;
+                    user.status = 'active';
+                  }
+                  if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
+                    user.dashboardAccess = true;
+                    user.onboardingCompleted = true;
+                    user.status = 'active';
+                  }
+                }
+                await user.save();
+              }
             }
           }
         }

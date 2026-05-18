@@ -8,6 +8,10 @@ import PaymentTransaction from '@/models/PaymentTransaction';
 import { getCashfreeOrderStatus, getCashfreePayments } from '@/lib/cashfree';
 import { distributeCommission } from '@/lib/commission';
 
+import WomenMember from '@/models/WomenMember';
+import Membership from '@/models/Membership';
+import { notifyMembershipPayment } from '@/lib/notifications';
+
 /**
  * Check if all required payments are completed for a user and update flags accordingly.
  * Returns true if paymentCompleted was set to true.
@@ -127,12 +131,65 @@ export async function POST(req: NextRequest) {
       // Update user payment flags
       const user = await User.findById(sessionUser.id);
       if (user) {
-        if (transaction.type === 'subscription') user.subscriptionPaid = true;
-        if (transaction.type === 'deposit') user.depositPaid = true;
-        await user.save();
+        let completed = false;
 
-        // Check if all payments are now complete
-        const completed = await checkAndUpdatePaymentCompletion(sessionUser.id);
+        if (user.role === 'member') {
+          user.subscriptionPaid = true;
+          user.paymentCompleted = true;
+          user.status = 'active';
+          user.dashboardAccess = true;
+          user.onboardingCompleted = true;
+          await user.save();
+          completed = true;
+
+          const member = await WomenMember.findOne({ userId: user._id });
+          if (member) {
+            member.membershipStatus = 'paid';
+            member.accountStatus = 'active';
+            await member.save();
+
+            const existing = await Membership.findOne({ memberId: member._id });
+            if (!existing) {
+              const count = await Membership.countDocuments();
+              const year = new Date().getFullYear();
+              const ts = Date.now().toString().slice(-4);
+              const membershipId = `SH-${year}-${1000 + count + 1}-${ts}`;
+              const receiptNumber = `REC-${year}-${2000 + count + 1}-${ts}`;
+
+              const membership = await Membership.create({
+                membershipId,
+                receiptNumber,
+                memberId: member._id,
+                groupId: member.groupId || null,
+                employeeId: member.assignedEmployeeId || null,
+                amount: transaction.amount,
+                paymentMode: 'Online',
+                paymentStatus: 'Paid',
+                paymentDate: new Date(),
+                cashfreeOrderId: orderId
+              });
+
+              try {
+                await distributeCommission(member._id.toString(), 'membership', transaction.amount, membership.membershipId);
+              } catch (err) {
+                console.error('[Commission Error] Failed to distribute membership registration commission:', err);
+              }
+
+              try {
+                notifyMembershipPayment(membership._id.toString());
+              } catch (err) {
+                console.error('Failed to notify membership payment', err);
+              }
+            }
+          }
+        } else {
+          if (transaction.type === 'subscription') user.subscriptionPaid = true;
+          if (transaction.type === 'deposit') user.depositPaid = true;
+          await user.save();
+
+          // Check if all payments are now complete
+          completed = await checkAndUpdatePaymentCompletion(sessionUser.id);
+        }
 
         // Refresh JWT token with updated payment status
         const updatedUser = await User.findById(sessionUser.id);

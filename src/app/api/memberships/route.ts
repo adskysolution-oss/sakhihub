@@ -13,6 +13,11 @@ export async function POST(req: NextRequest) {
     const session = await getAuthSession();
     if (!session) return errorResponse('Unauthorized', 401);
 
+    const userRole = (session as any).role;
+    if (userRole !== 'super_admin' && userRole !== 'admin') {
+      return errorResponse('Forbidden: Only administrators are authorized to manually approve offline payments.', 403);
+    }
+
     await dbConnect();
     const body = await req.json();
     const { memberId, groupId, paymentMode } = body;

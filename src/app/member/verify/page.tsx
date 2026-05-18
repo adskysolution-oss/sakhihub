@@ -38,7 +38,7 @@ export default function MemberVerifyPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#f8f9fa', padding: '40px 20px' }}>
       <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary)', fontWeight: '700', marginBottom: '30px', textDecoration: 'none' }}>
+        <Link href="/member/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary)', fontWeight: '700', marginBottom: '30px', textDecoration: 'none' }}>
           <ArrowLeft size={18} /> Back to Home
         </Link>
 
@@ -51,17 +51,17 @@ export default function MemberVerifyPage() {
 
           <form onSubmit={handleVerify} style={{ position: 'relative', marginBottom: '30px' }}>
             <Search size={20} style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-            <input 
-              type="text" 
-              placeholder="e.g. REC-2026-XXXX or SH-2026-XXXX" 
+            <input
+              type="text"
+              placeholder="e.g. REC-2026-XXXX or SH-2026-XXXX"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               style={{ width: '100%', padding: '18px 18px 18px 50px', borderRadius: '15px', border: '1px solid #eee', fontSize: '1.1rem', outline: 'none', boxShadow: '0 5px 15px rgba(0,0,0,0.02)' }}
             />
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
-              style={{ 
+              style={{
                 position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
                 padding: '10px 20px', borderRadius: '10px', background: 'var(--grad-primary)',
                 color: 'white', border: 'none', fontWeight: '700', cursor: 'pointer'
@@ -85,7 +85,7 @@ export default function MemberVerifyPage() {
                     <CheckCircle2 size={24} />
                     <span style={{ fontWeight: '900', fontSize: '1.2rem' }}>Verified Member</span>
                   </div>
-                  
+
                   <div style={{ display: 'grid', gap: '15px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '10px' }}>
                       <span style={{ color: '#666', fontSize: '0.9rem' }}>Member Name</span>
@@ -109,7 +109,7 @@ export default function MemberVerifyPage() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '15px', fontSize: '0.85rem', color: '#888', textAlign: 'center' }}>
                   This is a system-generated verification record for SakhiHub Membership.
                 </div>

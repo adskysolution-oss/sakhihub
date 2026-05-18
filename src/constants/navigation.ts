@@ -27,7 +27,6 @@ export const EMPLOYEE_DASHBOARD_LINKS = [
   { name: 'Member Requests', icon: Heart, href: '/employee/requests' },
   { name: 'My Groups', icon: Layout, href: '/employee/groups' },
   { name: 'Women Members', icon: Users, href: '/employee/members' },
-  { name: 'Collections', icon: IndianRupee, href: '/employee/membership' },
   { name: 'My Wallet', icon: Wallet, href: '/employee/wallet' },
   { name: 'Daily Reports', icon: ClipboardList, href: '/employee/reports' },
   { name: 'Campaigns', icon: Target, href: '/employee/campaigns' },

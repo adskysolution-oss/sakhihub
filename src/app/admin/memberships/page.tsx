@@ -6,14 +6,16 @@ import axios from "axios";
 import MembershipTable from "@/components/features/dashboard/MembershipTable";
 import { 
   Users, CheckCircle2, AlertCircle, IndianRupee, Download, 
-  Settings2, Save, FileText, ToggleLeft, ToggleRight, Calendar, Filter
+  Settings2, Save, FileText, ToggleLeft, ToggleRight, Calendar, Filter, Clock
 } from "lucide-react";
 
 export default function AdminMembershipsPage() {
   const [memberships, setMemberships] = useState<any[]>([]);
+  const [unpaidMembers, setUnpaidMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterMonth, setFilterMonth] = useState("all");
+  const [activeTab, setActiveTab] = useState<"ledger" | "unpaid">("ledger");
 
   // Member statistics state
   const [memberStats, setMemberStats] = useState({ total: 0, paid: 0, pending: 0 });
@@ -46,6 +48,10 @@ export default function AdminMembershipsPage() {
         const paid = list.filter((m: any) => m.paymentStatus === 'Paid' || m.membershipStatus === 'paid').length;
         const pending = total - paid;
         setMemberStats({ total, paid, pending });
+
+        // Filter out unpaid members
+        const unpaid = list.filter((m: any) => m.paymentStatus !== 'Paid' && m.membershipStatus !== 'paid');
+        setUnpaidMembers(unpaid);
       }
     } catch (err) {
       console.error(err);
@@ -68,6 +74,25 @@ export default function AdminMembershipsPage() {
     fetchMemberStats();
     fetchCommissionConfig();
   }, []);
+
+  const handleConfirmCashPayment = async (member: any) => {
+    if (!confirm(`Are you sure you want to confirm Cash payment of ₹${commConfig.membershipFee || 100} for ${member.name}? This will instantly update their status and automatically distribute commission downlines.`)) return;
+    try {
+      const res = await axios.post('/api/memberships', {
+        memberId: member._id,
+        groupId: member.groupId?._id || null,
+        paymentMode: 'Cash'
+      });
+      if (res.data.success) {
+        alert(`Successfully registered Cash payment for ${member.name}!`);
+        fetchMemberships();
+        fetchMemberStats();
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert(err.response?.data?.message || 'Failed to register membership payment');
+    }
+  };
 
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -244,62 +269,146 @@ export default function AdminMembershipsPage() {
           {/* RIGHT: Filters and Table Panel */}
           <div className="lg:col-span-8 space-y-6">
             
-            {/* Filters Bar */}
-            <div className="bg-white p-5 rounded-[25px] border border-gray-100 shadow-soft flex gap-4 flex-wrap items-center">
-              <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                <Filter size={16} className="text-primary" /> Filter Transactions:
+            {/* Tab selector */}
+            <div className="flex gap-6 border-b border-gray-100 pb-2">
+              <button 
+                onClick={() => setActiveTab("ledger")}
+                className={`pb-3 px-2 font-black text-sm uppercase tracking-wider border-b-2 transition-all ${activeTab === 'ledger' ? 'border-primary text-primary' : 'border-transparent text-gray-400 hover:text-secondary'}`}
+              >
+                Membership Ledger ({filteredMemberships.length})
+              </button>
+              <button 
+                onClick={() => setActiveTab("unpaid")}
+                className={`pb-3 px-2 font-black text-sm uppercase tracking-wider border-b-2 transition-all ${activeTab === 'unpaid' ? 'border-primary text-primary' : 'border-transparent text-gray-400 hover:text-secondary'}`}
+              >
+                Unpaid Members Ledger ({unpaidMembers.length})
+              </button>
+            </div>
+
+            {activeTab === 'ledger' ? (
+              <>
+                {/* Filters Bar */}
+                <div className="bg-white p-5 rounded-[25px] border border-gray-100 shadow-soft flex gap-4 flex-wrap items-center">
+                  <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                    <Filter size={16} className="text-primary" /> Filter Transactions:
+                  </div>
+
+                  <select 
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="px-4 py-2.5 bg-[#f8f9fa] border-none text-secondary rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-primary/10"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Failed">Failed</option>
+                  </select>
+                  
+                  <select 
+                    value={filterMonth}
+                    onChange={(e) => setFilterMonth(e.target.value)}
+                    className="px-4 py-2.5 bg-[#f8f9fa] border-none text-secondary rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-primary/10"
+                  >
+                    <option value="all">All Months</option>
+                    {["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map((month, idx) => (
+                      <option key={month} value={idx.toString()}>{month}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Memberships Ledger Table */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-black text-secondary flex items-center gap-2 pl-2">
+                    <FileText size={20} className="text-primary" /> Membership Ledger List
+                  </h3>
+                  
+                  {loading ? (
+                    <div className="bg-white p-20 rounded-[35px] border border-gray-100 shadow-soft text-center flex flex-col items-center gap-4">
+                      <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                      <p className="text-gray-400 text-xs font-bold uppercase tracking-widest animate-pulse">Syncing platform ledger...</p>
+                    </div>
+                  ) : filteredMemberships.length === 0 ? (
+                    <div className="bg-white p-20 rounded-[35px] border border-gray-100 shadow-soft text-center">
+                      <AlertCircle size={40} className="mx-auto text-gray-300 mb-4" />
+                      <p className="text-gray-400 font-bold italic">No matching membership transaction records found.</p>
+                    </div>
+                  ) : (
+                    <MembershipTable 
+                      data={filteredMemberships} 
+                      isAdmin={true} 
+                      onUpdate={() => {
+                        fetchMemberships();
+                        fetchMemberStats();
+                      }} 
+                    />
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="space-y-4">
+                <h3 className="text-lg font-black text-secondary flex items-center gap-2 pl-2">
+                  <AlertCircle size={20} className="text-primary" /> Unpaid Members List
+                </h3>
+
+                <div className="w-full bg-white rounded-3xl overflow-hidden shadow-soft border border-gray-100">
+                  <div className="overflow-x-auto scrollbar-hide">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-gray-50/50 border-b border-gray-100">
+                          <th className="px-6 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Member Info</th>
+                          <th className="px-6 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Mobile</th>
+                          <th className="px-6 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pincode / Block</th>
+                          <th className="px-6 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Group</th>
+                          <th className="px-6 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Status</th>
+                          <th className="px-6 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-50">
+                        {unpaidMembers.length > 0 ? unpaidMembers.map((m) => (
+                          <tr key={m._id} className="hover:bg-gray-50/50 transition-colors group">
+                            <td className="px-6 py-5">
+                              <p className="font-bold text-secondary leading-tight">{m.name}</p>
+                              <p className="text-[10px] text-gray-400 font-semibold mt-1 uppercase tracking-widest">Joined {new Date(m.createdAt).toLocaleDateString('en-IN')}</p>
+                            </td>
+                            <td className="px-6 py-5 font-bold text-secondary text-sm">
+                              {m.mobile}
+                            </td>
+                            <td className="px-6 py-5">
+                              <p className="font-bold text-secondary text-xs">{m.pincode || 'N/A'}</p>
+                              <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest mt-0.5">{m.block || 'Local'}</p>
+                            </td>
+                            <td className="px-6 py-5">
+                              <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-xl text-[10px] font-bold uppercase tracking-wider">
+                                {m.groupId?.groupName || 'Unassigned'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-5 text-center">
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-amber-50 text-amber-600">
+                                <Clock size={12} /> Pending Cash/Online
+                              </span>
+                            </td>
+                            <td className="px-6 py-5 text-right">
+                              <button 
+                                onClick={() => handleConfirmCashPayment(m)}
+                                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md hover:scale-105 active:scale-95 transition-all"
+                              >
+                                Confirm Cash Payment
+                              </button>
+                            </td>
+                          </tr>
+                        )) : (
+                          <tr>
+                            <td colSpan={6} className="px-6 py-20 text-center text-gray-400 italic font-semibold">
+                              All members have active paid memberships!
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
-
-              <select 
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-2.5 bg-[#f8f9fa] border-none text-secondary rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-primary/10"
-              >
-                <option value="all">All Status</option>
-                <option value="Paid">Paid</option>
-                <option value="Pending">Pending</option>
-                <option value="Failed">Failed</option>
-              </select>
-              
-              <select 
-                value={filterMonth}
-                onChange={(e) => setFilterMonth(e.target.value)}
-                className="px-4 py-2.5 bg-[#f8f9fa] border-none text-secondary rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-primary/10"
-              >
-                <option value="all">All Months</option>
-                {["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map((month, idx) => (
-                  <option key={month} value={idx.toString()}>{month}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Memberships Ledger Table */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-black text-secondary flex items-center gap-2 pl-2">
-                <FileText size={20} className="text-primary" /> Membership Ledger List
-              </h3>
-              
-              {loading ? (
-                <div className="bg-white p-20 rounded-[35px] border border-gray-100 shadow-soft text-center flex flex-col items-center gap-4">
-                  <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-gray-400 text-xs font-bold uppercase tracking-widest animate-pulse">Syncing platform ledger...</p>
-                </div>
-              ) : filteredMemberships.length === 0 ? (
-                <div className="bg-white p-20 rounded-[35px] border border-gray-100 shadow-soft text-center">
-                  <AlertCircle size={40} className="mx-auto text-gray-300 mb-4" />
-                  <p className="text-gray-400 font-bold italic">No matching membership transaction records found.</p>
-                </div>
-              ) : (
-                <MembershipTable 
-                  data={filteredMemberships} 
-                  isAdmin={true} 
-                  onUpdate={() => {
-                    fetchMemberships();
-                    fetchMemberStats();
-                  }} 
-                />
-              )}
-            </div>
+            )}
 
           </div>
 

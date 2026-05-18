@@ -842,15 +842,15 @@ export default function AdminFinancePage() {
                       
                       <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
                         <Award size={18} className="text-primary" />
-                        <h4 className="font-black text-secondary text-sm uppercase tracking-wide">Membership Commissions (Flat INR)</h4>
+                        <h4 className="font-black text-secondary text-sm uppercase tracking-wide">Membership Commissions (%)</h4>
                       </div>
 
                       {/* Recruiter Commission */}
                       <div className="space-y-4">
-                        <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Direct Recruiter Earnings</h5>
+                        <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Direct Recruiter Earnings (%)</h5>
                         <div className="grid grid-cols-3 gap-4">
                           <div>
-                            <label className="block text-[9px] font-black text-gray-400 uppercase mb-1">Employee</label>
+                            <label className="block text-[9px] font-black text-gray-400 uppercase mb-1">Employee (%)</label>
                             <input
                               type="number"
                               required
@@ -863,7 +863,7 @@ export default function AdminFinancePage() {
                             />
                           </div>
                           <div>
-                            <label className="block text-[9px] font-black text-gray-400 uppercase mb-1">Sub-Vendor</label>
+                            <label className="block text-[9px] font-black text-gray-400 uppercase mb-1">Sub-Vendor (%)</label>
                             <input
                               type="number"
                               required
@@ -876,7 +876,7 @@ export default function AdminFinancePage() {
                             />
                           </div>
                           <div>
-                            <label className="block text-[9px] font-black text-gray-400 uppercase mb-1">Vendor</label>
+                            <label className="block text-[9px] font-black text-gray-400 uppercase mb-1">Vendor (%)</label>
                             <input
                               type="number"
                               required
@@ -893,10 +893,10 @@ export default function AdminFinancePage() {
 
                       {/* Upline fixed rules */}
                       <div className="space-y-4 pt-3 border-t border-gray-100">
-                        <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Upline Distribution Rules</h5>
+                        <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Upline Distribution Rules (%)</h5>
                         <div className="grid grid-cols-3 gap-4">
                           <div>
-                            <label className="block text-[9px] font-black text-gray-400 uppercase mb-1">Sub-Vendor Parent</label>
+                            <label className="block text-[9px] font-black text-gray-400 uppercase mb-1">Sub-Vendor Parent (%)</label>
                             <input
                               type="number"
                               required
@@ -909,7 +909,7 @@ export default function AdminFinancePage() {
                             />
                           </div>
                           <div>
-                            <label className="block text-[9px] font-black text-gray-400 uppercase mb-1">Direct Vendor Parent</label>
+                            <label className="block text-[9px] font-black text-gray-400 uppercase mb-1">Direct Vendor Parent (%)</label>
                             <input
                               type="number"
                               required
@@ -922,7 +922,7 @@ export default function AdminFinancePage() {
                             />
                           </div>
                           <div>
-                            <label className="block text-[9px] font-black text-gray-400 uppercase mb-1">Grandparent Vendor</label>
+                            <label className="block text-[9px] font-black text-gray-400 uppercase mb-1">Grandparent Vendor (%)</label>
                             <input
                               type="number"
                               required
