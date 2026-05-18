@@ -74,10 +74,6 @@ export default function VendorDocuments() {
                 />
               </motion.div>
             ))}
-            
-            <div className="pt-6">
-              <PaymentReceiptCard />
-            </div>
           </div>
 
           <div className="space-y-8">
@@ -126,6 +122,8 @@ export default function VendorDocuments() {
                 Your data is stored securely using enterprise-grade encryption. We only use these documents for government compliance and NGO verification purposes.
               </p>
             </div>
+
+            <PaymentReceiptCard />
 
             <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
               <h2 className="text-xl font-black text-secondary mb-6">Digital Certificates</h2>

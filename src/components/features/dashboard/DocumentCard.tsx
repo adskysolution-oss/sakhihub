@@ -38,7 +38,7 @@ export default function DocumentCard({
   const DocIcon = config.icon;
 
   return (
-    <div className={`p-8 rounded-[40px] border-2 transition-all relative overflow-hidden group ${
+    <div className={`p-6 rounded-[32px] border-2 transition-all relative overflow-hidden group ${
       status === 'approved' ? 'border-green-100 bg-green-50/30' :
       status === 'rejected' ? 'border-red-100 bg-red-50/30' :
       isUploaded ? 'border-primary/20 bg-primary/5' : 'border-gray-100 bg-white hover:border-primary/20'
@@ -49,23 +49,23 @@ export default function DocumentCard({
         </div>
       )}
       
-      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm ${
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 shadow-sm ${
         status === 'approved' ? 'bg-green-500 text-white' :
         status === 'rejected' ? 'bg-red-500 text-white' :
         isUploaded ? 'bg-primary text-white' : 'bg-gray-50 text-gray-400'
       }`}>
-        <DocIcon size={28} />
+        <DocIcon size={24} />
       </div>
 
-      <h3 className="text-xl font-black text-secondary mb-2">{config.label}</h3>
+      <h3 className="text-lg font-black text-secondary mb-1">{config.label}</h3>
       <p className="text-[10px] text-primary font-black uppercase tracking-widest mb-2 flex items-center gap-1.5">
         <FileText size={12} /> PDF, JPG, PNG, WEBP
       </p>
-      <p className="text-xs text-gray-400 font-bold leading-relaxed mb-6">{config.desc}</p>
+      <p className="text-xs text-gray-400 font-bold leading-relaxed mb-4">{config.desc}</p>
 
       <div className="flex flex-col gap-4">
         {isUploaded ? (
-          <div className="flex flex-col gap-4 bg-white/70 p-4 rounded-3xl border border-gray-100">
+          <div className="flex flex-col gap-3 bg-white/70 p-3 rounded-2xl border border-gray-100">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-2">
@@ -91,7 +91,7 @@ export default function DocumentCard({
                 className="p-3 bg-white rounded-2xl text-primary border border-gray-100 shadow-sm hover:bg-primary hover:text-white transition-all shrink-0"
                 title="Open uploaded document"
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={14} />
               </a>
             </div>
             <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-100">
@@ -108,7 +108,7 @@ export default function DocumentCard({
         ) : null}
 
         {!readOnly && (
-          <label className={`w-full py-4 rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest cursor-pointer transition-all ${
+          <label className={`w-full py-3 rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest cursor-pointer transition-all ${
             uploading ? 'bg-gray-100 text-gray-400 cursor-wait' :
             isUploaded ? 'bg-white border-2 border-gray-100 text-gray-400 hover:border-primary/20 hover:text-primary' : 
             'bg-primary text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95'
