@@ -5,6 +5,7 @@ import WomenMember from '@/models/WomenMember';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 import { notifyMembershipPayment } from '@/lib/notifications';
+import { distributeCommission } from '@/lib/commission';
 
 export async function POST(req: NextRequest) {
   try {
@@ -49,8 +50,15 @@ export async function POST(req: NextRequest) {
     // Update member status
     await WomenMember.findByIdAndUpdate(memberId, { membershipStatus: 'paid' });
 
+    // Trigger upline commission distribution
+    try {
+      await distributeCommission(memberId.toString(), 'membership', 100, membership.membershipId);
+    } catch (err) {
+      console.error('[Commission Error] Failed to distribute membership registration commission:', err);
+    }
+
     // Trigger Email Notification asynchronously
-    notifyMembershipPayment(membership._id);
+    notifyMembershipPayment(membership._id.toString());
 
     return successResponse(membership, 'Membership created successfully', 201);
   } catch (error: any) {

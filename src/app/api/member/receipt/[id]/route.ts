@@ -36,8 +36,8 @@ export async function GET(
     const role = (session as any).role;
 
     if (role !== 'super_admin') {
-      const isOwner = receipt.memberId?.userId?.toString() === userId;
-      const isEmployee = receipt.employeeId?._id?.toString() === userId;
+      const isOwner = (receipt.memberId as any)?.userId?.toString() === userId;
+      const isEmployee = (receipt.employeeId as any)?._id?.toString() === userId;
       // Note: memberId is the WomenMember profile, which has a userId field.
       // But populate above didn't get userId of memberId.
     }

@@ -7,6 +7,7 @@ import User from '@/models/User';
 import { successResponse, errorResponse } from '@/utils/response';
 import { getAuthSession } from '@/lib/auth';
 import { notifyMembershipPayment } from '@/lib/notifications';
+import { distributeCommission } from '@/lib/commission';
 
 export async function GET(
   req: NextRequest,
@@ -62,13 +63,21 @@ export async function PATCH(
 
     if (!membership) return errorResponse('Membership not found', 404);
 
-    // If payment is failed/rejected, we might want to update the member record back to unpaid
+    // If payment is failed/rejected, we might want to update the member record back to free
     if (status === 'Failed' || status === 'Pending') {
-      await WomenMember.findByIdAndUpdate(membership.memberId, { membershipStatus: 'unpaid' });
+      await WomenMember.findByIdAndUpdate(membership.memberId, { membershipStatus: 'free' });
     } else if (status === 'Paid') {
       await WomenMember.findByIdAndUpdate(membership.memberId, { membershipStatus: 'paid' });
+      
+      // Trigger upline commission distribution
+      try {
+        await distributeCommission(membership.memberId.toString(), 'membership', 100, membership.membershipId);
+      } catch (err) {
+        console.error('[Commission Error] Failed to distribute membership commission in patch:', err);
+      }
+
       // Notify member
-      notifyMembershipPayment(membership._id);
+      notifyMembershipPayment(membership._id.toString());
     }
 
     return successResponse(membership, `Membership marked as ${status}`);

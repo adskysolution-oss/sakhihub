@@ -96,7 +96,6 @@ function AdminLoginContent() {
                 placeholder="••••••••"
                 required
                 className="bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-600 focus:ring-sky-500/10 focus:border-sky-500/30"
-                iconColor="text-slate-500"
               />
             </div>
 

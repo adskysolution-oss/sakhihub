@@ -74,11 +74,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Check for existing pending order for same type (prevent duplicate orders)
-    const existingPending = await PaymentTransaction.findOne({
+    let existingPending = await PaymentTransaction.findOne({
       userId: user._id,
       type,
       status: { $in: ['created', 'pending'] }
     });
+
+    if (existingPending && existingPending.paymentSessionId.startsWith('mock_session_')) {
+      await PaymentTransaction.deleteOne({ _id: existingPending._id });
+      existingPending = null;
+    }
 
     if (existingPending) {
       // Return the existing order's payment session
@@ -94,6 +99,15 @@ export async function POST(req: NextRequest) {
     // Generate unique order ID
     const orderId = generateOrderId(user._id.toString(), type);
 
+    // Cashfree Production requires HTTPS URLs
+    let returnUrl = `${BASE_URL}/payment-pending?order_id=${orderId}&type=${type}`;
+    let notifyUrl = `${BASE_URL}/api/payment/webhook`;
+    
+    if (process.env.CASHFREE_ENV === 'production' || process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production') {
+      returnUrl = returnUrl.replace('http://', 'https://');
+      notifyUrl = notifyUrl.replace('http://', 'https://');
+    }
+
     // Create Cashfree order
     const cashfreeOrder = await createCashfreeOrder({
       orderId,
@@ -101,8 +115,8 @@ export async function POST(req: NextRequest) {
       customerName: user.fullName,
       customerPhone: user.mobile,
       customerEmail: user.email,
-      returnUrl: `${BASE_URL}/payment-pending?order_id=${orderId}&type=${type}`,
-      notifyUrl: `${BASE_URL}/api/payment/webhook`,
+      returnUrl,
+      notifyUrl,
     });
 
     // Save transaction record

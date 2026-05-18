@@ -191,11 +191,4 @@ const UserSchema: Schema = new Schema(
 );
 
 // Prevent model recompilation in development while ensuring schema updates are picked up
-let UserModel;
-try {
-  UserModel = mongoose.model<IUser>('User');
-} catch (e) {
-  UserModel = mongoose.model<IUser>('User', UserSchema);
-}
-
-export default UserModel;
+export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-fallback-secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'sakhi-hub-secret-key-2026';
 
 export const hashPassword = async (password: string) => {
   return await bcrypt.hash(password, 10);
@@ -29,7 +29,7 @@ export const setAuthCookie = async (token: string) => {
   cookieStore.set('token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/',
   });

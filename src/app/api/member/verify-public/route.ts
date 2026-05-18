@@ -36,12 +36,12 @@ export async function GET(req: NextRequest) {
       receiptNumber: membership.receiptNumber,
       paymentDate: membership.paymentDate,
       member: {
-        name: membership.memberId.name,
-        village: membership.memberId.village
+        name: (membership.memberId as any).name,
+        village: (membership.memberId as any).village
       },
       groupId: {
-        groupName: membership.groupId?.groupName,
-        village: membership.groupId?.village
+        groupName: (membership.groupId as any)?.groupName,
+        village: (membership.groupId as any)?.village
       }
     };
 

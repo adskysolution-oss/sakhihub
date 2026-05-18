@@ -4,6 +4,7 @@ import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 import User from '@/models/User';
 import PaymentConfig from '@/models/PaymentConfig';
+import { isCashfreeConfigured } from '@/lib/cashfree';
 import PaymentTransaction from '@/models/PaymentTransaction';
 
 export async function GET(req: NextRequest) {
@@ -63,6 +64,8 @@ export async function GET(req: NextRequest) {
       },
       paymentCompleted: user.paymentCompleted,
       documentsVerified: user.documentsVerified,
+      isCashfreeConfigured: isCashfreeConfigured(),
+      cashfreeEnv: process.env.CASHFREE_ENV || 'sandbox',
       transactions,
     }, 'Payment status retrieved');
   } catch (error: any) {

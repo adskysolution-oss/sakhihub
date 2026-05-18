@@ -26,17 +26,15 @@ function PaymentPendingContent() {
   const [profile, setProfile] = useState<any>(null);
   const [cashfree, setCashfree] = useState<any>(null);
 
+  const [scriptLoaded, setScriptLoaded] = useState(false);
+
   useEffect(() => {
     // Load Cashfree SDK
     const script = document.createElement('script');
     script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
     script.async = true;
     script.onload = () => {
-      if (window.Cashfree) {
-        setCashfree(window.Cashfree({
-          mode: process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' ? 'production' : 'sandbox'
-        }));
-      }
+      setScriptLoaded(true);
     };
     document.body.appendChild(script);
 
@@ -44,6 +42,14 @@ function PaymentPendingContent() {
       document.body.removeChild(script);
     };
   }, []);
+
+  useEffect(() => {
+    if (scriptLoaded && data && window.Cashfree && !cashfree) {
+      const mode = data.cashfreeEnv === 'production' ? 'production' : 'sandbox';
+      console.log('Initializing Cashfree in mode:', mode);
+      setCashfree(window.Cashfree({ mode }));
+    }
+  }, [scriptLoaded, data, cashfree]);
 
   const fetchStatus = async () => {
     try {
@@ -175,6 +181,19 @@ function PaymentPendingContent() {
         {/* Unified Stepper */}
         {profile && <OnboardingStepper user={profile} />}
 
+        {/* Warning if gateway not configured */}
+        {data && data.isCashfreeConfigured === false && (
+          <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 text-left">
+            <AlertCircle className="text-amber-500 shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-bold text-amber-800 text-sm">Online Payments Currently Unavailable</h4>
+              <p className="text-xs text-amber-700 mt-1 leading-relaxed">
+                The payment gateway is currently under maintenance. Please contact the administrator for manual payment processing (UPI, Bank Transfer, or Cash). Once the admin verifies your payment, your dashboard will be unlocked automatically.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Payment Cards */}
         <div className="flex flex-col gap-6 mb-16 text-left">
           {data?.subscription?.required && (
@@ -202,9 +221,10 @@ function PaymentPendingContent() {
                 ) : (
                   <button 
                     onClick={() => initiatePayment('subscription')}
-                    className="w-full px-10 py-4 bg-primary text-white rounded-2xl font-black text-[12px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                    disabled={data.isCashfreeConfigured === false}
+                    className={`w-full px-10 py-4 rounded-2xl font-black text-[12px] uppercase tracking-widest shadow-xl transition-all ${data.isCashfreeConfigured === false ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none' : 'bg-primary text-white shadow-primary/20 hover:scale-105 active:scale-95'}`}
                   >
-                    Pay Now
+                    {data.isCashfreeConfigured === false ? 'Unavailable' : 'Pay Now'}
                   </button>
                 )}
               </div>
@@ -237,9 +257,10 @@ function PaymentPendingContent() {
                 ) : (
                   <button 
                     onClick={() => initiatePayment('deposit')}
-                    className="w-full px-10 py-4 bg-secondary text-white rounded-2xl font-black text-[12px] uppercase tracking-widest shadow-xl shadow-secondary/20 hover:scale-105 active:scale-95 transition-all"
+                    disabled={data.isCashfreeConfigured === false}
+                    className={`w-full px-10 py-4 rounded-2xl font-black text-[12px] uppercase tracking-widest shadow-xl transition-all ${data.isCashfreeConfigured === false ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none' : 'bg-secondary text-white shadow-secondary/20 hover:scale-105 active:scale-95'}`}
                   >
-                    Pay Now
+                    {data.isCashfreeConfigured === false ? 'Unavailable' : 'Pay Now'}
                   </button>
                 )}
               </div>

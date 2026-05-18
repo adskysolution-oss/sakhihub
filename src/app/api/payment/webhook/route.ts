@@ -4,6 +4,7 @@ import User from '@/models/User';
 import PaymentConfig from '@/models/PaymentConfig';
 import PaymentTransaction from '@/models/PaymentTransaction';
 import { verifyCashfreeWebhook } from '@/lib/cashfree';
+import { distributeCommission } from '@/lib/commission';
 
 export async function POST(req: NextRequest) {
   try {
@@ -54,6 +55,18 @@ export async function POST(req: NextRequest) {
         transaction.gatewayResponse = data;
         await transaction.save();
 
+        // Trigger upline commission distribution
+        try {
+          await distributeCommission(
+            transaction.userId,
+            transaction.type as 'subscription' | 'deposit',
+            transaction.amount,
+            transaction.cashfreeOrderId
+          );
+        } catch (err) {
+          console.error('[Commission Error] Failed to distribute commission in webhook:', err);
+        }
+
         // Update user flags
         const user = await User.findById(transaction.userId);
         if (user) {
@@ -61,11 +74,28 @@ export async function POST(req: NextRequest) {
           if (transaction.type === 'deposit') user.depositPaid = true;
           await user.save();
 
-          // Check full payment completion
+          // Check full payment completion (robust fallback if config not found)
           const roleKey = user.role as 'vendor' | 'sub_vendor' | 'employee';
           let config = await PaymentConfig.findOne({ key: 'default' });
 
-          if (config) {
+          if (!config) {
+            user.paymentCompleted = true;
+            user.subscriptionPaid = true;
+            user.depositPaid = true;
+            if (user.documentsVerified) {
+              if (user.role === 'vendor') {
+                user.dashboardAccess = true;
+                user.onboardingCompleted = true;
+                user.status = 'active';
+              }
+              if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
+                user.dashboardAccess = true;
+                user.onboardingCompleted = true;
+                user.status = 'active';
+              }
+            }
+            await user.save();
+          } else {
             const subRequired = config.paymentRequired[roleKey] && config.subscriptionRequired[roleKey];
             const depRequired = config.paymentRequired[roleKey] && config.depositRequired[roleKey];
             const subPaid = user.subscriptionPaid || !subRequired;

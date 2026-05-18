@@ -3,6 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 import PaymentConfig from '@/models/PaymentConfig';
+import { isCashfreeConfigured } from '@/lib/cashfree';
 
 export async function GET() {
   try {
@@ -25,7 +26,10 @@ export async function GET() {
       });
     }
 
-    return successResponse(config, 'Payment configuration retrieved');
+    return successResponse({
+      ...config.toObject(),
+      isConfigured: isCashfreeConfigured()
+    }, 'Payment configuration retrieved');
   } catch (error: any) {
     console.error('Get Payment Config Error:', error);
     return errorResponse(error.message || 'Failed to fetch config', 500);

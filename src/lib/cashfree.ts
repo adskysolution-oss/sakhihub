@@ -2,7 +2,7 @@ import crypto from 'crypto';
 
 const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID || '';
 const CASHFREE_SECRET_KEY = process.env.CASHFREE_SECRET_KEY || '';
-const CASHFREE_ENV = process.env.CASHFREE_ENV || 'sandbox';
+const CASHFREE_ENV = process.env.CASHFREE_ENV || process.env.NEXT_PUBLIC_CASHFREE_ENV || 'sandbox';
 
 const BASE_URL = CASHFREE_ENV === 'production'
   ? 'https://api.cashfree.com/pg'
@@ -145,7 +145,12 @@ export function generateOrderId(userId: string, type: 'subscription' | 'deposit'
  * Check if Cashfree is configured
  */
 export function isCashfreeConfigured(): boolean {
-  return !!(CASHFREE_APP_ID && CASHFREE_SECRET_KEY);
+  return !!(
+    CASHFREE_APP_ID && 
+    CASHFREE_SECRET_KEY && 
+    !CASHFREE_APP_ID.includes('<YOUR_') &&
+    !CASHFREE_SECRET_KEY.includes('<YOUR_')
+  );
 }
 
 /**

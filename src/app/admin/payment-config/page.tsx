@@ -141,6 +141,18 @@ export default function PaymentConfigPage() {
         <p className="text-gray-500 mt-2 font-medium">Configure subscription and deposit amounts for each role.</p>
       </div>
 
+      {config?.isConfigured === false && (
+        <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
+          <AlertCircle className="text-red-500 shrink-0 mt-0.5" />
+          <div>
+            <h4 className="font-bold text-red-800 text-sm">Cashfree Payment Gateway is not configured</h4>
+            <p className="text-xs text-red-600 mt-1">
+              Users will not be able to complete their online payments. Please update the `.env.local` file with <code className="bg-white/50 px-1 rounded">CASHFREE_APP_ID</code> and <code className="bg-white/50 px-1 rounded">CASHFREE_SECRET_KEY</code>, then restart the server. Manual admin approval will continue to work.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Left Col: Config Form */}
         <div className="xl:col-span-2 space-y-6">

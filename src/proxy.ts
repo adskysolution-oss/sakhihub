@@ -19,7 +19,7 @@ export async function proxy(request: NextRequest) {
   const isSubVendorPage = pathname.startsWith('/sub-vendor');
   const isEmployeePage = pathname.startsWith('/employee');
   const isMemberPage = pathname.startsWith('/member');
-  const isPaymentPendingPage = pathname === '/payment-pending';
+  const isPaymentPendingPage = pathname === '/payment-pending' || pathname === '/payment-pending/';
   const isPaymentApi = pathname.startsWith('/api/payment');
   const isPublicPage = !isAdminPage && !isVendorPage && !isSubVendorPage && !isEmployeePage && !isMemberPage && !isAuthPage && !isPaymentPendingPage;
 

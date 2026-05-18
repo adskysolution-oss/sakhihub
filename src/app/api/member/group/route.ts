@@ -29,6 +29,14 @@ export async function GET(req: NextRequest) {
 
     if (!fieldRecord) return errorResponse('Group assignment not found', 404);
 
+    if (!fieldRecord.groupId) {
+      return successResponse({
+        group: null,
+        members: [],
+        myStatus: fieldRecord.membershipStatus
+      }, 'No group assigned yet');
+    }
+
     // Find other members in the same group
     const groupMembers = await WomenMember.find({ groupId: fieldRecord.groupId._id })
       .select('name mobile village membershipStatus');

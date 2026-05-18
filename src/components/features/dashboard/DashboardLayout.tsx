@@ -9,7 +9,8 @@ import {
   X,
   Bell,
   Search,
-  Globe
+  Globe,
+  ShieldCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -143,17 +144,21 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
             <nav className="flex-1 p-5 overflow-y-auto">
               <div className="grid gap-2">
-                {menuItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => window.innerWidth < 1024 && setSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 no-underline ${pathname === item.href ? 'text-primary bg-[#FFF5F8] font-semibold shadow-sm' : 'text-gray-500 font-medium hover:bg-gray-50'}`}
-                  >
-                    <item.icon size={20} />
-                    <span>{item.name}</span>
-                  </Link>
-                ))}
+                {menuItems.map((item) => {
+                  const isActive = pathname === item.href || 
+                    (item.href.includes('/profile') && pathname.includes('/profile'));
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => window.innerWidth < 1024 && setSidebarOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 no-underline ${isActive ? 'text-primary bg-[#FFF5F8] font-semibold shadow-sm' : 'text-gray-500 font-medium hover:bg-gray-50'}`}
+                    >
+                      <item.icon size={20} />
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                })}
               </div>
 
               <div className="mt-8 pt-8 border-t border-[#f5f5f5] grid gap-2">

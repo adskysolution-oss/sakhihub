@@ -6,6 +6,7 @@ import User from '@/models/User';
 import PaymentConfig from '@/models/PaymentConfig';
 import PaymentTransaction from '@/models/PaymentTransaction';
 import { getCashfreeOrderStatus, getCashfreePayments } from '@/lib/cashfree';
+import { distributeCommission } from '@/lib/commission';
 
 /**
  * Check if all required payments are completed for a user and update flags accordingly.
@@ -110,6 +111,18 @@ export async function POST(req: NextRequest) {
           : paymentDetails.payment_method;
       }
       await transaction.save();
+
+      // Trigger upline commission distribution
+      try {
+        await distributeCommission(
+          transaction.userId,
+          transaction.type as 'subscription' | 'deposit',
+          transaction.amount,
+          transaction.cashfreeOrderId
+        );
+      } catch (err) {
+        console.error('[Commission Error] Failed to distribute commission in verify:', err);
+      }
 
       // Update user payment flags
       const user = await User.findById(sessionUser.id);
