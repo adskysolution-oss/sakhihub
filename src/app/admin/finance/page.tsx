@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/features/dashboard/DashboardLayout';
-import { 
-  IndianRupee, TrendingUp, Users, ShieldCheck, ArrowDownRight, ArrowUpRight, 
-  Search, Filter, CheckCircle2, Clock, XCircle, Landmark, Receipt, FileText, 
+import {
+  IndianRupee, TrendingUp, Users, ShieldCheck, ArrowDownRight, ArrowUpRight,
+  Search, Filter, CheckCircle2, Clock, XCircle, Landmark, Receipt, FileText,
   Printer, ArrowRight, ShieldAlert, Award, Settings, Save, AlertCircle
 } from 'lucide-react';
 import axios from 'axios';
@@ -17,6 +17,86 @@ export default function AdminFinancePage() {
   const [ledger, setLedger] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSubTab, setActiveSubTab] = useState<'revenue' | 'wallets' | 'payouts' | 'ledger' | 'config'>('revenue');
+  const [ledgerCategoryFilter, setLedgerCategoryFilter] = useState<string>('all');
+
+  const getProductionLabel = (txn: any) => {
+    if (!txn) return 'System Entry';
+    const category = txn.category || txn.ledgerCategory;
+    const desc = txn.description || '';
+    
+    if (txn.ledgerCategory === 'payment') {
+      return desc || 'Platform Payer Collection';
+    }
+    if (category === 'withdrawal' || category === 'payout') {
+      return 'Manual Settlement Entry';
+    }
+    if (category === 'refund' || category === 'reversal') {
+      return 'Reversal / Refund Entry';
+    }
+    if (category === 'adjustment') {
+      return 'System Adjustment / Override';
+    }
+    if (category === 'override') {
+      return 'Manual Override Entry';
+    }
+    
+    // Membership commission splits
+    if (category === 'commission_member' || category === 'commission_split' || txn.ledgerCategory === 'commission_split') {
+      if (desc.toLowerCase().includes('tier 2') || desc.toLowerCase().includes('indirect member commission (tier 2)')) {
+        return 'Tier 2 Upline Reward';
+      }
+      if (desc.toLowerCase().includes('tier 3') || desc.toLowerCase().includes('indirect member commission (tier 3)')) {
+        return 'Tier 3 Network Reward';
+      }
+      if (desc.toLowerCase().includes('indirect')) {
+        return 'Tier 2 Upline Reward';
+      }
+      if (desc.toLowerCase().includes('grandparent') || desc.toLowerCase().includes('tier 3')) {
+        return 'Tier 3 Network Reward';
+      }
+      return 'Direct Referral Reward';
+    }
+
+    // Subscription/Deposit commission splits
+    if (category === 'commission_subscription' || category === 'commission_deposit') {
+      if (desc.toLowerCase().includes('indirect') || desc.toLowerCase().includes('grandparent') || desc.toLowerCase().includes('tier 2') || desc.toLowerCase().includes('tier 3')) {
+        if (desc.toLowerCase().includes('grandparent') || desc.toLowerCase().includes('tier 3')) {
+          return 'Tier 3 Network Reward';
+        }
+        return 'Tier 2 Upline Reward';
+      }
+      return 'Direct Referral Reward';
+    }
+
+    return 'System Commission Entry';
+  };
+
+  const getEntryClassLabel = (category: string) => {
+    switch (category) {
+      case 'payment':
+      case 'subscription':
+      case 'deposit':
+      case 'membership':
+        return 'Platform Inbound Collection';
+      case 'commission_subscription':
+      case 'commission_deposit':
+      case 'commission_member':
+      case 'commission_split':
+        return 'Commission Split Allocation';
+      case 'withdrawal':
+      case 'payout':
+        return 'Payout Settlement Debit';
+      case 'refund':
+      case 'reversal':
+        return 'Reversal Credit / Rebound';
+      case 'adjustment':
+        return 'System Adjustment';
+      case 'override':
+        return 'Admin Manual Override';
+      default:
+        return 'General Ledger Event';
+    }
+  };
 
   // Dynamic Commission Configurations State
   const [commConfig, setCommConfig] = useState<any>({
@@ -182,7 +262,7 @@ export default function AdminFinancePage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-8 print:p-0">
-        
+
         {/* Title Header */}
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 print:hidden">
           <div>
@@ -214,7 +294,7 @@ export default function AdminFinancePage() {
 
         {/* Stats Summary Cards */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          
+
           {/* TOTAL REVENUE */}
           <div className="bg-gradient-to-br from-secondary via-secondary-dark to-slate-900 p-8 rounded-[35px] text-white shadow-2xl relative overflow-hidden group">
             <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-primary/20 rounded-full blur-3xl group-hover:scale-125 transition-all duration-500"></div>
@@ -284,7 +364,7 @@ export default function AdminFinancePage() {
             <Filter size={14} className="text-primary" /> Filter Financial Reports
           </h4>
           <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            
+
             <div>
               <input
                 type="text"
@@ -380,7 +460,7 @@ export default function AdminFinancePage() {
 
         {/* Tab Selection */}
         <section className="bg-white rounded-[40px] border border-gray-100 shadow-sm p-6 md:p-8">
-          
+
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-gray-100 pb-6 print:hidden">
             <div className="flex flex-wrap gap-2 p-1 bg-gray-50 rounded-2xl">
               {(['revenue', 'wallets', 'payouts', 'ledger', 'config'] as const).map((tab) => (
@@ -542,7 +622,7 @@ export default function AdminFinancePage() {
                       ) : (
                         ledger.filter(t => t.category === 'withdrawal').map((txn: any) => (
                           <tr key={txn._id} className="hover:bg-gray-50/50 transition-colors">
-                            
+
                             <td className="py-5 pr-4">
                               <div className="flex flex-col gap-1">
                                 <span className="font-bold text-secondary text-xs">{txn.userId?.fullName}</span>
@@ -609,88 +689,154 @@ export default function AdminFinancePage() {
 
               {/* 4. AUDIT LEDGER */}
               {activeSubTab === 'ledger' && (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-gray-100">
-                        <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Transaction ID & Target</th>
-                        <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Earning Source</th>
-                        <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Category & Ref</th>
-                        <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Status</th>
-                        <th className="pb-4 text-right text-[10px] font-black uppercase tracking-widest text-gray-400">Ledger Entry</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-50">
-                      {ledger.length === 0 ? (
-                        <tr>
-                          <td colSpan={5} className="py-12 text-center text-gray-400 text-xs font-medium">No double-entry transactions recorded yet.</td>
-                        </tr>
-                      ) : (
-                        ledger.map((txn) => {
-                          const isCredit = txn.type === 'credit';
-                          return (
-                            <tr key={txn._id} className="hover:bg-gray-50/50 transition-colors">
-                              
-                              <td className="py-5 pr-4">
-                                <div className="flex items-center gap-3">
-                                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isCredit ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'}`}>
-                                    {isCredit ? <ArrowDownRight size={16} /> : <ArrowUpRight size={16} />}
-                                  </div>
-                                  <div>
-                                    <p className="font-bold text-secondary text-xs">{txn.description}</p>
-                                    <p className="text-[9px] mt-0.5 text-gray-400 font-bold uppercase tracking-wider">
-                                      Owner: {txn.userId?.fullName} ({txn.userId?.role?.replace('_', ' ')})
-                                    </p>
-                                  </div>
-                                </div>
-                              </td>
+                <div className="space-y-6">
+                  {/* Category Filter for Audit Ledger */}
+                  <div className="flex justify-between items-center gap-4 bg-gray-50 p-4 rounded-2xl print:hidden">
+                    <span className="text-[10px] font-black text-secondary uppercase tracking-widest">
+                      Ledger Filter:
+                    </span>
+                    <div className="flex gap-2">
+                      {[
+                        { key: 'all', label: 'All Entries' },
+                        { key: 'commissions', label: 'Commission Splits' },
+                        { key: 'payouts', label: 'Payout Settlements' },
+                        { key: 'adjustments', label: 'Adjustments & Overrides' }
+                      ].map((item) => (
+                        <button
+                          key={item.key}
+                          type="button"
+                          onClick={() => setLedgerCategoryFilter(item.key)}
+                          className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+                            ledgerCategoryFilter === item.key
+                              ? 'bg-white text-secondary shadow-sm border border-gray-200'
+                              : 'text-gray-400 hover:text-secondary'
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-                              <td className="py-5 pr-4">
-                                {txn.sourceUserId ? (
-                                  <div className="flex flex-col">
-                                    <span className="font-bold text-secondary text-xs">{txn.sourceUserFullName}</span>
-                                    <div className="flex items-center gap-1.5 mt-0.5">
-                                      {getRoleBadge(txn.sourceUserRole)}
-                                      {txn.sourceAmount && <span className="text-[9px] text-gray-400 font-bold">Amt: ₹{txn.sourceAmount}</span>}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-gray-100">
+                          <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Ledger Event & Ref</th>
+                          <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Impacted Account</th>
+                          <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Source of Funds</th>
+                          <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Accounting Class</th>
+                          <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Status</th>
+                          <th className="pb-4 text-right text-[10px] font-black uppercase tracking-widest text-gray-400">Ledger Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-50">
+                        {(() => {
+                          const filteredLedger = ledger.filter((txn) => {
+                            if (ledgerCategoryFilter === 'all') return true;
+                            if (ledgerCategoryFilter === 'commissions') {
+                              return txn.ledgerCategory === 'commission_split';
+                            }
+                            if (ledgerCategoryFilter === 'payouts') {
+                              return txn.ledgerCategory === 'payout';
+                            }
+                            if (ledgerCategoryFilter === 'adjustments') {
+                              return ['adjustment', 'override', 'reversal'].includes(txn.ledgerCategory);
+                            }
+                            return true;
+                          });
+
+                          if (filteredLedger.length === 0) {
+                            return (
+                              <tr>
+                                <td colSpan={6} className="py-12 text-center text-gray-400 text-xs font-medium">No double-entry transactions recorded for this filter.</td>
+                              </tr>
+                            );
+                          }
+
+                          return filteredLedger.map((txn) => {
+                            const isCredit = txn.type === 'credit';
+                            return (
+                              <tr key={txn._id} className="hover:bg-gray-50/50 transition-colors">
+                                
+                                <td className="py-5 pr-4">
+                                  <div className="flex items-center gap-3">
+                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isCredit ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'}`}>
+                                      {isCredit ? <ArrowDownRight size={16} /> : <ArrowUpRight size={16} />}
+                                    </div>
+                                    <div>
+                                      <p className="font-bold text-secondary text-xs">{getProductionLabel(txn)}</p>
+                                      {txn.referenceId && (
+                                        <p className="text-[9px] mt-0.5 text-gray-400 font-bold uppercase tracking-wider">
+                                          Ref: {txn.referenceId}
+                                        </p>
+                                      )}
                                     </div>
                                   </div>
-                                ) : (
-                                  <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">System Override</span>
-                                )}
-                              </td>
+                                </td>
 
-                              <td className="py-5 pr-4">
-                                <div className="flex flex-col gap-0.5">
-                                  <span className="text-[9px] font-black text-primary uppercase tracking-widest">{txn.category?.replace('commission_', 'commission: ')}</span>
-                                  {txn.referenceId && <span className="text-[10px] text-secondary font-black">Ref: {txn.referenceId}</span>}
-                                </div>
-                              </td>
+                                <td className="py-5 pr-4">
+                                  {txn.impactedAccount === 'platform' ? (
+                                    <div className="flex flex-col">
+                                      <span className="font-black text-secondary text-xs uppercase tracking-wider">System Treasury</span>
+                                      <span className="text-[9px] text-primary font-black uppercase tracking-wider mt-0.5">Platform Revenue</span>
+                                    </div>
+                                  ) : (
+                                    <div>
+                                      <p className="font-bold text-secondary text-xs">{txn.userId?.fullName || 'System'}</p>
+                                      <div className="mt-0.5">
+                                        {getRoleBadge(txn.userId?.role)}
+                                      </div>
+                                    </div>
+                                  )}
+                                </td>
 
-                              <td className="py-5 pr-4">
-                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider border ${txn.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : txn.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-                                  {txn.status === 'completed' ? 'Settled' : txn.status === 'pending' ? 'Transit' : 'Cancelled'}
-                                </span>
-                              </td>
+                                <td className="py-5 pr-4">
+                                  {txn.sourceUserId ? (
+                                    <div className="flex flex-col">
+                                      <span className="font-bold text-secondary text-xs">{txn.sourceUserFullName}</span>
+                                      <div className="flex items-center gap-1.5 mt-0.5">
+                                        {getRoleBadge(txn.sourceUserRole)}
+                                        {txn.sourceAmount && <span className="text-[9px] text-gray-400 font-bold">Amt: ₹{txn.sourceAmount}</span>}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">System Split</span>
+                                  )}
+                                </td>
 
-                              <td className="py-5 text-right">
-                                <span className={`text-base font-black ${isCredit ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                  {isCredit ? '+' : '-'}₹{txn.amount}
-                                </span>
-                              </td>
+                                <td className="py-5 pr-4">
+                                  <span className="text-[10px] font-black text-primary uppercase tracking-widest">
+                                    {getEntryClassLabel(txn.ledgerCategory || txn.category)}
+                                  </span>
+                                </td>
 
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
+                                <td className="py-5 pr-4">
+                                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider border ${txn.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : txn.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                                    {txn.status === 'completed' ? 'Settled' : txn.status === 'pending' ? 'Transit' : 'Cancelled'}
+                                  </span>
+                                </td>
+
+                                <td className="py-5 text-right">
+                                  <span className={`text-base font-black ${isCredit ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                    {isCredit ? '+' : '-'}₹{txn.amount}
+                                  </span>
+                                </td>
+
+                              </tr>
+                            );
+                          });
+                        })()}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
 
               {/* 5. DYNAMIC COMMISSION RATE CONFIGURATION Dashboard */}
               {activeSubTab === 'config' && (
                 <form onSubmit={handleSaveCommissionConfig} className="space-y-8 max-w-5xl">
-                  
+
                   <div className="p-4 bg-blue-50 border border-blue-100 rounded-3xl flex gap-3 text-xs text-blue-600 leading-relaxed font-semibold">
                     <AlertCircle size={18} className="shrink-0 text-blue-500 mt-0.5" />
                     <div>
@@ -700,10 +846,10 @@ export default function AdminFinancePage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    
+
                     {/* LEFT PANEL: SUBSCRIPTIONS & DEPOSITS */}
                     <div className="space-y-6 bg-gray-50/50 p-6 rounded-[35px] border border-gray-100">
-                      
+
                       <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
                         <Settings size={18} className="text-primary" />
                         <h4 className="font-black text-secondary text-sm uppercase tracking-wide">Platform Percentages</h4>
@@ -839,7 +985,7 @@ export default function AdminFinancePage() {
 
                     {/* RIGHT PANEL: MEMBERSHIPS */}
                     <div className="space-y-6 bg-gray-50/50 p-6 rounded-[35px] border border-gray-100">
-                      
+
                       <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
                         <Award size={18} className="text-primary" />
                         <h4 className="font-black text-secondary text-sm uppercase tracking-wide">Membership Commissions (%)</h4>
@@ -966,7 +1112,7 @@ export default function AdminFinancePage() {
       <AnimatePresence>
         {selectedTxn && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            
+
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -981,16 +1127,16 @@ export default function AdminFinancePage() {
               exit={{ opacity: 0, scale: 0.95, y: 30 }}
               className="bg-white rounded-[40px] w-full max-w-lg overflow-hidden border border-gray-100 shadow-2xl relative z-10 flex flex-col"
             >
-              
+
               <div className="bg-secondary p-8 text-white relative">
-                 <h4 className="text-2xl font-black flex items-center gap-3">
-                   <Landmark size={26} className="text-primary" /> Process Payout Settlement
-                 </h4>
-                 <p className="text-white/60 text-xs font-bold uppercase tracking-widest mt-1.5">Settle bank wire payouts or cancel debit holds</p>
+                <h4 className="text-2xl font-black flex items-center gap-3">
+                  <Landmark size={26} className="text-primary" /> Process Payout Settlement
+                </h4>
+                <p className="text-white/60 text-xs font-bold uppercase tracking-widest mt-1.5">Settle bank wire payouts or cancel debit holds</p>
               </div>
 
               <form onSubmit={handleSettlePayoutSubmit} className="p-8 space-y-6">
-                
+
                 <div className="p-5 bg-gray-50 border border-gray-100 rounded-3xl space-y-3">
                   <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Bank Account Wire Details</h5>
                   <div className="grid grid-cols-2 gap-4 text-xs font-bold">

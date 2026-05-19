@@ -179,10 +179,116 @@ export async function GET(req: NextRequest) {
     paymentsList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     // Wallet Transactions list (Ledger / Audit Trails)
-    const ledger = await WalletTransaction.find(wtQuery)
+    const walletTxns = await WalletTransaction.find(wtQuery)
       .populate('userId', 'fullName role mobile')
       .populate('sourceUserId', 'fullName role')
       .sort({ createdAt: -1 });
+
+    const unifiedLedger: any[] = [];
+
+    // 1. Map Wallet Transactions
+    walletTxns.forEach(txn => {
+      let lCat = 'commission_split';
+      let accClass = 'commission';
+      
+      if (txn.category === 'withdrawal') {
+        lCat = 'payout';
+        accClass = 'payout';
+      } else if (txn.category === 'refund') {
+        lCat = 'reversal';
+        accClass = 'reversal';
+      } else if (txn.category === 'adjustment') {
+        lCat = 'adjustment';
+        accClass = 'adjustment';
+      }
+
+      unifiedLedger.push({
+        _id: txn._id,
+        date: txn.createdAt,
+        ledgerCategory: lCat,
+        category: txn.category,
+        amount: txn.amount,
+        type: txn.type, // 'credit' (add to wallet) or 'debit' (deduct from wallet)
+        description: txn.description,
+        referenceId: txn.referenceId || 'N/A',
+        status: txn.status,
+        userId: txn.userId, // Impacted user wallet
+        sourceUserId: txn.sourceUserId,
+        sourceUserFullName: txn.sourceUserFullName,
+        sourceUserRole: txn.sourceUserRole,
+        sourceAmount: txn.sourceAmount,
+        bankDetails: txn.bankDetails,
+        impactedAccount: 'wallet',
+        accountingClass: accClass
+      });
+    });
+
+    // 2. Map Payment Transactions into the Ledger if not filtered out by specific filters
+    if (!statusFilter || statusFilter === 'completed') {
+      // Subscription & Deposit
+      if (!typeFilter || typeFilter === 'subscription' || typeFilter === 'deposit') {
+        const ptQueryLedger = { ...ptQuery };
+        const pts = await PaymentTransaction.find(ptQueryLedger)
+          .populate('userId', 'fullName role mobile state district block')
+          .sort({ createdAt: -1 });
+
+        pts.forEach(p => {
+          unifiedLedger.push({
+            _id: p._id,
+            date: p.paidAt || p.createdAt,
+            ledgerCategory: 'payment',
+            category: p.type, // 'subscription' or 'deposit'
+            amount: p.amount,
+            type: 'credit', // inbound credit to the platform
+            description: p.type === 'subscription' ? 'Inbound Platform Subscription Fee' : 'Inbound Partner Security Deposit',
+            referenceId: p.cashfreeOrderId || 'N/A',
+            status: 'completed',
+            userId: p.userId, // The user who paid
+            sourceUserId: null,
+            sourceUserFullName: p.userId?.fullName || 'Direct Walk-in',
+            sourceUserRole: p.userId?.role,
+            sourceAmount: p.amount,
+            paymentMethod: p.paymentMethod || 'Gateway',
+            impactedAccount: 'platform',
+            accountingClass: 'revenue'
+          });
+        });
+      }
+
+      // Memberships
+      if (!typeFilter || typeFilter === 'membership') {
+        const msQueryLedger = { ...msQuery };
+        const mss = await Membership.find(msQueryLedger)
+          .populate('employeeId', 'fullName role mobile state district block')
+          .populate('memberId', 'name mobile district block')
+          .sort({ createdAt: -1 });
+
+        mss.forEach(m => {
+          unifiedLedger.push({
+            _id: m._id,
+            date: m.paymentDate || m.createdAt,
+            ledgerCategory: 'payment',
+            category: 'membership',
+            amount: m.amount,
+            type: 'credit', // inbound credit to the platform
+            description: `Inbound Member Registration Fee (Registered: ${(m.memberId as any)?.name || 'Member'})`,
+            referenceId: m.membershipId || m.receiptNumber || 'N/A',
+            status: 'completed',
+            userId: m.employeeId, // Registered by employee
+            sourceUserId: m.memberId?._id,
+            sourceUserFullName: (m.memberId as any)?.name || 'Member',
+            sourceUserRole: 'member',
+            sourceAmount: m.amount,
+            paymentMethod: m.paymentMode || 'Online',
+            impactedAccount: 'platform',
+            accountingClass: 'revenue'
+          });
+        });
+      }
+    }
+
+    // Sort unifiedLedger by date descending
+    unifiedLedger.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     return successResponse({
       stats: {
@@ -198,7 +304,7 @@ export async function GET(req: NextRequest) {
       },
       wallets,
       paymentsList,
-      ledger
+      ledger: unifiedLedger
     }, 'Finance metrics fetched successfully');
   } catch (error: any) {
     console.error('Admin Finance GET Error:', error);

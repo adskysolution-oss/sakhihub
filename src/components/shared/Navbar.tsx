@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Globe, ChevronDown, Activity, Users, BookOpen, Briefcase, Target, Eye, Users2, Mail } from 'lucide-react';
+import { Menu, X, Globe, ChevronDown, Activity, Users, BookOpen, Briefcase, Target, Eye, Users2, Mail, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 import styles from './Navbar.module.css';
@@ -13,9 +13,33 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
 
   const pathname = usePathname();
   const { language, setLanguage, t } = useLanguage();
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const { default: axios } = await import('axios');
+        const res = await axios.get('/api/auth/me');
+        if (res.data.success) {
+          setUser(res.data.data);
+        }
+      } catch (e) {
+        // Not logged in
+      }
+    };
+    fetchSession();
+  }, []);
+
+  const getDashboardLink = (role: string) => {
+    if (role === 'super_admin') return '/admin/dashboard';
+    if (role === 'employee') return '/employee/dashboard';
+    if (role === 'vendor') return '/vendor/dashboard';
+    if (role === 'sub_vendor') return '/sub-vendor/dashboard';
+    return '/member/dashboard';
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -184,35 +208,45 @@ const Navbar = () => {
           </AnimatePresence>
         </div>
 
-        <div
-          className={`${styles.portalWrapper}`}
-          onMouseEnter={() => setActiveDropdown('portal')}
-          onMouseLeave={() => setActiveDropdown(null)}
-        >
-          <button className="btn-primary !p-2 md:!px-5 md:!py-2.5 !rounded-xl md:!rounded-full flex items-center gap-2">
-            <Users2 size={18} />
-            <span className={`${styles.portalText} hidden lg:block text-xs font-bold`}>{t('nav.memberPortal')}</span>
-            <ChevronDown size={14} className={`${styles.portalChevron} hidden lg:block transition-transform duration-300 ${activeDropdown === 'portal' ? 'rotate-180' : ''}`} />
-          </button>
+        {user ? (
+          <Link
+            href={getDashboardLink(user.role)}
+            className="btn-primary !p-2 md:!px-5 md:!py-2.5 !rounded-xl md:!rounded-full flex items-center gap-2 no-underline text-white font-bold"
+          >
+            <User size={18} />
+            <span className="text-xs font-bold">Dashboard ({user.fullName?.split(' ')[0]})</span>
+          </Link>
+        ) : (
+          <div
+            className={`${styles.portalWrapper}`}
+            onMouseEnter={() => setActiveDropdown('portal')}
+            onMouseLeave={() => setActiveDropdown(null)}
+          >
+            <button className="btn-primary !p-2 md:!px-5 md:!py-2.5 !rounded-xl md:!rounded-full flex items-center gap-2">
+              <Users2 size={18} />
+              <span className={`${styles.portalText} hidden lg:block text-xs font-bold`}>{t('nav.memberPortal')}</span>
+              <ChevronDown size={14} className={`${styles.portalChevron} hidden lg:block transition-transform duration-300 ${activeDropdown === 'portal' ? 'rotate-180' : ''}`} />
+            </button>
 
-          <AnimatePresence>
-            {activeDropdown === 'portal' && (
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 15 }}
-                className={styles.portalDropdown}
-              >
-                <Link href="/login" className="flex items-center gap-3 p-3 rounded-xl text-secondary hover:bg-primary/5 transition-colors no-underline font-bold text-xs">
-                  <Briefcase size={16} className="text-primary" /> {t('nav.employeeLogin')}
-                </Link>
-                <Link href="/register" className="flex items-center gap-3 p-3 rounded-xl text-secondary hover:bg-primary/5 transition-colors no-underline font-bold text-xs">
-                  <Users size={16} className="text-primary" /> {t('nav.joinMovement')}
-                </Link>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+            <AnimatePresence>
+              {activeDropdown === 'portal' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 15 }}
+                  className={styles.portalDropdown}
+                >
+                  <Link href="/login" className="flex items-center gap-3 p-3 rounded-xl text-secondary hover:bg-primary/5 transition-colors no-underline font-bold text-xs">
+                    <Briefcase size={16} className="text-primary" /> {t('nav.employeeLogin')}
+                  </Link>
+                  <Link href="/register" className="flex items-center gap-3 p-3 rounded-xl text-secondary hover:bg-primary/5 transition-colors no-underline font-bold text-xs">
+                    <Users size={16} className="text-primary" /> {t('nav.joinMovement')}
+                  </Link>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
         <button className={`${styles.mobileMenuBtn} flex lg:hidden`} onClick={() => setIsOpen(!isOpen)} style={{ zIndex: 101 }}>
           {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -279,24 +313,35 @@ const Navbar = () => {
                 ))}
               </div>
               <div className="h-px bg-gray-100 my-2"></div>
-              <div className="grid grid-cols-2 gap-2 md:gap-3">
+              {user ? (
                 <Link
-                  href="/login"
-                  className="btn-secondary py-3 px-2"
+                  href={getDashboardLink(user.role)}
+                  className="btn-primary py-3 px-2 w-full text-center no-underline text-white font-bold"
                   style={{ justifyContent: 'center', fontSize: '0.85rem', borderRadius: '12px' }}
                   onClick={() => setIsOpen(false)}
                 >
-                  {t('nav.employeeLogin')}
+                  Dashboard ({user.fullName?.split(' ')[0]})
                 </Link>
-                <Link
-                  href="/register"
-                  className="btn-primary py-3 px-2"
-                  style={{ justifyContent: 'center', fontSize: '0.85rem', borderRadius: '12px' }}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {t('nav.joinMovement')}
-                </Link>
-              </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 md:gap-3">
+                  <Link
+                    href="/login"
+                    className="btn-secondary py-3 px-2 text-center"
+                    style={{ justifyContent: 'center', fontSize: '0.85rem', borderRadius: '12px' }}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {t('nav.employeeLogin')}
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="btn-primary py-3 px-2 text-center"
+                    style={{ justifyContent: 'center', fontSize: '0.85rem', borderRadius: '12px' }}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {t('nav.joinMovement')}
+                  </Link>
+                </div>
+              )}
               <a
                 href="mailto:info@sakhihub.com"
                 className="btn-primary py-3 px-4"

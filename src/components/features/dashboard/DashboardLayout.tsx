@@ -109,7 +109,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   }
 
   return (
-    <div className="flex min-h-screen bg-[#f8f9fa] overflow-hidden relative">
+    <div className="flex h-screen bg-[#f8f9fa] overflow-hidden relative">
       {/* Mobile Overlay */}
       <AnimatePresence>
         {isSidebarOpen && (

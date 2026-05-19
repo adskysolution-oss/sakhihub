@@ -3,6 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 import PaymentTransaction from '@/models/PaymentTransaction';
+import User from '@/models/User';
 
 export async function GET(req: NextRequest) {
   try {
@@ -15,7 +16,10 @@ export async function GET(req: NextRequest) {
     const transactions = await PaymentTransaction.find({ 
       userId: (session as any).id,
       status: 'paid'
-    }).sort({ paidAt: -1 }).lean();
+    })
+      .populate('userId', 'fullName mobile')
+      .sort({ paidAt: -1 })
+      .lean();
 
     return successResponse(transactions, 'Payment receipts retrieved');
   } catch (error: any) {
