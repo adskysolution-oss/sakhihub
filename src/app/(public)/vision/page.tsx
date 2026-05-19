@@ -7,7 +7,7 @@ export default function VisionPage() {
       <PageBanner
         title="Our Vision"
         subtitle="Creating a healthy, self-reliant, and respected network of women across India."
-        image="https://images.unsplash.com/photo-1573497019236-17f8177b81e8?q=80&w=1500"
+        image="/images/Our-Vision.jpeg"
       />
 
       <section className="section-padding">

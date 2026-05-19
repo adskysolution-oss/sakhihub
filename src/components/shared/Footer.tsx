@@ -115,11 +115,11 @@ const Footer = () => {
               SakhiHub is a Sole Proprietorship owned and operated by Anil Raseniya
             </p>
           </div>
-        </div>
       </div>
-      {/* Background Decorative Heart */}
-      <Heart className="absolute -left-20 -bottom-20 w-96 h-96 opacity-5 text-primary transform rotate-12 pointer-events-none" />
-    </footer>
+    </div>
+      {/* Background Decorative Heart */ }
+  <Heart className="absolute -left-20 -bottom-20 w-96 h-96 opacity-5 text-primary transform rotate-12 pointer-events-none" />
+    </footer >
   );
 };
 

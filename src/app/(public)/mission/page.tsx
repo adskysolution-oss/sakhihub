@@ -7,7 +7,7 @@ export default function MissionPage() {
       <PageBanner
         title="Our Mission"
         subtitle="Empowering women through information, health products, and skill development."
-        image="https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1500"
+        image="/images/Our-Mission.jpeg"
       />
 
       <section className="section-padding">
