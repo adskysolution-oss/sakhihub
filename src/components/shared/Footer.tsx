@@ -61,10 +61,16 @@ const Footer = () => {
           <div className="col-span-1 flex flex-col items-start">
             <h3 className="text-[10px] font-bold text-primary mb-8 tracking-[3px] uppercase opacity-80">Quick Links</h3>
             <ul className="flex flex-col gap-5">
-              {['About Us', 'Our Mission', 'Programs', 'Gallery', 'Contact'].map((link) => (
-                <li key={link}>
-                  <Link href={`/${link.toLowerCase().replace(' ', '-')}`} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">
-                    {link}
+              {[
+                { name: 'About Us', href: '/about' },
+                { name: 'Our Mission', href: '/mission' },
+                { name: 'Programs', href: '/programs' },
+                { name: 'Gallery', href: '/gallery' },
+                { name: 'Contact Us', href: '/contact' }
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link href={link.href} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">
+                    {link.name}
                   </Link>
                 </li>
               ))}
@@ -75,10 +81,16 @@ const Footer = () => {
           <div className="col-span-1 flex flex-col items-start">
             <h3 className="text-[10px] font-bold text-primary mb-8 tracking-[3px] uppercase opacity-80">Join Us</h3>
             <ul className="flex flex-col gap-5">
-              {['Block Employee', 'Delivery Partner', 'NGO Partnership', 'Volunteer', 'Start Campaign'].map((link) => (
-                <li key={link}>
-                  <Link href={`/${link.toLowerCase().replace(' ', '-')}`} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">
-                    {link}
+              {[
+                { name: 'Block Employee', href: '/hiring' },
+                { name: 'Delivery Partner', href: '/delivery-partner' },
+                { name: 'NGO Partnership', href: '/partner' },
+                { name: 'Volunteer', href: '/register' },
+                { name: 'Start Campaign', href: '/campaign' }
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link href={link.href} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">
+                    {link.name}
                   </Link>
                 </li>
               ))}
