@@ -5,8 +5,10 @@ import React, { useState } from "react";
 import { Briefcase, IndianRupee, MapPin, CheckCircle, ArrowRight, Star, ShieldCheck, Heart, Zap, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function HiringPage() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('block');
 
   const fadeInUp = {
@@ -19,8 +21,8 @@ export default function HiringPage() {
   return (
     <div style={{ background: '#fff' }}>
       <PageBanner 
-        title="Join Our Mission" 
-        subtitle="Empower yourself while empowering thousands of women across India."
+        title={t('hiringPage.title')} 
+        subtitle={t('hiringPage.subtitle')}
         images={[
           "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1500",
           "https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1500",
@@ -32,15 +34,15 @@ export default function HiringPage() {
       <section className="section-padding">
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-            <span style={{ color: 'var(--primary)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px' }}>Careers with Purpose</span>
-            <h2 style={{ fontSize: '3.5rem', fontWeight: '900', color: 'var(--secondary)', marginTop: '15px' }}>Why Work at <span className="text-gradient">SakhiHub?</span></h2>
+            <span style={{ color: 'var(--primary)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px' }}>{t('hiringPage.purpose')}</span>
+            <h2 style={{ fontSize: '3.5rem', fontWeight: '900', color: 'var(--secondary)', marginTop: '15px' }}>{t('hiringPage.whyWork').split(' ').slice(0, -1).join(' ')} <span className="text-gradient">{t('hiringPage.whyWork').split(' ').slice(-1).join(' ')}</span></h2>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px' }}>
             {[
-              { title: "National Impact", desc: "Be part of a movement that is changing the lives of 50,000+ women.", icon: Globe },
-              { title: "Growth & Training", desc: "Regular leadership training and digital literacy for all employees.", icon: Zap },
-              { title: "Financial Stability", desc: "Competitive salaries with travel allowance and performance bonuses.", icon: IndianRupee }
+              { title: t('hiringPage.impactTitle'), desc: t('hiringPage.impactDesc'), icon: Globe },
+              { title: t('hiringPage.growthTitle'), desc: t('hiringPage.growthDesc'), icon: Zap },
+              { title: t('hiringPage.stabilityTitle'), desc: t('hiringPage.stabilityDesc'), icon: IndianRupee }
             ].map((item, i) => (
               <motion.div key={i} {...fadeInUp} style={{ background: '#f8f9fa', padding: '50px', borderRadius: '40px', textAlign: 'center' }}>
                 <div style={{ width: '80px', height: '80px', background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 30px', color: 'var(--primary)', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
@@ -58,8 +60,8 @@ export default function HiringPage() {
       <section className="section-padding" style={{ background: 'var(--bg-light)' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-             <h2 style={{ fontSize: '3rem', fontWeight: '900', color: 'var(--secondary)' }}>Current <span className="text-gradient">Openings</span></h2>
-             <p style={{ marginTop: '20px', color: '#666' }}>Find the role that matches your passion for social change.</p>
+             <h2 style={{ fontSize: '3rem', fontWeight: '900', color: 'var(--secondary)' }}>{t('hiringPage.openings').split(' ').slice(0, -1).join(' ')} <span className="text-gradient">{t('hiringPage.openings').split(' ').slice(-1).join(' ')}</span></h2>
+             <p style={{ marginTop: '20px', color: '#666' }}>{t('hiringPage.openingsDesc')}</p>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '50px' }}>
@@ -77,7 +79,7 @@ export default function HiringPage() {
                   transition: '0.3s'
                 }}
               >
-                Block Level Employee
+                {t('hiringPage.blockEmp')}
               </button>
               <button 
                 onClick={() => setActiveTab('district')}
@@ -92,7 +94,7 @@ export default function HiringPage() {
                   transition: '0.3s'
                 }}
               >
-                District Coordinator
+                {t('hiringPage.distCoord')}
               </button>
             </div>
           </div>
@@ -111,18 +113,18 @@ export default function HiringPage() {
                     <div style={{ background: '#FFF5F8', color: 'var(--primary)', padding: '10px', borderRadius: '12px' }}>
                        <Briefcase size={24} />
                     </div>
-                    <span style={{ fontWeight: '800', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.85rem' }}>Female Only Role</span>
+                    <span style={{ fontWeight: '800', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.85rem' }}>{t('hiringPage.femaleOnly')}</span>
                   </div>
                   <h3 style={{ fontSize: '2.5rem', fontWeight: '900', color: 'var(--secondary)', marginBottom: '15px' }}>
-                    {activeTab === 'block' ? "Block Level Executive" : "District Operations Lead"}
+                    {activeTab === 'block' ? t('hiringPage.blockExecTitle') : t('hiringPage.distLeadTitle')}
                   </h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '15px', color: 'var(--primary)', marginBottom: '35px' }}>
                     <div style={{ background: 'var(--grad-primary)', padding: '10px 20px', borderRadius: '15px', color: 'white', fontWeight: '900', fontSize: '1.2rem' }}>
-                       {activeTab === 'block' ? "₹16,000 + ₹3,000 Petrol" : "₹22,000 + ₹3,000 Petrol"}
+                       {activeTab === 'block' ? t('hiringPage.blockSalary') : t('hiringPage.distSalary')}
                     </div>
                   </div>
 
-                  <h4 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '20px' }}>What you will do:</h4>
+                  <h4 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '20px' }}>{t('hiringPage.whatYouDo')}</h4>
                   <div style={{ display: 'grid', gap: '15px', marginBottom: '45px' }}>
                     {(activeTab === 'block' ? 
                       ['Going village to village to create awareness', 'Conducting workshops on period hygiene', 'Forming Self-Help Groups (SHG)', 'Submitting daily progress reports'] : 
@@ -136,10 +138,10 @@ export default function HiringPage() {
                   
                   <div style={{ display: 'flex', gap: '20px' }}>
                      <a href="https://forms.gle/oX8yX4UgUMmVvp8J9" target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ padding: '20px 40px', borderRadius: '15px' }}>
-                        Apply via Google Form <ArrowRight size={18} style={{ marginLeft: '10px' }} />
+                        {t('hiringPage.applyGoogle')} <ArrowRight size={18} style={{ marginLeft: '10px' }} />
                      </a>
                      <Link href="/register" className="btn-secondary" style={{ padding: '20px 40px', border: '1px solid #eee', borderRadius: '15px' }}>
-                        Register on Site
+                        {t('hiringPage.registerSite')}
                      </Link>
                   </div>
                 </div>
@@ -148,13 +150,13 @@ export default function HiringPage() {
                    <div style={{ width: '100px', height: '100px', background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 30px', color: 'var(--secondary)', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
                       <MapPin size={45} />
                    </div>
-                   <h3 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '15px' }}>Work Location</h3>
+                   <h3 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '15px' }}>{t('hiringPage.locationTitle')}</h3>
                    <p style={{ color: '#666', lineHeight: '1.6', marginBottom: '30px' }}>
-                      Selected candidates will be assigned to their own or nearby blocks in their resident district.
+                      {t('hiringPage.locationDesc')}
                    </p>
                    <div style={{ background: 'white', padding: '20px', borderRadius: '20px', border: '1px solid #eee' }}>
-                      <p style={{ margin: 0, fontWeight: '800', color: 'var(--primary)' }}>Available States:</p>
-                      <p style={{ margin: '5px 0 0', fontSize: '0.9rem', color: '#777' }}>UP, Bihar, MP, Rajasthan, Maharashtra & More</p>
+                      <p style={{ margin: 0, fontWeight: '800', color: 'var(--primary)' }}>{t('hiringPage.statesTitle')}</p>
+                      <p style={{ margin: '5px 0 0', fontSize: '0.9rem', color: '#777' }}>{t('hiringPage.statesDesc')}</p>
                    </div>
                 </div>
               </div>
@@ -168,18 +170,17 @@ export default function HiringPage() {
         <div className="container">
            <div style={{ background: 'var(--grad-secondary)', borderRadius: '60px', padding: '80px', color: 'white', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '100px', alignItems: 'center' }}>
               <div>
-                 <h2 style={{ fontSize: '3.5rem', fontWeight: '900', marginBottom: '30px', lineHeight: '1.1' }}>Beyond just a <span style={{ color: 'var(--primary)' }}>Salary</span></h2>
+                 <h2 style={{ fontSize: '3.5rem', fontWeight: '900', marginBottom: '30px', lineHeight: '1.1' }}>{t('hiringPage.beyondSalary').split(' ').slice(0, -1).join(' ')} <span style={{ color: 'var(--primary)' }}>{t('hiringPage.beyondSalary').split(' ').slice(-1).join(' ')}</span></h2>
                  <p style={{ fontSize: '1.2rem', opacity: 0.9, lineHeight: '1.7' }}>
-                    At SakhiHub, we care for our people just as much as we care for the community. 
-                    Every role comes with built-in support systems.
+                    {t('hiringPage.beyondDesc')}
                  </p>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                  {[
-                   { t: "Petrol Allowance", i: MapPin },
-                   { t: "Insurance Support", i: ShieldCheck },
-                   { t: "Team Incentives", i: Star },
-                   { t: "Family Support", i: Heart },
+                   { t: t('hiringPage.perk1'), i: MapPin },
+                   { t: t('hiringPage.perk2'), i: ShieldCheck },
+                   { t: t('hiringPage.perk3'), i: Star },
+                   { t: t('hiringPage.perk4'), i: Heart },
                  ].map((p, i) => (
                    <div key={i} style={{ background: 'rgba(255,255,255,0.1)', padding: '30px', borderRadius: '30px', textAlign: 'center', backdropFilter: 'blur(10px)' }}>
                       <p.i size={30} style={{ marginBottom: '15px' }} />

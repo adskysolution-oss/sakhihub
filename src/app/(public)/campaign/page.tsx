@@ -37,8 +37,8 @@ export default function CampaignPage() {
   return (
     <div className="bg-white overflow-x-hidden">
       <PageBanner 
-        title="Awareness Campaigns" 
-        subtitle="Bringing health and dignity to the heart of every village."
+        title={t('campaignPage.title')} 
+        subtitle={t('campaignPage.subtitle')}
         images={[
           "/images/campaign_health.png",
           "/images/campaign_sanitary.png",
@@ -52,14 +52,14 @@ export default function CampaignPage() {
           {loading ? (
             <div className="text-center py-20">
               <div className="w-10 h-10 border-4 border-gray-100 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-400 font-bold">Loading active campaigns...</p>
+              <p className="text-gray-400 font-bold">{t('campaignPage.loading')}</p>
             </div>
           ) : campaigns.length > 0 ? (
             <div className="flex flex-col gap-20">
               {campaigns.map((camp, index) => (
                 <div key={camp._id} className={`grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center ${index % 2 !== 0 ? 'lg:direction-rtl' : ''}`}>
                   <motion.div {...fadeInUp} className={`text-center lg:text-left ${index % 2 !== 0 ? 'lg:order-2' : ''}`}>
-                    <span className="text-primary font-bold uppercase tracking-[2px] text-xs sm:text-sm">Active Movement</span>
+                    <span className="text-primary font-bold uppercase tracking-[2px] text-xs sm:text-sm">{t('campaignPage.activeMovement')}</span>
                     <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-secondary mt-5 mb-8 leading-tight">
                       {camp.title}
                     </h2>
@@ -78,7 +78,7 @@ export default function CampaignPage() {
                       ))}
                     </div>
                     <Link href="/register" className="btn-primary py-5 px-10 text-base sm:text-lg rounded-2xl shadow-xl hover:scale-105 transition-transform inline-flex">
-                      Join the Campaign <ArrowRight size={20} className="ml-3" />
+                      {t('campaignPage.joinCampaign')} <ArrowRight size={20} className="ml-3" />
                     </Link>
                   </motion.div>
 
@@ -102,26 +102,26 @@ export default function CampaignPage() {
           ) : (
             <div className="text-center py-20 bg-gray-50 rounded-[40px]">
               <Sparkles size={48} className="text-primary/20 mx-auto mb-6" />
-              <h3 className="text-2xl font-black text-secondary">No active campaigns at the moment.</h3>
-              <p className="text-gray-400 font-bold mt-2">Check back soon for new initiatives!</p>
+              <h3 className="text-2xl font-black text-secondary">{t('campaignPage.noCampaigns')}</h3>
+              <p className="text-gray-400 font-bold mt-2">{t('campaignPage.checkBackSoon')}</p>
             </div>
           )}
         </div>
       </section>
 
-      {/* Field Activities Grid - Static but Generic */}
+      {/* Field Activities Grid */}
       <section className="section-padding bg-gray-50">
         <div className="container">
           <div className="text-center mb-12 lg:mb-20">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-secondary leading-tight">Our <span className="text-gradient">Ground Reality</span></h2>
-            <p className="text-gray-500 mt-4 text-sm sm:text-lg lg:text-xl font-medium">How we drive change every single day across rural districts.</p>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-secondary leading-tight">{t('campaignPage.groundReality').split(' ').slice(0, -2).join(' ')} <span className="text-gradient">{t('campaignPage.groundReality').split(' ').slice(-2).join(' ')}</span></h2>
+            <p className="text-gray-500 mt-4 text-sm sm:text-lg lg:text-xl font-medium">{t('campaignPage.groundSubtitle')}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
             {[
-              { title: "Group Awareness", desc: "Interactive sessions with local women groups to discuss hygiene and health in a safe space.", icon: Users, color: "#E91E63" },
-              { title: "Direct Outreach", desc: "Door-to-door awareness and education by our dedicated block employees and field heroes.", icon: MapPin, color: "#6A1B9A" },
-              { title: "Product Access", desc: "Ensuring Sakhi Care Pads are reachable to every woman at affordable prices in their own village.", icon: Package, color: "#4CAF50" }
+              { title: t('campaignPage.groupAwareness'), desc: t('campaignPage.groupAwarenessDesc'), icon: Users, color: "#E91E63" },
+              { title: t('campaignPage.directOutreach'), desc: t('campaignPage.directOutreachDesc'), icon: MapPin, color: "#6A1B9A" },
+              { title: t('campaignPage.productAccess'), desc: t('campaignPage.productAccessDesc'), icon: Package, color: "#4CAF50" }
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -148,16 +148,16 @@ export default function CampaignPage() {
         <div className="container">
           <div className="bg-gradient-to-br from-primary to-secondary p-8 sm:p-16 lg:p-24 rounded-[40px] lg:rounded-[60px] text-white relative overflow-hidden shadow-2xl">
             <Globe size={60} className="mx-auto mb-8 opacity-30" />
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-8 leading-tight max-w-4xl mx-auto">Be the Face of Change</h2>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-8 leading-tight max-w-4xl mx-auto">{t('campaignPage.beChange')}</h2>
             <p className="text-base sm:text-lg lg:text-xl opacity-80 max-w-2xl mx-auto mb-12 lg:mb-16 font-medium leading-relaxed">
-              Whether you are an individual, a NGO, or a government body, let's collaborate to make India hygiene-safe.
+              {t('campaignPage.beChangeDesc')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center">
               <Link href="/register" className="btn-primary py-5 px-10 sm:px-12 text-base sm:text-lg rounded-2xl bg-white text-primary shadow-2xl w-full sm:w-auto hover:scale-105 transition-transform">
-                 Join as Volunteer
+                 {t('campaignPage.joinVolunteer')}
               </Link>
               <Link href="/contact" className="btn-secondary py-5 px-10 sm:px-12 text-base sm:text-lg rounded-2xl bg-transparent border-2 border-white/40 hover:border-white hover:bg-white/5 w-full sm:w-auto transition-all">
-                 Partner with Us
+                 {t('campaignPage.partnerUs')}
               </Link>
             </div>
           </div>
@@ -166,4 +166,3 @@ export default function CampaignPage() {
     </div>
   );
 }
-

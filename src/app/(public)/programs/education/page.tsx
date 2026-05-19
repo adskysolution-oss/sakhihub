@@ -3,26 +3,29 @@
 import React from 'react';
 import PageBanner from '@/components/ui/PageBanner';
 import { motion } from 'framer-motion';
-import { BookOpen, Monitor, MessageCircle, Lightbulb, CheckCircle2, ArrowRight, Brain } from 'lucide-react';
+import { BookOpen, Monitor, Lightbulb, CheckCircle2, Brain } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 const EducationProgram = () => {
+  const { t } = useLanguage();
+
   const features = [
     {
-      title: "Digital Literacy",
-      desc: "Basic training on using smartphones, internet, and essential government apps for daily life.",
+      title: t('educationPage.feat1Title'),
+      desc: t('educationPage.feat1Desc'),
       icon: Monitor,
       color: "#6A1B9A"
     },
     {
-      title: "Social Awareness",
-      desc: "Workshops on legal rights, financial safety, and social welfare schemes available for women.",
+      title: t('educationPage.feat2Title'),
+      desc: t('educationPage.feat2Desc'),
       icon: Lightbulb,
       color: "#E91E63"
     },
     {
-      title: "Soft Skills",
-      desc: "Communication, leadership, and confidence-building sessions to prepare women for leadership roles.",
+      title: t('educationPage.feat3Title'),
+      desc: t('educationPage.feat3Desc'),
       icon: Brain,
       color: "#4CAF50"
     }
@@ -31,8 +34,8 @@ const EducationProgram = () => {
   return (
     <main className="overflow-x-hidden">
       <PageBanner 
-        title="Education & Awareness" 
-        subtitle="Knowledge is the strongest tool for empowerment. We bridge the gap between information and action."
+        title={t('educationPage.title')} 
+        subtitle={t('educationPage.subtitle')}
         image="https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1500"
       />
 
@@ -41,12 +44,10 @@ const EducationProgram = () => {
         <div className="container">
           <div className="max-w-4xl mx-auto text-center mb-12 lg:mb-20">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-secondary mb-6 leading-tight">
-              Breaking the <span className="text-gradient">Silence of Ignorance</span>
+              {t('educationPage.breakingTitle').split(' ').slice(0, -2).join(' ')} <span className="text-gradient">{t('educationPage.breakingTitle').split(' ').slice(-2).join(' ')}</span>
             </h2>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 leading-relaxed font-medium">
-              Many women are held back not by lack of talent, but by lack of information. 
-              Our education programs are designed to enlighten, inspire, and enable every woman 
-              to navigate the modern world with confidence.
+              {t('educationPage.breakingDesc')}
             </p>
           </div>
 
@@ -84,17 +85,16 @@ const EducationProgram = () => {
               viewport={{ once: true }}
               className="text-center lg:text-left"
             >
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight">Community <span className="text-primary">Learning Hubs</span></h2>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight">{t('educationPage.learningTitle').split(' ').slice(0, -2).join(' ')} <span className="text-primary">{t('educationPage.learningTitle').split(' ').slice(-2).join(' ')}</span></h2>
               <p className="text-base sm:text-lg lg:text-xl opacity-80 leading-relaxed mb-10 font-medium">
-                We establish physical centers in blocks where women can gather to learn from each other 
-                and from expert trainers. These hubs are the heart of our awareness campaigns.
+                {t('educationPage.learningDesc')}
               </p>
               <div className="grid gap-5 text-left max-w-xl mx-auto lg:mx-0">
                 {[
-                  "Weekly expert-led video sessions",
-                  "Direct interaction with field officers",
-                  "Hands-on practice with digital tools",
-                  "Safe space for sharing and learning"
+                  t('educationPage.bullet1'),
+                  t('educationPage.bullet2'),
+                  t('educationPage.bullet3'),
+                  t('educationPage.bullet4')
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-4 text-base sm:text-lg font-bold">
                     <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center shrink-0">
@@ -125,12 +125,12 @@ const EducationProgram = () => {
               <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-xl text-primary">
                 <BookOpen size={40} />
               </div>
-              <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-secondary mb-6 leading-tight">Start Your Learning <span className="text-gradient">Journey</span></h2>
+              <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-secondary mb-6 leading-tight">{t('educationPage.enrollTitle').split(' ').slice(0, -1).join(' ')} <span className="text-gradient">{t('educationPage.enrollTitle').split(' ').slice(-1).join(' ')}</span></h2>
               <p className="text-base sm:text-lg lg:text-xl text-gray-500 max-w-2xl mx-auto mb-10 lg:mb-12 font-medium leading-relaxed">
-                Education is a right, not a privilege. Join our next workshop and take the first step towards a smarter, brighter future.
+                {t('educationPage.enrollDesc')}
               </p>
               <Link href="/register" className="btn-primary py-5 px-10 sm:px-16 text-base sm:text-xl rounded-2xl shadow-2xl hover:scale-105 transition-transform inline-flex">
-                 Join Training Program
+                 {t('educationPage.joinBtn')}
               </Link>
             </div>
           </div>
@@ -141,4 +141,3 @@ const EducationProgram = () => {
 };
 
 export default EducationProgram;
-

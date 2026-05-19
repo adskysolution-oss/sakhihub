@@ -1,12 +1,17 @@
+'use client';
+
 import PageBanner from "@/components/ui/PageBanner";
 import React from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function VisionPage() {
+  const { t } = useLanguage();
+
   return (
     <>
       <PageBanner
-        title="Our Vision"
-        subtitle="Creating a healthy, self-reliant, and respected network of women across India."
+        title={t('visionPage.title')}
+        subtitle={t('visionPage.subtitle')}
         image="/images/Our-Vision.jpeg"
       />
 
@@ -14,15 +19,14 @@ export default function VisionPage() {
         <div className="container">
           <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
             <h2 className="text-gradient" style={{ fontSize: '3rem', marginBottom: '40px' }}>
-              Our Vision
+              {t('visionPage.title')}
             </h2>
             <div className="glass-card" style={{ padding: '60px 40px', fontSize: '1.3rem', color: 'var(--text-main)', lineHeight: '2', display: 'flex', flexDirection: 'column', gap: '30px' }}>
               <p>
-                SakhiHub&apos;s vision is to connect every woman in India with health, hygiene, self-reliance, and respect.
-                We aim to build a powerful women&apos;s network where women from every village can become aware, safe, confident, and economically strong.
+                {t('visionPage.p1')}
               </p>
               <p style={{ fontWeight: '600', color: 'var(--secondary)' }}>
-                Our goal is not just to spread awareness, but to connect women with a better life, better opportunities, and a better future.
+                {t('visionPage.p2')}
               </p>
             </div>
           </div>
