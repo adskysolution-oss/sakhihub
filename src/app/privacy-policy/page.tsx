@@ -11,15 +11,14 @@ export const metadata = {
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
-      
+
       {/* Hero Section */}
       <section className="pt-32 pb-20 bg-gradient-to-br from-slate-900 to-secondary relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
         </div>
-        
+
         <div className="container mx-auto px-6 relative z-10 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full text-white/80 text-[10px] font-black uppercase tracking-[0.2em] mb-6 border border-white/10">
             <Lock size={14} className="text-primary" /> Data Protection
@@ -125,7 +124,6 @@ export default function PrivacyPolicy() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

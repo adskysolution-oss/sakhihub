@@ -61,7 +61,7 @@ const Footer = () => {
           <div className="col-span-1 flex flex-col items-start">
             <h3 className="text-[10px] font-bold text-primary mb-8 tracking-[3px] uppercase opacity-80">Quick Links</h3>
             <ul className="flex flex-col gap-5">
-              {['About Us', 'Our Mission', 'Programs', 'Gallery', 'Contact Us'].map((link) => (
+              {['About Us', 'Our Mission', 'Programs', 'Gallery', 'Contact'].map((link) => (
                 <li key={link}>
                   <Link href={`/${link.toLowerCase().replace(' ', '-')}`} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">
                     {link}
@@ -115,10 +115,10 @@ const Footer = () => {
               SakhiHub is a Sole Proprietorship owned and operated by Anil Raseniya
             </p>
           </div>
+        </div>
       </div>
-    </div>
-      {/* Background Decorative Heart */ }
-  <Heart className="absolute -left-20 -bottom-20 w-96 h-96 opacity-5 text-primary transform rotate-12 pointer-events-none" />
+      {/* Background Decorative Heart */}
+      <Heart className="absolute -left-20 -bottom-20 w-96 h-96 opacity-5 text-primary transform rotate-12 pointer-events-none" />
     </footer >
   );
 };
