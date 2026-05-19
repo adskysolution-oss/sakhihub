@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, ArrowRight, ChevronRight, LayoutGrid } from 'lucide-react';
+import { Sparkles, ArrowRight, LayoutGrid } from 'lucide-react';
 import axios from 'axios';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function ProjectsPreview() {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -40,7 +42,7 @@ export default function ProjectsPreview() {
               viewport={{ once: true }}
               className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-[10px] font-black uppercase tracking-widest mb-6"
             >
-              <Sparkles size={14} /> Social Impact Initiatives
+              <Sparkles size={14} /> {t('projects.tag')}
             </motion.div>
             <motion.h2 
               initial={{ opacity: 0, y: 20 }}
@@ -48,7 +50,11 @@ export default function ProjectsPreview() {
               viewport={{ once: true }}
               className="text-4xl md:text-6xl font-black text-secondary leading-tight"
             >
-              Our Ongoing <span className="text-primary italic">Projects.</span>
+              {t('projects.title').split(' ').map((word: string, i: number, arr: string[]) => (
+                <span key={i}>
+                  {word.includes('Projects') ? <span className="text-primary italic">{word}</span> : word}{' '}
+                </span>
+              ))}
             </motion.h2>
           </div>
           <motion.div
@@ -57,7 +63,7 @@ export default function ProjectsPreview() {
             viewport={{ once: true }}
           >
             <Link href="/projects" className="flex items-center gap-2 text-sm font-black text-secondary uppercase tracking-widest hover:text-primary hover:gap-4 transition-all">
-              View All Projects <ArrowRight size={18} className="text-primary" />
+              {t('projects.viewAll')} <ArrowRight size={18} className="text-primary" />
             </Link>
           </motion.div>
         </div>
@@ -98,13 +104,13 @@ export default function ProjectsPreview() {
                     <div className="absolute inset-0 p-8 flex flex-col justify-end">
                       <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                         <div className="inline-flex px-4 py-1.5 bg-primary/90 text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-4 shadow-lg backdrop-blur-md">
-                          Active Program
+                          {t('projects.activeBadge')}
                         </div>
                         <h3 className="text-2xl md:text-3xl font-black text-white leading-tight mb-2">{project.title}</h3>
                         <p className="text-white/80 font-bold text-sm line-clamp-2 italic mb-6">"{project.tagline}"</p>
 
                         <div className="flex items-center gap-2 text-white font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                          Explore Details <ArrowRight size={16} className="text-primary" />
+                          {t('projects.exploreDetails')} <ArrowRight size={16} className="text-primary" />
                         </div>
                       </div>
                     </div>

@@ -2,35 +2,44 @@
 
 import { motion } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
-
-const stories = [
-  { 
-    name: "Sunita Devi", 
-    role: "Village Member", 
-    story: "After joining SakhiHub, I received the right information about hygiene and health, and today I am spreading awareness in my village.",
-    image: "/images/campaign_sanitary.png"
-  },
-  { 
-    name: "Rekha Bai", 
-    role: "Field Volunteer", 
-    story: "I go door-to-door to educate women, and now I have become financially independent myself.",
-    image: "/images/campaign_health.png"
-  },
-  { 
-    name: "Pooja Sharma", 
-    role: "Group Leader", 
-    story: "We formed a women's group in our village, and now we all work together and earn a livelihood.",
-    image: "/images/about_mission.png"
-  },
-  { 
-    name: "Meena Kumari", 
-    role: "Team Leader", 
-    story: "I want every woman in our district to stand on her own feet, and SakhiHub is helping completely in this mission.",
-    image: "/images/team_field.png"
-  }
-];
+import { useLanguage } from '@/context/LanguageContext';
 
 const TeamSection = () => {
+  const { t } = useLanguage();
+
+  const stories = [
+    { 
+      name: t('team.stories.sunita.name'), 
+      role: t('team.stories.sunita.role'), 
+      story: t('team.stories.sunita.story'),
+      image: "/images/campaign_sanitary.png"
+    },
+    { 
+      name: t('team.stories.rekha.name'), 
+      role: t('team.stories.rekha.role'), 
+      story: t('team.stories.rekha.story'),
+      image: "/images/campaign_health.png"
+    },
+    { 
+      name: t('team.stories.pooja.name'), 
+      role: t('team.stories.pooja.role'), 
+      story: t('team.stories.pooja.story'),
+      image: "/images/about_mission.png"
+    },
+    { 
+      name: t('team.stories.meena.name'), 
+      role: t('team.stories.meena.role'), 
+      story: t('team.stories.meena.story'),
+      image: "/images/team_field.png"
+    }
+  ];
+
+  const teamPoints = t('team.points') || [
+    'Ground-level outreach in villages',
+    'Direct connection with women',
+    'Real impact through awareness'
+  ];
+
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
     whileInView: { opacity: 1, y: 0 },
@@ -44,15 +53,20 @@ const TeamSection = () => {
         {/* Hearts Behind SakhiHub */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20 lg:gap-32 items-center mb-20 md:mb-32">
           <motion.div {...fadeInUp} className="text-center md:text-left">
-            <span className="text-primary font-bold tracking-widest uppercase text-xs md:text-sm">Our Workforce</span>
-            <h2 className="text-3xl md:text-5xl lg:text-6xl mt-4 text-secondary leading-tight font-bold">The Hearts Behind <span className="text-gradient">SakhiHub</span></h2>
+            <span className="text-primary font-bold tracking-widest uppercase text-xs md:text-sm">{t('team.tag')}</span>
+            <h2 className="text-3xl md:text-5xl lg:text-6xl mt-4 text-secondary leading-tight font-bold">
+              {t('team.title').split(' ').map((word: string, i: number, arr: string[]) => (
+                <span key={i}>
+                  {word === 'SakhiHub' ? <span className="text-gradient">SakhiHub</span> : word}{' '}
+                </span>
+              ))}
+            </h2>
             <p className="text-base md:text-lg text-text-muted leading-relaxed mt-6 md:mt-8 max-w-xl mx-auto md:mx-0">
-              Our field team works at the grassroots level, connecting directly with women in villages and communities. 
-              They conduct awareness sessions, build groups, and help women become confident, independent, and empowered.
+              {t('team.desc')}
             </p>
             
             <div className="mt-8 md:mt-10 mb-10 md:mb-12 space-y-4">
-              {['Ground-level outreach in villages', 'Direct connection with women', 'Real impact through awareness'].map((item, idx) => (
+              {Array.isArray(teamPoints) && teamPoints.map((item: string, idx: number) => (
                 <div key={idx} className="flex items-center gap-3 justify-center md:justify-start text-sm md:text-base font-semibold text-secondary">
                   <div className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     <CheckCircle size={14} />
@@ -64,9 +78,9 @@ const TeamSection = () => {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-6">
               {[
-                { val: '250+', label: 'Field Workers' },
-                { val: '15+', label: 'Districts Covered' },
-                { val: '50k+', label: 'Women Connected' }
+                { val: '250+', label: t('team.stats.fieldWorkers') },
+                { val: '15+', label: t('team.stats.districts') },
+                { val: '50k+', label: t('team.stats.womenConnected') }
               ].map((stat, idx) => (
                 <div key={idx} className={`p-6 bg-primary/5 rounded-[24px] text-center border border-primary/5 shadow-sm transition-all hover:shadow-md ${idx === 2 ? 'col-span-2 sm:col-span-1' : ''}`}>
                   <h4 className="text-2xl md:text-3xl text-primary font-bold leading-none">{stat.val}</h4>
@@ -98,8 +112,14 @@ const TeamSection = () => {
 
         {/* Real Impact Stories */}
         <div className="text-center mb-12 md:mb-16">
-          <span className="text-primary font-bold tracking-widest uppercase text-xs">REAL VOICES</span>
-          <h2 className="text-3xl md:text-5xl mt-3 font-bold">Voices of <span className="text-gradient">Real Change</span></h2>
+          <span className="text-primary font-bold tracking-widest uppercase text-xs">{t('team.voicesTag')}</span>
+          <h2 className="text-3xl md:text-5xl mt-3 font-bold">
+            {t('team.voicesTitle').split(' ').map((word: string, i: number, arr: string[]) => (
+              <span key={i}>
+                {word === 'Real' || word === 'Change' ? <span className="text-gradient">{word}</span> : word}{' '}
+              </span>
+            ))}
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">

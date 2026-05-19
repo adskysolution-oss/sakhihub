@@ -1,0 +1,299 @@
+{
+  "nav": {
+    "home": "Home",
+    "aboutUs": "About Us",
+    "vision": "Vision",
+    "mission": "Mission",
+    "programs": "Programs",
+    "healthHygiene": "Health & Hygiene",
+    "employment": "Employment",
+    "education": "Education",
+    "community": "Community",
+    "projects": "Projects",
+    "products": "Products",
+    "contact": "Contact",
+    "memberPortal": "Member Portal",
+    "employeeLogin": "Employee Login",
+    "joinMovement": "Join Movement",
+    "campaigns": "Campaigns",
+    "selectLanguage": "Select Language",
+    "emailUs": "Email Us"
+  },
+  "footer": {
+    "heading": "Empowering Women, \nBuilding Futures",
+    "desc": "SakhiHub is a women empowerment platform working for health awareness, education, and self-reliance across India.",
+    "quickLinks": "Quick Links",
+    "about": "About Us",
+    "ourMission": "Our Mission",
+    "programsLink": "Programs",
+    "gallery": "Gallery",
+    "contact": "Contact Us",
+    "joinUs": "Join Us",
+    "blockEmployee": "Block Employee",
+    "deliveryPartner": "Delivery Partner",
+    "ngoPartnership": "NGO Partnership",
+    "volunteer": "Volunteer",
+    "startCampaign": "Start Campaign",
+    "legalSupport": "Legal & Support",
+    "privacyPolicy": "Privacy Policy",
+    "termsConditions": "Terms & Conditions",
+    "refundPolicy": "Refund Policy",
+    "copyright": "© {year} SAKHIHUB. ALL RIGHTS RESERVED.",
+    "empowering": "Empowering Women & COMMUNITY",
+    "proprietorship": "SakhiHub is a Sole Proprietorship owned and operated by Anil Raseniya"
+  },
+  "hero": {
+    "tagline": "Campaign",
+    "title": "Empowering Women, Transforming Lives",
+    "subtitle": "Join the movement dedicated to health, hygiene, and financial independence for every woman in India.",
+    "joinBtn": "Join Movement",
+    "exploreBtn": "Explore Campaigns",
+    "impactStatus": "Impact Status"
+  },
+  "impact": {
+    "womenEmpowered": "Women Empowered",
+    "womenEmpoweredDesc": "Building a strong women network across India",
+    "activeGroups": "Active Groups",
+    "activeGroupsDesc": "Connecting women at village level",
+    "awarenessDrives": "Awareness Drives",
+    "awarenessDrivesDesc": "Health & empowerment programs running",
+    "fieldTeam": "Field Team",
+    "fieldTeamDesc": "Working at ground level across districts"
+  },
+  "whatWeDo": {
+    "tag": "OUR CORE WORK",
+    "title": "Empowering Through Action",
+    "desc": "SakhiHub works at ground level to create awareness, build communities, and empower women for a better future.",
+    "coreService": "Core Service",
+    "learnMore": "Learn More",
+    "healthTitle": "Health Awareness",
+    "healthDesc": "Promoting menstrual hygiene and overall women health through awareness campaigns.",
+    "healthPoints": [
+      "Period awareness",
+      "Health education",
+      "Village outreach"
+    ],
+    "hygieneTitle": "Hygiene Education",
+    "hygieneDesc": "Providing scientific knowledge about hygiene, sanitation, and infection prevention.",
+    "hygienePoints": [
+      "Clean habits",
+      "Sanitation awareness",
+      "Health safety"
+    ],
+    "groupsTitle": "Women Groups",
+    "groupsDesc": "Creating strong local women networks for support, safety, and growth.",
+    "groupsPoints": [
+      "Group formation",
+      "Leadership",
+      "Community strength"
+    ],
+    "employmentTitle": "Employment",
+    "employmentDesc": "Generating local job opportunities for women at block and village level.",
+    "employmentPoints": [
+      "Field jobs",
+      "Local earning",
+      "Career growth"
+    ]
+  },
+  "howItWorks": {
+    "tag": "Our Process",
+    "title": "How It Works",
+    "steps": {
+      "1": {
+        "title": "Awareness",
+        "desc": "Spreading knowledge about health and hygiene in villages."
+      },
+      "2": {
+        "title": "Group",
+        "desc": "Forming local support networks of empowered women."
+      },
+      "3": {
+        "title": "Training",
+        "desc": "Providing skills and leadership development sessions."
+      },
+      "4": {
+        "title": "Income",
+        "desc": "Creating sustainable local employment opportunities."
+      },
+      "5": {
+        "title": "Growth",
+        "desc": "Building a self-reliant and confident future together."
+      }
+    }
+  },
+  "team": {
+    "tag": "Our Workforce",
+    "title": "The Hearts Behind SakhiHub",
+    "desc": "Our field team works at the grassroots level, connecting directly with women in villages and communities. They conduct awareness sessions, build groups, and help women become confident, independent, and empowered.",
+    "points": [
+      "Ground-level outreach in villages",
+      "Direct connection with women",
+      "Real impact through awareness"
+    ],
+    "stats": {
+      "fieldWorkers": "Field Workers",
+      "districts": "Districts Covered",
+      "womenConnected": "Women Connected"
+    },
+    "voicesTag": "REAL VOICES",
+    "voicesTitle": "Voices of Real Change",
+    "stories": {
+      "sunita": {
+        "name": "Sunita Devi",
+        "role": "Village Member",
+        "story": "After joining SakhiHub, I received the right information about hygiene and health, and today I am spreading awareness in my village."
+      },
+      "rekha": {
+        "name": "Rekha Bai",
+        "role": "Field Volunteer",
+        "story": "I go door-to-door to educate women, and now I have become financially independent myself."
+      },
+      "pooja": {
+        "name": "Pooja Sharma",
+        "role": "Group Leader",
+        "story": "We formed a women's group in our village, and now we all work together and earn a livelihood."
+      },
+      "meena": {
+        "name": "Meena Kumari",
+        "role": "Team Leader",
+        "story": "I want every woman in our district to stand on her own feet, and SakhiHub is helping completely in this mission."
+      }
+    }
+  },
+  "whySakhi": {
+    "tag": "Why SakhiHub",
+    "title": "Why We Stand Apart",
+    "desc": "Built on trust, driven by impact, and focused on real change at ground level.",
+    "ctaText": "Real Ground Action",
+    "cards": {
+      "reach": {
+        "title": "Grassroots Reach",
+        "desc": "We work directly at the ground level, reaching remote villages where real support is needed.",
+        "points": [
+          "Direct village outreach",
+          "Real field engagement",
+          "Local women connection"
+        ]
+      },
+      "empowerment": {
+        "title": "Empowerment Focused",
+        "desc": "Our model is designed to make every woman confident, skilled, and self-reliant.",
+        "points": [
+          "Skill development",
+          "Leadership building",
+          "Confidence growth"
+        ]
+      },
+      "impact": {
+        "title": "Proven Impact",
+        "desc": "Thousands of women have already transformed their lives through SakhiHub.",
+        "points": [
+          "50,000+ women reached",
+          "Real success stories",
+          "Measurable impact"
+        ]
+      },
+      "transparent": {
+        "title": "Transparent System",
+        "desc": "We maintain full transparency in our operations and benefits distribution.",
+        "points": [
+          "Clear reporting",
+          "Accountability",
+          "Direct impact tracking"
+        ]
+      }
+    }
+  },
+  "liveImpact": {
+    "tag": "Our National Mission",
+    "title": "Building Trust, Creating Change",
+    "desc": "SakhiHub is more than just a platform; it is a promise to every woman in India. We work at the intersection of health, dignity, and economic independence.",
+    "cta": "Join Our Community",
+    "storyTitle": "Impact Story",
+    "storySub": "Voices of Empowerment",
+    "successBadge": "Success Story",
+    "featuredStory": "\"SakhiHub gave me the confidence to lead my village group and earn with dignity.\"",
+    "featuredAuthor": "Priya Sharma • Patna Hub",
+    "communityApproved": "Community Approved",
+    "fastActivation": "Fast Activation",
+    "fastActivationDesc": "New hubs activated within 48 hours of verification.",
+    "liveUpdates": "Live Updates",
+    "achievements": {
+      "trusted": {
+        "title": "Trusted by 50k+ Women",
+        "desc": "Active community support across rural districts."
+      },
+      "safety": {
+        "title": "98% Safety Rating",
+        "desc": "Highest standards in health and hygiene education."
+      },
+      "certified": {
+        "title": "Certified Programs",
+        "desc": "ISO certified awareness and employment drives."
+      }
+    }
+  },
+  "programs": {
+    "tag": "Our Programs",
+    "title": "Our Core Initiatives",
+    "desc": "Ground-level initiatives to drive positive change in women's lives.",
+    "badge": "Impact Program",
+    "learnMore": "Learn More",
+    "list": {
+      "health": "Health & Hygiene",
+      "employment": "Employment",
+      "education": "Education",
+      "community": "Community"
+    }
+  },
+  "projects": {
+    "tag": "Social Impact Initiatives",
+    "title": "Our Ongoing Projects.",
+    "viewAll": "View All Projects",
+    "activeBadge": "Active Program",
+    "exploreDetails": "Explore Details"
+  },
+  "ctaBanner": {
+    "title": "Join Today & Be the Change",
+    "desc": "Join SakhiHub today and empower your community. Every step you take creates a lasting impact on women's lives across India. Join the movement now!",
+    "joinBtn": "Join the Movement",
+    "contactBtn": "Contact Support"
+  },
+  "common": {
+    "loading": "Loading...",
+    "submitting": "Submitting...",
+    "submit": "Submit",
+    "success": "Success",
+    "error": "Error"
+  },
+  "ticker": {
+    "update1": "New Women Group formed in Patna District with 25 members!",
+    "update2": "Successfully completed Health Awareness Camp in Block 4, Lucknow.",
+    "update3": "SakhiHub expands to 10 new villages in Madhya Pradesh this week.",
+    "update4": "Over 5,000 Sanitary Kits distributed across rural Rajasthan.",
+    "update5": "New Training Center launched for skill development in Jaipur."
+  },
+  "actionGrid": {
+    "empTitle": "Join as Employee",
+    "empDesc": "Work with us and empower women in your community.",
+    "empPoints": [
+      "Attractive Salary",
+      "Incentives",
+      "Growth Opportunities"
+    ],
+    "empBtn": "Apply Now",
+    "memTitle": "Easy Membership",
+    "memDesc": "Join with a simple ₹100 membership and enjoy exclusive benefits.",
+    "memBtn": "Join Now",
+    "payTitle": "Secure Payments",
+    "payDesc": "Make secure payments online easily through UPI, Cards & Wallets.",
+    "payBtn": "Pay Now",
+    "helpTitle": "We Are Here to Help You",
+    "helpDesc": "Our support team is always ready to assist you.",
+    "helpPoints": [
+      "1800-123-4567",
+      "support@sakhihub.in"
+    ],
+    "helpBtn": "Contact Us"
+  }
+}

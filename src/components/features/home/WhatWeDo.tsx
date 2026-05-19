@@ -4,39 +4,42 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-
-const services = [
-  { 
-    title: "Health Awareness", 
-    desc: "Promoting menstrual hygiene and overall women health through awareness campaigns.",
-    points: ["Period awareness", "Health education", "Village outreach"],
-    image: "/images/Health-Awareness.jpeg",
-    color: "#E91E63"
-  },
-  { 
-    title: "Hygiene Education", 
-    desc: "Providing scientific knowledge about hygiene, sanitation, and infection prevention.",
-    points: ["Clean habits", "Sanitation awareness", "Health safety"],
-    image: "/images/Hygiene-Education.jpeg",
-    color: "#6A1B9A"
-  },
-  { 
-    title: "Women Groups", 
-    desc: "Creating strong local women networks for support, safety, and growth.",
-    points: ["Group formation", "Leadership", "Community strength"],
-    image: "/images/Women-Groups.jpeg",
-    color: "#FF9800"
-  },
-  { 
-    title: "Employment", 
-    desc: "Generating local job opportunities for women at block and village level.",
-    points: ["Field jobs", "Local earning", "Career growth"],
-    image: "/images/Employment.jpeg",
-    color: "#4CAF50"
-  }
-];
+import { useLanguage } from '@/context/LanguageContext';
 
 const WhatWeDo = () => {
+  const { t } = useLanguage();
+
+  const services = [
+    { 
+      title: t('whatWeDo.healthTitle'), 
+      desc: t('whatWeDo.healthDesc'),
+      points: t('whatWeDo.healthPoints') || ["Period awareness", "Health education", "Village outreach"],
+      image: "/images/Health-Awareness.jpeg",
+      color: "#E91E63"
+    },
+    { 
+      title: t('whatWeDo.hygieneTitle'), 
+      desc: t('whatWeDo.hygieneDesc'),
+      points: t('whatWeDo.hygienePoints') || ["Clean habits", "Sanitation awareness", "Health safety"],
+      image: "/images/Hygiene-Education.jpeg",
+      color: "#6A1B9A"
+    },
+    { 
+      title: t('whatWeDo.groupsTitle'), 
+      desc: t('whatWeDo.groupsDesc'),
+      points: t('whatWeDo.groupsPoints') || ["Group formation", "Leadership", "Community strength"],
+      image: "/images/Women-Groups.jpeg",
+      color: "#FF9800"
+    },
+    { 
+      title: t('whatWeDo.employmentTitle'), 
+      desc: t('whatWeDo.employmentDesc'),
+      points: t('whatWeDo.employmentPoints') || ["Field jobs", "Local earning", "Career growth"],
+      image: "/images/Employment.jpeg",
+      color: "#4CAF50"
+    }
+  ];
+
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
     whileInView: { opacity: 1, y: 0 },
@@ -49,13 +52,17 @@ const WhatWeDo = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto mb-16 md:mb-24 text-center">
           <span className="text-primary font-bold uppercase tracking-[2px] text-xs md:text-sm block mb-4">
-            OUR CORE WORK
+            {t('whatWeDo.tag')}
           </span>
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight text-secondary">
-            Empowering Through <span className="text-gradient">Action</span>
+            {t('whatWeDo.title').split(' ').map((word: string, i: number, arr: string[]) => (
+              <React.Fragment key={i}>
+                {i === arr.length - 1 ? <span className="text-gradient">{word}</span> : word + ' '}
+              </React.Fragment>
+            ))}
           </h2>
           <p className="text-gray-500 mt-6 text-sm md:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed">
-            SakhiHub works at ground level to create awareness, build communities, and empower women for a better future.
+            {t('whatWeDo.desc')}
           </p>
         </div>
 
@@ -79,7 +86,7 @@ const WhatWeDo = () => {
                 
                 <div className="absolute bottom-6 left-6">
                    <div className="px-4 py-1.5 bg-primary/90 text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg backdrop-blur-md border border-white/20">
-                     Core Service
+                     {t('whatWeDo.coreService')}
                    </div>
                 </div>
               </div>
@@ -92,7 +99,7 @@ const WhatWeDo = () => {
                 </p>
                 
                 <div className="mb-8 space-y-3">
-                  {item.points.map((point, i) => (
+                  {Array.isArray(item.points) && item.points.map((point: string, i: number) => (
                     <div key={i} className="flex items-center gap-3 text-[11px] md:text-xs font-bold text-secondary uppercase tracking-wider">
                       <CheckCircle size={14} className="shrink-0" style={{ color: item.color }} /> {point}
                     </div>
@@ -100,7 +107,7 @@ const WhatWeDo = () => {
                 </div>
 
                 <Link href="/programs" className="flex items-center gap-2 font-bold text-xs md:text-sm uppercase tracking-widest transition-all hover:gap-4" style={{ color: item.color }}>
-                  Learn More <ArrowRight size={18} />
+                  {t('whatWeDo.learnMore')} <ArrowRight size={18} />
                 </Link>
               </div>
             </motion.div>

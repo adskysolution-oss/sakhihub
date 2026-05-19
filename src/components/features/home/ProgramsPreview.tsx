@@ -4,30 +4,32 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import styles from './ProgramsPreview.module.css';
+import { useLanguage } from '@/context/LanguageContext';
 
 const ProgramsPreview = () => {
+  const { t } = useLanguage();
+
   const programs = [
     {
-      title: 'Health & Hygiene',
+      title: t('programs.list.health'),
       image: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?q=80&w=800',
       color: '#E91E63',
       href: '/programs/health'
     },
     {
-      title: 'Employment',
+      title: t('programs.list.employment'),
       image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=800',
       color: '#6A1B9A',
       href: '/programs/employment'
     },
     {
-      title: 'Education',
+      title: t('programs.list.education'),
       image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800',
       color: '#4CAF50',
       href: '/programs/education'
     },
     {
-      title: 'Community',
+      title: t('programs.list.community'),
       image: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800',
       color: '#FFD700',
       href: '/programs/community'
@@ -38,12 +40,18 @@ const ProgramsPreview = () => {
     <section className="py-16 md:py-32 bg-white overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 md:mb-24 max-w-4xl mx-auto">
-          <span className="text-primary font-bold tracking-widest uppercase text-xs md:text-sm block mb-4">Our Programs</span>
+          <span className="text-primary font-bold tracking-widest uppercase text-xs md:text-sm block mb-4">
+            {t('programs.tag')}
+          </span>
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-secondary leading-tight">
-            Our Core <span className="text-gradient">Initiatives</span>
+            {t('programs.title').split(' ').map((word: string, i: number, arr: string[]) => (
+              <span key={i}>
+                {word === 'Initiatives' ? <span className="text-gradient">Initiatives</span> : word}{' '}
+              </span>
+            ))}
           </h2>
           <p className="text-gray-500 text-sm md:text-lg mt-6 max-w-2xl mx-auto leading-relaxed font-medium">
-            Ground-level initiatives to drive positive change in women's lives.
+            {t('programs.desc')}
           </p>
         </div>
 
@@ -72,10 +80,10 @@ const ProgramsPreview = () => {
                     {program.title}
                   </h3>
                   <p className="text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-widest mb-6">
-                    Impact Program
+                    {t('programs.badge')}
                   </p>
                   <div className="mt-auto flex items-center gap-2 font-bold text-xs md:text-sm uppercase tracking-widest transition-all group-hover:gap-4" style={{ color: program.color }}>
-                    Learn More <ArrowRight size={18} />
+                    {t('programs.learnMore')} <ArrowRight size={18} />
                   </div>
                 </div>
               </motion.div>

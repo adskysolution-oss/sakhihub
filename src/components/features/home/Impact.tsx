@@ -2,15 +2,25 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, Layout, Shield, Target, MapPin } from 'lucide-react';
+import { Users, Layout, Shield, Target } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 const Impact = () => {
+  const { t } = useLanguage();
+
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true },
     transition: { duration: 0.6 }
   };
+
+  const stats = [
+    { label: t('impact.womenEmpowered'), val: '50,000+', desc: t('impact.womenEmpoweredDesc'), icon: <Users size={24} /> },
+    { label: t('impact.activeGroups'), val: '12,500+', desc: t('impact.activeGroupsDesc'), icon: <Layout size={24} /> },
+    { label: t('impact.awarenessDrives'), val: '350+', desc: t('impact.awarenessDrivesDesc'), icon: <Target size={24} /> },
+    { label: t('impact.fieldTeam'), val: '1,200+', desc: t('impact.fieldTeamDesc'), icon: <Shield size={24} /> },
+  ];
 
   return (
     <section className="relative py-20 md:py-32 overflow-hidden flex items-center min-h-[500px]">
@@ -25,12 +35,7 @@ const Impact = () => {
 
       <div className="container mx-auto px-4 relative z-[2]">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-          {[
-            { label: 'Women Empowered', val: '50,000+', desc: 'Building a strong women network across India', icon: <Users size={24} /> },
-            { label: 'Active Groups', val: '12,500+', desc: 'Connecting women at village level', icon: <Layout size={24} /> },
-            { label: 'Awareness Drives', val: '350+', desc: 'Health & empowerment programs running', icon: <Target size={24} /> },
-            { label: 'Field Team', val: '1,200+', desc: 'Working at ground level across districts', icon: <Shield size={24} /> },
-          ].map((stat, idx) => (
+          {stats.map((stat, idx) => (
             <motion.div
               key={idx}
               {...fadeInUp}
@@ -53,4 +58,3 @@ const Impact = () => {
 };
 
 export default Impact;
-

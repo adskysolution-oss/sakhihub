@@ -3,45 +3,52 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-
-const steps = [
-  { 
-    title: "Awareness", 
-    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=600", 
-    desc: "Spreading knowledge about health and hygiene in villages."
-  },
-  { 
-    title: "Group", 
-    image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=600", 
-    desc: "Forming local support networks of empowered women."
-  },
-  { 
-    title: "Training", 
-    image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=600", 
-    desc: "Providing skills and leadership development sessions."
-  },
-  { 
-    title: "Income", 
-    image: "https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=600", 
-    desc: "Creating sustainable local employment opportunities."
-  },
-  { 
-    title: "Growth", 
-    image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=600", 
-    desc: "Building a self-reliant and confident future together."
-  }
-];
+import { useLanguage } from '@/context/LanguageContext';
 
 const HowItWorks = () => {
+  const { t } = useLanguage();
+
+  const steps = [
+    { 
+      title: t('howItWorks.steps.1.title'), 
+      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=600", 
+      desc: t('howItWorks.steps.1.desc')
+    },
+    { 
+      title: t('howItWorks.steps.2.title'), 
+      image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=600", 
+      desc: t('howItWorks.steps.2.desc')
+    },
+    { 
+      title: t('howItWorks.steps.3.title'), 
+      image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=600", 
+      desc: t('howItWorks.steps.3.desc')
+    },
+    { 
+      title: t('howItWorks.steps.4.title'), 
+      image: "https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=600", 
+      desc: t('howItWorks.steps.4.desc')
+    },
+    { 
+      title: t('howItWorks.steps.5.title'), 
+      image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=600", 
+      desc: t('howItWorks.steps.5.desc')
+    }
+  ];
+
   return (
     <section className="py-16 md:py-32 bg-white relative overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center mb-16 md:mb-24">
           <span className="text-primary font-bold tracking-widest uppercase text-xs md:text-sm block mb-4">
-            Our Process
+            {t('howItWorks.tag')}
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-secondary leading-tight">
-            How It <span className="text-gradient">Works</span>
+            {t('howItWorks.title').split(' ').map((word: string, i: number, arr: string[]) => (
+              <React.Fragment key={i}>
+                {i === arr.length - 1 ? <span className="text-gradient">{word}</span> : word + ' '}
+              </React.Fragment>
+            ))}
           </h2>
         </div>
 

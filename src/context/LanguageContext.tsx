@@ -1,39 +1,52 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import en from '@/locales/en/common.json';
+import hi from '@/locales/hi/common.json';
+import mr from '@/locales/mr/common.json';
+import bn from '@/locales/bn/common.json';
+import ta from '@/locales/ta/common.json';
+import te from '@/locales/te/common.json';
 
-type Language = 'en' | 'hi' | 'mr' | 'bn' | 'ta' | 'te'; // Language state maintained for API/Dynamic content
+type Language = 'en' | 'hi' | 'mr' | 'bn' | 'ta' | 'te';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, replacements?: Record<string, string | number>) => any;
 }
 
-// Static translations reduced to English only as per project requirement
-// All UI labels, buttons, and static text must remain English to serve as source for dynamic translation
-const translations: Record<string, string> = {
-  hero_title: 'Empowering Women, Transforming Lives',
-  hero_subtitle: 'Join the movement dedicated to health, hygiene, and financial independence for every woman in India.',
-  join_btn: 'Join Movement',
-  contact_btn: 'Contact Us',
-  about_us: 'About Us',
-  programs: 'Programs',
-  register: 'Register',
-  login: 'Employee Login',
-  impact: 'Impact',
-  how_it_works: 'How It Works',
-  why_sakhihub: 'Why SakhiHub',
-  team: 'Field Heroes',
-  Home: 'Home',
-  campaign: 'Campaign',
-  Projects: 'Projects',
-  Products: 'Products',
-  hiring: 'Hiring',
-  contact: 'Contact',
-  direct_impact: 'Direct Impact',
-  trust_focused: 'Trust Focused',
-  ground_reality: 'Ground Reality',
+const allTranslations: Record<Language, any> = {
+  en,
+  hi,
+  mr,
+  bn,
+  ta,
+  te,
+};
+
+const oldKeysMap: Record<string, string> = {
+  hero_title: 'hero.title',
+  hero_subtitle: 'hero.subtitle',
+  join_btn: 'hero.joinBtn',
+  contact_btn: 'ctaBanner.contactBtn',
+  about_us: 'nav.aboutUs',
+  programs: 'nav.programs',
+  register: 'nav.joinMovement',
+  login: 'nav.employeeLogin',
+  impact: 'hero.impactStatus',
+  how_it_works: 'howItWorks.title',
+  why_sakhihub: 'whySakhi.title',
+  team: 'team.voicesTitle',
+  Home: 'nav.home',
+  campaign: 'hero.tagline',
+  Projects: 'nav.projects',
+  Products: 'nav.products',
+  hiring: 'nav.joinMovement',
+  contact: 'nav.contact',
+  direct_impact: 'whySakhi.cards.reach.title',
+  trust_focused: 'whySakhi.cards.transparent.title',
+  ground_reality: 'team.voicesTitle',
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -57,10 +70,40 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem('sakhihub_lang', lang);
   };
 
-  // Translation function now always returns English for static keys
-  // This ensures the website static UI is English-only while preserving the language state for dynamic content
-  const t = (key: string) => {
-    return translations[key] || key;
+  // Reusable translation system with nested key support and fallback to English
+  const t = (key: string, replacements?: Record<string, string | number>) => {
+    const resolvedKey = oldKeysMap[key] || key;
+    const keys = resolvedKey.split('.');
+    
+    let value: any = allTranslations[language];
+    for (const k of keys) {
+      if (value && value[k] !== undefined) {
+        value = value[k];
+      } else {
+        // Fallback to English
+        let fallbackVal: any = allTranslations['en'];
+        for (const fk of keys) {
+          if (fallbackVal && fallbackVal[fk] !== undefined) {
+            fallbackVal = fallbackVal[fk];
+          } else {
+            fallbackVal = null;
+            break;
+          }
+        }
+        value = fallbackVal || key;
+        break;
+      }
+    }
+
+    if (typeof value === 'string' && replacements) {
+      let result = value;
+      Object.entries(replacements).forEach(([k, v]) => {
+        result = result.replace(`{${k}}`, String(v));
+      });
+      return result;
+    }
+
+    return value;
   };
 
   return (
@@ -75,3 +118,4 @@ export const useLanguage = () => {
   if (!context) throw new Error('useLanguage must be used within a LanguageProvider');
   return context;
 };
+

@@ -4,49 +4,52 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Briefcase, CreditCard, ShieldCheck, Headphones } from 'lucide-react';
 import Link from 'next/link';
-
-const actions = [
-  {
-    title: 'Join as Employee',
-    desc: 'Work with us and empower women in your community.',
-    points: ['Attractive Salary', 'Incentives', 'Growth Opportunities'],
-    btnText: 'Apply Now',
-    href: '/hiring',
-    icon: <Briefcase size={32} />,
-    color: 'var(--primary)',
-    image: '/images/team_field.png'
-  },
-  {
-    title: 'Easy Membership',
-    desc: 'Join with a simple ₹100 membership and enjoy exclusive benefits.',
-    btnText: 'Join Now',
-    href: '/register',
-    icon: <CreditCard size={32} />,
-    color: 'var(--secondary)',
-    image: '/images/about_mission.png'
-  },
-  {
-    title: 'Secure Payments',
-    desc: 'Make secure payments online easily through UPI, Cards & Wallets.',
-    btnText: 'Pay Now',
-    href: '/payment',
-    icon: <ShieldCheck size={32} />,
-    color: 'var(--primary)',
-    image: '/images/hero_awareness_campaign.png'
-  },
-  {
-    title: 'We Are Here to Help You',
-    desc: 'Our support team is always ready to assist you.',
-    points: ['1800-123-4567', 'support@sakhihub.in'],
-    btnText: 'Contact Us',
-    href: '/contact',
-    icon: <Headphones size={32} />,
-    color: 'var(--secondary)',
-    image: '/images/team_core.png'
-  }
-];
+import { useLanguage } from '@/context/LanguageContext';
 
 const HomeActionGrid = () => {
+  const { t } = useLanguage();
+
+  const actions = [
+    {
+      title: t('actionGrid.empTitle'),
+      desc: t('actionGrid.empDesc'),
+      points: t('actionGrid.empPoints') || ['Attractive Salary', 'Incentives', 'Growth Opportunities'],
+      btnText: t('actionGrid.empBtn'),
+      href: '/hiring',
+      icon: <Briefcase size={32} />,
+      color: 'var(--primary)',
+      image: '/images/team_field.png'
+    },
+    {
+      title: t('actionGrid.memTitle'),
+      desc: t('actionGrid.memDesc'),
+      btnText: t('actionGrid.memBtn'),
+      href: '/register',
+      icon: <CreditCard size={32} />,
+      color: 'var(--secondary)',
+      image: '/images/about_mission.png'
+    },
+    {
+      title: t('actionGrid.payTitle'),
+      desc: t('actionGrid.payDesc'),
+      btnText: t('actionGrid.payBtn'),
+      href: '/payment',
+      icon: <ShieldCheck size={32} />,
+      color: 'var(--primary)',
+      image: '/images/hero_awareness_campaign.png'
+    },
+    {
+      title: t('actionGrid.helpTitle'),
+      desc: t('actionGrid.helpDesc'),
+      points: t('actionGrid.helpPoints') || ['1800-123-4567', 'support@sakhihub.in'],
+      btnText: t('actionGrid.helpBtn'),
+      href: '/contact',
+      icon: <Headphones size={32} />,
+      color: 'var(--secondary)',
+      image: '/images/team_core.png'
+    }
+  ];
+
   return (
     <section className="section-padding">
       <div className="container">
@@ -72,7 +75,7 @@ const HomeActionGrid = () => {
                   
                   {action.points && (
                     <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0', fontSize: '0.8rem' }}>
-                      {action.points.map(p => (
+                      {Array.isArray(action.points) && action.points.map(p => (
                         <li key={p} style={{ marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
                            • {p}
                         </li>
@@ -94,4 +97,3 @@ const HomeActionGrid = () => {
 };
 
 export default HomeActionGrid;
-

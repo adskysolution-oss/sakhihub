@@ -7,12 +7,15 @@ import {
   ArrowRight, Star, 
   Award, MessageSquareHeart 
 } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 const LiveImpactMap = () => {
+  const { t } = useLanguage();
+
   const achievements = [
-    { title: 'Trusted by 50k+ Women', desc: 'Active community support across rural districts.', icon: Heart },
-    { title: '98% Safety Rating', desc: 'Highest standards in health and hygiene education.', icon: ShieldCheck },
-    { title: 'Certified Programs', desc: 'ISO certified awareness and employment drives.', icon: Award },
+    { title: t('liveImpact.achievements.trusted.title'), desc: t('liveImpact.achievements.trusted.desc'), icon: Heart },
+    { title: t('liveImpact.achievements.safety.title'), desc: t('liveImpact.achievements.safety.desc'), icon: ShieldCheck },
+    { title: t('liveImpact.achievements.certified.title'), desc: t('liveImpact.achievements.certified.desc'), icon: Award },
   ];
 
   return (
@@ -34,15 +37,19 @@ const LiveImpactMap = () => {
             >
               <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-white shadow-sm rounded-full border border-gray-50">
                 <Globe size={14} className="text-primary animate-spin-slow" />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary/60">Our National Mission</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary/60">{t('liveImpact.tag')}</span>
               </div>
               
               <h2 className="text-4xl md:text-6xl font-black text-secondary leading-[1.1] tracking-tight">
-                Building Trust, <span className="text-gradient">Creating Change</span>
+                {t('liveImpact.title').split(' ').map((word: string, i: number, arr: string[]) => (
+                  <span key={i}>
+                    {word === 'Trust,' || word === 'Change' || word === 'Trust' ? <span className="text-gradient">{word}</span> : word}{' '}
+                  </span>
+                ))}
               </h2>
               
               <p className="text-gray-500 text-lg md:text-xl font-medium leading-relaxed">
-                SakhiHub is more than just a platform; it is a promise to every woman in India. We work at the intersection of health, dignity, and economic independence.
+                {t('liveImpact.desc')}
               </p>
             </motion.div>
 
@@ -69,7 +76,7 @@ const LiveImpactMap = () => {
 
             <div className="flex justify-center lg:justify-start pt-4">
                <button className="px-8 py-4 bg-secondary text-white rounded-2xl font-bold flex items-center gap-3 shadow-xl shadow-secondary/20 hover:-translate-y-1 transition-all">
-                 Join Our Community <ArrowRight size={20} />
+                 {t('liveImpact.cta')} <ArrowRight size={20} />
                </button>
             </div>
           </div>
@@ -88,44 +95,44 @@ const LiveImpactMap = () => {
               <div className="relative z-10 space-y-10">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <h3 className="text-xl font-black text-secondary uppercase tracking-tight">Impact Story</h3>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Voices of Empowerment</p>
+                    <h3 className="text-xl font-black text-secondary uppercase tracking-tight">{t('liveImpact.storyTitle')}</h3>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">{t('liveImpact.storySub')}</p>
                   </div>
                   <div className="px-4 py-2 bg-green-50 rounded-2xl flex items-center gap-2">
                     <Star size={14} className="text-green-600 fill-green-600" />
-                    <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">Success Story</span>
+                    <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">{t('liveImpact.successBadge')}</span>
                   </div>
                 </div>
 
                 {/* Featured Story Card */}
                 <div className="relative rounded-[40px] overflow-hidden aspect-[16/10] group">
-                   <img 
-                     src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1200" 
-                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                     alt="Empowered Woman" 
-                   />
-                   <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-secondary/20 to-transparent" />
-                   <div className="absolute bottom-8 left-8 right-8">
-                     <p className="text-white/80 text-xs font-medium mb-2">Priya Sharma • Patna Hub</p>
-                     <h4 className="text-xl md:text-2xl font-bold text-white leading-tight">
-                       "SakhiHub gave me the confidence to lead my village group and earn with dignity."
-                     </h4>
-                   </div>
+                    <img 
+                      src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1200" 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                      alt="Empowered Woman" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-secondary/20 to-transparent" />
+                    <div className="absolute bottom-8 left-8 right-8">
+                      <p className="text-white/80 text-xs font-medium mb-2">{t('liveImpact.featuredAuthor') || "Priya Sharma • Patna Hub"}</p>
+                      <h4 className="text-xl md:text-2xl font-bold text-white leading-tight">
+                        {t('liveImpact.featuredStory')}
+                      </h4>
+                    </div>
                 </div>
 
                 {/* Trust Indicators */}
                 <div className="grid grid-cols-2 gap-6 pt-4">
                   <div className="p-6 bg-gray-50 rounded-[32px] border border-gray-100 flex flex-col items-center text-center space-y-3">
                     <MessageSquareHeart size={28} className="text-primary" />
-                    <p className="text-xs font-black text-secondary uppercase tracking-widest">Community Approved</p>
+                    <p className="text-xs font-black text-secondary uppercase tracking-widest">{t('liveImpact.communityApproved')}</p>
                     <div className="flex gap-1">
                       {[1,2,3,4,5].map(i => <Star key={i} size={10} className="fill-yellow-400 text-yellow-400" />)}
                     </div>
                   </div>
                   <div className="p-6 bg-gray-50 rounded-[32px] border border-gray-100 flex flex-col items-center text-center space-y-3">
                     <Zap size={28} className="text-secondary" />
-                    <p className="text-xs font-black text-secondary uppercase tracking-widest">Fast Activation</p>
-                    <p className="text-[10px] text-gray-400 font-bold leading-tight">New hubs activated within 48 hours of verification.</p>
+                    <p className="text-xs font-black text-secondary uppercase tracking-widest">{t('liveImpact.fastActivation')}</p>
+                    <p className="text-[10px] text-gray-400 font-bold leading-tight">{t('liveImpact.fastActivationDesc')}</p>
                   </div>
                 </div>
 
@@ -136,7 +143,7 @@ const LiveImpactMap = () => {
                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                      </div>
-                     <span className="text-[10px] font-black text-secondary uppercase tracking-widest">Live Updates</span>
+                     <span className="text-[10px] font-black text-secondary uppercase tracking-widest">{t('liveImpact.liveUpdates')}</span>
                    </div>
                    <div className="flex -space-x-3">
                      {[1,2,3,4].map(i => (

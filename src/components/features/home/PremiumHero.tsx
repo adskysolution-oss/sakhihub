@@ -56,10 +56,10 @@ const PremiumHero = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link href="/register" className="btn-primary py-4 px-10 text-base md:text-lg rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-primary/20 no-underline">
-                Join Movement <ArrowRight size={20} />
+                {t('hero.joinBtn')} <ArrowRight size={20} />
               </Link>
               <Link href="/campaign" className="btn-secondary py-4 px-10 text-base md:text-lg rounded-2xl bg-white text-secondary border-2 border-secondary/10 flex items-center justify-center no-underline">
-                Explore Campaigns
+                {t('hero.exploreBtn')}
               </Link>
             </div>
 

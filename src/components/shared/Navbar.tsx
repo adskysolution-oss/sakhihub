@@ -15,7 +15,7 @@ const Navbar = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   const pathname = usePathname();
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,29 +35,29 @@ const Navbar = () => {
   ];
 
   const navLinks = [
-    { name: 'Home', href: '/' },
+    { name: t('nav.home'), href: '/' },
     {
-      name: 'About Us',
+      name: t('nav.aboutUs'),
       href: '/about',
       subLinks: [
-        { name: 'Vision', href: '/vision', icon: Eye },
-        { name: 'Mission', href: '/mission', icon: Target },
+        { name: t('nav.vision'), href: '/vision', icon: Eye },
+        { name: t('nav.mission'), href: '/mission', icon: Target },
       ]
     },
     {
-      name: 'Programs',
+      name: t('nav.programs'),
       href: '/programs',
       subLinks: [
-        { name: 'Health & Hygiene', href: '/programs/health', icon: Activity },
-        { name: 'Employment', href: '/programs/employment', icon: Briefcase },
-        { name: 'Education', href: '/programs/education', icon: BookOpen },
-        { name: 'Community', href: '/programs/community', icon: Users },
+        { name: t('nav.healthHygiene'), href: '/programs/health', icon: Activity },
+        { name: t('nav.employment'), href: '/programs/employment', icon: Briefcase },
+        { name: t('nav.education'), href: '/programs/education', icon: BookOpen },
+        { name: t('nav.community'), href: '/programs/community', icon: Users },
       ]
     },
-    { name: 'Projects', href: '/projects' },
+    { name: t('nav.projects'), href: '/projects' },
     // { name: 'Campaign', href: '/campaign' },
-    { name: 'Products', href: '/products' },
-    { name: 'Contact', href: '/contact' },
+    { name: t('nav.products'), href: '/products' },
+    { name: t('nav.contact'), href: '/contact' },
   ];
 
   return (
@@ -191,7 +191,7 @@ const Navbar = () => {
         >
           <button className="btn-primary !p-2 md:!px-5 md:!py-2.5 !rounded-xl md:!rounded-full flex items-center gap-2">
             <Users2 size={18} />
-            <span className={`${styles.portalText} hidden lg:block text-xs font-bold`}>Member Portal</span>
+            <span className={`${styles.portalText} hidden lg:block text-xs font-bold`}>{t('nav.memberPortal')}</span>
             <ChevronDown size={14} className={`${styles.portalChevron} hidden lg:block transition-transform duration-300 ${activeDropdown === 'portal' ? 'rotate-180' : ''}`} />
           </button>
 
@@ -204,10 +204,10 @@ const Navbar = () => {
                 className={styles.portalDropdown}
               >
                 <Link href="/login" className="flex items-center gap-3 p-3 rounded-xl text-secondary hover:bg-primary/5 transition-colors no-underline font-bold text-xs">
-                  <Briefcase size={16} className="text-primary" /> Employee Login
+                  <Briefcase size={16} className="text-primary" /> {t('nav.employeeLogin')}
                 </Link>
                 <Link href="/register" className="flex items-center gap-3 p-3 rounded-xl text-secondary hover:bg-primary/5 transition-colors no-underline font-bold text-xs">
-                  <Users size={16} className="text-primary" /> Join Movement
+                  <Users size={16} className="text-primary" /> {t('nav.joinMovement')}
                 </Link>
               </motion.div>
             )}
@@ -255,7 +255,7 @@ const Navbar = () => {
               </div>
             ))}
             <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Select Language</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('nav.selectLanguage') || 'Select Language'}</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                 {languages.map(l => (
                   <button
@@ -286,7 +286,7 @@ const Navbar = () => {
                   style={{ justifyContent: 'center', fontSize: '0.85rem', borderRadius: '12px' }}
                   onClick={() => setIsOpen(false)}
                 >
-                  Login
+                  {t('nav.employeeLogin')}
                 </Link>
                 <Link
                   href="/register"
@@ -294,7 +294,7 @@ const Navbar = () => {
                   style={{ justifyContent: 'center', fontSize: '0.85rem', borderRadius: '12px' }}
                   onClick={() => setIsOpen(false)}
                 >
-                  Join Now
+                  {t('nav.joinMovement')}
                 </Link>
               </div>
               <a
@@ -309,7 +309,7 @@ const Navbar = () => {
                 }}
               >
                 <Mail size={16} />
-                <span>Email Us</span>
+                <span>{t('nav.emailUs') || 'Email Us'}</span>
               </a>
             </div>
           </motion.div>
