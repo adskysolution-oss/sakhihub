@@ -1,9 +1,7 @@
 'use client';
 
 import React from 'react';
-import Navbar from '@/components/shared/Navbar';
-import Footer from '@/components/shared/Footer';
-import { Lock, Eye, Database, Shield } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function PrivacyPolicy() {
@@ -11,7 +9,6 @@ export default function PrivacyPolicy() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
 
       {/* Hero Section */}
       <section className="pt-32 pb-20 bg-gradient-to-br from-slate-900 to-secondary relative overflow-hidden">
@@ -128,8 +125,6 @@ export default function PrivacyPolicy() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

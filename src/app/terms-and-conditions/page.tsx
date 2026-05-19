@@ -1,9 +1,7 @@
 'use client';
 
 import React from 'react';
-import Navbar from '@/components/shared/Navbar';
-import Footer from '@/components/shared/Footer';
-import { ShieldCheck, FileText, CheckCircle } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function TermsAndConditions() {
@@ -11,7 +9,6 @@ export default function TermsAndConditions() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
       
       {/* Hero Section */}
       <section className="pt-32 pb-20 bg-gradient-to-br from-slate-900 to-secondary relative overflow-hidden">
@@ -131,8 +128,6 @@ export default function TermsAndConditions() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

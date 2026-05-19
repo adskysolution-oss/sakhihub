@@ -381,7 +381,7 @@ function MemberDashboardContent() {
     );
   }
 
-  const { profile, fieldRecord, membership, pendingRequests } = data || {};
+  const { profile, fieldRecord, membership, pendingRequests, membershipFee = 100 } = data || {};
   const isVerified = membership?.paymentStatus === 'Paid' || fieldRecord?.membershipStatus === 'paid';
 
   return (
@@ -674,16 +674,16 @@ function MemberDashboardContent() {
                     This is your verified digital ID card in the SakhiHub Community. Keep this copy saved or print it for offline self-help group verifications, campaigns, and kit distribution meetings.
                   </p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                <div className="flex flex-wrap gap-4 mt-8">
                   <button
                     onClick={handlePrintCard}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-secondary text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-primary/25 hover:scale-105 transition-all cursor-pointer min-w-[150px]"
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-primary to-secondary text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-primary/25 hover:scale-105 transition-all cursor-pointer min-w-[140px]"
                   >
                     <Printer size={16} /> Print Card
                   </button>
                   <button
                     onClick={() => setShowProfileModal(true)}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-secondary hover:text-primary hover:border-primary/30 rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all cursor-pointer min-w-[150px]"
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-secondary hover:text-primary hover:border-primary/30 rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all cursor-pointer min-w-[140px]"
                   >
                     <User size={16} /> Edit Card Info
                   </button>
@@ -773,7 +773,7 @@ function MemberDashboardContent() {
                   </div>
                   <h3 className="text-xl font-black text-secondary leading-tight">Membership Payment Pending</h3>
                   <p className="text-gray-500 text-xs font-semibold max-w-md mx-auto leading-relaxed mt-3 mb-10">
-                    To activate your dynamic digital membership card, join local community groups, and qualify for campaign kits, please complete your ₹100 membership fee.
+                    To activate your dynamic digital membership card, join local community groups, and qualify for campaign kits, please complete your ₹{membershipFee} membership fee.
                   </p>
                   
                   {verifyingPayment ? (
@@ -799,10 +799,10 @@ function MemberDashboardContent() {
                           disabled={payingOnline}
                           className="mt-6 w-full py-3.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-md hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                         >
-                          {payingOnline ? 'Initiating...' : 'Pay ₹100 Online'}
+                          {payingOnline ? 'Initiating...' : `Pay ₹${membershipFee} Online`}
                         </button>
                       </div>
-
+ 
                       {/* Option 2: Pay Offline */}
                       <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-soft flex flex-col justify-between text-left">
                         <div>
@@ -811,7 +811,7 @@ function MemberDashboardContent() {
                           </span>
                           <h4 className="text-sm font-black text-secondary mt-3">Pay Cash to Sakhi Hero</h4>
                           <p className="text-[11px] text-gray-400 font-bold leading-relaxed mt-2">
-                            Hand over ₹100 to your regional hero/employee. They will register it on their portal to activate your account.
+                            Hand over ₹{membershipFee} to your regional hero/employee. They will register it on their portal to activate your account.
                           </p>
                         </div>
                         <button

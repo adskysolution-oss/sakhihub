@@ -153,6 +153,7 @@ function MemberReceiptContent() {
   const membership = data?.membership;
   const profile = data?.profile;
   const fieldRecord = data?.fieldRecord;
+  const membershipFee = data?.membershipFee ?? 100;
 
   if (!membership) {
     return (
@@ -163,7 +164,7 @@ function MemberReceiptContent() {
           </div>
           <h2 className="text-2xl font-black text-secondary font-black">Membership Payment Pending</h2>
           <p className="text-gray-500 font-medium leading-relaxed mt-3 max-w-lg mx-auto text-sm">
-            To view, download, or print your verified digital receipt and activate your platform membership, please complete your one-time ₹100 registration fee.
+            To view, download, or print your verified digital receipt and activate your platform membership, please complete your one-time ₹{membershipFee} registration fee.
           </p>
 
           {verifyingPayment ? (
@@ -189,7 +190,7 @@ function MemberReceiptContent() {
                   disabled={payingOnline}
                   className="mt-6 w-full py-3.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-md hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                 >
-                  {payingOnline ? 'Initiating...' : 'Pay ₹100 Online'}
+                  {payingOnline ? 'Initiating...' : `Pay ₹${membershipFee} Online`}
                 </button>
               </div>
 
@@ -201,7 +202,7 @@ function MemberReceiptContent() {
                   </span>
                   <h4 className="text-sm font-black text-secondary mt-3">Direct Bank Transfer</h4>
                   <p className="text-[11px] text-gray-400 font-bold leading-relaxed mt-2">
-                    Deposit ₹100 directly to our NGO account. Share payment proof with the admin to activate membership manually from dashboard.
+                    Deposit ₹{membershipFee} directly to our NGO account. Share payment proof with the admin to activate membership manually from dashboard.
                   </p>
                 </div>
                 <button

@@ -7,6 +7,7 @@ import Membership from '@/models/Membership';
 import Group from '@/models/Group';
 import User from '@/models/User';
 import MemberRequest from '@/models/MemberRequest';
+import CommissionConfig from '@/models/CommissionConfig';
 
 export async function GET(req: NextRequest) {
   try {
@@ -42,11 +43,15 @@ export async function GET(req: NextRequest) {
       status: 'pending'
     }).populate('employeeId', 'fullName mobile employeeId area block');
 
+    const commConfig = await CommissionConfig.findOne({ key: 'default' });
+    const membershipFee = commConfig ? (commConfig.membershipFee ?? 100) : 100;
+
     return successResponse({
       profile: user,
       fieldRecord: fieldRecord || null,
       membership: membership || null,
-      pendingRequests: pendingRequests || []
+      pendingRequests: pendingRequests || [],
+      membershipFee
     }, 'Member dashboard data fetched successfully');
 
   } catch (error: any) {
