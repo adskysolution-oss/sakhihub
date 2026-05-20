@@ -64,7 +64,7 @@ function MemberDashboardContent() {
   // Initialize Cashfree dynamically
   useEffect(() => {
     if (scriptLoaded && data && (window as any).Cashfree && !cashfree) {
-      const mode = process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' ? 'production' : 'sandbox';
+      const mode = 'production';
       console.log('Initializing Cashfree for Member in mode:', mode);
       setCashfree((window as any).Cashfree({ mode }));
     }
@@ -104,7 +104,7 @@ function MemberDashboardContent() {
             redirectTarget: "_self"
           });
         } else {
-          const mode = process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' ? 'production' : 'sandbox';
+          const mode = 'production';
           if ((window as any).Cashfree) {
             const cf = (window as any).Cashfree({ mode });
             setCashfree(cf);

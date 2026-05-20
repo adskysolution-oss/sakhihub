@@ -118,13 +118,15 @@ export default function MemberManagement() {
                           </div>
                         </td>
                         <td style={{ padding: '15px 20px' }}>
-                          {member.assignedEmployeeId ? (
+                          {member.assignedEmployeeId && typeof member.assignedEmployeeId === 'object' && member.assignedEmployeeId.fullName ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                               <p style={{ fontWeight: '700', fontSize: '0.9rem', color: 'var(--secondary)', margin: 0 }}>{member.assignedEmployeeId.fullName}</p>
-                              <p style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: '700', margin: 0 }}>ID: {member.assignedEmployeeId.employeeId}</p>
+                              <p style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: '700', margin: 0 }}>ID: {member.assignedEmployeeId.employeeId || 'N/A'}</p>
                             </div>
                           ) : (
-                            <span style={{ fontSize: '0.8rem', color: '#999', fontStyle: 'italic' }}>Unassigned</span>
+                            <span style={{ fontSize: '0.8rem', color: '#999', fontStyle: 'italic' }}>
+                              {member.assignedEmployeeId && typeof member.assignedEmployeeId === 'string' ? `ID: ${member.assignedEmployeeId}` : 'Unassigned'}
+                            </span>
                           )}
                         </td>
                         <td style={{ padding: '15px 20px' }}>

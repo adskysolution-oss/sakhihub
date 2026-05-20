@@ -13,6 +13,7 @@ export interface IMembership extends Document {
   verifiedBy?: mongoose.Types.ObjectId; // Admin ID
   verifiedAt?: Date;
   receiptUrl?: string;
+  cashfreeOrderId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -31,6 +32,7 @@ const MembershipSchema: Schema = new Schema(
     verifiedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     verifiedAt: { type: Date },
     receiptUrl: { type: String },
+    cashfreeOrderId: { type: String },
   },
   { timestamps: true }
 );

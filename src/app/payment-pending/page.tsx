@@ -45,7 +45,7 @@ function PaymentPendingContent() {
 
   useEffect(() => {
     if (scriptLoaded && data && window.Cashfree && !cashfree) {
-      const mode = data.cashfreeEnv === 'production' ? 'production' : 'sandbox';
+      const mode = 'production';
       console.log('Initializing Cashfree in mode:', mode);
       setCashfree(window.Cashfree({ mode }));
     }

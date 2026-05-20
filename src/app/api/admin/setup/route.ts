@@ -8,19 +8,28 @@ export async function GET(req: NextRequest) {
   try {
     await dbConnect();
 
+    const hashedPassword = await hashPassword('Sakhi@Hub2026');
+
     // Check if any super admin already exists
-    const adminExists = await User.findOne({ role: 'super_admin' });
+    let admin = await User.findOne({ role: 'super_admin' });
     
-    if (adminExists) {
-      return errorResponse('Super Admin already exists. For security, this endpoint is disabled.', 403);
+    if (admin) {
+      admin.email = 'Anil.r@sakhihub.com';
+      admin.password = hashedPassword;
+      await admin.save();
+      return successResponse({
+        message: 'Super Admin credentials updated successfully',
+        credentials: {
+          email: 'Anil.r@sakhihub.com',
+          password: 'Sakhi@Hub2026'
+        }
+      });
     }
 
-    const hashedPassword = await hashPassword('Admin@123'); // Default password
-
-    const admin = await User.create({
+    admin = await User.create({
       fullName: 'Super Admin',
       mobile: '9999999999',
-      email: 'admin@sakhihub.com',
+      email: 'Anil.r@sakhihub.com',
       password: hashedPassword,
       role: 'super_admin',
       status: 'active',
@@ -30,8 +39,8 @@ export async function GET(req: NextRequest) {
     return successResponse({
       message: 'Super Admin created successfully',
       credentials: {
-        identifier: '9999999999',
-        password: 'Admin@123'
+        email: 'Anil.r@sakhihub.com',
+        password: 'Sakhi@Hub2026'
       }
     });
   } catch (error: any) {

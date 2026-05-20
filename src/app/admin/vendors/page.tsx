@@ -172,6 +172,7 @@ export default function VendorManagement() {
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Vendor Profile</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Code & Region</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Document Compliance</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Payment Status</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
                 </tr>
@@ -235,6 +236,26 @@ export default function VendorManagement() {
                               )}
                             </div>
                           </div>
+                        </td>
+                        <td className="p-5" onClick={(e) => e.stopPropagation()}>
+                          {vendor.paymentCompleted ? (
+                            <span className="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-green-100 text-green-600">
+                              Paid
+                            </span>
+                          ) : (vendor.subscriptionPaid || vendor.depositPaid) ? (
+                            <div className="flex flex-col gap-1">
+                              <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest whitespace-nowrap ${vendor.subscriptionPaid ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
+                                Sub: {vendor.subscriptionPaid ? 'Paid' : 'Pending'}
+                              </span>
+                              <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest whitespace-nowrap ${vendor.depositPaid ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
+                                Dep: {vendor.depositPaid ? 'Paid' : 'Pending'}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-red-100 text-red-600">
+                              Unpaid
+                            </span>
+                          )}
                         </td>
                         <td className="p-5">
                           <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${badge.className}`}>

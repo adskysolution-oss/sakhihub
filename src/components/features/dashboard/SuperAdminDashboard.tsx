@@ -3,7 +3,7 @@
 import React from 'react';
 import {
   Users, Layout, UserPlus, IndianRupee,
-  BarChart3, ShieldAlert, User
+  BarChart3, ShieldAlert, User, TrendingUp, Wallet, Briefcase
 } from 'lucide-react';
 import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 import { motion } from 'framer-motion';
@@ -11,11 +11,18 @@ import Link from 'next/link';
 import axios from 'axios';
 
 export default function SuperAdminDashboard({ stats: data }: { stats?: any }) {
-  const stats = [
-    { label: "Total Employees", value: data?.stats?.totalEmployees || "0", icon: Users, color: "#6a1b9a" },
-    { label: "Active Groups", value: data?.stats?.totalGroups || "0", icon: Layout, color: "#e91e63" },
-    { label: "Total Members", value: data?.stats?.totalMembers || "0", icon: UserPlus, color: "#2e7d32" },
-    { label: "Collections", value: `₹${(data?.stats?.totalCollections || 0).toLocaleString()}`, icon: IndianRupee, color: "#ef6c00" },
+  const coreStats = [
+    { label: "Total Members Onboarded", value: data?.stats?.totalMembers || "0", icon: UserPlus, color: "#2e7d32", subText: `Pending: ${data?.stats?.pendingConnections || 0}` },
+    { label: "Active Self-Help Groups", value: data?.stats?.totalGroups || "0", icon: Layout, color: "#e91e63" },
+    { label: "Active Field Force", value: data?.stats?.activeEmployees || "0", icon: Users, color: "#6a1b9a", subText: `Vendors: ${data?.stats?.activeVendors || 0} | Sub: ${data?.stats?.activeSubVendors || 0}` },
+    { label: "Pending KYC Requests", value: data?.stats?.pendingConnections || "0", icon: ShieldAlert, color: "#ef6c00" },
+  ];
+
+  const financialStats = [
+    { label: "Total Platform Revenue", value: `₹${(data?.stats?.totalRevenue || 0).toLocaleString()}`, icon: TrendingUp, color: "#2e7d32", description: "Member collections + Partner subscriptions" },
+    { label: "Member Fee Collections", value: `₹${(data?.stats?.totalCollections || 0).toLocaleString()}`, icon: IndianRupee, color: "#ef6c00", description: "INR 100/member flat registrations" },
+    { label: "Partner Subscriptions", value: `₹${(data?.stats?.totalPartnerSubscriptions || 0).toLocaleString()}`, icon: Wallet, color: "#0288d1", description: "Vendor, Sub-Vendor, & Employee annual fees" },
+    { label: "Refundable Security Deposits", value: `₹${(data?.stats?.totalPartnerDeposits || 0).toLocaleString()}`, icon: Briefcase, color: "#7b1fa2", description: "Held in escrow for Vendors & Sub-vendors" },
   ];
 
   const [registerModal, setRegisterModal] = React.useState<{ isOpen: boolean, role: 'vendor' | 'sub_vendor' | 'employee' | 'member' }>({ 
@@ -64,27 +71,58 @@ export default function SuperAdminDashboard({ stats: data }: { stats?: any }) {
          </button>
       </div>
 
-      {/* Overview Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        {stats.map((stat, i) => (
-          <motion.div 
-            key={i}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-white p-6 md:p-8 rounded-[24px] sm:rounded-[32px] border border-gray-100 shadow-soft relative overflow-hidden group"
-          >
-            <div className="flex justify-between items-start">
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform" style={{ background: `${stat.color}15`, color: stat.color }}>
-                <stat.icon size={26} />
+      {/* Core Operations Overview */}
+      <div>
+        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-4 border-primary pl-4 mb-4">Core Operations Overview</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          {coreStats.map((stat, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.05 }}
+              className="bg-white p-6 md:p-8 rounded-[24px] sm:rounded-[32px] border border-gray-100 shadow-soft relative overflow-hidden group"
+            >
+              <div className="flex justify-between items-start">
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform" style={{ background: `${stat.color}15`, color: stat.color }}>
+                  <stat.icon size={26} />
+                </div>
               </div>
-            </div>
-            <div className="mt-5 md:mt-6">
-              <p className="text-[10px] md:text-xs font-semibold text-gray-400 uppercase tracking-widest">{stat.label}</p>
-              <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-secondary mt-1">{stat.value}</h3>
-            </div>
-          </motion.div>
-        ))}
+              <div className="mt-5 md:mt-6">
+                <p className="text-[10px] md:text-xs font-semibold text-gray-400 uppercase tracking-widest">{stat.label}</p>
+                <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-secondary mt-1">{stat.value}</h3>
+                {stat.subText && <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-wider">{stat.subText}</p>}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Financial Ledger & Revenues */}
+      <div>
+        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-4 border-green-500 pl-4 mb-4">Financial Ledger & Revenues</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          {financialStats.map((stat, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: (i + 4) * 0.05 }}
+              className="bg-white p-6 md:p-8 rounded-[24px] sm:rounded-[32px] border border-gray-100 shadow-soft relative overflow-hidden group"
+            >
+              <div className="flex justify-between items-start">
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform" style={{ background: `${stat.color}15`, color: stat.color }}>
+                  <stat.icon size={26} />
+                </div>
+              </div>
+              <div className="mt-5 md:mt-6">
+                <p className="text-[10px] md:text-xs font-semibold text-gray-400 uppercase tracking-widest">{stat.label}</p>
+                <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-secondary mt-1">{stat.value}</h3>
+                {stat.description && <p className="text-[9px] text-gray-400 font-medium mt-1 leading-tight">{stat.description}</p>}
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       {/* Main Grid: Pending Approvals & Performance */}

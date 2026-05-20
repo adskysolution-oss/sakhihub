@@ -9,7 +9,7 @@ import { createCashfreeOrder, generateOrderId, isCashfreeConfigured } from '@/li
 
 import CommissionConfig from '@/models/CommissionConfig';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://sakhihub.com';
 
 export async function POST(req: NextRequest) {
   try {
@@ -117,8 +117,11 @@ export async function POST(req: NextRequest) {
       : `${BASE_URL}/payment-pending?order_id=${orderId}&type=${type}`;
     let notifyUrl = `${BASE_URL}/api/payment/webhook`;
     
-    if (process.env.CASHFREE_ENV === 'production' || process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production') {
+    // Cashfree Production requires HTTPS URLs for return and notify endpoints
+    if (!returnUrl.includes('localhost')) {
       returnUrl = returnUrl.replace('http://', 'https://');
+    }
+    if (!notifyUrl.includes('localhost')) {
       notifyUrl = notifyUrl.replace('http://', 'https://');
     }
 

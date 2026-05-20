@@ -60,11 +60,6 @@ export async function GET(req: NextRequest) {
     const uniqueMembersMap = new Map();
 
     members.forEach(member => {
-      // Exclude members whose linked user account was completely deleted from the database
-      if (!member.userId) {
-        return;
-      }
-
       // Use mobile as primary key for uniqueness as per requirements
       if (!uniqueMembersMap.has(member.mobile)) {
         const membership = memberships.find(m => m.memberId.toString() === member._id.toString());
@@ -79,7 +74,7 @@ export async function GET(req: NextRequest) {
           assignedEmployeeId: employee, // Unified employee object for UI
           paymentStatus: member.membershipStatus === 'paid' ? 'Paid' : 'Pending',
           membershipId: membership?.membershipId || 'N/A',
-          accountStatus: (member.userId as any)?.status || member.accountStatus || 'pending',
+          accountStatus: (member.userId as any)?.status || member.accountStatus || 'active',
           connectionStatus: member.connectionStatus
         });
       }

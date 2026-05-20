@@ -2,11 +2,9 @@ import crypto from 'crypto';
 
 const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID || '';
 const CASHFREE_SECRET_KEY = process.env.CASHFREE_SECRET_KEY || '';
-const CASHFREE_ENV = process.env.CASHFREE_ENV || process.env.NEXT_PUBLIC_CASHFREE_ENV || 'sandbox';
+const CASHFREE_ENV = 'production';
 
-const BASE_URL = CASHFREE_ENV === 'production'
-  ? 'https://api.cashfree.com/pg'
-  : 'https://sandbox.cashfree.com/pg';
+const BASE_URL = 'https://api.cashfree.com/pg';
 
 const API_VERSION = '2023-08-01';
 
@@ -148,8 +146,9 @@ export function isCashfreeConfigured(): boolean {
   return !!(
     CASHFREE_APP_ID && 
     CASHFREE_SECRET_KEY && 
-    !CASHFREE_APP_ID.includes('<YOUR_') &&
-    !CASHFREE_SECRET_KEY.includes('<YOUR_')
+    !CASHFREE_APP_ID.includes('YOUR_') &&
+    !CASHFREE_SECRET_KEY.includes('YOUR_') &&
+    !CASHFREE_APP_ID.startsWith('TEST')
   );
 }
 
@@ -157,9 +156,7 @@ export function isCashfreeConfigured(): boolean {
  * Get the Cashfree checkout JS SDK URL based on environment
  */
 export function getCashfreeJsUrl(): string {
-  return CASHFREE_ENV === 'production'
-    ? 'https://sdk.cashfree.com/js/v3/cashfree.js'
-    : 'https://sdk.cashfree.com/js/v3/cashfree.js';
+  return 'https://sdk.cashfree.com/js/v3/cashfree.js';
 }
 
 export { CASHFREE_ENV };

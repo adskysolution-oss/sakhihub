@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
       paymentCompleted: user.paymentCompleted,
       documentsVerified: user.documentsVerified,
       isCashfreeConfigured: isCashfreeConfigured(),
-      cashfreeEnv: process.env.CASHFREE_ENV || 'sandbox',
+      cashfreeEnv: 'production',
       transactions,
     }, 'Payment status retrieved');
   } catch (error: any) {

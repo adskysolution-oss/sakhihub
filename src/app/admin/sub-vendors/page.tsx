@@ -203,6 +203,7 @@ export default function SubVendorManagement() {
                    <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Sub-Vendor</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Parent Vendor</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Document Compliance</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Payment Status</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
                 </tr>
@@ -270,6 +271,26 @@ export default function SubVendorManagement() {
                             </div>
                           );
                         })()}
+                      </td>
+                      <td className="p-5" onClick={(e) => e.stopPropagation()}>
+                        {sv.paymentCompleted ? (
+                          <span className="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-green-100 text-green-600">
+                            Paid
+                          </span>
+                        ) : (sv.subscriptionPaid || sv.depositPaid) ? (
+                          <div className="flex flex-col gap-1">
+                            <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest whitespace-nowrap ${sv.subscriptionPaid ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
+                              Sub: {sv.subscriptionPaid ? 'Paid' : 'Pending'}
+                            </span>
+                            <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest whitespace-nowrap ${sv.depositPaid ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
+                              Dep: {sv.depositPaid ? 'Paid' : 'Pending'}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-red-100 text-red-600">
+                            Unpaid
+                          </span>
+                        )}
                       </td>
                       <td className="p-5">
                         {(() => {

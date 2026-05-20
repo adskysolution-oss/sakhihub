@@ -24,6 +24,11 @@ export async function GET(req: NextRequest) {
     const activeEmployees = await User.countDocuments({ role: 'employee', status: 'active' });
     const pendingEmployees = await User.countDocuments({ role: 'employee', status: 'pending' });
     const rejectedEmployees = await User.countDocuments({ role: 'employee', status: 'rejected' });
+
+    const totalVendors = await User.countDocuments({ role: 'vendor' });
+    const activeVendors = await User.countDocuments({ role: 'vendor', status: 'active' });
+    const totalSubVendors = await User.countDocuments({ role: 'sub_vendor' });
+    const activeSubVendors = await User.countDocuments({ role: 'sub_vendor', status: 'active' });
     
     const totalMembers = await WomenMember.countDocuments();
     const unassignedMembers = await WomenMember.countDocuments({ connectionStatus: 'unassigned' });
@@ -35,6 +40,24 @@ export async function GET(req: NextRequest) {
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ]);
     const totalCollections = collections[0]?.total || 0;
+
+    // Aggregate Partner Subscriptions & Deposits from PaymentTransaction
+    const PaymentTransaction = (await import('@/models/PaymentTransaction')).default;
+
+    const partnerSubscriptionsAgg = await PaymentTransaction.aggregate([
+      { $match: { type: 'subscription', status: 'paid' } },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]);
+    const totalPartnerSubscriptions = partnerSubscriptionsAgg[0]?.total || 0;
+
+    const partnerDepositsAgg = await PaymentTransaction.aggregate([
+      { $match: { type: 'deposit', status: 'paid' } },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]);
+    const totalPartnerDeposits = partnerDepositsAgg[0]?.total || 0;
+
+    // Total Platform Revenue (Member Fees + Partner Subscriptions)
+    const totalRevenue = totalCollections + totalPartnerSubscriptions;
 
     // District-wise collections
     const districtStats = await Membership.aggregate([
@@ -102,11 +125,18 @@ export async function GET(req: NextRequest) {
         activeEmployees,
         pendingEmployees,
         rejectedEmployees,
+        totalVendors,
+        activeVendors,
+        totalSubVendors,
+        activeSubVendors,
         totalMembers,
         unassignedMembers,
         pendingConnections,
         totalGroups,
         totalCollections,
+        totalPartnerSubscriptions,
+        totalPartnerDeposits,
+        totalRevenue,
         districtStats,
         employeeStats
       },

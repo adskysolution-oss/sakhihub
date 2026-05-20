@@ -42,7 +42,7 @@ const PremiumHero = () => {
             </span>
 
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold leading-[1.1] mb-6 text-secondary tracking-tight">
-              {t('hero_title').split(',').map((part, i) => (
+              {t('hero_title').split(',').map((part: string, i: number) => (
                 <React.Fragment key={i}>
                   {i === 1 ? <span className="text-gradient">{part}</span> : part}
                   {i === 0 && <br className="hidden md:block" />}

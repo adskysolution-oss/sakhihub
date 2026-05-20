@@ -5,7 +5,7 @@ import PaymentConfig from '@/models/PaymentConfig';
 import PaymentTransaction from '@/models/PaymentTransaction';
 import WomenMember from '@/models/WomenMember';
 import Membership from '@/models/Membership';
-import { verifyCashfreeWebhook } from '@/lib/cashfree';
+import { verifyCashfreeWebhook, isCashfreeConfigured } from '@/lib/cashfree';
 import { distributeCommission } from '@/lib/commission';
 import { notifyMembershipPayment } from '@/lib/notifications';
 
@@ -17,8 +17,8 @@ export async function POST(req: NextRequest) {
     const timestamp = req.headers.get('x-webhook-timestamp') || '';
     const signature = req.headers.get('x-webhook-signature') || '';
 
-    // Verify webhook signature (skip in development if not configured)
-    if (process.env.NODE_ENV === 'production') {
+    // Verify webhook signature (enforced in production when Cashfree is configured)
+    if (isCashfreeConfigured()) {
       if (!verifyCashfreeWebhook(rawBody, timestamp, signature)) {
         console.error('Cashfree Webhook: Invalid signature');
         return NextResponse.json({ success: false, message: 'Invalid signature' }, { status: 401 });

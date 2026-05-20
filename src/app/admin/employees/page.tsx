@@ -155,6 +155,7 @@ export default function EmployeeManagement() {
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Employee Profile</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Parent Network</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Compliance</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Payment Status</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
                 </tr>
@@ -210,6 +211,21 @@ export default function EmployeeManagement() {
                              </div>
                              <span className="text-[10px] font-black text-secondary">{empComp.approved}/{empComp.total}</span>
                           </div>
+                        </td>
+                        <td className="p-5">
+                          {emp.paymentCompleted ? (
+                            <span className="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-green-100 text-green-600">
+                              Paid
+                            </span>
+                          ) : emp.subscriptionPaid ? (
+                            <span className="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-100 text-amber-600">
+                              Sub Paid
+                            </span>
+                          ) : (
+                            <span className="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-red-100 text-red-600">
+                              Unpaid
+                            </span>
+                          )}
                         </td>
                         <td className="p-5">
                           <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${emp.status === 'active' ? 'bg-green-100 text-green-600' : emp.status === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-600'}`}>
@@ -298,16 +314,23 @@ export default function EmployeeManagement() {
 
                       <div className="space-y-6">
                          <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-4 border-amber-500 pl-4">Operational Status</h4>
-                         <div className="grid grid-cols-2 gap-6 bg-gray-50 p-6 rounded-3xl border border-gray-100 h-full">
-                            <div className="flex flex-col items-center justify-center p-4 bg-white rounded-2xl shadow-sm border border-gray-100">
-                               <ShieldCheck size={24} className={selectedEmp.isVerified ? 'text-green-500' : 'text-gray-200'} />
+                         <div className="grid grid-cols-3 gap-4 bg-gray-50 p-6 rounded-3xl border border-gray-100 h-full">
+                            <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-sm border border-gray-100">
+                               <ShieldCheck size={20} className={selectedEmp.isVerified ? 'text-green-500' : 'text-gray-200'} />
                                <p className="text-[9px] font-black uppercase mt-2 text-gray-400">Verified</p>
-                               <p className="font-black text-secondary text-xs">{selectedEmp.isVerified ? 'YES' : 'NO'}</p>
+                               <p className="font-black text-secondary text-[11px]">{selectedEmp.isVerified ? 'YES' : 'NO'}</p>
                             </div>
-                            <div className="flex flex-col items-center justify-center p-4 bg-white rounded-2xl shadow-sm border border-gray-100">
-                               <Network size={24} className={selectedEmp.dashboardAccess ? 'text-primary' : 'text-gray-200'} />
+                            <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-sm border border-gray-100">
+                               <Network size={20} className={selectedEmp.dashboardAccess ? 'text-primary' : 'text-gray-200'} />
                                <p className="text-[9px] font-black uppercase mt-2 text-gray-400">Dashboard</p>
-                               <p className="font-black text-secondary text-xs">{selectedEmp.dashboardAccess ? 'ENABLED' : 'BLOCKED'}</p>
+                               <p className="font-black text-secondary text-[11px]">{selectedEmp.dashboardAccess ? 'ENABLED' : 'BLOCKED'}</p>
+                            </div>
+                            <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-sm border border-gray-100">
+                               <span className={`text-[10px] font-black leading-none ${selectedEmp.paymentCompleted ? 'text-green-500' : selectedEmp.subscriptionPaid ? 'text-amber-500' : 'text-red-500'}`}>
+                                 {selectedEmp.paymentCompleted ? 'PAID' : selectedEmp.subscriptionPaid ? 'SUB PAID' : 'UNPAID'}
+                               </span>
+                               <p className="text-[9px] font-black uppercase mt-2 text-gray-400">Payment</p>
+                               <p className="font-black text-secondary text-[10px]">{selectedEmp.paymentCompleted || selectedEmp.subscriptionPaid ? 'COMPLETED' : 'PENDING'}</p>
                             </div>
                          </div>
                       </div>
