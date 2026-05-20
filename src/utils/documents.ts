@@ -12,6 +12,20 @@ export const REQUIRED_DOCS_BY_ROLE: Record<string, string[]> = {
   employee: ['panCard', 'aadhaarCard', 'bankPassbook']
 };
 
+export const REQUIRED_DOCS_BY_VENDOR_TYPE: Record<string, string[]> = {
+  individual: ['aadhaarCard', 'panCard', 'passportPhoto', 'bankPassbook'],
+  company: ['companyRegCertificate', 'gstCertificate', 'companyPanCard', 'directorAadhaarCard', 'directorPanCard', 'bankPassbook', 'companyLogo'],
+  ngo_trust: ['ngoCertificate', 'ngoPanCard', 'aadhaarCard', 'panCard', 'bankPassbook', 'ngoLogo']
+};
+
+export function getRequiredDocs(role: string, vendorType?: string): string[] {
+  if (role === 'vendor') {
+    const type = vendorType || 'ngo_trust';
+    return REQUIRED_DOCS_BY_VENDOR_TYPE[type] || REQUIRED_DOCS_BY_VENDOR_TYPE.ngo_trust;
+  }
+  return REQUIRED_DOCS_BY_ROLE[role] || [];
+}
+
 /**
  * Document labels and icons mapping
  */
@@ -35,6 +49,61 @@ export const DOC_CONFIG: Record<string, { label: string; icon: any; desc: string
     label: 'Bank Document', 
     icon: Landmark, 
     desc: 'Cancelled cheque or first page of passbook' 
+  },
+  passportPhoto: {
+    label: 'Passport Size Photo',
+    icon: UserCheck,
+    desc: 'Recent passport size photograph'
+  },
+  companyRegCertificate: {
+    label: 'Company Registration Certificate',
+    icon: FileCheck,
+    desc: 'Incorporation certificate or MSME registration'
+  },
+  gstCertificate: {
+    label: 'GST Certificate',
+    icon: FileCheck,
+    desc: 'GSTIN registration document'
+  },
+  companyPanCard: {
+    label: 'Company PAN Card',
+    icon: CreditCard,
+    desc: 'Permanent Account Number of the business'
+  },
+  directorAadhaarCard: {
+    label: 'Director Aadhaar Card',
+    icon: UserCheck,
+    desc: 'Aadhaar card of the managing director'
+  },
+  directorPanCard: {
+    label: 'Director PAN Card',
+    icon: CreditCard,
+    desc: 'PAN card of the managing director'
+  },
+  companyLogo: {
+    label: 'Company Logo',
+    icon: FileText,
+    desc: 'Official logo image of the company'
+  },
+  ngoPanCard: {
+    label: 'NGO PAN Card',
+    icon: CreditCard,
+    desc: 'Permanent Account Number of the NGO/Trust'
+  },
+  certificate12A: {
+    label: '12A Certificate (Optional)',
+    icon: FileCheck,
+    desc: '12A registration certificate for tax exemption'
+  },
+  certificate80G: {
+    label: '80G Certificate (Optional)',
+    icon: FileCheck,
+    desc: '80G registration certificate for donor deduction'
+  },
+  ngoLogo: {
+    label: 'NGO Logo',
+    icon: FileText,
+    desc: 'Official logo image of the NGO/Trust'
   }
 };
 
@@ -78,8 +147,8 @@ export function formatFileSize(size?: string | number): string {
 /**
  * Get compliance summary for a user's documents
  */
-export function getDocComplianceSummary(userDocuments: any, role: string) {
-  const required = REQUIRED_DOCS_BY_ROLE[role] || [];
+export function getDocComplianceSummary(userDocuments: any, role: string, vendorType?: string) {
+  const required = getRequiredDocs(role, vendorType);
   let uploaded = 0;
   let approved = 0;
   let rejected = 0;

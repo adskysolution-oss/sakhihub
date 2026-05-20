@@ -1,6 +1,7 @@
 import { getAuthSession, signToken, setAuthCookie } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 import dbConnect from '@/lib/mongodb';
+import { NextRequest } from 'next/server';
 
 const getUserModel = async () => (await import('@/models/User')).default as any;
 
@@ -86,5 +87,36 @@ export async function GET() {
   } catch (error) {
     console.error('Auth Me Sync Error:', error);
     return errorResponse('Internal Server Error', 500);
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const session = await getAuthSession();
+    if (!session) {
+      return errorResponse('Not authenticated', 401);
+    }
+
+    await dbConnect();
+    const sessionUser = session as any;
+    const { vendorType } = await req.json();
+
+    if (!vendorType || !['individual', 'company', 'ngo_trust'].includes(vendorType)) {
+      return errorResponse('Invalid vendor type', 400);
+    }
+
+    const UserModel = await getUserModel();
+    const user = await UserModel.findById(sessionUser.id);
+    if (!user) {
+      return errorResponse('User not found', 404);
+    }
+
+    user.vendorType = vendorType;
+    await user.save();
+
+    return successResponse(user, 'Profile updated successfully');
+  } catch (error: any) {
+    console.error('Update Profile Error:', error);
+    return errorResponse(error.message || 'Internal Server Error', 500);
   }
 }

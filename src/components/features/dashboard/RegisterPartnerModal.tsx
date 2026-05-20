@@ -54,7 +54,7 @@ export default function RegisterPartnerModal({
     aadhaarNumber: '',
     panNumber: '',
     businessName: '',
-    businessType: '',
+    vendorType: 'individual',
     campaignId: '',
     // Member specific
     age: '',
@@ -320,6 +320,26 @@ export default function RegisterPartnerModal({
                             placeholder="12 digit Aadhaar"
                             className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
                           />
+                        </div>
+                      </div>
+                    )}
+
+                    {role === 'vendor' && (
+                      <div className="space-y-2 col-span-1 md:col-span-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Vendor Entity Type</label>
+                        <div className="relative">
+                          <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                          <select 
+                            required
+                            value={formData.vendorType}
+                            onChange={(e) => setFormData({...formData, vendorType: e.target.value as any})}
+                            className="w-full pl-12 pr-10 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all appearance-none"
+                          >
+                            <option value="individual">Individual Vendor</option>
+                            <option value="company">Company Vendor</option>
+                            <option value="ngo_trust">NGO / Trust Vendor</option>
+                          </select>
+                          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
                         </div>
                       </div>
                     )}

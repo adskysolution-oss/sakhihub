@@ -14,7 +14,8 @@ import {
   getDocumentViewUrl, 
   isDocumentUploaded, 
   REQUIRED_DOCS_BY_ROLE, 
-  getDocComplianceSummary 
+  getDocComplianceSummary,
+  getRequiredDocs
 } from '@/utils/documents';
 import DocumentReviewCard from '@/components/features/dashboard/DocumentReviewCard';
 
@@ -343,7 +344,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
-                  {(REQUIRED_DOCS_BY_ROLE[user.role as keyof typeof REQUIRED_DOCS_BY_ROLE] || []).map((type) => (
+                  {getRequiredDocs(user.role, user.vendorType).map((type) => (
                     <DocumentReviewCard 
                       key={type}
                       type={type}
@@ -363,7 +364,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                    <h4 className="text-xl font-black mb-6 relative z-10">Compliance Summary</h4>
                    <div className="space-y-6 relative z-10">
                       {(() => {
-                        const summary = getDocComplianceSummary(user.documents, user.role);
+                        const summary = getDocComplianceSummary(user.documents, user.role, user.vendorType);
                         
                         return (
                           <>
@@ -441,7 +442,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                >Reject Partner</button>
                <button 
                  onClick={() => {
-                   const requiredDocs = REQUIRED_DOCS_BY_ROLE[user.role as keyof typeof REQUIRED_DOCS_BY_ROLE] || [];
+                   const requiredDocs = getRequiredDocs(user.role, user.vendorType);
                    const allApproved = requiredDocs.every(id => user.documents?.[id]?.status === 'approved');
                    
                    if (user.role === 'vendor' && !allApproved) {

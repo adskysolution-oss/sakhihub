@@ -7,13 +7,14 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary } from '@/utils/documents';
+import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary, getRequiredDocs } from '@/utils/documents';
 import DocumentCard from '@/components/features/dashboard/DocumentCard';
 import { useDocumentFlow } from '@/hooks/useDocumentFlow';
 import PaymentReceiptCard from "@/components/features/dashboard/PaymentReceiptCard";
 
 export default function VendorDocuments() {
   const [documents, setDocuments] = useState<any>({});
+  const [vendorType, setVendorType] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   const { uploading, uploadDocument } = useDocumentFlow({
@@ -25,6 +26,7 @@ export default function VendorDocuments() {
       const res = await axios.get('/api/vendor/documents');
       if (res.data.success) {
         setDocuments(res.data.data.documents || {});
+        setVendorType(res.data.data.vendorType || '');
       }
     } catch (err) {
       console.error(err);
@@ -37,8 +39,8 @@ export default function VendorDocuments() {
     fetchDocuments();
   }, []);
 
-  const compliance = getDocComplianceSummary(documents, 'vendor');
-  const docTypes = REQUIRED_DOCS_BY_ROLE.vendor;
+  const compliance = getDocComplianceSummary(documents, 'vendor', vendorType);
+  const docTypes = getRequiredDocs('vendor', vendorType);
 
   if (loading) {
     return (

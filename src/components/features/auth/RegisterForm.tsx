@@ -58,6 +58,7 @@ export default function RegisterForm() {
     vendorCode: "",
     subVendorCode: "",
     campaignId: "",
+    vendorType: "individual",
   });
 
   const [referralContext, setReferralContext] = useState<{ role: string, parent: string } | null>(null);
@@ -445,6 +446,25 @@ export default function RegisterForm() {
 
                 {step === 2 && (
                   <motion.div key="step2" {...fadeInUp} className="flex flex-col gap-4 md:gap-6">
+                    {formData.role === 'vendor' && (
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-black text-gray-700">Vendor Type</label>
+                        <div className="relative">
+                          <Briefcase size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <select 
+                            name="vendorType" 
+                            value={formData.vendorType} 
+                            onChange={handleChange} 
+                            className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none bg-white font-bold" 
+                            required
+                          >
+                            <option value="individual">Individual Vendor</option>
+                            <option value="company">Company Vendor</option>
+                            <option value="ngo_trust">NGO / Trust Vendor</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                       <div className="flex flex-col gap-2">
                         <label className="text-sm font-black text-gray-700">Full Name</label>

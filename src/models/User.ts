@@ -48,11 +48,24 @@ export interface IUser extends Document {
   profileImage?: string;
   businessName?: string;
   panNumber?: string;
+  vendorType?: 'individual' | 'company' | 'ngo_trust';
   documents?: {
     ngoCertificate?: IVendorDocumentEntry;
     panCard?: IVendorDocumentEntry;
     aadhaarCard?: IVendorDocumentEntry;
     bankPassbook?: IVendorDocumentEntry;
+    passportPhoto?: IVendorDocumentEntry;
+    companyRegCertificate?: IVendorDocumentEntry;
+    gstCertificate?: IVendorDocumentEntry;
+    companyPanCard?: IVendorDocumentEntry;
+    directorAadhaarCard?: IVendorDocumentEntry;
+    directorPanCard?: IVendorDocumentEntry;
+    companyLogo?: IVendorDocumentEntry;
+    ngoPanCard?: IVendorDocumentEntry;
+    certificate12A?: IVendorDocumentEntry;
+    certificate80G?: IVendorDocumentEntry;
+    ngoLogo?: IVendorDocumentEntry;
+    [key: string]: IVendorDocumentEntry | undefined;
   };
   joiningDate?: Date;
   lastOtpSentAt?: Date;
@@ -74,6 +87,24 @@ export interface IUser extends Document {
   updatedAt: Date;
 }
 
+const DocumentEntrySchema = new Schema({
+  url: { type: String },
+  publicId: { type: String },
+  fileName: { type: String },
+  fileSize: { type: String },
+  mimeType: { type: String },
+  vendorId: { type: String },
+  vendorEmail: { type: String },
+  status: { 
+    type: String, 
+    enum: ['uploaded', 'pending', 'under_review', 'approved', 'rejected', 'reupload_required'], 
+    default: 'uploaded' 
+  },
+  remarks: { type: String },
+  uploadedAt: { type: Date },
+  reviewedAt: { type: Date }
+}, { _id: false });
+
 const UserSchema: Schema = new Schema(
   {
     fullName: { type: String, required: true },
@@ -84,6 +115,10 @@ const UserSchema: Schema = new Schema(
       type: String, 
       enum: ['super_admin', 'vendor', 'sub_vendor', 'employee', 'member'], 
       default: 'member' 
+    },
+    vendorType: { 
+      type: String, 
+      enum: ['individual', 'company', 'ngo_trust']
     },
     designation: { type: String },
     employeeId: { type: String, unique: true, sparse: true },
@@ -117,58 +152,21 @@ const UserSchema: Schema = new Schema(
     aadhaarNumber: { type: String },
     profileImage: { type: String },
     documents: {
-      ngoCertificate: {
-        url: { type: String },
-        publicId: { type: String },
-        fileName: { type: String },
-        fileSize: { type: String },
-        mimeType: { type: String },
-        vendorId: { type: String },
-        vendorEmail: { type: String },
-        status: { type: String, enum: ['uploaded', 'pending', 'under_review', 'approved', 'rejected', 'reupload_required'], default: 'uploaded' },
-        remarks: { type: String },
-        uploadedAt: { type: Date },
-        reviewedAt: { type: Date }
-      },
-      panCard: {
-        url: { type: String },
-        publicId: { type: String },
-        fileName: { type: String },
-        fileSize: { type: String },
-        mimeType: { type: String },
-        vendorId: { type: String },
-        vendorEmail: { type: String },
-        status: { type: String, enum: ['uploaded', 'pending', 'under_review', 'approved', 'rejected', 'reupload_required'], default: 'uploaded' },
-        remarks: { type: String },
-        uploadedAt: { type: Date },
-        reviewedAt: { type: Date }
-      },
-      aadhaarCard: {
-        url: { type: String },
-        publicId: { type: String },
-        fileName: { type: String },
-        fileSize: { type: String },
-        mimeType: { type: String },
-        vendorId: { type: String },
-        vendorEmail: { type: String },
-        status: { type: String, enum: ['uploaded', 'pending', 'under_review', 'approved', 'rejected', 'reupload_required'], default: 'uploaded' },
-        remarks: { type: String },
-        uploadedAt: { type: Date },
-        reviewedAt: { type: Date }
-      },
-      bankPassbook: {
-        url: { type: String },
-        publicId: { type: String },
-        fileName: { type: String },
-        fileSize: { type: String },
-        mimeType: { type: String },
-        vendorId: { type: String },
-        vendorEmail: { type: String },
-        status: { type: String, enum: ['uploaded', 'pending', 'under_review', 'approved', 'rejected', 'reupload_required'], default: 'uploaded' },
-        remarks: { type: String },
-        uploadedAt: { type: Date },
-        reviewedAt: { type: Date }
-      }
+      ngoCertificate: { type: DocumentEntrySchema },
+      panCard: { type: DocumentEntrySchema },
+      aadhaarCard: { type: DocumentEntrySchema },
+      bankPassbook: { type: DocumentEntrySchema },
+      passportPhoto: { type: DocumentEntrySchema },
+      companyRegCertificate: { type: DocumentEntrySchema },
+      gstCertificate: { type: DocumentEntrySchema },
+      companyPanCard: { type: DocumentEntrySchema },
+      directorAadhaarCard: { type: DocumentEntrySchema },
+      directorPanCard: { type: DocumentEntrySchema },
+      companyLogo: { type: DocumentEntrySchema },
+      ngoPanCard: { type: DocumentEntrySchema },
+      certificate12A: { type: DocumentEntrySchema },
+      certificate80G: { type: DocumentEntrySchema },
+      ngoLogo: { type: DocumentEntrySchema }
     },
     lastOtpSentAt: { type: Date },
     otpAttempts: { type: Number, default: 0 },

@@ -12,6 +12,7 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 import HierarchyDetailView from "@/components/features/dashboard/HierarchyDetailView";
+import { getRequiredDocs } from "@/utils/documents";
 
 const statusFilters = ['all', 'pending', 'documents_uploaded', 'under_review', 'reupload_required', 'active', 'rejected'];
 
@@ -29,8 +30,8 @@ const getStatusBadge = (status: string) => {
   return map[status] || { label: status, className: 'bg-gray-100 text-gray-500' };
 };
 
-const getDocComplianceSummary = (documents: any) => {
-  const requiredDocs = ['ngoCertificate', 'panCard', 'aadhaarCard', 'bankPassbook'];
+const getDocComplianceSummary = (documents: any, vendorType?: string) => {
+  const requiredDocs = getRequiredDocs('vendor', vendorType);
   let uploaded = 0, approved = 0, rejected = 0;
   requiredDocs.forEach(d => {
     const doc = documents?.[d];
@@ -38,7 +39,7 @@ const getDocComplianceSummary = (documents: any) => {
     if (doc?.status === 'approved') approved++;
     if (doc?.status === 'rejected' || doc?.status === 'reupload_required') rejected++;
   });
-  return { total: 4, uploaded, approved, rejected };
+  return { total: requiredDocs.length, uploaded, approved, rejected };
 };
 
 export default function VendorManagement() {
@@ -184,7 +185,7 @@ export default function VendorManagement() {
                   <tr><td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">No vendors found matching your search.</td></tr>
                 ) : (
                   vendors.map((vendor) => {
-                    const compliance = getDocComplianceSummary(vendor.documents);
+                    const compliance = getDocComplianceSummary(vendor.documents, vendor.vendorType);
                     const badge = getStatusBadge(vendor.status);
                     
                     return (
@@ -212,7 +213,7 @@ export default function VendorManagement() {
                           <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-2">
                               <div className="flex gap-1">
-                                {[0, 1, 2, 3].map(i => (
+                                {Array.from({ length: compliance.total }).map((_, i) => (
                                   <div key={i} className={`w-6 h-1.5 rounded-full ${
                                     i < compliance.approved ? 'bg-green-500' :
                                     i < compliance.uploaded ? 'bg-primary' :
@@ -223,7 +224,7 @@ export default function VendorManagement() {
                             </div>
                             <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest">
                               {compliance.uploaded > 0 && (
-                                <span className="text-primary flex items-center gap-1"><Upload size={10} /> {compliance.uploaded}/4</span>
+                                <span className="text-primary flex items-center gap-1"><Upload size={10} /> {compliance.uploaded}/{compliance.total}</span>
                               )}
                               {compliance.approved > 0 && (
                                 <span className="text-green-600 flex items-center gap-1"><FileCheck size={10} /> {compliance.approved}</span>

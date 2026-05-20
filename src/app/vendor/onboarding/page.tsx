@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary } from '@/utils/documents';
+import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary, getRequiredDocs } from '@/utils/documents';
 import DocumentCard from '@/components/features/dashboard/DocumentCard';
 import { useDocumentFlow } from '@/hooks/useDocumentFlow';
 import OnboardingStepper from '@/components/features/onboarding/OnboardingStepper';
@@ -15,6 +15,28 @@ export default function VendorOnboarding() {
   const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [vendorType, setVendorType] = useState<string>('');
+  const [savingType, setSavingType] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      setVendorType(profile.vendorType || 'individual');
+    }
+  }, [profile]);
+
+  const handleUpdateVendorType = async (type: string) => {
+    setSavingType(true);
+    try {
+      const res = await axios.put('/api/auth/me', { vendorType: type });
+      if (res.data.success) {
+        setProfile(res.data.data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSavingType(false);
+    }
+  };
 
   const { uploading, uploadDocument } = useDocumentFlow({
     onSuccess: async () => { await fetchProfile(); }
@@ -64,8 +86,8 @@ export default function VendorOnboarding() {
     </div>
   );
 
-  const compliance = getDocComplianceSummary(profile?.documents, 'vendor');
-  const docTypes = REQUIRED_DOCS_BY_ROLE.vendor;
+  const compliance = getDocComplianceSummary(profile?.documents, 'vendor', profile?.vendorType);
+  const docTypes = getRequiredDocs('vendor', profile?.vendorType);
 
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20">
@@ -89,6 +111,33 @@ export default function VendorOnboarding() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2 space-y-8">
+            <section className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
+              <h3 className="text-xl font-black text-secondary mb-2">Select Vendor Entity Type</h3>
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-6">This determines which documents and KYC details are required for your organization.</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { id: 'individual', title: 'Individual Vendor', desc: 'Proprietor, freelancer, or single contractor' },
+                  { id: 'company', title: 'Company Vendor', desc: 'Private Limited, LLP, Partnership or Sole Proprietorship' },
+                  { id: 'ngo_trust', title: 'NGO / Trust Vendor', desc: 'Non-governmental organization, Society, or Trust' }
+                ].map(type => (
+                  <div 
+                    key={type.id}
+                    onClick={() => handleUpdateVendorType(type.id)}
+                    className={`p-5 rounded-3xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-2 ${vendorType === type.id ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
+                  >
+                    <div>
+                      <h4 className="font-black text-secondary text-sm">{type.title}</h4>
+                      <p className="text-[10px] text-gray-400 font-medium leading-relaxed mt-1">{type.desc}</p>
+                    </div>
+                    {savingType && vendorType === type.id && (
+                      <span className="text-[9px] text-primary font-black uppercase tracking-widest mt-2">Saving...</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+
             <section>
               <h2 className="text-3xl font-black text-secondary mb-2">Complete Verification</h2>
               <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Please upload high-quality scans (PDF, JPG, PNG, WEBP) of the following documents</p>

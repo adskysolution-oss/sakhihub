@@ -6,7 +6,8 @@ import User from '@/models/User';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { 
   REQUIRED_DOCS_BY_ROLE, 
-  getDocumentFolderPath 
+  getDocumentFolderPath,
+  getRequiredDocs
 } from '@/lib/docs/service';
 
 export async function POST(req: NextRequest) {
@@ -34,7 +35,7 @@ export async function POST(req: NextRequest) {
       return errorResponse('User not found', 404);
     }
 
-    const allowedTypes = REQUIRED_DOCS_BY_ROLE[user.role as keyof typeof REQUIRED_DOCS_BY_ROLE] || [];
+    const allowedTypes = getRequiredDocs(user.role, user.vendorType);
 
     if (!allowedTypes.includes(type)) {
       return errorResponse('Invalid document type for this role', 400);
@@ -100,8 +101,8 @@ export async function POST(req: NextRequest) {
     };
 
     // Update global status if needed (from pending to documents_uploaded)
-    const requiredDocs = REQUIRED_DOCS_BY_ROLE[user.role as keyof typeof REQUIRED_DOCS_BY_ROLE] || [];
-    const uploadedDocs = Object.keys(user.documents).filter(key => !!user.documents[key].url);
+    const requiredDocs = getRequiredDocs(user.role, user.vendorType);
+    const uploadedDocs = Object.keys(user.documents).filter(key => !!(user.documents as any)[key]?.url);
     
     if (user.status === 'pending' && requiredDocs.every(doc => uploadedDocs.includes(doc))) {
       user.status = 'documents_uploaded';
@@ -138,7 +139,8 @@ export async function GET() {
 
     return successResponse({
       documents: user.documents || {},
-      status: user.status
+      status: user.status,
+      vendorType: user.vendorType
     });
 
   } catch (error: any) {

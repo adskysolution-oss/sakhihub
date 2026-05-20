@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       designation, qualification, experience, state, district, 
       block, area, pincode, address, assignedEmployeeId,
       age, maritalStatus, occupation, interests,
-      vendorCode, subVendorCode, campaignId
+      vendorCode, subVendorCode, campaignId, vendorType
     } = body;
 
     if (!fullName || !mobile || !password || !email) {
@@ -131,7 +131,8 @@ export async function POST(req: NextRequest) {
       maritalStatus,
       occupation,
       interests,
-      assignedEmployeeId: assignedEmployeeId || undefined
+      assignedEmployeeId: assignedEmployeeId || undefined,
+      vendorType: vendorType || undefined
     };
 
     const pendingUser = await PendingUser.create(pendingData);

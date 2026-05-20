@@ -87,7 +87,8 @@ export async function POST(req: NextRequest) {
         campaignCode: pendingUser.campaignCode,
         vendorCode: myVendorCode,
         subVendorCode: mySubVendorCode,
-        employeeId: myEmployeeId
+        employeeId: myEmployeeId,
+        vendorType: pendingUser.vendorType
       };
 
       const newUser = await User.create(userData);
