@@ -24,19 +24,21 @@ function DocumentViewerContent() {
       return;
     }
 
-    // Preload image if it's an image format to remove loader smoothly
+    // Preload image/pdf as jpg
     const isImage = docUrl.match(/\.(jpg|jpeg|png|webp|gif)$/i);
-    if (isImage) {
+    const isPdf = docUrl.toLowerCase().includes('.pdf');
+    const previewUrl = isPdf ? docUrl.replace(/\.pdf$/i, '.jpg') : docUrl;
+
+    if (isImage || isPdf) {
       const img = new Image();
       img.onload = () => setLoading(false);
       img.onerror = () => {
-        setError('Failed to load image. The file might be corrupted or inaccessible.');
+        setError('Failed to load document preview. The file might be corrupted or inaccessible.');
         setLoading(false);
       };
-      img.src = docUrl;
+      img.src = previewUrl;
     } else {
-      // For PDFs or other types, we just let the iframe handle it
-      // Add a slight delay to remove loader since iframe doesn't reliably trigger onload for PDFs across all browsers
+      // For other types, we just let the iframe handle it
       const timer = setTimeout(() => setLoading(false), 1500);
       return () => clearTimeout(timer);
     }
@@ -63,6 +65,8 @@ function DocumentViewerContent() {
   }
 
   const isImage = docUrl?.match(/\.(jpg|jpeg|png|webp|gif)$/i);
+  const isPdf = docUrl?.toLowerCase().includes('.pdf');
+  const previewUrl = isPdf && docUrl ? docUrl.replace(/\.pdf$/i, '.jpg') : docUrl;
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col">
@@ -96,24 +100,32 @@ function DocumentViewerContent() {
 
         {docUrl && (
           <div className="w-full h-full max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden relative flex items-center justify-center">
-            {isImage ? (
-              // Image Viewer
-              <div className="w-full h-[80vh] overflow-auto flex items-center justify-center p-4 bg-gray-100">
+            {isImage || isPdf ? (
+              // Image & PDF Viewer (rendered as JPG dynamically by Cloudinary)
+              <div className="w-full h-[80vh] overflow-auto flex items-center justify-center p-4 bg-gray-100 relative">
                 <img 
-                  src={docUrl} 
+                  src={previewUrl} 
                   alt="Document Preview" 
                   className="max-w-full max-h-full object-contain drop-shadow-lg"
                 />
+                {isPdf && (
+                  <div className="absolute bottom-4 right-4 bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded-xl flex items-center gap-2 max-w-xs shadow-lg">
+                    <AlertCircle size={16} className="shrink-0 text-yellow-600" />
+                    <p className="text-[10px] font-bold leading-snug">
+                      Showing Page 1 preview. If downloading original fails, check your Cloudinary "PDF Delivery" security settings.
+                    </p>
+                  </div>
+                )}
               </div>
             ) : (
-              // PDF Viewer using iframe
+              // Fallback for other documents
               <iframe 
                 src={`${docUrl}#toolbar=0&navpanes=0`} 
                 title="Document Preview"
                 className="w-full h-[85vh] border-0 bg-gray-100"
                 onLoad={() => setLoading(false)}
                 onError={() => {
-                  setError('Failed to load PDF. The file might be corrupted.');
+                  setError('Failed to load document. The file might be corrupted.');
                   setLoading(false);
                 }}
               />
