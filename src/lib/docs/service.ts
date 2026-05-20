@@ -17,8 +17,8 @@ export const REQUIRED_DOCS_BY_VENDOR_TYPE: Record<string, string[]> = {
 
 export function getRequiredDocs(role: string, vendorType?: string): string[] {
   if (role === 'vendor') {
-    const type = vendorType || 'ngo_trust';
-    return REQUIRED_DOCS_BY_VENDOR_TYPE[type] || REQUIRED_DOCS_BY_VENDOR_TYPE.ngo_trust;
+    const type = vendorType || 'individual';
+    return REQUIRED_DOCS_BY_VENDOR_TYPE[type] || REQUIRED_DOCS_BY_VENDOR_TYPE.individual;
   }
   return REQUIRED_DOCS_BY_ROLE[role] || [];
 }

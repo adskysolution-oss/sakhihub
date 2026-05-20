@@ -93,6 +93,16 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                 <ShieldCheck size={14} className="text-primary-light" />
                 <span>{user.role.replace('_', ' ').toUpperCase()}: {user.vendorCode || user.subVendorCode || user.employeeId}</span>
               </div>
+              {user.role === 'vendor' && user.vendorType && (
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black border border-white/10 ${
+                  user.vendorType === 'company' ? 'bg-blue-400/20' :
+                  user.vendorType === 'ngo_trust' ? 'bg-purple-400/20' :
+                  'bg-white/10'
+                }`}>
+                  <Briefcase size={14} className="text-primary-light" />
+                  <span>{user.vendorType === 'ngo_trust' ? 'NGO / Trust' : user.vendorType === 'company' ? 'Company' : 'Individual'} Vendor</span>
+                </div>
+              )}
               <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-2xl text-xs font-bold border border-white/10">
                 <MapPin size={14} className="text-primary-light" />
                 <span>{user.district}, {user.state}</span>

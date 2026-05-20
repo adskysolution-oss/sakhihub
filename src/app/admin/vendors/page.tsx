@@ -197,7 +197,18 @@ export default function VendorManagement() {
                             </div>
                             <div>
                               <p className="font-black text-secondary leading-tight">{vendor.fullName}</p>
-                              <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest">Joined {new Date(vendor.createdAt).toLocaleDateString()}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Joined {new Date(vendor.createdAt).toLocaleDateString()}</p>
+                                {vendor.vendorType && (
+                                  <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${
+                                    vendor.vendorType === 'company' ? 'bg-blue-100 text-blue-600' :
+                                    vendor.vendorType === 'ngo_trust' ? 'bg-purple-100 text-purple-600' :
+                                    'bg-gray-100 text-gray-500'
+                                  }`}>
+                                    {vendor.vendorType === 'ngo_trust' ? 'NGO/Trust' : vendor.vendorType === 'company' ? 'Company' : 'Individual'}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </td>

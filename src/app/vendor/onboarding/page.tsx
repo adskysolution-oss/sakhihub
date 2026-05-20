@@ -25,6 +25,7 @@ export default function VendorOnboarding() {
   }, [profile]);
 
   const handleUpdateVendorType = async (type: string) => {
+    setVendorType(type);
     setSavingType(true);
     try {
       const res = await axios.put('/api/auth/me', { vendorType: type });
@@ -33,6 +34,8 @@ export default function VendorOnboarding() {
       }
     } catch (err) {
       console.error(err);
+      // Revert on failure
+      setVendorType(profile?.vendorType || 'individual');
     } finally {
       setSavingType(false);
     }
@@ -44,7 +47,7 @@ export default function VendorOnboarding() {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get('/api/auth/me');
+      const res = await axios.get(`/api/auth/me?_t=${Date.now()}`);
       if (res.data.success) {
         const user = res.data.data;
         setProfile(user);
@@ -86,8 +89,9 @@ export default function VendorOnboarding() {
     </div>
   );
 
-  const compliance = getDocComplianceSummary(profile?.documents, 'vendor', profile?.vendorType);
-  const docTypes = getRequiredDocs('vendor', profile?.vendorType);
+  const activeVendorType = vendorType || profile?.vendorType || 'individual';
+  const compliance = getDocComplianceSummary(profile?.documents, 'vendor', activeVendorType);
+  const docTypes = getRequiredDocs('vendor', activeVendorType);
 
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20">

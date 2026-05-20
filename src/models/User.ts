@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+ import mongoose, { Schema, Document } from 'mongoose';
 
 export type UserRole = 'super_admin' | 'vendor' | 'sub_vendor' | 'employee' | 'member';
 export type UserStatus = 'pending' | 'documents_uploaded' | 'under_review' | 'reupload_required' | 'approved' | 'active' | 'rejected' | 'suspended';
