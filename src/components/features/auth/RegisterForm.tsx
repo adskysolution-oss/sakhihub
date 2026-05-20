@@ -446,7 +446,7 @@ export default function RegisterForm() {
 
                 {step === 2 && (
                   <motion.div key="step2" {...fadeInUp} className="flex flex-col gap-4 md:gap-6">
-                    {formData.role === 'vendor' && (
+                    {(formData.role === 'vendor' || formData.role === 'sub_vendor') && (
                       <div className="flex flex-col gap-2">
                         <label className="text-sm font-black text-gray-700">Vendor Type</label>
                         <div className="relative">

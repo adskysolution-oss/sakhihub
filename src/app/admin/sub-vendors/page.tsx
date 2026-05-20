@@ -11,6 +11,7 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 import HierarchyDetailView from "@/components/features/dashboard/HierarchyDetailView";
+import { getDocComplianceSummary } from '@/utils/documents';
 
 const getStatusBadge = (status: string) => {
   const map: Record<string, { label: string; className: string }> = {
@@ -26,17 +27,7 @@ const getStatusBadge = (status: string) => {
   return map[status] || { label: status, className: 'bg-gray-100 text-gray-500' };
 };
 
-const getDocComplianceSummary = (documents: any) => {
-  const requiredDocs = ['panCard', 'aadhaarCard', 'bankPassbook'];
-  let uploaded = 0, approved = 0, rejected = 0;
-  requiredDocs.forEach(d => {
-    const doc = documents?.[d];
-    if (doc?.url) uploaded++;
-    if (doc?.status === 'approved') approved++;
-    if (doc?.status === 'rejected' || doc?.status === 'reupload_required') rejected++;
-  });
-  return { total: 3, uploaded, approved, rejected };
-};
+
 
 export default function SubVendorManagement() {
   const [subVendors, setSubVendors] = useState<any[]>([]);
@@ -225,6 +216,14 @@ export default function SubVendorManagement() {
                             <p className="font-black text-secondary leading-tight">{sv.fullName}</p>
                             <div className="flex items-center gap-1.5 mt-1">
                                <p className="text-[10px] text-primary font-black uppercase tracking-widest">{sv.subVendorCode}</p>
+                               {sv.vendorType && (
+                                 <>
+                                   <span className="text-[9px] text-gray-300 font-bold">•</span>
+                                   <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-gray-100 text-gray-500">
+                                     {sv.vendorType.replace('_', ' ')}
+                                   </span>
+                                 </>
+                               )}
                                <span className="text-[9px] text-gray-300 font-bold">•</span>
                                <span className="text-[9px] text-gray-400 font-bold flex items-center gap-1"><MapPin size={10} /> {sv.district}</span>
                             </div>
@@ -248,12 +247,12 @@ export default function SubVendorManagement() {
                       </td>
                       <td className="p-5">
                         {(() => {
-                          const compliance = getDocComplianceSummary(sv.documents);
+                          const compliance = getDocComplianceSummary(sv.documents, 'sub_vendor', sv.vendorType);
                           return (
                             <div className="flex flex-col gap-2">
                               <div className="flex gap-1">
-                                {[0, 1, 2].map(i => (
-                                  <div key={i} className={`w-8 h-1.5 rounded-full ${
+                                {Array.from({ length: compliance.total }).map((_, i) => (
+                                  <div key={i} className={`h-1.5 flex-1 rounded-full max-w-[32px] ${
                                     i < compliance.approved ? 'bg-green-500' :
                                     i < compliance.uploaded ? 'bg-primary' :
                                     'bg-gray-200'
@@ -262,7 +261,7 @@ export default function SubVendorManagement() {
                               </div>
                               <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest">
                                 {compliance.uploaded > 0 && (
-                                  <span className="text-primary flex items-center gap-1"><Upload size={10} /> {compliance.uploaded}/3</span>
+                                  <span className="text-primary flex items-center gap-1"><Upload size={10} /> {compliance.uploaded}/{compliance.total}</span>
                                 )}
                                 {compliance.approved > 0 && (
                                   <span className="text-green-600 flex items-center gap-1"><ShieldCheck size={10} /> {compliance.approved}</span>

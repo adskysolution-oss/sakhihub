@@ -19,10 +19,10 @@ export default function VendorOnboarding() {
   const [savingType, setSavingType] = useState(false);
 
   useEffect(() => {
-    if (profile) {
+    if (profile && !vendorType) {
       setVendorType(profile.vendorType || 'individual');
     }
-  }, [profile]);
+  }, [profile, vendorType]);
 
   const handleUpdateVendorType = async (type: string) => {
     setVendorType(type);

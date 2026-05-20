@@ -65,6 +65,7 @@ export interface IUser extends Document {
     certificate12A?: IVendorDocumentEntry;
     certificate80G?: IVendorDocumentEntry;
     ngoLogo?: IVendorDocumentEntry;
+    resume?: IVendorDocumentEntry;
     [key: string]: IVendorDocumentEntry | undefined;
   };
   joiningDate?: Date;
@@ -166,7 +167,8 @@ const UserSchema: Schema = new Schema(
       ngoPanCard: { type: DocumentEntrySchema },
       certificate12A: { type: DocumentEntrySchema },
       certificate80G: { type: DocumentEntrySchema },
-      ngoLogo: { type: DocumentEntrySchema }
+      ngoLogo: { type: DocumentEntrySchema },
+      resume: { type: DocumentEntrySchema }
     },
     lastOtpSentAt: { type: Date },
     otpAttempts: { type: Number, default: 0 },

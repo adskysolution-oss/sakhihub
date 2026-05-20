@@ -9,7 +9,7 @@ import {
 export const REQUIRED_DOCS_BY_ROLE: Record<string, string[]> = {
   vendor: ['ngoCertificate', 'panCard', 'aadhaarCard', 'bankPassbook'],
   sub_vendor: ['panCard', 'aadhaarCard', 'bankPassbook'],
-  employee: ['panCard', 'aadhaarCard', 'bankPassbook']
+  employee: ['panCard', 'aadhaarCard', 'bankPassbook', 'resume', 'passportPhoto']
 };
 
 export const REQUIRED_DOCS_BY_VENDOR_TYPE: Record<string, string[]> = {
@@ -19,7 +19,7 @@ export const REQUIRED_DOCS_BY_VENDOR_TYPE: Record<string, string[]> = {
 };
 
 export function getRequiredDocs(role: string, vendorType?: string): string[] {
-  if (role === 'vendor') {
+  if (role === 'vendor' || role === 'sub_vendor') {
     const type = vendorType || 'individual';
     return REQUIRED_DOCS_BY_VENDOR_TYPE[type] || REQUIRED_DOCS_BY_VENDOR_TYPE.individual;
   }
@@ -104,6 +104,11 @@ export const DOC_CONFIG: Record<string, { label: string; icon: any; desc: string
     label: 'NGO Logo',
     icon: FileText,
     desc: 'Official logo image of the NGO/Trust'
+  },
+  resume: {
+    label: 'Resume Upload',
+    icon: FileText,
+    desc: 'Updated resume or curriculum vitae'
   }
 };
 
