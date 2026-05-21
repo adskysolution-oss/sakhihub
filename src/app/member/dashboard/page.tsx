@@ -567,12 +567,12 @@ function MemberDashboardContent() {
                 <Sparkle size={16} className="text-primary animate-pulse" /> Connect Manually by Employee Code
               </h4>
               <p className="text-xs text-gray-400 font-bold mb-4 uppercase tracking-wider leading-relaxed">
-                If you already know your regional Sakhi Hero's code (e.g. EMP001), enter it below to send a direct request.
+                If you already know your regional Sakhi Hero's code (e.g. SHEMP001), enter it below to send a direct request.
               </p>
               <form onSubmit={handleManualConnect} className="flex flex-col sm:flex-row gap-3">
                 <input
                   type="text"
-                  placeholder="Enter Hero Code (e.g. EMP001)..."
+                  placeholder="Enter Hero Code (e.g. SHEMP001)..."
                   value={manualCode}
                   onChange={(e) => setManualCode(e.target.value)}
                   className="flex-1 px-5 py-3.5 bg-white border border-gray-200 focus:border-primary/50 rounded-2xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/10 shadow-sm"

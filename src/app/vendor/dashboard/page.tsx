@@ -127,7 +127,7 @@ export default function VendorDashboard() {
                   <div className="absolute left-[-5px] top-0 w-2 h-2 bg-primary rounded-full"></div>
                   <div>
                     <h4 className="text-sm font-bold">New Employee Registered</h4>
-                    <p className="text-xs text-white/60 mt-1">Ravi Kumar joined under Sub-Vendor SVN1245.</p>
+                    <p className="text-xs text-white/60 mt-1">Ravi Kumar joined under Sub-Vendor SHSVN1245.</p>
                     <p className="text-[10px] text-primary font-black mt-2 uppercase tracking-widest">2 hours ago</p>
                   </div>
                 </div>

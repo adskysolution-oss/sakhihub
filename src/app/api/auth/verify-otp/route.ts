@@ -44,9 +44,9 @@ export async function POST(req: NextRequest) {
       const userRole = pendingUser.role;
       
       // Generate unique codes
-      const myVendorCode = userRole === 'vendor' ? `VND${Math.random().toString(36).substr(2, 6).toUpperCase()}` : undefined;
-      const mySubVendorCode = userRole === 'sub_vendor' ? `SVN${Math.random().toString(36).substr(2, 6).toUpperCase()}` : undefined;
-      const myEmployeeId = userRole === 'employee' ? `EMP${Math.random().toString(36).substr(2, 6).toUpperCase()}` : undefined;
+      const myVendorCode = userRole === 'vendor' ? `SHVND${Math.random().toString(36).substr(2, 6).toUpperCase()}` : undefined;
+      const mySubVendorCode = userRole === 'sub_vendor' ? `SHSVN${Math.random().toString(36).substr(2, 6).toUpperCase()}` : undefined;
+      const myEmployeeId = userRole === 'employee' ? `SHEMP${Math.random().toString(36).substr(2, 6).toUpperCase()}` : undefined;
 
       // Status Enforcement
       let userStatus = userRole === 'super_admin' ? 'active' : 'pending';

@@ -21,11 +21,10 @@ export async function GET(req: NextRequest) {
       const code = employeeCode.trim().toUpperCase();
       let queryKey = 'employeeId';
       let searchRole = 'employee';
-      
-      if (code.startsWith('SVN')) {
+      if (code.startsWith('SVN') || code.startsWith('SHSVN')) {
         queryKey = 'subVendorCode';
         searchRole = 'sub_vendor';
-      } else if (code.startsWith('VND')) {
+      } else if (code.startsWith('VND') || code.startsWith('SHVND')) {
         queryKey = 'vendorCode';
         searchRole = 'vendor';
       }
