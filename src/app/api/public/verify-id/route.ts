@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
     // Find the user
     const user = await User.findOne({ $or: searchQuery })
-      .select('fullName role profileImage vendorType businessName state district vendorCode subVendorCode employeeId status createdAt isVerified dashboardAccess documentsVerified joiningDate')
+      .select('fullName role profileImage vendorType businessName state district block pincode vendorCode subVendorCode employeeId status createdAt isVerified dashboardAccess documentsVerified joiningDate')
       .lean();
 
     if (!user) {
@@ -50,6 +50,8 @@ export async function GET(request: NextRequest) {
       registrationDate: user.joiningDate || user.createdAt,
       state: user.state,
       district: user.district,
+      block: user.block,
+      pincode: user.pincode,
       organizationName: user.businessName,
       status: user.status, // We'll map this on frontend for badges
       isVerified: user.isVerified || user.documentsVerified || user.dashboardAccess,
@@ -67,6 +69,8 @@ export async function GET(request: NextRequest) {
       if (memberDetails) {
         publicData.state = publicData.state || memberDetails.state;
         publicData.district = publicData.district || memberDetails.district;
+        publicData.block = publicData.block || memberDetails.block;
+        publicData.pincode = publicData.pincode || memberDetails.pincode;
         publicData.accountStatus = memberDetails.accountStatus; // active | inactive
         publicData.membershipStatus = memberDetails.membershipStatus; // free | paid
       }
