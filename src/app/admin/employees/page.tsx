@@ -435,6 +435,28 @@ export default function EmployeeManagement() {
                  </div>
 
                 <div className="p-8 overflow-y-auto">
+                   {assignTarget.parentVendorId && (
+                      <div className="mb-6 p-6 bg-primary/5 border border-primary/20 rounded-3xl flex justify-between items-center relative overflow-hidden">
+                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                         <div className="relative z-10">
+                            <p className="text-[10px] text-primary font-black uppercase tracking-widest mb-1 flex items-center gap-1"><CheckCircle2 size={12} /> Currently Assigned Parent</p>
+                            {(() => {
+                               const currentParent = allPartners.find(p => p._id === assignTarget.parentVendorId);
+                               if (currentParent) {
+                                 return (
+                                   <>
+                                     <h5 className="text-xl font-black text-secondary mt-1">{currentParent.fullName}</h5>
+                                     <p className="text-xs text-gray-500 font-bold mt-1 uppercase">
+                                       {currentParent.role.replace('_', ' ')} • {currentParent.vendorCode || currentParent.subVendorCode} • {currentParent.mobile}
+                                     </p>
+                                   </>
+                                 );
+                               }
+                               return <p className="text-sm font-bold text-gray-500 mt-1">ID: {assignTarget.parentVendorId}</p>;
+                            })()}
+                         </div>
+                      </div>
+                   )}
                    <div className="grid grid-cols-1 gap-4">
                       {allPartners.map(partner => (
                         <button
