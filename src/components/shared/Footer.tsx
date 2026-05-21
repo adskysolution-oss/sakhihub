@@ -2,11 +2,22 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Mail, Globe, Camera, Play, Heart } from 'lucide-react';
+import { Mail, Globe, Camera, Play, Heart, Search, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 const Footer = () => {
   const { t } = useLanguage();
+  const router = useRouter();
+  const [verifyId, setVerifyId] = useState('');
+
+  const handleVerify = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (verifyId.trim()) {
+      router.push(`/verify/${encodeURIComponent(verifyId.trim())}`);
+    }
+  };
 
   return (
     <footer className="bg-slate-900 text-gray-400 pt-16 md:pt-24 pb-12 relative overflow-hidden">
@@ -101,6 +112,41 @@ const Footer = () => {
         </div>
 
         <div className="h-px bg-white/5 my-16"></div>
+
+        {/* Verification Section */}
+        <div className="bg-slate-800/50 border border-white/5 rounded-3xl p-6 md:p-8 mb-16 flex flex-col md:flex-row items-center justify-between gap-8 max-w-4xl mx-auto">
+          <div className="flex items-center gap-4 text-left">
+            <div className="w-12 h-12 bg-primary/20 text-primary rounded-2xl flex items-center justify-center shrink-0">
+              <ShieldCheck size={24} />
+            </div>
+            <div>
+              <h3 className="text-white font-bold text-lg">Verify SakhiHub Identity</h3>
+              <p className="text-sm text-gray-400 mt-1">Enter a Mobile No, Employee ID, Vendor Code, or Member ID to verify their official status.</p>
+            </div>
+          </div>
+          
+          <form onSubmit={handleVerify} className="w-full max-w-md flex gap-2 mt-4 md:mt-0">
+            <div className="relative flex-1">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">
+                <Search size={16} />
+              </div>
+              <input
+                type="text"
+                placeholder="Enter ID..."
+                value={verifyId}
+                onChange={(e) => setVerifyId(e.target.value)}
+                className="w-full bg-slate-900 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50"
+                required
+              />
+            </div>
+            <button 
+              type="submit"
+              className="px-6 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 transition-colors shrink-0"
+            >
+              Verify
+            </button>
+          </form>
+        </div>
 
         <div className="flex flex-col lg:flex-row justify-between items-center gap-8">
           <div className="text-center lg:text-left text-[10px] font-bold tracking-widest uppercase">

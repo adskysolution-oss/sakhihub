@@ -44,6 +44,15 @@ export async function GET(req: NextRequest) {
     const subRequired = paymentEnabled && config.subscriptionRequired[roleKey];
     const depRequired = paymentEnabled && config.depositRequired[roleKey];
 
+    // Auto-complete payment if requirements are met or disabled
+    const isSubMet = !subRequired || user.subscriptionPaid;
+    const isDepMet = !depRequired || user.depositPaid;
+
+    if (isSubMet && isDepMet && !user.paymentCompleted) {
+      await User.findByIdAndUpdate(user._id, { paymentCompleted: true });
+      user.paymentCompleted = true; // Update local state for response
+    }
+
     // Fetch transaction history for this user
     const transactions = await PaymentTransaction.find({ userId: user._id })
       .sort({ createdAt: -1 })
