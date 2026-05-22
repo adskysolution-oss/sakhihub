@@ -54,12 +54,12 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
   const [isGeneratingAppt, setIsGeneratingAppt] = React.useState(false);
   // Keep local user state to update appointment details immediately
   const [localUser, setLocalUser] = React.useState(user);
-  const [digitalCertificates, setDigitalCertificates] = React.useState<any[]>(data.digitalCertificates || []);
+  const [digitalCertificates, setDigitalCertificates] = React.useState<any[]>((data as any).digitalCertificates || []);
 
   React.useEffect(() => {
     setLocalUser(user);
-    setDigitalCertificates(data.digitalCertificates || []);
-  }, [user, data.digitalCertificates]);
+    setDigitalCertificates((data as any).digitalCertificates || []);
+  }, [user, (data as any).digitalCertificates]);
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: PieChart },
@@ -479,23 +479,29 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                 <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl mx-auto flex items-center justify-center mb-4">
                   <FileText size={32} />
                 </div>
-                <h3 className="text-2xl font-black text-secondary tracking-tight">Appointment & Agreement Letter</h3>
+                <h3 className="text-2xl font-black text-secondary tracking-tight">
+                  {localUser.role === 'employee' ? 'Employee Offer Letter' : 'Vendor Agreement'}
+                </h3>
                 <p className="text-sm text-gray-500 font-bold mt-2">
-                  Generate the official digital agreement for this partner.
+                  Generate the official digital {localUser.role === 'employee' ? 'offer letter' : 'agreement'} for this {localUser.role === 'employee' ? 'employee' : 'partner'}.
                 </p>
               </div>
 
-              {localUser.appointmentDetails ? (
+              {(localUser.role === 'employee' ? localUser.offerLetterDetails : localUser.appointmentDetails) ? (
                 <div className="bg-green-50 border border-green-200 rounded-[32px] p-8 text-center relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-green-200/50 rounded-full blur-2xl -mr-16 -mt-16" />
                   <div className="relative z-10">
                     <CheckCircle2 size={48} className="text-green-500 mx-auto mb-4" />
-                    <h4 className="text-xl font-black text-green-800">Agreement Generated Successfully</h4>
+                    <h4 className="text-xl font-black text-green-800">
+                      {localUser.role === 'employee' ? 'Employee Offer Letter' : 'Vendor Agreement'} Generated Successfully
+                    </h4>
                     <p className="text-sm text-green-700 font-bold mt-2 mb-6">
-                      Agreement ID: <span className="font-mono bg-white px-2 py-1 rounded">{localUser.appointmentDetails.agreementId}</span>
+                      ID: <span className="font-mono bg-white px-2 py-1 rounded">
+                        {localUser.role === 'employee' ? localUser.offerLetterDetails.offerLetterId : localUser.appointmentDetails.agreementId}
+                      </span>
                     </p>
                     <a 
-                      href={`/appointment-letter/${localUser._id}`} 
+                      href={localUser.role === 'employee' ? `/employee-offer-letter/${localUser._id}` : `/appointment-letter/${localUser._id}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-colors shadow-lg shadow-green-200"
@@ -517,34 +523,55 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Fixed Remuneration (Salary)</label>
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Fixed Salary / Remuneration (₹)</label>
                       <div className="relative">
-                        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
+                        <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-gray-400">₹</span>
                         <input 
                           type="number" 
+                          placeholder="e.g. 15000"
                           value={salary}
                           onChange={(e) => setSalary(e.target.value)}
-                          placeholder="e.g. 15000"
                           className="w-full pl-10 pr-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
                         />
                       </div>
                     </div>
                     <button 
-                      onClick={generateAppointmentLetter}
+                      onClick={async () => {
+                        if (!joiningDate || !salary) {
+                          alert("Please enter both Joining Date and Salary.");
+                          return;
+                        }
+                        setIsGeneratingAppt(true);
+                        try {
+                          const endpoint = localUser.role === 'employee' 
+                            ? `/api/admin/users/${localUser._id}/offer-letter`
+                            : `/api/admin/users/${localUser._id}/appointment`;
+                          const res = await axios.post(endpoint, { joiningDate, salary });
+                          if (res.data.success) {
+                            setLocalUser(res.data.data);
+                          }
+                        } catch (err: any) {
+                          alert(err.response?.data?.message || "Failed to generate document");
+                        } finally {
+                          setIsGeneratingAppt(false);
+                        }
+                      }}
                       disabled={isGeneratingAppt}
                       className="w-full py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-transform disabled:opacity-50"
                     >
-                      {isGeneratingAppt ? 'Generating...' : 'Generate Agreement Document'}
+                      {isGeneratingAppt ? 'Generating...' : `Generate ${localUser.role === 'employee' ? 'Offer Letter' : 'Vendor Agreement'}`}
                     </button>
                     <p className="text-[10px] text-gray-400 font-bold text-center uppercase tracking-widest">
-                      * Other details will be auto-filled from the vendor profile.
+                      * Other details will be auto-filled from the profile.
                     </p>
                   </div>
                 </div>
               )}
 
-              {localUser.appointmentDetails && (() => {
-                const authLetter = digitalCertificates?.find((c: any) => c.type === 'auth_letter');
+              {/* Uploaded Document Review logic */}
+              {(user.role === 'employee' ? localUser.offerLetterDetails : localUser.appointmentDetails) && (() => {
+                const targetType = user.role === 'employee' ? 'employee_offer_letter' : 'auth_letter';
+                const authLetter = digitalCertificates?.find((c: any) => c.type === targetType);
                 if (!authLetter || !authLetter.uploadedDocumentUrl) return null;
                 
                 return (
@@ -552,9 +579,9 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                     <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl mx-auto flex items-center justify-center mb-4">
                       <ShieldCheck size={32} />
                     </div>
-                    <h4 className="text-xl font-black text-secondary">Signed Agreement Uploaded</h4>
+                    <h4 className="text-xl font-black text-secondary">Signed Document Uploaded</h4>
                     <p className="text-sm text-gray-500 font-bold mt-2 mb-6">
-                      The vendor has uploaded the signed agreement. Please review and lock it to finalize the process.
+                      The user has uploaded the signed document. Please review and lock it to finalize the process.
                     </p>
                     
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

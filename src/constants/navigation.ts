@@ -31,6 +31,7 @@ export const EMPLOYEE_DASHBOARD_LINKS = [
   { name: 'My Wallet', icon: Wallet, href: '/employee/wallet' },
   { name: 'Daily Reports', icon: ClipboardList, href: '/employee/reports' },
   { name: 'Campaigns', icon: Target, href: '/employee/campaigns' },
+  { name: 'Documents', icon: FileText, href: '/employee/dashboard/documents' },
   { name: 'My Profile', icon: User, href: '/employee/dashboard/profile' },
   { name: 'My ID Card', icon: BadgeCheck, href: '/id-card' },
 ];

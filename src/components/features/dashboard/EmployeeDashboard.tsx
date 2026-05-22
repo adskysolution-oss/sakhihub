@@ -191,16 +191,18 @@ export default function EmployeeDashboard({ user }: { user: any }) {
               </div>
             </div>
           </section>
-          {user?.appointmentDetails && (
+          {user?.offerLetterDetails && (
             <div className="bg-green-50/50 p-6 rounded-[32px] border border-green-100 flex flex-col sm:flex-row justify-between items-center text-left shadow-sm gap-4 group hover:border-green-300 transition-all">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-green-500 text-white flex items-center justify-center shrink-0">
                   <ShieldCheck size={24} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-green-800">Agreement Generated Successfully</h3>
+                  <h3 className="text-lg font-black text-green-800">
+                    Offer Letter Generated Successfully
+                  </h3>
                   <p className="text-xs text-green-600 font-bold mt-1">
-                    Your official appointment letter is ready.
+                    Your official offer letter is ready.
                   </p>
                 </div>
               </div>

@@ -34,9 +34,24 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const employees = await User.find(query).sort({ createdAt: -1 }).select('-password');
+    const employees = await User.find(query).sort({ createdAt: -1 }).select('-password').lean();
 
-    return successResponse(employees);
+    const EmployeeOfferLetter = (await import('@/models/EmployeeOfferLetter')).default;
+    const employeeIds = employees.map((emp: any) => emp._id);
+    const offerLetters = await EmployeeOfferLetter.find({ employeeId: { $in: employeeIds } }).lean();
+    
+    const offerLetterMap = offerLetters.reduce((acc: any, ol: any) => {
+      acc[ol.employeeId.toString()] = ol;
+      return acc;
+    }, {});
+
+    const enrichedEmployees = employees.map((emp: any) => ({
+      ...emp,
+      offerLetterDetails: offerLetterMap[emp._id.toString()] || null,
+      appointmentDetails: offerLetterMap[emp._id.toString()] || null // Fallback for some views that still use appointmentDetails for both
+    }));
+
+    return successResponse(enrichedEmployees);
   } catch (error: any) {
     return errorResponse(error.message, 500);
   }

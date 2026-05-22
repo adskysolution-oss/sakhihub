@@ -154,6 +154,12 @@ export async function POST(req: NextRequest) {
   }
 }
 
+import VendorAgreement from '@/models/VendorAgreement';
+import VendorMOU from '@/models/VendorMOU';
+import VendorCertificate from '@/models/VendorCertificate';
+import EmployeeOfferLetter from '@/models/EmployeeOfferLetter';
+import EmployeeCertificate from '@/models/EmployeeCertificate';
+
 export async function GET() {
   try {
     const session = await getAuthSession();
@@ -168,10 +174,74 @@ export async function GET() {
       return errorResponse('User not found', 404);
     }
 
-    const digitalCertificates = await Document.find({
-      userId: user._id,
-      category: 'Digital Certificates'
-    });
+    let digitalCertificates: any[] = [];
+
+    // Migrate generic certificates fetching to role-based specific schema fetching
+    if (user.role === 'vendor' || user.role === 'sub_vendor') {
+      const agreements = await VendorAgreement.find({ vendorId: user._id }).lean();
+      const mous = await VendorMOU.find({ vendorId: user._id }).lean();
+      const certs = await VendorCertificate.find({ vendorId: user._id }).lean();
+
+      digitalCertificates = [
+        ...agreements.map(a => ({
+          _id: a._id,
+          type: 'auth_letter', // Mapping to frontend expectation
+          title: 'Vendor Agreement',
+          fileUrl: a.fileUrl,
+          uploadedDocumentUrl: a.uploadedDocumentUrl,
+          status: a.status,
+          isLocked: a.isLocked,
+          adminRemarks: a.adminRemarks,
+          agreementId: a.agreementId,
+          createdAt: a.createdAt,
+          visibleToVendor: true
+        })),
+        ...mous.map(m => ({
+          _id: m._id,
+          type: 'ngo_mou',
+          title: 'NGO MOU',
+          fileUrl: m.fileUrl,
+          uploadedDocumentUrl: m.uploadedDocumentUrl,
+          status: m.status,
+          isLocked: m.isLocked,
+          adminRemarks: m.adminRemarks,
+          createdAt: m.createdAt,
+          visibleToVendor: true
+        })),
+        ...certs.map(c => ({
+          _id: c._id,
+          type: c.certificateType,
+          title: c.title,
+          fileUrl: c.fileUrl,
+          createdAt: c.createdAt,
+          visibleToVendor: true
+        }))
+      ];
+    } else if (user.role === 'employee') {
+      const offerLetters = await EmployeeOfferLetter.find({ employeeId: user._id }).lean();
+      const certs = await EmployeeCertificate.find({ employeeId: user._id }).lean();
+
+      digitalCertificates = [
+        ...offerLetters.map(o => ({
+          _id: o._id,
+          type: 'employee_offer_letter', // Mapping to frontend expectation
+          title: 'Employee Offer Letter',
+          fileUrl: o.pdfUrl,
+          status: o.status,
+          agreementId: o.offerLetterId, // Frontend maps this in the UI
+          createdAt: o.createdAt,
+          visibleToEmployee: true
+        })),
+        ...certs.map(c => ({
+          _id: c._id,
+          type: c.certificateType,
+          title: c.title,
+          fileUrl: c.fileUrl,
+          createdAt: c.createdAt,
+          visibleToEmployee: true
+        }))
+      ];
+    }
 
     return successResponse({
       documents: user.documents || {},

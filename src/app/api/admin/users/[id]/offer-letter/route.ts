@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
-import VendorAgreement from '@/models/VendorAgreement';
+import EmployeeOfferLetter from '@/models/EmployeeOfferLetter';
 import { getAuthSession } from '@/lib/auth';
 
 export async function POST(
@@ -29,36 +29,35 @@ export async function POST(
       return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
     }
 
-    // Generate Agreement ID
+    // Generate Offer Letter ID
     const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const agreementId = `SH-AGR-${randomStr}`;
+    const offerLetterId = `SH-OFR-${randomStr}`;
 
-    const vendorAgreementDetails = {
-      vendorId: user._id,
-      vendorCode: user.vendorCode || user.subVendorCode,
+    const offerLetterDetails = {
+      employeeId: user._id,
       joiningDate: new Date(joiningDate),
       salary,
       generatedDate: new Date(),
-      agreementId,
+      offerLetterId,
       status: 'generated',
-      isLocked: false,
-      fileUrl: `/appointment-letter/${user._id}`
+      digitalAcceptanceStatus: false,
+      pdfUrl: `/employee-offer-letter/${user._id}`
     };
 
-    await VendorAgreement.findOneAndUpdate(
-      { vendorId: user._id },
-      vendorAgreementDetails,
+    await EmployeeOfferLetter.findOneAndUpdate(
+      { employeeId: user._id },
+      offerLetterDetails,
       { upsert: true, returnDocument: 'after' }
     );
 
     return NextResponse.json({
       success: true,
-      message: 'Appointment letter generated successfully',
+      message: 'Employee offer letter generated successfully',
       data: user
     });
 
   } catch (error: any) {
-    console.error('Generate Appointment Error:', error);
-    return NextResponse.json({ success: false, message: 'Failed to generate appointment letter' }, { status: 500 });
+    console.error('Generate Offer Letter Error:', error);
+    return NextResponse.json({ success: false, message: 'Failed to generate employee offer letter' }, { status: 500 });
   }
 }

@@ -125,9 +125,9 @@ export default function VendorDashboard() {
                   <CheckCircle size={24} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-green-800">Agreement Generated Successfully</h3>
+                  <h3 className="text-lg font-black text-green-800">Vendor Agreement Generated Successfully</h3>
                   <p className="text-xs text-green-600 font-bold mt-1">
-                    Your official appointment letter is ready.
+                    Your official vendor agreement is ready.
                   </p>
                 </div>
               </div>

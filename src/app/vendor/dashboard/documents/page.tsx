@@ -156,7 +156,7 @@ export default function VendorDocuments() {
               <h2 className="text-xl font-black text-secondary mb-6">Digital Certificates</h2>
               <div className="flex flex-col gap-3">
                 {[
-                  { id: 'auth_letter', title: 'Appointment & Agreement Letter', icon: FileText },
+                  { id: 'auth_letter', title: 'Vendor Agreement', icon: FileText },
                   { id: 'vendor_code_cert', title: 'Vendor Code Certificate', icon: ShieldCheck }
                 ].map((expectedCert, idx) => {
                   const certData = digitalCertificates.find(c => c.type === expectedCert.id);
@@ -196,13 +196,13 @@ export default function VendorDocuments() {
             </div>
 
             {digitalCertificates.some(c => c.type === 'auth_letter' && c.visibleToVendor !== false) && (
-              <div className="bg-green-50 p-6 rounded-[32px] border border-green-100 flex flex-col sm:flex-row justify-between items-center text-left shadow-sm gap-4">
+              <div className="bg-green-50 p-6 rounded-[32px] border border-green-100 flex flex-col sm:flex-row justify-between items-center text-left shadow-sm gap-4 mt-6">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-green-500 text-white flex items-center justify-center shrink-0">
                     <CheckCircle size={20} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-black text-green-800">Agreement Generated Successfully</h3>
+                    <h3 className="text-sm font-black text-green-800">Vendor Agreement Generated Successfully</h3>
                     <p className="text-xs text-green-600 font-bold mt-1">
                       ID: {digitalCertificates.find(c => c.type === 'auth_letter')?.agreementId || 'N/A'} • {new Date(digitalCertificates.find(c => c.type === 'auth_letter')?.createdAt || Date.now()).toLocaleDateString()}
                     </p>
@@ -219,12 +219,12 @@ export default function VendorDocuments() {
               const hasUploaded = !!authLetter.uploadedDocumentUrl;
               
               return (
-                <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
+                <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft mt-8">
                   <h2 className="text-xl font-black text-secondary mb-6 flex items-center gap-2">
                     <FileText size={24} className="text-primary" /> Signed Agreement Upload
                   </h2>
                   <p className="text-xs text-gray-400 font-bold mb-6 leading-relaxed">
-                    Please download your <span className="text-primary">Appointment & Agreement Letter</span> from the Digital Certificates section above, sign it physically or digitally, and upload the scanned copy here.
+                    Please download your <span className="text-primary">Vendor Agreement</span> from the Digital Certificates section above, sign it physically or digitally, and upload the scanned copy here.
                   </p>
                   
                   {hasUploaded ? (

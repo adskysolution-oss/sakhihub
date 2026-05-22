@@ -111,14 +111,14 @@ export default function EmployeeManagement() {
     }
   };
 
-  const generateAppointmentLetter = async () => {
+  const generateOfferLetter = async () => {
     if (!joiningDate || !salary) {
       alert("Please enter both Joining Date and Salary.");
       return;
     }
     setIsGeneratingAppt(true);
     try {
-      const res = await axios.post(`/api/admin/users/${selectedEmp._id}/appointment`, {
+      const res = await axios.post(`/api/admin/users/${selectedEmp._id}/offer-letter`, {
         joiningDate,
         salary
       });
@@ -126,7 +126,7 @@ export default function EmployeeManagement() {
         setSelectedEmp(res.data.data);
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to generate appointment letter");
+      alert(err.response?.data?.message || "Failed to generate offer letter");
     } finally {
       setIsGeneratingAppt(false);
     }
@@ -413,23 +413,23 @@ export default function EmployeeManagement() {
                         <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl mx-auto flex items-center justify-center mb-4">
                           <FileText size={32} />
                         </div>
-                        <h3 className="text-2xl font-black text-secondary tracking-tight">Appointment & Agreement Letter</h3>
+                        <h3 className="text-2xl font-black text-secondary tracking-tight">Employee Offer Letter</h3>
                         <p className="text-sm text-gray-500 font-bold mt-2">
-                          Generate the official digital agreement for this employee.
+                          Generate the official offer letter for this employee.
                         </p>
                       </div>
 
-                      {selectedEmp.appointmentDetails ? (
+                      {selectedEmp.offerLetterDetails ? (
                         <div className="bg-green-50 border border-green-200 rounded-[32px] p-8 text-center relative overflow-hidden">
                           <div className="absolute top-0 right-0 w-32 h-32 bg-green-200/50 rounded-full blur-2xl -mr-16 -mt-16" />
                           <div className="relative z-10">
                             <CheckCircle2 size={48} className="text-green-500 mx-auto mb-4" />
-                            <h4 className="text-xl font-black text-green-800">Agreement Generated Successfully</h4>
+                            <h4 className="text-xl font-black text-green-800">Employee Offer Letter Generated Successfully</h4>
                             <p className="text-sm text-green-700 font-bold mt-2 mb-6">
-                              Agreement ID: <span className="font-mono bg-white px-2 py-1 rounded">{selectedEmp.appointmentDetails.agreementId}</span>
+                              Offer Letter ID: <span className="font-mono bg-white px-2 py-1 rounded">{selectedEmp.offerLetterDetails.offerLetterId}</span>
                             </p>
                             <a 
-                              href={`/appointment-letter/${selectedEmp._id}`} 
+                              href={`/employee-offer-letter/${selectedEmp._id}`} 
                               target="_blank" 
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-colors shadow-lg shadow-green-200"
@@ -463,13 +463,15 @@ export default function EmployeeManagement() {
                                 />
                               </div>
                             </div>
-                            <button 
-                              onClick={generateAppointmentLetter}
-                              disabled={isGeneratingAppt}
-                              className="w-full py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-transform disabled:opacity-50"
-                            >
-                              {isGeneratingAppt ? 'Generating...' : 'Generate Agreement Document'}
-                            </button>
+                            <div className="flex gap-4">
+                                  <button
+                                    onClick={generateOfferLetter}
+                                    disabled={isGeneratingAppt}
+                                    className="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary/90 transition-colors disabled:opacity-50"
+                                  >
+                                    {isGeneratingAppt ? 'Generating...' : 'Generate Offer Letter'}
+                                  </button>
+                                </div>
                             <p className="text-[10px] text-gray-400 font-bold text-center uppercase tracking-widest">
                               * Other details will be auto-filled from the employee profile.
                             </p>

@@ -91,8 +91,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     );
   }
 
-  // Final Guard: If vendor is not approved, block entire layout rendering
-  if (user?.role === 'vendor' && !user?.dashboardAccess) {
+  // Final Guard: If vendor is not approved, block entire layout rendering, EXCEPT for documents page where they need to re-upload
+  if (user?.role === 'vendor' && !user?.dashboardAccess && pathname !== '/vendor/dashboard/documents') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white p-8 text-center">
         <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-6 animate-bounce">

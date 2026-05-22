@@ -132,13 +132,93 @@ export async function GET(
       counts.groups = groups.length;
     }
 
-    const digitalCertificates = await Document.find({
-      userId: user._id,
-      category: 'Digital Certificates'
-    });
+    let digitalCertificates: any[] = [];
+    let userObj = user.toObject();
+
+    if (user.role === 'employee') {
+      const EmployeeOfferLetter = (await import('@/models/EmployeeOfferLetter')).default;
+      const EmployeeCertificate = (await import('@/models/EmployeeCertificate')).default;
+      
+      const offerLetter = await EmployeeOfferLetter.findOne({ employeeId: user._id }).lean();
+      if (offerLetter) {
+        userObj.offerLetterDetails = offerLetter;
+      }
+
+      const certs = await EmployeeCertificate.find({ employeeId: user._id }).lean();
+      
+      digitalCertificates = [
+        ...(offerLetter ? [{
+          _id: offerLetter._id,
+          type: 'employee_offer_letter',
+          title: 'Employee Offer Letter',
+          fileUrl: offerLetter.pdfUrl,
+          status: offerLetter.status,
+          agreementId: offerLetter.offerLetterId,
+          createdAt: offerLetter.createdAt,
+          visibleToEmployee: true
+        }] : []),
+        ...certs.map(c => ({
+          _id: c._id,
+          type: c.certificateType,
+          title: c.title,
+          fileUrl: c.fileUrl,
+          createdAt: c.createdAt,
+          visibleToEmployee: true
+        }))
+      ];
+    } else if (['vendor', 'sub_vendor'].includes(user.role)) {
+      const VendorAgreement = (await import('@/models/VendorAgreement')).default;
+      const VendorMOU = (await import('@/models/VendorMOU')).default;
+      const VendorCertificate = (await import('@/models/VendorCertificate')).default;
+
+      const agreement = await VendorAgreement.findOne({ vendorId: user._id }).lean();
+      if (agreement) {
+        userObj.appointmentDetails = agreement;
+      }
+
+      const agreements = agreement ? [agreement] : [];
+      const mous = await VendorMOU.find({ vendorId: user._id }).lean();
+      const certs = await VendorCertificate.find({ vendorId: user._id }).lean();
+
+      digitalCertificates = [
+        ...agreements.map(a => ({
+          _id: a._id,
+          type: 'auth_letter',
+          title: 'Partnership Agreement',
+          fileUrl: a.fileUrl,
+          uploadedDocumentUrl: a.uploadedDocumentUrl,
+          status: a.status,
+          isLocked: a.isLocked,
+          adminRemarks: a.adminRemarks,
+          agreementId: a.agreementId,
+          createdAt: a.createdAt,
+          visibleToVendor: true
+        })),
+        ...mous.map(m => ({
+          _id: m._id,
+          type: 'ngo_mou',
+          title: 'NGO MOU',
+          fileUrl: m.fileUrl,
+          uploadedDocumentUrl: m.uploadedDocumentUrl,
+          status: m.status,
+          isLocked: m.isLocked,
+          adminRemarks: m.adminRemarks,
+          createdAt: m.createdAt,
+          visibleToVendor: true
+        })),
+        ...certs.map(c => ({
+          _id: c._id,
+          type: c.certificateType,
+          title: c.title,
+          fileUrl: c.fileUrl,
+          createdAt: c.createdAt,
+          visibleToVendor: true
+        }))
+      ];
+    }
 
     return successResponse({
-      user,
+      user: userObj,
       counts,
       digitalCertificates,
       hierarchy: {

@@ -47,7 +47,7 @@ const AppointmentLetterPreview: React.FC<{ data: AppointmentLetterData }> = ({ d
       </div>
 
       <div className="text-center mb-10">
-        <h2 className="text-xl font-black text-gray-900 uppercase underline underline-offset-4">Appointment & Agreement Letter</h2>
+        <h2 className="text-xl font-black text-gray-900 uppercase underline underline-offset-4">Vendor Agreement</h2>
       </div>
 
       {/* Basic Details */}
@@ -56,18 +56,18 @@ const AppointmentLetterPreview: React.FC<{ data: AppointmentLetterData }> = ({ d
         <p className="font-bold text-lg">{data.vendorName}</p>
         <p className="font-bold text-gray-700">Attn: {data.ownerName}</p>
         <p className="text-sm text-gray-700">Authorized {displayRole}</p>
-        <p className="text-sm text-gray-700">Official ID: <span className="font-mono font-bold">{data.vendorCode}</span></p>
+        <p className="text-sm text-gray-700">Official Vendor Code: <span className="font-mono font-bold">{data.vendorCode}</span></p>
       </div>
 
       <div className="mb-6">
-        <p className="text-justify leading-relaxed">
+        <h3 className="text-sm font-black uppercase text-gray-800 mb-2">Official Partner Onboarding</h3>
+        <p className="text-justify leading-relaxed text-sm">
           Dear <span className="font-bold">{data.ownerName}</span>,<br/><br/>
-          Welcome to <span className="font-bold">{companyName}</span>! We are pleased to formally appoint you as an Authorized <span className="font-bold">{displayRole}</span> under the <span className="font-bold">{programName}</span>. Based on your application and subsequent verification, we believe your skills and commitment will be a valuable addition to our network.
+          Welcome to <span className="font-bold">{companyName}</span>. We are pleased to formally appoint your partner organization as an Authorized <span className="font-bold">{displayRole}</span> for the <span className="font-bold">{programName}</span>. Based on your application, we are authorizing you to commence campaign operations in your assigned operational region.
         </p>
       </div>
 
-      {/* Commercials & Logistics */}
-      <h3 className="text-md font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">1. Commercials & Logistics</h3>
+      <h3 className="text-md font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">1. Partner Details</h3>
       <table className="w-full text-sm border-collapse mb-6">
         <tbody>
           <tr className="border-b border-gray-100">
@@ -79,70 +79,63 @@ const AppointmentLetterPreview: React.FC<{ data: AppointmentLetterData }> = ({ d
             <td className="py-2">{data.assignedDistrict}</td>
           </tr>
           <tr className="border-b border-gray-100">
-            <td className="py-2 font-bold">Working Area</td>
+            <td className="py-2 font-bold">Operational Region</td>
             <td className="py-2">{data.workingArea || data.assignedDistrict}</td>
-          </tr>
-          <tr className="border-b border-gray-100">
-            <td className="py-2 font-bold">Date of Joining</td>
-            <td className="py-2 font-bold">{formatDate(data.joiningDate)}</td>
-          </tr>
-          <tr className="border-b border-gray-100">
-            <td className="py-2 font-bold text-green-700">Fixed Remuneration (Salary)</td>
-            <td className="py-2 font-bold text-green-700">₹{data.salary} / month</td>
-          </tr>
-          <tr className="border-b border-gray-100">
-            <td className="py-2 font-bold">Petrol & Travel Allowance</td>
-            <td className="py-2">{petrolAllowance}</td>
-          </tr>
-          <tr>
-            <td className="py-2 font-bold">Incentive Structure</td>
-            <td className="py-2">{membershipIncentive}</td>
           </tr>
         </tbody>
       </table>
 
-      {/* Responsibilities */}
-      <h3 className="text-md font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">2. Core Responsibilities & Targets</h3>
+      <h3 className="text-md font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">2. Operational Structure & Salary Framework</h3>
+      <p className="text-sm text-justify mb-4">
+        As an operational partner, your financial framework includes fixed remunerations for operational duties and variable incentives.
+        The fixed remuneration (salary) allocated for this partnership is <span className="font-bold text-green-700">₹{data.salary} / month</span>.
+      </p>
+
+      <h3 className="text-md font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">3. NGO / Vendor Incentive Structure</h3>
+      <p className="text-sm text-justify mb-4">
+        Additional operational incentives and petrol/travel allowances are provided based on field performance. Incentives are strictly performance-based: <span className="font-bold">{membershipIncentive}</span>.
+      </p>
+
+      <h3 className="text-md font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">4. Work Responsibilities & Mandatory Monthly Target System</h3>
       <ul className="list-disc pl-5 text-sm space-y-2 mb-6 text-justify">
         <li>You are responsible for expanding the SakhiHub network and empowering local communities in your assigned working area.</li>
-        <li>You must fulfill the monthly operational targets set by the company, including member registrations and network management.</li>
         <li>Ensure transparent and ethical operations in accordance with SakhiHub guidelines.</li>
+        <li>You are bound by a Mandatory Monthly Target System set by the company, including member registrations and network management. Failure to meet these targets may affect your partnership status.</li>
       </ul>
 
-      {/* Portal Operations */}
-      <h3 className="text-md font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">3. Portal Operations & Security</h3>
+      <h3 className="text-md font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">5. Portal & System Operations</h3>
       <ul className="list-disc pl-5 text-sm space-y-2 mb-6 text-justify">
-        <li>All activities must be logged and processed strictly through the official SakhiHub digital portal.</li>
+        <li>All operational activities, portal records, and data entries must be processed strictly through the official SakhiHub digital portal.</li>
         <li>Login credentials provided to you are strictly confidential and non-transferable.</li>
-        <li>You are responsible for the data privacy of the members and individuals registered under your network.</li>
       </ul>
 
-      {/* Confidentiality & Rights */}
-      <h3 className="text-md font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">4. Confidentiality & Company Rights</h3>
+      <h3 className="text-md font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">6. Important Company Policies & Company Rights & Protection</h3>
       <p className="text-sm text-justify mb-6 leading-relaxed">
-        During the course of your engagement, you will have access to confidential information regarding company operations, member data, and proprietary systems. You agree not to disclose, share, or misuse any such information. <span className="font-bold">{companyName}</span> reserves all rights to amend policies, operational guidelines, or incentive structures with prior notice. The company holds full rights over all intellectual property and network data generated during your tenure.
+        <span className="font-bold">{companyName}</span> reserves all company rights to amend policies, operational guidelines, or incentive structures with prior notice. The company holds full rights over all intellectual property and network data generated during your partnership.
       </p>
 
-      {/* Termination */}
-      <h3 className="text-md font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">5. Termination & Governing Law</h3>
-      <p className="text-sm text-justify mb-12 leading-relaxed">
-        This agreement may be terminated by either party with a written notice. However, immediate termination may be enacted by the company in cases of fraud, policy violation, or unethical behavior. This agreement shall be governed by the laws of India, and any disputes shall be subject to the exclusive jurisdiction of the registered company headquarters.
+      <h3 className="text-md font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">7. Confidentiality & Data Protection</h3>
+      <p className="text-sm text-justify mb-6 leading-relaxed">
+        During the course of your engagement, you will have access to confidential information regarding company operations, member data, and proprietary systems. You agree to adhere to strict Data Protection guidelines and not to disclose, share, or misuse any such information.
       </p>
 
-      {/* Signatures */}
+      <h3 className="text-md font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">8. Activation & Operational Status</h3>
+      <p className="text-sm text-justify mb-10 leading-relaxed">
+        Your partnership activation is confirmed upon generation of this agreement. This operational status remains active subject to compliance with the terms herein. This agreement may be terminated by either party with written notice. Immediate termination may occur in cases of fraud, policy violation, or unethical behavior.
+      </p>
+
       <div className="flex justify-between items-end mt-12 pt-8">
         <div className="text-center">
-          <p className="font-bold border-t border-gray-400 pt-2 px-8 uppercase text-sm">Authorized Signatory</p>
-          <p className="text-xs text-gray-500 mt-1">For {companyName}</p>
+          <p className="font-bold border-t border-gray-400 pt-2 px-8 uppercase text-sm">Official Company Details</p>
+          <p className="text-xs text-gray-500 mt-1">Authorized Signatory For {companyName}</p>
         </div>
         
         <div className="text-center">
-          <p className="font-bold border-t border-gray-400 pt-2 px-8 uppercase text-sm">Appointee Signature</p>
+          <p className="font-bold border-t border-gray-400 pt-2 px-8 uppercase text-sm">Vendor / Partner Signature</p>
           <p className="text-xs text-gray-500 mt-1">{data.ownerName}</p>
         </div>
       </div>
       
-      {/* Footer */}
       <div className="mt-16 pt-4 border-t border-gray-200 text-center text-[10px] text-gray-400 uppercase tracking-widest">
         This is a system generated document and does not require a physical signature for digital validity.
       </div>

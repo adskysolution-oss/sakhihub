@@ -2,6 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
+import VendorAgreement from '@/models/VendorAgreement';
 import AppointmentLetterPreview, { AppointmentLetterData } from '@/components/shared/AppointmentLetterPreview';
 import PrintButton from '@/components/shared/PrintButton';
 
@@ -10,26 +11,25 @@ export default async function AppointmentLetterPage({ params }: { params: Promis
   
   const { id } = await params;
   const user = await User.findById(id).lean();
+  const agreement = await VendorAgreement.findOne({ vendorId: id }).lean();
   
-  if (!user || !user.appointmentDetails) {
+  if (!user || !agreement) {
     notFound();
   }
 
-  const { appointmentDetails } = user as any;
-
   const letterData: AppointmentLetterData = {
-    vendorName: user.businessName || user.fullName,
-    ownerName: user.fullName,
-    vendorCode: user.vendorCode || user.subVendorCode || user.employeeId || 'PENDING-ID',
-    agreementId: appointmentDetails.agreementId,
-    assignedState: user.state || 'N/A',
-    assignedDistrict: user.district || 'N/A',
-    role: user.role,
-    workingArea: user.block ? `${user.block}, ${user.district}` : user.district || 'All areas',
-    joiningDate: appointmentDetails.joiningDate,
-    salary: appointmentDetails.salary,
-    generatedDate: appointmentDetails.generatedDate,
-    documentStatus: appointmentDetails.status
+    vendorName: (user.businessName as string) || (user.fullName as string),
+    ownerName: user.fullName as string,
+    vendorCode: (user.vendorCode as string) || (user.subVendorCode as string) || (user.employeeId as string) || 'PENDING-ID',
+    agreementId: agreement.agreementId as string,
+    assignedState: (user.state as string) || 'N/A',
+    assignedDistrict: (user.district as string) || 'N/A',
+    role: user.role as any,
+    workingArea: user.block ? `${user.block}, ${user.district}` : (user.district as string) || 'All areas',
+    joiningDate: agreement.joiningDate as Date,
+    salary: agreement.salary as string,
+    generatedDate: agreement.generatedDate as Date,
+    documentStatus: agreement.status as any
   };
 
   return (

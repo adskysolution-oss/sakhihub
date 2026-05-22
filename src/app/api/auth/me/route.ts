@@ -26,6 +26,22 @@ export async function GET() {
       return errorResponse('User not found', 404);
     }
 
+    let userObj = user.toObject();
+
+    if (userObj.role === 'employee') {
+      const EmployeeOfferLetter = (await import('@/models/EmployeeOfferLetter')).default;
+      const offerLetter = await EmployeeOfferLetter.findOne({ employeeId: user._id }).lean();
+      if (offerLetter) {
+        userObj.offerLetterDetails = offerLetter;
+      }
+    } else if (['vendor', 'sub_vendor'].includes(userObj.role)) {
+      const VendorAgreement = (await import('@/models/VendorAgreement')).default;
+      const agreement = await VendorAgreement.findOne({ vendorId: user._id }).lean();
+      if (agreement) {
+        userObj.appointmentDetails = agreement;
+      }
+    }
+
     // SELF-HEALING: If documents are approved but flag is false, fix it now.
     // This handles users who were approved before the strict dual-gate logic was finalized.
     if (!user.documentsVerified && ['sub_vendor', 'employee'].includes(user.role)) {
@@ -78,12 +94,12 @@ export async function GET() {
        }).populate('employeeId', 'fullName mobile employeeId');
        
        return successResponse({
-         ...user.toObject(),
+         ...userObj,
          pendingRequests: requests
        });
     }
 
-    return successResponse(user);
+    return successResponse(userObj);
   } catch (error) {
     console.error('Auth Me Sync Error:', error);
     return errorResponse('Internal Server Error', 500);

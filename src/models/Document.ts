@@ -2,7 +2,7 @@ import mongoose, { Schema, Document as MongooseDocument } from 'mongoose';
 
 export interface IDocument extends MongooseDocument {
   userId: mongoose.Types.ObjectId;
-  type: 'ngo_reg' | 'pan' | 'aadhaar' | 'bank_passbook' | 'agreement' | 'security_receipt' | 'auth_letter' | 'other';
+  type: 'ngo_reg' | 'pan' | 'aadhaar' | 'bank_passbook' | 'security_receipt' | 'other';
   title: string;
   fileUrl: string; // The generated or base file
   uploadedDocumentUrl?: string; // The signed/uploaded file from vendor
@@ -15,6 +15,7 @@ export interface IDocument extends MongooseDocument {
   vendorId?: mongoose.Types.ObjectId;
   agreementId?: string;
   visibleToVendor?: boolean;
+  visibleToEmployee?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,7 +25,7 @@ const DocumentSchema: Schema = new Schema(
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     type: { 
       type: String, 
-      enum: ['ngo_reg', 'pan', 'aadhaar', 'bank_passbook', 'agreement', 'security_receipt', 'auth_letter', 'other'], 
+      enum: ['ngo_reg', 'pan', 'aadhaar', 'bank_passbook', 'security_receipt', 'other'], 
       required: true 
     },
     title: { type: String, required: true },
@@ -43,6 +44,7 @@ const DocumentSchema: Schema = new Schema(
     vendorId: { type: Schema.Types.ObjectId, ref: 'User' },
     agreementId: { type: String },
     visibleToVendor: { type: Boolean, default: true },
+    visibleToEmployee: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
