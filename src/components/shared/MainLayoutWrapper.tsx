@@ -18,7 +18,8 @@ export default function MainLayoutWrapper({ children }: { children: React.ReactN
     pathname.startsWith('/member') ||
     pathname.startsWith('/pending-assignment') ||
     pathname.startsWith('/pending-approval') ||
-    pathname.startsWith('/id-card');
+    pathname.startsWith('/id-card') ||
+    pathname.startsWith('/appointment-letter');
 
   if (isDashboardRoute) {
     return (

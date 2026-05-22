@@ -13,15 +13,28 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
     
-    // Get this vendor's code
+    // Get this vendor's details
     const vendor = await User.findById((session as any).id);
     if (!vendor) return errorResponse('Vendor not found', 404);
 
-    // Find all employees where vendorCode matches this vendor
+    // 1. Fetch sub-vendors under this vendor
+    const subVendors = await User.find({ 
+      parentVendorId: vendor._id, 
+      role: 'sub_vendor'
+    }).select('_id');
+
+    const subVendorIds = subVendors.map(sv => sv._id);
+
+    // 2. Fetch all employees under this vendor directly OR under their sub-vendors
     const employees = await User.find({ 
-      vendorCode: vendor.vendorCode,
-      role: 'employee'
-    }).select('-password');
+      role: 'employee',
+      $or: [
+        { parentVendorId: vendor._id },
+        { parentVendorId: { $in: subVendorIds } }
+      ]
+    })
+    .select('-password')
+    .sort({ createdAt: -1 });
 
     return successResponse(employees);
   } catch (error: any) {

@@ -28,6 +28,12 @@ export default function EmployeeManagement() {
   const [assignTarget, setAssignTarget] = useState<any>(null);
   const [isAssigning, setIsAssigning] = useState(false);
 
+  // Appointment Letter State
+  const [joiningDate, setJoiningDate] = useState('');
+  const [salary, setSalary] = useState('');
+  const [isGeneratingAppt, setIsGeneratingAppt] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+
   const fetchEmployees = async () => {
     setLoading(true);
     try {
@@ -102,6 +108,27 @@ export default function EmployeeManagement() {
       alert("Failed to update assignment");
     } finally {
       setIsAssigning(false);
+    }
+  };
+
+  const generateAppointmentLetter = async () => {
+    if (!joiningDate || !salary) {
+      alert("Please enter both Joining Date and Salary.");
+      return;
+    }
+    setIsGeneratingAppt(true);
+    try {
+      const res = await axios.post(`/api/admin/users/${selectedEmp._id}/appointment`, {
+        joiningDate,
+        salary
+      });
+      if (res.data.success) {
+        setSelectedEmp(res.data.data);
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to generate appointment letter");
+    } finally {
+      setIsGeneratingAppt(false);
     }
   };
 
@@ -253,7 +280,7 @@ export default function EmployeeManagement() {
             <div className="fixed inset-0 z-[100] flex items-center justify-end">
               <motion.div 
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                onClick={() => setSelectedEmp(null)}
+                onClick={() => { setSelectedEmp(null); setActiveTab('overview'); }}
                 className="absolute inset-0 bg-secondary/40 backdrop-blur-sm" 
               />
               <motion.div 
@@ -263,7 +290,7 @@ export default function EmployeeManagement() {
                 {/* Header */}
                 <div className="bg-secondary-dark p-10 text-white relative shrink-0">
                   <button 
-                    onClick={() => setSelectedEmp(null)}
+                    onClick={() => { setSelectedEmp(null); setActiveTab('overview'); }}
                     className="absolute right-8 top-8 w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center hover:bg-white/20 transition-all"
                   ><X size={24} /></button>
                   
@@ -285,11 +312,28 @@ export default function EmployeeManagement() {
                       </div>
                     </div>
                   </div>
+
+                  <div className="flex gap-2 mt-8 bg-white/5 p-1.5 rounded-[24px] border border-white/10 w-fit">
+                    <button
+                      onClick={() => setActiveTab('overview')}
+                      className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === 'overview' ? 'bg-white text-secondary shadow-xl' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+                    >
+                      Overview & Compliance
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('agreement')}
+                      className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === 'agreement' ? 'bg-white text-secondary shadow-xl' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+                    >
+                      Agreement
+                    </button>
+                  </div>
                 </div>
 
                 {/* Tabs / Content Scrollable Area */}
                 <div className="flex-1 overflow-y-auto p-10">
-                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
+                  {activeTab === 'overview' && (
+                    <>
+                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
                       <div className="space-y-6">
                          <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-4 border-primary pl-4">Personal & Network Details</h4>
                          <div className="grid grid-cols-2 gap-6 bg-gray-50 p-6 rounded-3xl border border-gray-100">
@@ -360,16 +404,90 @@ export default function EmployeeManagement() {
                         ))}
                       </div>
                    </section>
+                    </>
+                  )}
+
+                  {activeTab === 'agreement' && (
+                    <div className="max-w-2xl mx-auto space-y-8 py-8">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl mx-auto flex items-center justify-center mb-4">
+                          <FileText size={32} />
+                        </div>
+                        <h3 className="text-2xl font-black text-secondary tracking-tight">Appointment & Agreement Letter</h3>
+                        <p className="text-sm text-gray-500 font-bold mt-2">
+                          Generate the official digital agreement for this employee.
+                        </p>
+                      </div>
+
+                      {selectedEmp.appointmentDetails ? (
+                        <div className="bg-green-50 border border-green-200 rounded-[32px] p-8 text-center relative overflow-hidden">
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-green-200/50 rounded-full blur-2xl -mr-16 -mt-16" />
+                          <div className="relative z-10">
+                            <CheckCircle2 size={48} className="text-green-500 mx-auto mb-4" />
+                            <h4 className="text-xl font-black text-green-800">Agreement Generated Successfully</h4>
+                            <p className="text-sm text-green-700 font-bold mt-2 mb-6">
+                              Agreement ID: <span className="font-mono bg-white px-2 py-1 rounded">{selectedEmp.appointmentDetails.agreementId}</span>
+                            </p>
+                            <a 
+                              href={`/appointment-letter/${selectedEmp._id}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-colors shadow-lg shadow-green-200"
+                            >
+                              <ExternalLink size={16} /> Preview & Print Letter
+                            </a>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-gray-50 p-8 rounded-[32px] border border-gray-100">
+                          <div className="space-y-6">
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Joining Date</label>
+                              <input 
+                                type="date" 
+                                value={joiningDate}
+                                onChange={(e) => setJoiningDate(e.target.value)}
+                                className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Fixed Remuneration (Salary)</label>
+                              <div className="relative">
+                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
+                                <input 
+                                  type="number" 
+                                  value={salary}
+                                  onChange={(e) => setSalary(e.target.value)}
+                                  placeholder="e.g. 15000"
+                                  className="w-full pl-10 pr-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                                />
+                              </div>
+                            </div>
+                            <button 
+                              onClick={generateAppointmentLetter}
+                              disabled={isGeneratingAppt}
+                              className="w-full py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-transform disabled:opacity-50"
+                            >
+                              {isGeneratingAppt ? 'Generating...' : 'Generate Agreement Document'}
+                            </button>
+                            <p className="text-[10px] text-gray-400 font-bold text-center uppercase tracking-widest">
+                              * Other details will be auto-filled from the employee profile.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Footer Actions */}
                 <div className="p-8 bg-gray-50 border-t border-gray-100 flex justify-between items-center shrink-0">
                    <div className="flex gap-4">
-                      {selectedEmp.status === 'pending' || selectedEmp.status === 'rejected' ? (
+                      {['pending', 'rejected', 'suspended'].includes(selectedEmp.status) ? (
                         <button 
                           onClick={() => handleStatusUpdate(selectedEmp._id, 'active')}
                           className="px-8 py-4 bg-gradient-to-r from-primary to-secondary text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 transition-all"
-                        >Approve & Activate</button>
+                        >{selectedEmp.status === 'suspended' ? 'Re-activate Employee' : 'Approve & Activate'}</button>
                       ) : (
                         <button 
                           onClick={() => handleStatusUpdate(selectedEmp._id, 'suspended')}

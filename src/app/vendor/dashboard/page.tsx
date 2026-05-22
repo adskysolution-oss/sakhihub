@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import {
   Target, Users, Briefcase, User, IndianRupee,
-  ClipboardList, TrendingUp, ShieldCheck, CheckCircle, Clock
+  ClipboardList, TrendingUp, ShieldCheck, CheckCircle, Clock, FileText, ExternalLink
 } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -117,6 +117,24 @@ export default function VendorDashboard() {
           />
 
           <PaymentReceiptCard />
+
+          {user?.appointmentDetails && (
+            <div className="bg-primary/5 p-8 rounded-[40px] border border-primary/20 flex flex-col justify-center items-center text-center col-span-1 lg:col-span-2 shadow-inner">
+              <FileText size={48} className="text-primary mb-4" />
+              <h2 className="text-2xl font-black text-secondary">Official Appointment Letter</h2>
+              <p className="text-gray-500 font-bold max-w-md mt-2 mb-6 text-sm">
+                Your official appointment letter and agreement with SakhiHub has been generated. You can view, download, or print it.
+              </p>
+              <a 
+                href={`/appointment-letter/${user._id}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all"
+              >
+                <ExternalLink size={16} /> View & Print Agreement
+              </a>
+            </div>
+          )}
 
           {/* Recent Activity */}
           <div className="bg-secondary p-8 rounded-[40px] text-white shadow-2xl">

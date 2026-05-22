@@ -17,18 +17,41 @@ export async function GET(req: NextRequest) {
     const vendor = await User.findById((session as any).id);
     if (!vendor) return errorResponse('Vendor not found', 404);
 
-    // Get all users who are members and have this vendorCode
-    const memberUsers = await User.find({ 
-      vendorCode: vendor.vendorCode,
-      role: 'member'
+    // 1. Get sub-vendors under this vendor
+    const subVendors = await User.find({ 
+      parentVendorId: vendor._id, 
+      role: 'sub_vendor'
+    }).select('_id subVendorCode');
+
+    const subVendorIds = subVendors.map(sv => sv._id);
+    const subVendorCodes = subVendors.map(sv => sv.subVendorCode).filter(Boolean);
+
+    // 2. Get all employees under vendor and sub-vendors
+    const employees = await User.find({
+      role: 'employee',
+      $or: [
+        { parentVendorId: vendor._id },
+        { parentVendorId: { $in: subVendorIds } }
+      ]
     }).select('_id');
 
-    const memberIds = memberUsers.map(m => m._id);
+    const employeeIds = employees.map(emp => emp._id);
+
+    // 3. Build query for WomenMember
+    const queryOr: any[] = [];
+    if (vendor.vendorCode) queryOr.push({ vendorCode: vendor.vendorCode });
+    if (subVendorCodes.length > 0) queryOr.push({ subVendorCode: { $in: subVendorCodes } });
+    if (employeeIds.length > 0) queryOr.push({ assignedEmployeeId: { $in: employeeIds } });
+    
+    // Fallback: If nothing else, at least catch those directly created by the vendor
+    queryOr.push({ createdBy: vendor._id });
 
     // Fetch details from WomenMember collection
     const members = await WomenMember.find({ 
-      userId: { $in: memberIds }
-    }).populate('assignedEmployeeId', 'fullName employeeId');
+      $or: queryOr
+    })
+    .populate('assignedEmployeeId', 'fullName employeeId')
+    .sort({ createdAt: -1 });
 
     return successResponse(members);
   } catch (error: any) {

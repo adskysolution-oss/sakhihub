@@ -7,8 +7,9 @@ import {
   FileText, CreditCard, PieChart, Activity,
   ChevronRight, Link2, ExternalLink, Calendar,
   CheckCircle2, Clock, AlertCircle, X,
-  FileCheck, Landmark, UserCheck, RefreshCw
+  FileCheck, Landmark, UserCheck, RefreshCw, PenTool
 } from 'lucide-react';
+import axios from 'axios';
 import { motion } from 'framer-motion';
 import { 
   getDocumentViewUrl, 
@@ -46,12 +47,24 @@ interface HierarchyDetailViewProps {
 export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: HierarchyDetailViewProps) {
   const { user, counts, hierarchy } = data;
   const [activeTab, setActiveTab] = React.useState('overview');
+  
+  // Appointment Letter State
+  const [joiningDate, setJoiningDate] = React.useState('');
+  const [salary, setSalary] = React.useState('');
+  const [isGeneratingAppt, setIsGeneratingAppt] = React.useState(false);
+  // Keep local user state to update appointment details immediately
+  const [localUser, setLocalUser] = React.useState(user);
+
+  React.useEffect(() => {
+    setLocalUser(user);
+  }, [user]);
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: PieChart },
     { id: 'network', label: 'Network', icon: Users },
     { id: 'ops', label: 'Operations', icon: Target },
     { id: 'docs', label: 'Compliance', icon: ShieldCheck },
+    { id: 'agreement', label: 'Agreement', icon: PenTool },
   ];
 
   const StatCard = ({ label, value, icon: Icon, color }: any) => (
@@ -65,6 +78,27 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
       </div>
     </div>
   );
+
+  const generateAppointmentLetter = async () => {
+    if (!joiningDate || !salary) {
+      alert("Please enter both Joining Date and Salary.");
+      return;
+    }
+    setIsGeneratingAppt(true);
+    try {
+      const res = await axios.post(`/api/admin/users/${localUser._id}/appointment`, {
+        joiningDate,
+        salary
+      });
+      if (res.data.success) {
+        setLocalUser(res.data.data);
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to generate appointment letter");
+    } finally {
+      setIsGeneratingAppt(false);
+    }
+  };
 
   return (
     <div className="flex flex-col bg-white rounded-[40px] shadow-2xl border border-gray-100 min-h-full">
@@ -100,17 +134,17 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                   'bg-white/10'
                 }`}>
                   <Briefcase size={14} className="text-primary-light" />
-                  <span>{user.vendorType === 'ngo_trust' ? 'NGO / Trust' : user.vendorType === 'company' ? 'Company' : 'Individual'} Vendor</span>
-                </div>
-              )}
-              <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-2xl text-xs font-bold border border-white/10">
-                <MapPin size={14} className="text-primary-light" />
-                <span>{user.district}, {user.state}</span>
+                <span>{localUser.vendorType === 'ngo_trust' ? 'NGO / Trust' : localUser.vendorType === 'company' ? 'Company' : 'Individual'} Vendor</span>
               </div>
-              {user.parentVendorId && (
-                <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-2xl text-xs font-bold border border-white/10">
-                  <Link2 size={14} className="text-primary-light" />
-                  <span>Parent: {user.parentVendorId.fullName}</span>
+            )}
+            <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-2xl text-xs font-bold border border-white/10">
+              <MapPin size={14} className="text-primary-light" />
+              <span>{localUser.district}, {localUser.state}</span>
+            </div>
+            {localUser.parentVendorId && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-2xl text-xs font-bold border border-white/10">
+                <Link2 size={14} className="text-primary-light" />
+                <span>Parent: {localUser.parentVendorId.fullName}</span>
                 </div>
               )}
             </div>
@@ -417,6 +451,80 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                    </p>
                 </div>
               </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'agreement' && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
+            <div className="max-w-2xl mx-auto space-y-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl mx-auto flex items-center justify-center mb-4">
+                  <FileText size={32} />
+                </div>
+                <h3 className="text-2xl font-black text-secondary tracking-tight">Appointment & Agreement Letter</h3>
+                <p className="text-sm text-gray-500 font-bold mt-2">
+                  Generate the official digital agreement for this partner.
+                </p>
+              </div>
+
+              {localUser.appointmentDetails ? (
+                <div className="bg-green-50 border border-green-200 rounded-[32px] p-8 text-center relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-green-200/50 rounded-full blur-2xl -mr-16 -mt-16" />
+                  <div className="relative z-10">
+                    <CheckCircle2 size={48} className="text-green-500 mx-auto mb-4" />
+                    <h4 className="text-xl font-black text-green-800">Agreement Generated Successfully</h4>
+                    <p className="text-sm text-green-700 font-bold mt-2 mb-6">
+                      Agreement ID: <span className="font-mono bg-white px-2 py-1 rounded">{localUser.appointmentDetails.agreementId}</span>
+                    </p>
+                    <a 
+                      href={`/appointment-letter/${localUser._id}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-colors shadow-lg shadow-green-200"
+                    >
+                      <ExternalLink size={16} /> Preview & Print Letter
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-gray-50 p-8 rounded-[32px] border border-gray-100">
+                  <div className="space-y-6">
+                    <div>
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Joining Date</label>
+                      <input 
+                        type="date" 
+                        value={joiningDate}
+                        onChange={(e) => setJoiningDate(e.target.value)}
+                        className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Fixed Remuneration (Salary)</label>
+                      <div className="relative">
+                        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
+                        <input 
+                          type="number" 
+                          value={salary}
+                          onChange={(e) => setSalary(e.target.value)}
+                          placeholder="e.g. 15000"
+                          className="w-full pl-10 pr-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                        />
+                      </div>
+                    </div>
+                    <button 
+                      onClick={generateAppointmentLetter}
+                      disabled={isGeneratingAppt}
+                      className="w-full py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-transform disabled:opacity-50"
+                    >
+                      {isGeneratingAppt ? 'Generating...' : 'Generate Agreement Document'}
+                    </button>
+                    <p className="text-[10px] text-gray-400 font-bold text-center uppercase tracking-widest">
+                      * Other details will be auto-filled from the vendor profile.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}

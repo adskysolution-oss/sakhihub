@@ -104,7 +104,7 @@ function DocumentViewerContent() {
               // Image & PDF Viewer (rendered as JPG dynamically by Cloudinary)
               <div className="w-full h-[80vh] overflow-auto flex items-center justify-center p-4 bg-gray-100 relative">
                 <img 
-                  src={previewUrl} 
+                  src={previewUrl as string} 
                   alt="Document Preview" 
                   className="max-w-full max-h-full object-contain drop-shadow-lg"
                 />

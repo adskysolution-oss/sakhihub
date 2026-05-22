@@ -84,6 +84,13 @@ export interface IUser extends Document {
   parentSubVendorCode?: string; // Referral tracking
   parentEmployeeCode?: string; // Referral tracking
   campaignCode?: string; // Referral tracking
+  appointmentDetails?: {
+    joiningDate: Date;
+    salary: string;
+    generatedDate: Date;
+    agreementId: string;
+    status: 'generated' | 'signed';
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -186,6 +193,13 @@ const UserSchema: Schema = new Schema(
     parentSubVendorCode: { type: String },
     parentEmployeeCode: { type: String },
     campaignCode: { type: String },
+    appointmentDetails: {
+      joiningDate: { type: Date },
+      salary: { type: String },
+      generatedDate: { type: Date },
+      agreementId: { type: String },
+      status: { type: String, enum: ['generated', 'signed'] }
+    },
   },
   { timestamps: true }
 );

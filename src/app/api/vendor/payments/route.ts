@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     // 1. Get Membership Collections within this vendor's network
     // (This would involve finding members belonging to this vendor)
     const memberUsers = await User.find({ 
-      vendorCode: vendor.vendorCode,
+      parentVendorId: vendor._id,
       role: 'member'
     }).select('_id');
     const memberUserIds = memberUsers.map(m => m._id);
