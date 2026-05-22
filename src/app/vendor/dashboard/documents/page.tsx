@@ -17,10 +17,33 @@ export default function VendorDocuments() {
   const [vendorType, setVendorType] = useState<string>('');
   const [digitalCertificates, setDigitalCertificates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploadingDocId, setUploadingDocId] = useState<string | null>(null);
 
   const { uploading, uploadDocument } = useDocumentFlow({
     onSuccess: async () => { await fetchDocuments(); }
   });
+
+  const handleSignedDocumentUpload = async (file: File, documentId: string) => {
+    setUploadingDocId(documentId);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'signed_document');
+      formData.append('documentId', documentId);
+      
+      const res = await axios.post('/api/vendor/documents', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      if (res.data.success) {
+        await fetchDocuments();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUploadingDocId(null);
+    }
+  };
 
   const fetchDocuments = async () => {
     try {
@@ -187,6 +210,62 @@ export default function VendorDocuments() {
                 </div>
               </div>
             )}
+
+            {(() => {
+              const authLetter = digitalCertificates.find(c => c.type === 'auth_letter');
+              if (!authLetter) return null;
+
+              const isLocked = authLetter.isLocked;
+              const hasUploaded = !!authLetter.uploadedDocumentUrl;
+              
+              return (
+                <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
+                  <h2 className="text-xl font-black text-secondary mb-6 flex items-center gap-2">
+                    <FileText size={24} className="text-primary" /> Signed Agreement Upload
+                  </h2>
+                  <p className="text-xs text-gray-400 font-bold mb-6 leading-relaxed">
+                    Please download your <span className="text-primary">Appointment & Agreement Letter</span> from the Digital Certificates section above, sign it physically or digitally, and upload the scanned copy here.
+                  </p>
+                  
+                  {hasUploaded ? (
+                    <div className="flex flex-col gap-4">
+                      <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white ${isLocked ? 'bg-green-500' : 'bg-primary'}`}>
+                            {isLocked ? <ShieldCheck size={20} /> : <FileText size={20} />}
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-secondary">Signed Agreement Uploaded</p>
+                            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">
+                              Status: {isLocked ? 'Approved & Locked' : authLetter.status}
+                            </p>
+                          </div>
+                        </div>
+                        <a href={authLetter.uploadedDocumentUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-white text-primary rounded-xl shadow-sm hover:bg-primary hover:text-white border border-gray-100 transition-all">
+                          <Download size={16} />
+                        </a>
+                      </div>
+                      
+                      {!isLocked ? (
+                        <label className={`w-full py-3 rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest cursor-pointer transition-all border-2 border-primary/20 text-primary hover:bg-primary/5 ${uploadingDocId === authLetter._id ? 'opacity-50 cursor-wait' : ''}`}>
+                          {uploadingDocId === authLetter._id ? 'Uploading...' : 'Replace Signed Document'}
+                          <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp" disabled={uploadingDocId === authLetter._id} onChange={(e) => { if(e.target.files?.[0]) handleSignedDocumentUpload(e.target.files[0], authLetter._id); }} />
+                        </label>
+                      ) : (
+                        <p className="text-[10px] text-green-600 font-bold uppercase tracking-widest text-center mt-2 flex items-center justify-center gap-2">
+                          <CheckCircle size={12} /> Document verified and locked
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <label className={`w-full py-4 bg-primary text-white rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest cursor-pointer transition-all shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 ${uploadingDocId === authLetter._id ? 'opacity-50 cursor-wait' : ''}`}>
+                      {uploadingDocId === authLetter._id ? 'Uploading...' : 'Upload Signed Agreement'}
+                      <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp" disabled={uploadingDocId === authLetter._id} onChange={(e) => { if(e.target.files?.[0]) handleSignedDocumentUpload(e.target.files[0], authLetter._id); }} />
+                    </label>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>

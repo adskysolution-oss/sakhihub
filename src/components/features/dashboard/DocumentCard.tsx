@@ -107,7 +107,7 @@ export default function DocumentCard({
           </div>
         ) : null}
 
-        {!readOnly && (
+        {!readOnly && status !== 'approved' && (
           <label className={`w-full py-3 rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest cursor-pointer transition-all ${
             uploading ? 'bg-gray-100 text-gray-400 cursor-wait' :
             isUploaded ? 'bg-white border-2 border-gray-100 text-gray-400 hover:border-primary/20 hover:text-primary' : 

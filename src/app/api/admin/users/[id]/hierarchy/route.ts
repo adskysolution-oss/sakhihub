@@ -4,6 +4,7 @@ import User from '@/models/User';
 import WomenMember from '@/models/WomenMember';
 import Group from '@/models/Group';
 import Campaign from '@/models/Campaign';
+import Document from '@/models/Document';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 import mongoose from 'mongoose';
@@ -131,9 +132,15 @@ export async function GET(
       counts.groups = groups.length;
     }
 
+    const digitalCertificates = await Document.find({
+      userId: user._id,
+      category: 'Digital Certificates'
+    });
+
     return successResponse({
       user,
       counts,
+      digitalCertificates,
       hierarchy: {
         subVendors,
         employees,

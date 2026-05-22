@@ -54,10 +54,12 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
   const [isGeneratingAppt, setIsGeneratingAppt] = React.useState(false);
   // Keep local user state to update appointment details immediately
   const [localUser, setLocalUser] = React.useState(user);
+  const [digitalCertificates, setDigitalCertificates] = React.useState<any[]>(data.digitalCertificates || []);
 
   React.useEffect(() => {
     setLocalUser(user);
-  }, [user]);
+    setDigitalCertificates(data.digitalCertificates || []);
+  }, [user, data.digitalCertificates]);
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: PieChart },
@@ -97,6 +99,21 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
       alert(err.response?.data?.message || "Failed to generate appointment letter");
     } finally {
       setIsGeneratingAppt(false);
+    }
+  };
+
+  const updateDocumentLock = async (docId: string, isLocked: boolean, isApproved: boolean) => {
+    try {
+      const res = await axios.post(`/api/admin/users/${localUser._id}/documents/${docId}/lock`, {
+        isLocked,
+        isApproved
+      });
+      if (res.data.success) {
+        setDigitalCertificates(prev => prev.map(d => d._id === docId ? res.data.data.document : d));
+        alert(`Document ${isLocked ? 'locked' : 'unlocked'} successfully`);
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to update document status');
     }
   };
 
@@ -525,6 +542,55 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                   </div>
                 </div>
               )}
+
+              {localUser.appointmentDetails && (() => {
+                const authLetter = digitalCertificates?.find((c: any) => c.type === 'auth_letter');
+                if (!authLetter || !authLetter.uploadedDocumentUrl) return null;
+                
+                return (
+                  <div className="bg-white border border-gray-100 shadow-soft rounded-[32px] p-8 text-center mt-8">
+                    <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl mx-auto flex items-center justify-center mb-4">
+                      <ShieldCheck size={32} />
+                    </div>
+                    <h4 className="text-xl font-black text-secondary">Signed Agreement Uploaded</h4>
+                    <p className="text-sm text-gray-500 font-bold mt-2 mb-6">
+                      The vendor has uploaded the signed agreement. Please review and lock it to finalize the process.
+                    </p>
+                    
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                      <a 
+                        href={authLetter.uploadedDocumentUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="px-6 py-3 bg-gray-50 text-secondary border border-gray-200 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-colors"
+                      >
+                        View Uploaded Document
+                      </a>
+                      
+                      {authLetter.isLocked ? (
+                        <button 
+                          onClick={() => updateDocumentLock(authLetter._id, false, false)}
+                          className="px-6 py-3 bg-amber-50 text-amber-600 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-amber-100 transition-colors flex items-center gap-2"
+                        >
+                          <AlertCircle size={16} /> Unlock Document
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => updateDocumentLock(authLetter._id, true, true)}
+                          className="px-6 py-3 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 flex items-center gap-2"
+                        >
+                          <ShieldCheck size={16} /> Approve & Lock
+                        </button>
+                      )}
+                    </div>
+                    {authLetter.isLocked && (
+                      <p className="text-[10px] text-green-600 font-bold uppercase tracking-widest mt-4 flex items-center justify-center gap-1">
+                        <CheckCircle2 size={12} /> Document is verified and locked
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </motion.div>
         )}

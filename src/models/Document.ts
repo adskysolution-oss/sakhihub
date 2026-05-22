@@ -4,8 +4,11 @@ export interface IDocument extends MongooseDocument {
   userId: mongoose.Types.ObjectId;
   type: 'ngo_reg' | 'pan' | 'aadhaar' | 'bank_passbook' | 'agreement' | 'security_receipt' | 'auth_letter' | 'other';
   title: string;
-  fileUrl: string;
-  status: 'pending' | 'uploaded' | 'under_review' | 'approved' | 'rejected' | 'reupload_required';
+  fileUrl: string; // The generated or base file
+  uploadedDocumentUrl?: string; // The signed/uploaded file from vendor
+  status: 'pending' | 'pending_upload' | 'uploaded' | 'under_review' | 'approved' | 'rejected' | 'reupload_required' | 'unlocked';
+  isLocked?: boolean;
+  isApproved?: boolean;
   adminRemarks?: string;
   category?: string;
   documentType?: string;
@@ -26,11 +29,14 @@ const DocumentSchema: Schema = new Schema(
     },
     title: { type: String, required: true },
     fileUrl: { type: String, required: true },
+    uploadedDocumentUrl: { type: String },
     status: { 
       type: String, 
-      enum: ['pending', 'uploaded', 'under_review', 'approved', 'rejected', 'reupload_required'], 
+      enum: ['pending', 'pending_upload', 'uploaded', 'under_review', 'approved', 'rejected', 'reupload_required', 'unlocked'], 
       default: 'pending' 
     },
+    isLocked: { type: Boolean, default: false },
+    isApproved: { type: Boolean, default: false },
     adminRemarks: { type: String },
     category: { type: String },
     documentType: { type: String },

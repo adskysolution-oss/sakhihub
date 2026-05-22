@@ -37,13 +37,9 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
           const userData = res.data.data;
           setUser(userData);
 
-          // Second layer of security check
-          if (userData.role === 'vendor' && !['active', 'approved'].includes(userData.status)) {
-             router.replace('/vendor/onboarding');
-          } else if (userData.role !== 'super_admin' && userData.status === 'pending' && pathname !== '/pending-approval') {
-             // For sub-vendors/employees
-             // router.replace('/pending-approval'); 
-          }
+          // The proxy.ts middleware handles all page protection and redirects
+          // based on dashboardAccess, documentsVerified, etc.
+          // No frontend redirect needed here.
         }
       } catch (error) {
         console.error("Failed to fetch user session", error);

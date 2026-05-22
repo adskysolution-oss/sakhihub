@@ -29,6 +29,8 @@ export async function POST(req: NextRequest) {
       return errorResponse('Missing required fields', 400);
     }
 
+    const documentId = formData.get('documentId') as string;
+
     await dbConnect();
     const user = await User.findById((session as any).id);
 
@@ -36,10 +38,25 @@ export async function POST(req: NextRequest) {
       return errorResponse('User not found', 404);
     }
 
-    const allowedTypes = getRequiredDocs(user.role, user.vendorType);
-
-    if (!allowedTypes.includes(type)) {
-      return errorResponse('Invalid document type for this role', 400);
+    if (!documentId) {
+      const allowedTypes = getRequiredDocs(user.role, user.vendorType);
+      if (!allowedTypes.includes(type)) {
+        return errorResponse('Invalid document type for this role', 400);
+      }
+      
+      // Prevent modification of approved/locked documents
+      if (user.documents && (user.documents as any)[type]?.status === 'approved') {
+        return errorResponse('Document is approved and locked. Only an admin can unlock it.', 403);
+      }
+    } else {
+      // Validate document existence and lock status
+      const doc = await Document.findById(documentId);
+      if (!doc || doc.userId.toString() !== user._id.toString()) {
+        return errorResponse('Document not found', 404);
+      }
+      if (doc.isLocked) {
+        return errorResponse('Document is locked and cannot be modified', 403);
+      }
     }
 
     // Safely generate folder path: sakhihub/[role]s/[email_slug]
@@ -84,6 +101,19 @@ export async function POST(req: NextRequest) {
     let secureUrl = uploadResult.secure_url;
     if (isPDF && !secureUrl.toLowerCase().endsWith('.pdf')) {
       secureUrl = secureUrl + '.pdf';
+    }
+
+    if (documentId) {
+      const doc = await Document.findById(documentId);
+      if (doc) {
+        doc.uploadedDocumentUrl = secureUrl;
+        doc.status = 'uploaded';
+        await doc.save();
+        return successResponse({
+          message: 'Signed document uploaded successfully',
+          document: doc
+        });
+      }
     }
 
     // Initialize documents object if it doesn't exist
