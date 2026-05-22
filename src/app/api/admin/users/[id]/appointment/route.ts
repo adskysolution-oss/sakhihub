@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
+import Document from '@/models/Document';
 import { getAuthSession } from '@/lib/auth';
 
 export async function POST(
@@ -42,6 +43,23 @@ export async function POST(
 
     user.appointmentDetails = appointmentDetails;
     await user.save();
+
+    // Create a corresponding document record for Digital Certificates section
+    await Document.findOneAndUpdate(
+      { userId: user._id, type: 'auth_letter' },
+      {
+        type: 'auth_letter',
+        title: 'Appointment & Agreement Letter',
+        fileUrl: `/appointment-letter/${user._id}`,
+        status: 'approved',
+        category: 'Digital Certificates',
+        documentType: 'Authorization Letter',
+        vendorId: user._id,
+        agreementId: agreementId,
+        visibleToVendor: true
+      },
+      { upsert: true, new: true }
+    );
 
     return NextResponse.json({
       success: true,

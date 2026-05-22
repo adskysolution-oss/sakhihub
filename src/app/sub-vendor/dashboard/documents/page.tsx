@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import { 
-  FileText, ShieldCheck, Download, AlertCircle
+  FileText, ShieldCheck, Download, AlertCircle, CheckCircle
 } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -14,6 +14,7 @@ import PaymentReceiptCard from "@/components/features/dashboard/PaymentReceiptCa
 
 export default function SubVendorDocuments() {
   const [documents, setDocuments] = useState<any>({});
+  const [digitalCertificates, setDigitalCertificates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const { uploading, uploadDocument } = useDocumentFlow({
@@ -25,6 +26,7 @@ export default function SubVendorDocuments() {
       const res = await axios.get('/api/vendor/documents');
       if (res.data.success) {
         setDocuments(res.data.data.documents || {});
+        setDigitalCertificates(res.data.data.digitalCertificates || []);
       }
     } catch (err) {
       console.error(err);
@@ -128,22 +130,61 @@ export default function SubVendorDocuments() {
             <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
               <h2 className="text-xl font-black text-secondary mb-6">Digital Certificates</h2>
               <div className="flex flex-col gap-3">
-                <button className="flex items-center justify-between p-5 bg-gray-50 hover:bg-secondary hover:text-white rounded-3xl transition-all group text-left">
-                  <div className="flex items-center gap-4">
-                    <FileText size={20} className="text-primary group-hover:text-white" />
-                    <span className="font-bold text-sm">Authorization Letter</span>
-                  </div>
-                  <Download size={18} className="opacity-40 group-hover:opacity-100" />
-                </button>
-                <button className="flex items-center justify-between p-5 bg-gray-50 hover:bg-secondary hover:text-white rounded-3xl transition-all group text-left">
-                  <div className="flex items-center gap-4">
-                    <ShieldCheck size={20} className="text-primary group-hover:text-white" />
-                    <span className="font-bold text-sm">Sub-Vendor Certificate</span>
-                  </div>
-                  <Download size={18} className="opacity-40 group-hover:opacity-100" />
-                </button>
+                {[
+                  { id: 'auth_letter', title: 'Appointment & Agreement Letter', icon: FileText },
+                  { id: 'vendor_code_cert', title: 'Sub-Vendor Certificate', icon: ShieldCheck }
+                ].map((expectedCert, idx) => {
+                  const certData = digitalCertificates.find(c => c.type === expectedCert.id);
+                  if (certData && certData.visibleToVendor !== false) {
+                    return (
+                      <a 
+                        key={idx}
+                        href={certData.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-5 bg-green-50 hover:bg-green-600 hover:text-white rounded-3xl transition-all group text-left border border-green-100"
+                      >
+                        <div className="flex items-center gap-4">
+                          <expectedCert.icon size={20} className="text-green-600 group-hover:text-white" />
+                          <span className="font-bold text-sm">{certData.title || expectedCert.title}</span>
+                        </div>
+                        <Download size={18} className="opacity-40 group-hover:opacity-100" />
+                      </a>
+                    );
+                  } else {
+                    return (
+                      <div key={idx} className="flex items-center justify-between p-5 bg-red-50 rounded-3xl border border-red-100 text-left opacity-75 cursor-not-allowed">
+                        <div className="flex items-center gap-4">
+                          <expectedCert.icon size={20} className="text-red-400" />
+                          <div>
+                            <span className="font-bold text-sm text-red-800 line-through decoration-red-300">{expectedCert.title}</span>
+                            <p className="text-[10px] text-red-600 font-bold uppercase tracking-widest mt-1 flex items-center gap-1">
+                              <AlertCircle size={12} /> Not Generated Yet
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                })}
               </div>
             </div>
+
+            {digitalCertificates.some(c => c.type === 'auth_letter' && c.visibleToVendor !== false) && (
+              <div className="bg-green-50 p-6 rounded-[32px] border border-green-100 flex flex-col sm:flex-row justify-between items-center text-left shadow-sm gap-4 mt-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-green-500 text-white flex items-center justify-center shrink-0">
+                    <CheckCircle size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-green-800">Agreement Generated Successfully</h3>
+                    <p className="text-xs text-green-600 font-bold mt-1">
+                      ID: {digitalCertificates.find(c => c.type === 'auth_letter')?.agreementId || 'N/A'} • {new Date(digitalCertificates.find(c => c.type === 'auth_letter')?.createdAt || Date.now()).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

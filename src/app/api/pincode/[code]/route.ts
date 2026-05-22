@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server';
 import { successResponse, errorResponse } from '@/utils/response';
+import axios from 'axios';
+import https from 'https';
 
 export async function GET(
   req: NextRequest,
@@ -12,8 +14,11 @@ export async function GET(
       return errorResponse('Invalid pincode. Must be 6 digits.', 400);
     }
 
-    const response = await fetch(`https://api.postalpincode.in/pincode/${code}`);
-    const data = await response.json();
+    const httpsAgent = new https.Agent({
+      rejectUnauthorized: false,
+    });
+    const response = await axios.get(`https://api.postalpincode.in/pincode/${code}`, { httpsAgent });
+    const data = response.data;
 
     if (!data || data[0].Status === 'Error' || !data[0].PostOffice) {
       return errorResponse('Pincode not found', 404);

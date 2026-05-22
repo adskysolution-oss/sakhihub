@@ -3,6 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import { getAuthSession } from '@/lib/auth';
 import { errorResponse, successResponse } from '@/utils/response';
 import User from '@/models/User';
+import Document from '@/models/Document';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { 
   REQUIRED_DOCS_BY_ROLE, 
@@ -137,8 +138,14 @@ export async function GET() {
       return errorResponse('User not found', 404);
     }
 
+    const digitalCertificates = await Document.find({
+      userId: user._id,
+      category: 'Digital Certificates'
+    });
+
     return successResponse({
       documents: user.documents || {},
+      digitalCertificates,
       status: user.status,
       vendorType: user.vendorType
     });

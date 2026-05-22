@@ -191,6 +191,27 @@ export default function EmployeeDashboard({ user }: { user: any }) {
               </div>
             </div>
           </section>
+          {user?.appointmentDetails && (
+            <div className="bg-green-50/50 p-6 rounded-[32px] border border-green-100 flex flex-col sm:flex-row justify-between items-center text-left shadow-sm gap-4 group hover:border-green-300 transition-all">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-green-500 text-white flex items-center justify-center shrink-0">
+                  <ShieldCheck size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-green-800">Agreement Generated Successfully</h3>
+                  <p className="text-xs text-green-600 font-bold mt-1">
+                    Your official appointment letter is ready.
+                  </p>
+                </div>
+              </div>
+              <a 
+                href="/employee/dashboard/documents" 
+                className="flex items-center gap-2 px-6 py-3 bg-white text-green-700 border border-green-200 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-green-50 transition-all shrink-0"
+              >
+                <ClipboardList size={14} /> Open Documents
+              </a>
+            </div>
+          )}
           <PaymentReceiptCard />
         </aside>
       </div>

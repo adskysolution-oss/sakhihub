@@ -119,19 +119,23 @@ export default function VendorDashboard() {
           <PaymentReceiptCard />
 
           {user?.appointmentDetails && (
-            <div className="bg-primary/5 p-8 rounded-[40px] border border-primary/20 flex flex-col justify-center items-center text-center col-span-1 lg:col-span-2 shadow-inner">
-              <FileText size={48} className="text-primary mb-4" />
-              <h2 className="text-2xl font-black text-secondary">Official Appointment Letter</h2>
-              <p className="text-gray-500 font-bold max-w-md mt-2 mb-6 text-sm">
-                Your official appointment letter and agreement with SakhiHub has been generated. You can view, download, or print it.
-              </p>
+            <div className="bg-green-50/50 p-6 rounded-[32px] border border-green-100 flex flex-col sm:flex-row justify-between items-center text-left col-span-1 lg:col-span-2 shadow-sm gap-4 group hover:border-green-300 transition-all">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-green-500 text-white flex items-center justify-center shrink-0">
+                  <CheckCircle size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-green-800">Agreement Generated Successfully</h3>
+                  <p className="text-xs text-green-600 font-bold mt-1">
+                    Your official appointment letter is ready.
+                  </p>
+                </div>
+              </div>
               <a 
-                href={`/appointment-letter/${user._id}`} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all"
+                href="/vendor/dashboard/documents" 
+                className="flex items-center gap-2 px-6 py-3 bg-white text-green-700 border border-green-200 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-green-50 transition-all shrink-0"
               >
-                <ExternalLink size={16} /> View & Print Agreement
+                <FileText size={14} /> Open Documents
               </a>
             </div>
           )}
