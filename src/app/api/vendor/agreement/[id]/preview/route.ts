@@ -27,7 +27,8 @@ export async function GET(
     }
 
     // Security check: Only admins or the specific vendor can view
-    if (session.role !== 'admin' && session.role !== 'super_admin' && session.userId !== agreement.vendorId.toString()) {
+    const currentUserId = session.id || session.userId;
+    if (session.role !== 'admin' && session.role !== 'super_admin' && currentUserId !== agreement.vendorId.toString()) {
         return NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
     }
 

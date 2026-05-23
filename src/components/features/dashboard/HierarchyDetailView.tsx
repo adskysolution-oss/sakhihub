@@ -72,6 +72,40 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
     setDigitalCertificates((data as any).digitalCertificates || []);
   }, [user, (data as any).digitalCertificates]);
 
+  React.useEffect(() => {
+    const agreement = localUser?.vendorAgreementDetails || localUser?.appointmentDetails;
+    if (agreement) {
+      if (agreement.joiningDate) {
+        try {
+          const dateObj = new Date(agreement.joiningDate);
+          if (!isNaN(dateObj.getTime())) {
+            setJoiningDate(dateObj.toISOString().split('T')[0]);
+          }
+        } catch (e) {}
+      }
+      setPartnerType(agreement.partnerType || '');
+      setAssignedTerritory(agreement.assignedTerritory || '');
+      setIncentiveStructure(agreement.incentiveStructure || '');
+      setSalaryStructure(agreement.salaryStructure || '');
+      setMonthlyTargets(agreement.monthlyTargets || '');
+      setOperationalRole(agreement.operationalRole || '');
+      setMembershipCommission(agreement.membershipCommission || '');
+    }
+
+    const offerLetter = localUser?.offerLetterDetails;
+    if (offerLetter) {
+      if (offerLetter.joiningDate) {
+        try {
+          const dateObj = new Date(offerLetter.joiningDate);
+          if (!isNaN(dateObj.getTime())) {
+            setJoiningDate(dateObj.toISOString().split('T')[0]);
+          }
+        } catch (e) {}
+      }
+      setSalary(offerLetter.salary ? offerLetter.salary.toString() : '');
+    }
+  }, [localUser]);
+
   const tabs = [
     { id: 'overview', label: 'Overview', icon: PieChart },
     { id: 'network', label: 'Network', icon: Users },
@@ -554,45 +588,51 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
           </motion.div>
         )}
 
-        {activeTab === 'agreement' && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
-            <div className="max-w-2xl mx-auto space-y-8">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl mx-auto flex items-center justify-center mb-4">
-                  <FileText size={32} />
-                </div>
-                <h3 className="text-2xl font-black text-secondary tracking-tight">
-                  {localUser.role === 'employee' ? 'Employee Offer Letter' : 'Vendor Agreement'}
-                </h3>
-                <p className="text-sm text-gray-500 font-bold mt-2">
-                  Generate the official digital {localUser.role === 'employee' ? 'offer letter' : 'agreement'} for this {localUser.role === 'employee' ? 'employee' : 'partner'}.
-                </p>
-              </div>
-
-              {(localUser.role === 'employee' ? localUser.offerLetterDetails : localUser.vendorAgreementDetails) ? (
-                <div className="bg-green-50 border border-green-200 rounded-[32px] p-8 text-center relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-green-200/50 rounded-full blur-2xl -mr-16 -mt-16" />
-                  <div className="relative z-10">
-                    <CheckCircle2 size={48} className="text-green-500 mx-auto mb-4" />
-                    <h4 className="text-xl font-black text-green-800">
-                      {localUser.role === 'employee' ? 'Employee Offer Letter' : 'Vendor Agreement'} Generated Successfully
-                    </h4>
-                    <p className="text-sm text-green-700 font-bold mt-2 mb-6">
-                      ID: <span className="font-mono bg-white px-2 py-1 rounded">
-                        {localUser.role === 'employee' ? localUser.offerLetterDetails.offerLetterId : localUser.vendorAgreementDetails.agreementId}
-                      </span>
-                    </p>
-                    <a 
-                      href={localUser.role === 'employee' ? `/employee-offer-letter/${localUser._id}` : (localUser.vendorAgreementDetails.fileUrl || `/api/vendor/agreement/${localUser.vendorAgreementDetails.agreementId}/preview`)} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-colors shadow-lg shadow-green-200"
-                    >
-                      <ExternalLink size={16} /> Preview & Print Document
-                    </a>
+        {activeTab === 'agreement' && (() => {
+          const hasAgreement = localUser.role === 'employee' ? localUser.offerLetterDetails : localUser.vendorAgreementDetails;
+          return (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-300">
+              <div className="max-w-2xl mx-auto space-y-8">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl mx-auto flex items-center justify-center mb-4">
+                    <FileText size={32} />
                   </div>
+                  <h3 className="text-2xl font-black text-secondary tracking-tight">
+                    {localUser.role === 'employee' ? 'Employee Offer Letter' : 'Vendor Agreement'}
+                  </h3>
+                  <p className="text-sm text-gray-500 font-bold mt-2">
+                    {hasAgreement 
+                      ? `View and manage the official digital ${localUser.role === 'employee' ? 'offer letter' : 'agreement'} details.` 
+                      : `Generate the official digital ${localUser.role === 'employee' ? 'offer letter' : 'agreement'} for this ${localUser.role === 'employee' ? 'employee' : 'partner'}.`
+                    }
+                  </p>
                 </div>
-              ) : (
+
+                {hasAgreement && (
+                  <div className="bg-green-50 border border-green-200 rounded-[32px] p-8 text-center relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-green-200/50 rounded-full blur-2xl -mr-16 -mt-16" />
+                    <div className="relative z-10">
+                      <CheckCircle2 size={48} className="text-green-500 mx-auto mb-4" />
+                      <h4 className="text-xl font-black text-green-800">
+                        {localUser.role === 'employee' ? 'Employee Offer Letter' : 'Vendor Agreement'} Generated Successfully
+                      </h4>
+                      <p className="text-sm text-green-700 font-bold mt-2 mb-6">
+                        ID: <span className="font-mono bg-white px-2 py-1 rounded">
+                          {localUser.role === 'employee' ? localUser.offerLetterDetails.offerLetterId : localUser.vendorAgreementDetails.agreementId}
+                        </span>
+                      </p>
+                      <a 
+                        href={localUser.role === 'employee' ? `/employee-offer-letter/${localUser._id}` : (localUser.vendorAgreementDetails.fileUrl || `/api/vendor/agreement/${localUser.vendorAgreementDetails.agreementId}/preview`)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-colors shadow-lg shadow-green-200"
+                      >
+                        <ExternalLink size={16} /> Preview & Print Document
+                      </a>
+                    </div>
+                  </div>
+                )}
+
                 <div className="bg-gray-50 p-8 rounded-[32px] border border-gray-100">
                   <div className="space-y-6">
                     <div>
@@ -679,9 +719,10 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                           const res = await axios.post(endpoint, payload);
                           if (res.data.success) {
                             setLocalUser(res.data.data);
+                            alert(hasAgreement ? "Details updated successfully" : "Document generated successfully");
                           }
                         } catch (err: any) {
-                          alert(err.response?.data?.message || "Failed to generate document");
+                          alert(err.response?.data?.message || "Failed to update details");
                         } finally {
                           setIsGeneratingAppt(false);
                         }
@@ -689,68 +730,74 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                       disabled={isGeneratingAppt}
                       className="w-full py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-transform disabled:opacity-50"
                     >
-                      {isGeneratingAppt ? 'Generating...' : `Generate ${localUser.role === 'employee' ? 'Offer Letter' : 'Vendor Agreement'}`}
+                      {isGeneratingAppt 
+                        ? (hasAgreement ? 'Updating...' : 'Generating...') 
+                        : (hasAgreement 
+                            ? `Update ${localUser.role === 'employee' ? 'Offer Letter' : 'Agreement'} Details` 
+                            : `Generate ${localUser.role === 'employee' ? 'Offer Letter' : 'Vendor Agreement'}`
+                          )
+                      }
                     </button>
                     <p className="text-[10px] text-gray-400 font-bold text-center uppercase tracking-widest">
                       * System will generate an immutable PDF document using these details.
                     </p>
                   </div>
                 </div>
-              )}
 
-              {/* Uploaded Document Review logic */}
-              {(user.role === 'employee' ? localUser.offerLetterDetails : localUser.vendorAgreementDetails) && (() => {
-                const targetType = user.role === 'employee' ? 'employee_offer_letter' : 'auth_letter';
-                const authLetter = digitalCertificates?.find((c: any) => c.type === targetType);
-                if (!authLetter || !authLetter.uploadedDocumentUrl) return null;
-                
-                return (
-                  <div className="bg-white border border-gray-100 shadow-soft rounded-[32px] p-8 text-center mt-8">
-                    <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl mx-auto flex items-center justify-center mb-4">
-                      <ShieldCheck size={32} />
-                    </div>
-                    <h4 className="text-xl font-black text-secondary">Signed Document Uploaded</h4>
-                    <p className="text-sm text-gray-500 font-bold mt-2 mb-6">
-                      The user has uploaded the signed document. Please review and lock it to finalize the process.
-                    </p>
-                    
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                      <a 
-                        href={authLetter.uploadedDocumentUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="px-6 py-3 bg-gray-50 text-secondary border border-gray-200 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-colors"
-                      >
-                        View Uploaded Document
-                      </a>
+                {/* Uploaded Document Review logic */}
+                {hasAgreement && (() => {
+                  const targetType = localUser.role === 'employee' ? 'employee_offer_letter' : 'auth_letter';
+                  const authLetter = digitalCertificates?.find((c: any) => c.type === targetType);
+                  if (!authLetter || !authLetter.uploadedDocumentUrl) return null;
+                  
+                  return (
+                    <div className="bg-white border border-gray-100 shadow-soft rounded-[32px] p-8 text-center mt-8">
+                      <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl mx-auto flex items-center justify-center mb-4">
+                        <ShieldCheck size={32} />
+                      </div>
+                      <h4 className="text-xl font-black text-secondary">Signed Document Uploaded</h4>
+                      <p className="text-sm text-gray-500 font-bold mt-2 mb-6">
+                        The user has uploaded the signed document. Please review and lock it to finalize the process.
+                      </p>
                       
-                      {authLetter.isLocked ? (
-                        <button 
-                          onClick={() => updateDocumentLock(authLetter._id, false, false)}
-                          className="px-6 py-3 bg-amber-50 text-amber-600 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-amber-100 transition-colors flex items-center gap-2"
+                      <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <a 
+                          href={authLetter.uploadedDocumentUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="px-6 py-3 bg-gray-50 text-secondary border border-gray-200 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-colors"
                         >
-                          <AlertCircle size={16} /> Unlock Document
-                        </button>
-                      ) : (
-                        <button 
-                          onClick={() => updateDocumentLock(authLetter._id, true, true)}
-                          className="px-6 py-3 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 flex items-center gap-2"
-                        >
-                          <ShieldCheck size={16} /> Approve & Lock
-                        </button>
+                          View Uploaded Document
+                        </a>
+                        
+                        {authLetter.isLocked ? (
+                          <button 
+                            onClick={() => updateDocumentLock(authLetter._id, false, false)}
+                            className="px-6 py-3 bg-amber-50 text-amber-600 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-amber-100 transition-colors flex items-center gap-2"
+                          >
+                            <AlertCircle size={16} /> Unlock Document
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => updateDocumentLock(authLetter._id, true, true)}
+                            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 flex items-center gap-2"
+                          >
+                            <ShieldCheck size={16} /> Approve & Lock
+                          </button>
+                        )}
+                      </div>
+                      {authLetter.isLocked && (
+                        <p className="text-[10px] text-green-600 font-bold uppercase tracking-widest mt-4 flex items-center justify-center gap-1">
+                          <CheckCircle2 size={12} /> Document is verified and locked
+                        </p>
                       )}
                     </div>
-                    {authLetter.isLocked && (
-                      <p className="text-[10px] text-green-600 font-bold uppercase tracking-widest mt-4 flex items-center justify-center gap-1">
-                        <CheckCircle2 size={12} /> Document is verified and locked
-                      </p>
-                    )}
-                  </div>
-                );
-              })()}
-            </div>
-          </motion.div>
-        )}
+                  );
+                })()}
+              </div>
+            </motion.div>
+          );
+        })()}
       </div>
 
       {/* Footer / Approval Actions */}

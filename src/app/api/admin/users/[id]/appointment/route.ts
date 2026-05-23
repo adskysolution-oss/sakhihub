@@ -45,16 +45,23 @@ export async function POST(
       fileUrl: `/appointment-letter/${user._id}`
     };
 
-    await VendorAgreement.findOneAndUpdate(
+    const updatedAgreement = await VendorAgreement.findOneAndUpdate(
       { vendorId: user._id },
       vendorAgreementDetails,
       { upsert: true, returnDocument: 'after' }
     );
 
+    const updatedUser = await User.findById(id).lean();
+    const userToReturn = {
+      ...updatedUser,
+      appointmentDetails: updatedAgreement,
+      vendorAgreementDetails: updatedAgreement
+    };
+
     return NextResponse.json({
       success: true,
       message: 'Appointment letter generated successfully',
-      data: user
+      data: userToReturn
     });
 
   } catch (error: any) {

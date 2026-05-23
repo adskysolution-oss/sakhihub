@@ -4,6 +4,8 @@ import { getAuthSession } from '@/lib/auth';
 import { errorResponse, successResponse } from '@/utils/response';
 import User from '@/models/User';
 import Document from '@/models/Document';
+import VendorAgreement from '@/models/VendorAgreement';
+import VendorMOU from '@/models/VendorMOU';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { 
   REQUIRED_DOCS_BY_ROLE, 
@@ -61,11 +63,37 @@ export async function POST(req: NextRequest) {
     } else {
       // Validate document existence and lock status
       const doc = await Document.findById(documentId);
-      if (!doc || doc.userId.toString() !== user._id.toString()) {
-        return errorResponse('Document not found', 404);
-      }
-      if (doc.isLocked) {
-        return errorResponse('Document is locked and cannot be modified', 403);
+      if (doc) {
+        if (doc.userId.toString() !== user._id.toString()) {
+          return errorResponse('Document not found', 404);
+        }
+        if (doc.isLocked) {
+          return errorResponse('Document is locked and cannot be modified', 403);
+        }
+      } else {
+        // Try VendorAgreement
+        const agreement = await VendorAgreement.findById(documentId);
+        if (agreement) {
+          if (agreement.vendorId.toString() !== user._id.toString()) {
+            return errorResponse('Document not found', 404);
+          }
+          if (agreement.isLocked) {
+            return errorResponse('Document is locked and cannot be modified', 403);
+          }
+        } else {
+          // Try VendorMOU
+          const mou = await VendorMOU.findById(documentId);
+          if (mou) {
+            if (mou.vendorId.toString() !== user._id.toString()) {
+              return errorResponse('Document not found', 404);
+            }
+            if (mou.isLocked) {
+              return errorResponse('Document is locked and cannot be modified', 403);
+            }
+          } else {
+            return errorResponse('Document not found', 404);
+          }
+        }
       }
     }
 
@@ -133,6 +161,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (documentId) {
+      // First try Document
       const doc = await Document.findById(documentId);
       if (doc) {
         doc.uploadedDocumentUrl = secureUrl;
@@ -141,6 +170,30 @@ export async function POST(req: NextRequest) {
         return successResponse({
           message: 'Signed document uploaded successfully',
           document: doc
+        });
+      }
+
+      // Try VendorAgreement
+      const agreement = await VendorAgreement.findById(documentId);
+      if (agreement) {
+        agreement.uploadedDocumentUrl = secureUrl;
+        agreement.status = 'uploaded';
+        await agreement.save();
+        return successResponse({
+          message: 'Signed document uploaded successfully',
+          document: agreement
+        });
+      }
+
+      // Try VendorMOU
+      const mou = await VendorMOU.findById(documentId);
+      if (mou) {
+        mou.uploadedDocumentUrl = secureUrl;
+        mou.status = 'uploaded';
+        await mou.save();
+        return successResponse({
+          message: 'Signed document uploaded successfully',
+          document: mou
         });
       }
     }
@@ -245,8 +298,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-import VendorAgreement from '@/models/VendorAgreement';
-import VendorMOU from '@/models/VendorMOU';
 import VendorCertificate from '@/models/VendorCertificate';
 import EmployeeOfferLetter from '@/models/EmployeeOfferLetter';
 import EmployeeCertificate from '@/models/EmployeeCertificate';

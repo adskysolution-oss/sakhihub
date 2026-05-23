@@ -44,16 +44,22 @@ export async function POST(
       pdfUrl: `/employee-offer-letter/${user._id}`
     };
 
-    await EmployeeOfferLetter.findOneAndUpdate(
+    const updatedOfferLetter = await EmployeeOfferLetter.findOneAndUpdate(
       { employeeId: user._id },
       offerLetterDetails,
       { upsert: true, returnDocument: 'after' }
     );
 
+    const updatedUser = await User.findById(id).lean();
+    const userToReturn = {
+      ...updatedUser,
+      offerLetterDetails: updatedOfferLetter
+    };
+
     return NextResponse.json({
       success: true,
       message: 'Employee offer letter generated successfully',
-      data: user
+      data: userToReturn
     });
 
   } catch (error: any) {

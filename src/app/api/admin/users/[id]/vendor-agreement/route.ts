@@ -87,7 +87,7 @@ export async function POST(
       generatedDate: new Date(),
       agreementId,
       status: 'generated',
-      isLocked: true, // System locked upon generation
+      isLocked: false, // Set to false to allow vendor signature uploads
       qrVerificationCode,
       fileUrl: dynamicPreviewUrl,
       templateData

@@ -9,7 +9,8 @@ import { uploadToCloudinary } from '@/lib/cloudinary';
 export async function POST(request: NextRequest) {
   try {
     const session = await getAuthSession() as any;
-    if (!session || !session.userId) {
+    const currentUserId = session?.id || session?.userId;
+    if (!session || !currentUserId) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     await dbConnect();
 
     const agreement = await VendorAgreement.findOne({ 
-      vendorId: session.userId, 
+      vendorId: currentUserId, 
       agreementId 
     });
 
@@ -43,12 +44,12 @@ export async function POST(request: NextRequest) {
     // Log acceptance
     await AgreementAcceptanceLog.create({
       agreementId,
-      vendorId: session.userId,
+      vendorId: currentUserId,
       acceptedAt: acceptanceTimestamp,
       ipAddress,
       deviceInfo,
       otpVerified: true, // Assuming front-end handled OTP or we simulate it here
-      digitalSignature: `ACCEPTED-${session.userId}-${Date.now()}`
+      digitalSignature: `ACCEPTED-${currentUserId}-${Date.now()}`
     });
 
     // Update templateData with acceptance signature details

@@ -174,6 +174,7 @@ export async function GET(
       const agreement = await VendorAgreement.findOne({ vendorId: user._id }).lean();
       if (agreement) {
         userObj.appointmentDetails = agreement;
+        userObj.vendorAgreementDetails = agreement;
       }
 
       const agreements = agreement ? [agreement] : [];
