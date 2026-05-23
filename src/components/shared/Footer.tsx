@@ -62,7 +62,7 @@ const Footer = () => {
                 { name: t('footer.about'), href: '/about' },
                 { name: t('footer.ourMission'), href: '/mission' },
                 { name: t('footer.programsLink'), href: '/programs' },
-                { name: t('footer.gallery'), href: '/gallery' },
+                // { name: t('footer.gallery'), href: '/gallery' },
                 { name: t('footer.contact'), href: '/contact' }
               ].map((link) => (
                 <li key={link.name}>
@@ -84,7 +84,7 @@ const Footer = () => {
                 { name: t('footer.deliveryPartner'), href: '/delivery-partner' },
                 { name: t('footer.ngoPartnership'), href: '/partner' },
                 { name: t('footer.volunteer'), href: '/register' },
-                { name: t('footer.startCampaign'), href: '/campaign' }
+                // { name: t('footer.startCampaign'), href: '/campaign' }
               ].map((link) => (
                 <li key={link.name}>
                   <Link href={link.href} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">
@@ -125,7 +125,7 @@ const Footer = () => {
               <p className="text-sm text-gray-400 mt-1">Enter a Mobile No, Employee ID, Vendor Code, or Member ID to verify their official status.</p>
             </div>
           </div>
-          
+
           <form onSubmit={handleVerify} className="w-full max-w-md flex gap-2 mt-4 md:mt-0">
             <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">
@@ -140,7 +140,7 @@ const Footer = () => {
                 required
               />
             </div>
-            <button 
+            <button
               type="submit"
               className="px-6 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 transition-colors shrink-0"
             >
