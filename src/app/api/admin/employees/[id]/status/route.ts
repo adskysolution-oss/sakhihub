@@ -3,6 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import { getAuthSession } from '@/lib/auth';
 import { errorResponse, successResponse } from '@/utils/response';
 import User from '@/models/User';
+import Document from '@/models/Document';
 import { 
   REQUIRED_DOCS_BY_ROLE, 
   determineUserStatus,
@@ -119,6 +120,20 @@ export async function PATCH(
       
       user.markModified('documents');
       await user.save();
+
+      // Sync to Document collection in MongoDB
+      await Document.findOneAndUpdate(
+        { userId: user._id, documentType: docType },
+        { 
+          status: docStatus,
+          verificationStatus: docStatus,
+          reviewedAt: new Date(),
+          adminRemarks: docStatus === 'approved' ? '' : (remarks || ''),
+          isApproved: docStatus === 'approved',
+          isLocked: docStatus === 'approved'
+        },
+        { upsert: true }
+      );
 
       return successResponse(user, `Document ${docType} status updated to ${docStatus}`);
     }

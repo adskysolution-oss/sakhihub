@@ -8,7 +8,8 @@ import { uploadToCloudinary } from '@/lib/cloudinary';
 import { 
   REQUIRED_DOCS_BY_ROLE, 
   getDocumentFolderPath,
-  getRequiredDocs
+  getRequiredDocs,
+  getRequiredDocsForUser
 } from '@/lib/docs/service';
 
 export async function POST(req: NextRequest) {
@@ -25,6 +26,15 @@ export async function POST(req: NextRequest) {
     const fileSize = formData.get('fileSize') as string;
     const mimeType = formData.get('mimeType') as string;
 
+    // Extra metadata for verification
+    const aadhaarNumber = formData.get('aadhaarNumber') as string;
+    const panNumber = formData.get('panNumber') as string;
+    const accountHolderName = formData.get('accountHolderName') as string;
+    const accountNumber = formData.get('accountNumber') as string;
+    const ifscCode = formData.get('ifscCode') as string;
+    const bankName = formData.get('bankName') as string;
+    const branchName = formData.get('branchName') as string;
+
     if (!file || !type) {
       return errorResponse('Missing required fields', 400);
     }
@@ -39,7 +49,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!documentId) {
-      const allowedTypes = getRequiredDocs(user.role, user.vendorType);
+      const allowedTypes = getRequiredDocsForUser(user.role, user.documents, user.vendorType);
       if (!allowedTypes.includes(type)) {
         return errorResponse('Invalid document type for this role', 400);
       }
@@ -58,6 +68,25 @@ export async function POST(req: NextRequest) {
         return errorResponse('Document is locked and cannot be modified', 403);
       }
     }
+
+    // --- Verification & Duplicate Check Logic ---
+    const aadhaarTypes = ['aadhaarCard', 'aadhaarCardFront', 'aadhaarCardBack', 'directorAadhaarCard'];
+    const panTypes = ['panCard', 'companyPanCard', 'directorPanCard', 'ngoPanCard'];
+
+    if (aadhaarTypes.includes(type)) {
+      if (!aadhaarNumber) return errorResponse('Aadhaar number is required', 400);
+      const existing = await User.findOne({ aadhaarNumber, _id: { $ne: user._id } });
+      if (existing) return errorResponse('Aadhaar already added', 400);
+    } else if (panTypes.includes(type)) {
+      if (!panNumber) return errorResponse('PAN number is required', 400);
+      const existing = await User.findOne({ panNumber, _id: { $ne: user._id } });
+      if (existing) return errorResponse('PAN already added', 400);
+    } else if (type === 'bankPassbook') {
+      if (!accountHolderName || !accountNumber || !ifscCode) return errorResponse('Incomplete bank details', 400);
+      const existing = await User.findOne({ 'bankDetails.accountNumber': accountNumber, _id: { $ne: user._id } });
+      if (existing) return errorResponse('Bank account already added', 400);
+    }
+    // ---------------------------------------------
 
     // Safely generate folder path: sakhihub/[role]s/[email_slug]
     const folder = getDocumentFolderPath(user) || `sakhihub/${user.role}s/${user._id}`;
@@ -121,7 +150,7 @@ export async function POST(req: NextRequest) {
       user.documents = {};
     }
 
-    user.documents[type] = {
+    const docData: any = {
       url: secureUrl,
       publicId: uploadResult.public_id,
       fileName: fileName || file.name || `${type}.pdf`,
@@ -129,10 +158,34 @@ export async function POST(req: NextRequest) {
       mimeType: mimeType || file.type || 'application/pdf',
       status: 'uploaded',
       uploadedAt: new Date(),
+      userId: user._id.toString()
     };
 
+    if (user.role === 'vendor' || user.role === 'sub_vendor') {
+      docData.vendorId = user._id.toString();
+    } else if (user.role === 'employee') {
+      docData.employeeId = user._id.toString();
+    }
+
+    user.set(`documents.${type}`, docData);
+
+    // Save extra data to User model
+    if (aadhaarTypes.includes(type) && aadhaarNumber) {
+      user.aadhaarNumber = aadhaarNumber;
+    } else if (panTypes.includes(type) && panNumber) {
+      user.panNumber = panNumber;
+    } else if (type === 'bankPassbook' && accountHolderName && accountNumber) {
+      user.bankDetails = {
+        accountHolderName,
+        accountNumber,
+        ifscCode,
+        bankName,
+        branchName
+      };
+    }
+
     // Update global status if needed (from pending to documents_uploaded)
-    const requiredDocs = getRequiredDocs(user.role, user.vendorType);
+    const requiredDocs = getRequiredDocsForUser(user.role, user.documents, user.vendorType);
     const uploadedDocs = Object.keys(user.documents).filter(key => !!(user.documents as any)[key]?.url);
     
     if (user.status === 'pending' && requiredDocs.every(doc => uploadedDocs.includes(doc))) {
@@ -142,9 +195,47 @@ export async function POST(req: NextRequest) {
     user.markModified('documents');
     await user.save();
 
+    // Sync to Document collection in MongoDB
+    let docModelType: 'ngo_reg' | 'pan' | 'aadhaar' | 'bank_passbook' | 'security_receipt' | 'other' = 'other';
+    if (type.toLowerCase().includes('aadhaar')) {
+      docModelType = 'aadhaar';
+    } else if (type.toLowerCase().includes('pan')) {
+      docModelType = 'pan';
+    } else if (type === 'bankPassbook') {
+      docModelType = 'bank_passbook';
+    } else if (type === 'ngoCertificate') {
+      docModelType = 'ngo_reg';
+    }
+
+    await Document.findOneAndUpdate(
+      { userId: user._id, documentType: type },
+      {
+        userId: user._id,
+        employeeId: user.role === 'employee' ? user._id : undefined,
+        vendorId: (user.role === 'vendor' || user.role === 'sub_vendor') ? user._id : undefined,
+        role: user.role,
+        type: docModelType,
+        documentType: type,
+        title: type,
+        fileUrl: secureUrl,
+        uploadedDocumentUrl: secureUrl,
+        publicId: uploadResult.public_id,
+        fileName: fileName || file.name || `${type}.pdf`,
+        fileSize: fileSize || `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+        mimeType: mimeType || file.type || 'application/pdf',
+        status: 'uploaded',
+        uploadStatus: 'uploaded',
+        verificationStatus: 'uploaded',
+        isLocked: false,
+        isApproved: false,
+        uploadedAt: new Date()
+      },
+      { upsert: true, new: true }
+    );
+
     return successResponse({
       message: 'Document uploaded successfully',
-      document: user.documents[type],
+      document: user.get(`documents.${type}`),
       status: user.status
     });
 

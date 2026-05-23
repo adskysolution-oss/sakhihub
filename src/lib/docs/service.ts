@@ -6,7 +6,7 @@
 export const REQUIRED_DOCS_BY_ROLE: Record<string, string[]> = {
   vendor: ['ngoCertificate', 'panCard', 'aadhaarCard', 'bankPassbook'],
   sub_vendor: ['panCard', 'aadhaarCard', 'bankPassbook'],
-  employee: ['panCard', 'aadhaarCard', 'bankPassbook', 'resume', 'passportPhoto']
+  employee: ['panCard', 'aadhaarCardFront', 'aadhaarCardBack', 'bankPassbook', 'resume', 'passportPhoto']
 };
 
 export const REQUIRED_DOCS_BY_VENDOR_TYPE: Record<string, string[]> = {
@@ -21,6 +21,38 @@ export function getRequiredDocs(role: string, vendorType?: string): string[] {
     return REQUIRED_DOCS_BY_VENDOR_TYPE[type] || REQUIRED_DOCS_BY_VENDOR_TYPE.individual;
   }
   return REQUIRED_DOCS_BY_ROLE[role] || [];
+}
+
+/**
+ * Get required documents dynamically adjusting for legacy single aadhaarCard upload compatibility.
+ */
+export function getRequiredDocsForUser(role: string, userDocuments: any, vendorType?: string): string[] {
+  let docs = getRequiredDocs(role, vendorType);
+  if (role === 'employee') {
+    const hasSingleAadhaar = !!(userDocuments?.aadhaarCard?.url);
+    if (hasSingleAadhaar) {
+      docs = docs.filter(d => d !== 'aadhaarCardFront' && d !== 'aadhaarCardBack');
+      if (!docs.includes('aadhaarCard')) {
+        const panIndex = docs.indexOf('panCard');
+        if (panIndex !== -1) {
+          docs.splice(panIndex + 1, 0, 'aadhaarCard');
+        } else {
+          docs.push('aadhaarCard');
+        }
+      }
+    } else {
+      docs = docs.filter(d => d !== 'aadhaarCard');
+      if (!docs.includes('aadhaarCardFront')) {
+        const panIndex = docs.indexOf('panCard');
+        if (panIndex !== -1) {
+          docs.splice(panIndex + 1, 0, 'aadhaarCardFront', 'aadhaarCardBack');
+        } else {
+          docs.push('aadhaarCardFront', 'aadhaarCardBack');
+        }
+      }
+    }
+  }
+  return docs;
 }
 
 /**
@@ -53,7 +85,7 @@ export function getDocumentFolderPath(user: any): string {
  * Checks if all required documents for a role are approved
  */
 export function areAllDocsApproved(user: any): boolean {
-  const required = getRequiredDocs(user.role, user.vendorType);
+  const required = getRequiredDocsForUser(user.role, user.documents, user.vendorType);
   if (required.length === 0) return false;
   
   return required.every(type => user.documents?.[type]?.status === 'approved');
@@ -63,7 +95,7 @@ export function areAllDocsApproved(user: any): boolean {
  * Determines the overall user status based on individual document statuses
  */
 export function determineUserStatus(user: any): string {
-  const required = getRequiredDocs(user.role, user.vendorType);
+  const required = getRequiredDocsForUser(user.role, user.documents, user.vendorType);
   if (!user.documents) return user.status;
 
   const statuses = required.map(t => user.documents?.[t]?.status);

@@ -21,7 +21,7 @@ export function useDocumentFlow({
     reader.readAsDataURL(file);
   });
 
-  const uploadDocument = async (file: File, type: string) => {
+  const uploadDocument = async (file: File, type: string, extraData?: Record<string, string>) => {
     if (uploading === type) return;
 
     // Strict Format Validation
@@ -44,6 +44,14 @@ export function useDocumentFlow({
       formData.append('fileName', file.name);
       formData.append('fileSize', `${(file.size / (1024 * 1024)).toFixed(2)} MB`);
       formData.append('mimeType', file.type);
+
+      if (extraData) {
+        Object.entries(extraData).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            formData.append(key, value);
+          }
+        });
+      }
 
       const res = await axios.post(uploadUrl, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },

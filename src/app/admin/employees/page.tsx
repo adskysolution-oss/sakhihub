@@ -13,7 +13,7 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 import DocumentReviewCard from "@/components/features/dashboard/DocumentReviewCard";
-import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary } from "@/utils/documents";
+import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary, getRequiredDocsForUser } from "@/utils/documents";
 
 export default function EmployeeManagement() {
   const [employees, setEmployees] = useState<any[]>([]);
@@ -394,7 +394,7 @@ export default function EmployeeManagement() {
                       </div>
 
                       <div className="grid grid-cols-1 gap-6">
-                        {REQUIRED_DOCS_BY_ROLE.employee.map(type => (
+                        {getRequiredDocsForUser('employee', selectedEmp.documents).map(type => (
                           <DocumentReviewCard 
                             key={type}
                             type={type}

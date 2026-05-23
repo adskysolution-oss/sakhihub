@@ -48,11 +48,20 @@ export interface IUser extends Document {
   profileImage?: string;
   businessName?: string;
   panNumber?: string;
+  bankDetails?: {
+    accountHolderName: string;
+    accountNumber: string;
+    ifscCode: string;
+    bankName: string;
+    branchName: string;
+  };
   vendorType?: 'individual' | 'company' | 'ngo_trust';
   documents?: {
     ngoCertificate?: IVendorDocumentEntry;
     panCard?: IVendorDocumentEntry;
     aadhaarCard?: IVendorDocumentEntry;
+    aadhaarCardFront?: IVendorDocumentEntry;
+    aadhaarCardBack?: IVendorDocumentEntry;
     bankPassbook?: IVendorDocumentEntry;
     passportPhoto?: IVendorDocumentEntry;
     companyRegCertificate?: IVendorDocumentEntry;
@@ -95,6 +104,8 @@ const DocumentEntrySchema = new Schema({
   fileSize: { type: String },
   mimeType: { type: String },
   vendorId: { type: String },
+  employeeId: { type: String },
+  userId: { type: String },
   vendorEmail: { type: String },
   status: { 
     type: String, 
@@ -126,7 +137,14 @@ const UserSchema: Schema = new Schema(
     vendorCode: { type: String, unique: true, sparse: true },
     subVendorCode: { type: String, unique: true, sparse: true },
     businessName: { type: String },
-    panNumber: { type: String },
+    panNumber: { type: String, unique: true, sparse: true },
+    bankDetails: {
+      accountHolderName: { type: String },
+      accountNumber: { type: String, unique: true, sparse: true },
+      ifscCode: { type: String },
+      bankName: { type: String },
+      branchName: { type: String }
+    },
     parentVendorId: { type: Schema.Types.ObjectId, ref: 'User' },
     campaignId: { type: Schema.Types.ObjectId, ref: 'Campaign' },
     assignedCampaigns: [{ type: Schema.Types.ObjectId, ref: 'Campaign' }],
@@ -150,12 +168,14 @@ const UserSchema: Schema = new Schema(
     address: { type: String },
     qualification: { type: String },
     experience: { type: String },
-    aadhaarNumber: { type: String },
+    aadhaarNumber: { type: String, unique: true, sparse: true },
     profileImage: { type: String },
     documents: {
       ngoCertificate: { type: DocumentEntrySchema },
       panCard: { type: DocumentEntrySchema },
       aadhaarCard: { type: DocumentEntrySchema },
+      aadhaarCardFront: { type: DocumentEntrySchema },
+      aadhaarCardBack: { type: DocumentEntrySchema },
       bankPassbook: { type: DocumentEntrySchema },
       passportPhoto: { type: DocumentEntrySchema },
       companyRegCertificate: { type: DocumentEntrySchema },

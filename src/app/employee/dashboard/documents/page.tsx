@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary } from '@/utils/documents';
+import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary, getRequiredDocsForUser } from '@/utils/documents';
 import DocumentCard from '@/components/features/dashboard/DocumentCard';
 import { useDocumentFlow } from '@/hooks/useDocumentFlow';
 import PaymentReceiptCard from "@/components/features/dashboard/PaymentReceiptCard";
@@ -63,7 +63,7 @@ export default function EmployeeDocuments() {
   }, []);
 
   const compliance = getDocComplianceSummary(documents, 'employee');
-  const docTypes = REQUIRED_DOCS_BY_ROLE.employee;
+  const docTypes = getRequiredDocsForUser('employee', documents);
 
   if (loading) {
     return (

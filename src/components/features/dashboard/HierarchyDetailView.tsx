@@ -16,7 +16,8 @@ import {
   isDocumentUploaded, 
   REQUIRED_DOCS_BY_ROLE, 
   getDocComplianceSummary,
-  getRequiredDocs
+  getRequiredDocs,
+  getRequiredDocsForUser
 } from '@/utils/documents';
 import DocumentReviewCard from '@/components/features/dashboard/DocumentReviewCard';
 
@@ -415,7 +416,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
-                  {getRequiredDocs(user.role, user.vendorType).map((type) => (
+                  {getRequiredDocsForUser(user.role, user.documents, user.vendorType).map((type) => (
                     <DocumentReviewCard 
                       key={type}
                       type={type}
@@ -711,7 +712,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                >Reject Partner</button>
                <button 
                  onClick={() => {
-                   const requiredDocs = getRequiredDocs(user.role, user.vendorType);
+                   const requiredDocs = getRequiredDocsForUser(user.role, user.documents, user.vendorType);
                    const allApproved = requiredDocs.every(id => user.documents?.[id]?.status === 'approved');
                    
                    if (user.role === 'vendor' && !allApproved) {

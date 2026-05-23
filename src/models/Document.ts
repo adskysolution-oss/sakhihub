@@ -2,6 +2,8 @@ import mongoose, { Schema, Document as MongooseDocument } from 'mongoose';
 
 export interface IDocument extends MongooseDocument {
   userId: mongoose.Types.ObjectId;
+  employeeId?: mongoose.Types.ObjectId;
+  role?: string;
   type: 'ngo_reg' | 'pan' | 'aadhaar' | 'bank_passbook' | 'security_receipt' | 'other';
   title: string;
   fileUrl: string; // The generated or base file
@@ -16,6 +18,14 @@ export interface IDocument extends MongooseDocument {
   agreementId?: string;
   visibleToVendor?: boolean;
   visibleToEmployee?: boolean;
+  publicId?: string;
+  fileName?: string;
+  fileSize?: string;
+  mimeType?: string;
+  uploadStatus?: string;
+  verificationStatus?: string;
+  uploadedAt?: Date;
+  reviewedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,6 +33,8 @@ export interface IDocument extends MongooseDocument {
 const DocumentSchema: Schema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    employeeId: { type: Schema.Types.ObjectId, ref: 'User' },
+    role: { type: String },
     type: { 
       type: String, 
       enum: ['ngo_reg', 'pan', 'aadhaar', 'bank_passbook', 'security_receipt', 'other'], 
@@ -45,6 +57,14 @@ const DocumentSchema: Schema = new Schema(
     agreementId: { type: String },
     visibleToVendor: { type: Boolean, default: true },
     visibleToEmployee: { type: Boolean, default: true },
+    publicId: { type: String },
+    fileName: { type: String },
+    fileSize: { type: String },
+    mimeType: { type: String },
+    uploadStatus: { type: String },
+    verificationStatus: { type: String },
+    uploadedAt: { type: Date },
+    reviewedAt: { type: Date },
   },
   { timestamps: true }
 );
