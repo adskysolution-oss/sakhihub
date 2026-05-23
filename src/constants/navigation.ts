@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Users, Heart, Settings, User,
   MapPin, IndianRupee, ClipboardList, Target, Layout, FileText,
-  ShieldCheck, Mail, Sparkles, Wallet, ShoppingBag, BadgeCheck
+  ShieldCheck, Mail, Sparkles, Wallet, ShoppingBag, BadgeCheck, Briefcase
 } from 'lucide-react';
 
 export const PUBLIC_LINKS = [
@@ -41,7 +41,9 @@ export const ADMIN_DASHBOARD_LINKS = [
   { name: 'Network Tree', icon: MapPin, href: '/admin/network' },
   { name: 'Vendors', icon: ShieldCheck, href: '/admin/vendors' },
   { name: 'Sub-Vendors', icon: Layout, href: '/admin/sub-vendors' },
-  { name: 'Applications', icon: ClipboardList, href: '/admin/employees' },
+  { name: 'Employees', icon: ClipboardList, href: '/admin/employees' },
+  { name: 'Vacancies', icon: Briefcase, href: '/admin/careers/vacancies' },
+  { name: 'Applications', icon: Users, href: '/admin/careers/applications' },
   { name: 'All Groups', icon: Layout, href: '/admin/groups' },
   { name: 'All Members', icon: Users, href: '/admin/members' },
   { name: 'Memberships', icon: IndianRupee, href: '/admin/memberships' },

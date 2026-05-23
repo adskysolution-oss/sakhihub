@@ -79,6 +79,7 @@ const Footer = () => {
             <h3 className="text-[10px] font-bold text-primary mb-8 tracking-[3px] uppercase opacity-80">{t('footer.joinUs')}</h3>
             <ul className="flex flex-col gap-5">
               {[
+                { name: 'Current Openings', href: '/careers' },
                 { name: t('footer.blockEmployee'), href: '/hiring' },
                 { name: t('footer.deliveryPartner'), href: '/delivery-partner' },
                 { name: t('footer.ngoPartnership'), href: '/partner' },

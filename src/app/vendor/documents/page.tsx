@@ -37,6 +37,7 @@ const getStatusMeta = (status?: string) => {
 
 export default function VendorDocuments() {
   const [documents, setDocuments] = useState<any>({});
+  const [digitalCertificates, setDigitalCertificates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<string | null>(null);
 
@@ -52,6 +53,7 @@ export default function VendorDocuments() {
       const res = await axios.get('/api/vendor/documents');
       if (res.data.success) {
         setDocuments(res.data.data.documents || {});
+        setDigitalCertificates(res.data.data.digitalCertificates || []);
       }
     } catch (err) {
       console.error(err);
@@ -284,20 +286,77 @@ export default function VendorDocuments() {
             <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
               <h2 className="text-xl font-black text-secondary mb-6">Digital Certificates</h2>
               <div className="flex flex-col gap-3">
-                <button className="flex items-center justify-between p-5 bg-gray-50 hover:bg-secondary hover:text-white rounded-3xl transition-all group text-left">
-                  <div className="flex items-center gap-4">
-                    <FileText size={20} className="text-primary group-hover:text-white" />
-                    <span className="font-bold text-sm">Authorization Letter</span>
+                {digitalCertificates.length > 0 ? digitalCertificates.map((cert) => (
+                  <div key={cert._id} className="flex flex-col p-5 bg-gray-50 rounded-3xl border border-gray-100 mb-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                          <ShieldCheck size={20} />
+                        </div>
+                        <div>
+                          <span className="font-black text-secondary">{cert.title}</span>
+                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">ID: {cert.agreementId || 'N/A'}</p>
+                        </div>
+                      </div>
+                      <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest ${
+                        cert.status === 'approved' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
+                      }`}>
+                        {cert.status === 'approved' ? 'Digitally Accepted' : 'Pending Acceptance'}
+                      </span>
+                    </div>
+
+                    {cert.status !== 'approved' && cert.type === 'auth_letter' && (
+                      <div className="mb-4 p-4 bg-white border border-dashed border-gray-200 rounded-2xl">
+                         <label className="flex items-start gap-3 cursor-pointer">
+                           <input type="checkbox" id={`accept-${cert._id}`} className="mt-1 w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary" />
+                           <span className="text-xs font-bold text-gray-600">I have read, understood, and accept all the terms and conditions outlined in the Vendor Agreement.</span>
+                         </label>
+                         <button 
+                           onClick={async () => {
+                             const checkbox = document.getElementById(`accept-${cert._id}`) as HTMLInputElement;
+                             if (!checkbox.checked) {
+                               alert("Please accept the terms to continue.");
+                               return;
+                             }
+                             try {
+                               const res = await axios.post('/api/vendor/agreement/accept', { accepted: true, agreementId: cert.agreementId });
+                               if (res.data.success) {
+                                 alert("Agreement Digitally Accepted!");
+                                 fetchDocuments();
+                               }
+                             } catch (err: any) {
+                               alert(err.response?.data?.message || "Failed to accept agreement");
+                             }
+                           }}
+                           className="mt-4 w-full py-3 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary-dark transition-colors shadow-lg shadow-primary/20"
+                         >
+                           Verify & Sign Digitally
+                         </button>
+                      </div>
+                    )}
+
+                    <div className="flex gap-2">
+                      <a 
+                        href={cert.fileUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex-1 text-center py-2 bg-white border border-gray-200 text-gray-600 font-black text-[9px] uppercase tracking-widest rounded-xl hover:border-primary hover:text-primary transition-all"
+                      >
+                        Preview
+                      </a>
+                      <a 
+                        href={cert.fileUrl} 
+                        download
+                        target="_blank"
+                        className="flex-1 text-center py-2 bg-secondary text-white font-black text-[9px] uppercase tracking-widest rounded-xl hover:bg-secondary-light transition-all"
+                      >
+                        Download PDF
+                      </a>
+                    </div>
                   </div>
-                  <Download size={18} className="opacity-40 group-hover:opacity-100" />
-                </button>
-                <button className="flex items-center justify-between p-5 bg-gray-50 hover:bg-secondary hover:text-white rounded-3xl transition-all group text-left">
-                  <div className="flex items-center gap-4">
-                    <ShieldCheck size={20} className="text-primary group-hover:text-white" />
-                    <span className="font-bold text-sm">Vendor Code Certificate</span>
-                  </div>
-                  <Download size={18} className="opacity-40 group-hover:opacity-100" />
-                </button>
+                )) : (
+                  <p className="text-xs text-gray-400 font-bold italic text-center py-4">No certificates issued yet.</p>
+                )}
               </div>
             </div>
           </div>

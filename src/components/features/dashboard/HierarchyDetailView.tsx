@@ -48,9 +48,19 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
   const { user, counts, hierarchy } = data;
   const [activeTab, setActiveTab] = React.useState('overview');
   
-  // Appointment Letter State
+  // Appointment / Agreement Letter State
   const [joiningDate, setJoiningDate] = React.useState('');
   const [salary, setSalary] = React.useState('');
+  
+  // Vendor Specific Agreement State
+  const [partnerType, setPartnerType] = React.useState('');
+  const [assignedTerritory, setAssignedTerritory] = React.useState('');
+  const [incentiveStructure, setIncentiveStructure] = React.useState('');
+  const [salaryStructure, setSalaryStructure] = React.useState('');
+  const [monthlyTargets, setMonthlyTargets] = React.useState('');
+  const [operationalRole, setOperationalRole] = React.useState('');
+  const [membershipCommission, setMembershipCommission] = React.useState('');
+
   const [isGeneratingAppt, setIsGeneratingAppt] = React.useState(false);
   // Keep local user state to update appointment details immediately
   const [localUser, setLocalUser] = React.useState(user);
@@ -487,7 +497,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                 </p>
               </div>
 
-              {(localUser.role === 'employee' ? localUser.offerLetterDetails : localUser.appointmentDetails) ? (
+              {(localUser.role === 'employee' ? localUser.offerLetterDetails : localUser.vendorAgreementDetails) ? (
                 <div className="bg-green-50 border border-green-200 rounded-[32px] p-8 text-center relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-green-200/50 rounded-full blur-2xl -mr-16 -mt-16" />
                   <div className="relative z-10">
@@ -497,16 +507,16 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                     </h4>
                     <p className="text-sm text-green-700 font-bold mt-2 mb-6">
                       ID: <span className="font-mono bg-white px-2 py-1 rounded">
-                        {localUser.role === 'employee' ? localUser.offerLetterDetails.offerLetterId : localUser.appointmentDetails.agreementId}
+                        {localUser.role === 'employee' ? localUser.offerLetterDetails.offerLetterId : localUser.vendorAgreementDetails.agreementId}
                       </span>
                     </p>
                     <a 
-                      href={localUser.role === 'employee' ? `/employee-offer-letter/${localUser._id}` : `/appointment-letter/${localUser._id}`} 
+                      href={localUser.role === 'employee' ? `/employee-offer-letter/${localUser._id}` : (localUser.vendorAgreementDetails.fileUrl || `/api/vendor/agreement/${localUser.vendorAgreementDetails.agreementId}/preview`)} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-colors shadow-lg shadow-green-200"
                     >
-                      <ExternalLink size={16} /> Preview & Print Letter
+                      <ExternalLink size={16} /> Preview & Print Document
                     </a>
                   </div>
                 </div>
@@ -522,31 +532,79 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                         className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
                       />
                     </div>
-                    <div>
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Fixed Salary / Remuneration (₹)</label>
-                      <div className="relative">
-                        <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-gray-400">₹</span>
-                        <input 
-                          type="number" 
-                          placeholder="e.g. 15000"
-                          value={salary}
-                          onChange={(e) => setSalary(e.target.value)}
-                          className="w-full pl-10 pr-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
-                        />
+
+                    {localUser.role === 'employee' ? (
+                      <div>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Fixed Salary / Remuneration (₹)</label>
+                        <div className="relative">
+                          <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-gray-400">₹</span>
+                          <input 
+                            type="number" 
+                            placeholder="e.g. 15000"
+                            value={salary}
+                            onChange={(e) => setSalary(e.target.value)}
+                            className="w-full pl-10 pr-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                          />
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Partner Type</label>
+                          <input type="text" value={partnerType} onChange={(e) => setPartnerType(e.target.value)} placeholder="e.g. Authorized Distributor" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assigned Territory</label>
+                          <input type="text" value={assignedTerritory} onChange={(e) => setAssignedTerritory(e.target.value)} placeholder="e.g. North District" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Salary Structure</label>
+                          <input type="text" value={salaryStructure} onChange={(e) => setSalaryStructure(e.target.value)} placeholder="e.g. ₹20,000/mo Fixed" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Incentive Structure</label>
+                          <input type="text" value={incentiveStructure} onChange={(e) => setIncentiveStructure(e.target.value)} placeholder="e.g. 5% on Sales" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Membership Commission</label>
+                          <input type="text" value={membershipCommission} onChange={(e) => setMembershipCommission(e.target.value)} placeholder="e.g. ₹100 per member" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Monthly Targets</label>
+                          <input type="text" value={monthlyTargets} onChange={(e) => setMonthlyTargets(e.target.value)} placeholder="e.g. 50 Members/mo" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Operational Role</label>
+                          <input type="text" value={operationalRole} onChange={(e) => setOperationalRole(e.target.value)} placeholder="e.g. Manage field agents and onboarding" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
+                        </div>
+                      </div>
+                    )}
+
                     <button 
                       onClick={async () => {
-                        if (!joiningDate || !salary) {
-                          alert("Please enter both Joining Date and Salary.");
+                        if (!joiningDate) {
+                          alert("Please enter Joining Date.");
+                          return;
+                        }
+                        if (localUser.role === 'employee' && !salary) {
+                          alert("Please enter Salary.");
                           return;
                         }
                         setIsGeneratingAppt(true);
                         try {
                           const endpoint = localUser.role === 'employee' 
                             ? `/api/admin/users/${localUser._id}/offer-letter`
-                            : `/api/admin/users/${localUser._id}/appointment`;
-                          const res = await axios.post(endpoint, { joiningDate, salary });
+                            : `/api/admin/users/${localUser._id}/vendor-agreement`;
+                          
+                          const payload = localUser.role === 'employee' 
+                            ? { joiningDate, salary }
+                            : { 
+                                joiningDate, partnerType, assignedTerritory, 
+                                salaryStructure, incentiveStructure, membershipCommission, 
+                                monthlyTargets, operationalRole 
+                              };
+
+                          const res = await axios.post(endpoint, payload);
                           if (res.data.success) {
                             setLocalUser(res.data.data);
                           }
@@ -562,14 +620,14 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                       {isGeneratingAppt ? 'Generating...' : `Generate ${localUser.role === 'employee' ? 'Offer Letter' : 'Vendor Agreement'}`}
                     </button>
                     <p className="text-[10px] text-gray-400 font-bold text-center uppercase tracking-widest">
-                      * Other details will be auto-filled from the profile.
+                      * System will generate an immutable PDF document using these details.
                     </p>
                   </div>
                 </div>
               )}
 
               {/* Uploaded Document Review logic */}
-              {(user.role === 'employee' ? localUser.offerLetterDetails : localUser.appointmentDetails) && (() => {
+              {(user.role === 'employee' ? localUser.offerLetterDetails : localUser.vendorAgreementDetails) && (() => {
                 const targetType = user.role === 'employee' ? 'employee_offer_letter' : 'auth_letter';
                 const authLetter = digitalCertificates?.find((c: any) => c.type === targetType);
                 if (!authLetter || !authLetter.uploadedDocumentUrl) return null;

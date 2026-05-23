@@ -187,7 +187,7 @@ export async function GET() {
           _id: a._id,
           type: 'auth_letter', // Mapping to frontend expectation
           title: 'Vendor Agreement',
-          fileUrl: a.fileUrl,
+          fileUrl: a.fileUrl || `/api/vendor/agreement/${a.agreementId}/preview`,
           uploadedDocumentUrl: a.uploadedDocumentUrl,
           status: a.status,
           isLocked: a.isLocked,
