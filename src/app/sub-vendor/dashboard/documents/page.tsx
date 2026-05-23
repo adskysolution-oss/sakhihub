@@ -7,13 +7,14 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary } from '@/utils/documents';
+import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary, getRequiredDocsForUser } from '@/utils/documents';
 import DocumentCard from '@/components/features/dashboard/DocumentCard';
 import { useDocumentFlow } from '@/hooks/useDocumentFlow';
 import PaymentReceiptCard from "@/components/features/dashboard/PaymentReceiptCard";
 
 export default function SubVendorDocuments() {
   const [documents, setDocuments] = useState<any>({});
+  const [vendorType, setVendorType] = useState<string>('individual');
   const [digitalCertificates, setDigitalCertificates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploadingDocId, setUploadingDocId] = useState<string | null>(null);
@@ -50,6 +51,9 @@ export default function SubVendorDocuments() {
       if (res.data.success) {
         setDocuments(res.data.data.documents || {});
         setDigitalCertificates(res.data.data.digitalCertificates || []);
+        if (res.data.data.vendorType) {
+          setVendorType(res.data.data.vendorType);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -62,8 +66,8 @@ export default function SubVendorDocuments() {
     fetchDocuments();
   }, []);
 
-  const compliance = getDocComplianceSummary(documents, 'sub_vendor');
-  const docTypes = REQUIRED_DOCS_BY_ROLE.sub_vendor;
+  const compliance = getDocComplianceSummary(documents, 'sub_vendor', vendorType);
+  const docTypes = getRequiredDocsForUser('sub_vendor', documents, vendorType);
 
   if (loading) {
     return (

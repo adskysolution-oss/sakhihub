@@ -68,6 +68,8 @@ export interface IUser extends Document {
     gstCertificate?: IVendorDocumentEntry;
     companyPanCard?: IVendorDocumentEntry;
     directorAadhaarCard?: IVendorDocumentEntry;
+    directorAadhaarCardFront?: IVendorDocumentEntry;
+    directorAadhaarCardBack?: IVendorDocumentEntry;
     directorPanCard?: IVendorDocumentEntry;
     companyLogo?: IVendorDocumentEntry;
     ngoPanCard?: IVendorDocumentEntry;
@@ -182,6 +184,8 @@ const UserSchema: Schema = new Schema(
       gstCertificate: { type: DocumentEntrySchema },
       companyPanCard: { type: DocumentEntrySchema },
       directorAadhaarCard: { type: DocumentEntrySchema },
+      directorAadhaarCardFront: { type: DocumentEntrySchema },
+      directorAadhaarCardBack: { type: DocumentEntrySchema },
       directorPanCard: { type: DocumentEntrySchema },
       companyLogo: { type: DocumentEntrySchema },
       ngoPanCard: { type: DocumentEntrySchema },

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { getDocComplianceSummary, getRequiredDocs, getDocumentViewUrl } from '@/utils/documents';
+import { getDocComplianceSummary, getRequiredDocs, getDocumentViewUrl, getRequiredDocsForUser } from '@/utils/documents';
 import DocumentCard from '@/components/features/dashboard/DocumentCard';
 import { useDocumentFlow } from '@/hooks/useDocumentFlow';
 import OnboardingStepper from '@/components/features/onboarding/OnboardingStepper';
@@ -151,6 +151,18 @@ export default function SubVendorOnboarding() {
     e.target.value = '';
   };
 
+  const submitAadhaarSplit = async (e: React.ChangeEvent<HTMLInputElement>, side: 'front' | 'back', type: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!formData.aadhaarNumber || formData.aadhaarNumber.length < 12) {
+      alert("Please enter a valid 12-digit Aadhaar Number before uploading.");
+      e.target.value = '';
+      return;
+    }
+    await uploadDocument(file, type, { aadhaarNumber: formData.aadhaarNumber });
+    e.target.value = '';
+  };
+
   const submitPan = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -199,12 +211,16 @@ export default function SubVendorOnboarding() {
 
   const activeVendorType = vendorType || profile?.vendorType || 'individual';
   const compliance = getDocComplianceSummary(profile?.documents, 'sub_vendor', activeVendorType);
-  const docTypes = getRequiredDocs('sub_vendor', activeVendorType);
+  const docTypes = getRequiredDocsForUser('sub_vendor', profile?.documents, activeVendorType);
 
-  const aadhaarDocType = docTypes.find(d => ['aadhaarCard', 'directorAadhaarCard', 'aadhaarCardFront', 'aadhaarCardBack'].includes(d)) || 'aadhaarCard';
+  const aadhaarDocType = docTypes.find(d => ['aadhaarCard', 'directorAadhaarCard', 'aadhaarCardFront', 'aadhaarCardBack', 'directorAadhaarCardFront', 'directorAadhaarCardBack'].includes(d)) || 'aadhaarCard';
   const panDocType = docTypes.find(d => ['panCard', 'companyPanCard', 'directorPanCard', 'ngoPanCard'].includes(d)) || 'panCard';
   const bankDocType = 'bankPassbook';
-  const generalDocTypes = docTypes.filter(d => d !== aadhaarDocType && d !== panDocType && d !== bankDocType);
+  const generalDocTypes = docTypes.filter(d => 
+    !['aadhaarCard', 'directorAadhaarCard', 'aadhaarCardFront', 'aadhaarCardBack', 'directorAadhaarCardFront', 'directorAadhaarCardBack'].includes(d) && 
+    d !== panDocType && 
+    d !== bankDocType
+  );
 
   const renderUploadedDocState = (docInfo: any, reuploadInput?: React.ReactNode) => {
     if (!docInfo?.url) return null;
@@ -300,49 +316,96 @@ export default function SubVendorOnboarding() {
 
             <div className="space-y-6">
               {/* Aadhaar Card Custom Box */}
-              {docTypes.includes(aadhaarDocType) && (
-                <div className="bg-white p-6 md:p-8 rounded-[32px] border-2 border-gray-100 hover:border-primary/20 transition-all overflow-hidden shadow-sm">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                      <UserCheck size={24} />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-black text-secondary">Aadhaar Card Verification</h3>
-                      <p className="text-[10px] text-primary font-black uppercase tracking-widest flex items-center gap-1.5"><FileText size={12} /> PDF, JPG, PNG</p>
-                    </div>
-                  </div>
+              {(docTypes.includes('aadhaarCard') || docTypes.includes('directorAadhaarCard') || docTypes.includes('aadhaarCardFront') || docTypes.includes('directorAadhaarCardFront')) && (() => {
+                const isSplit = docTypes.includes('aadhaarCardFront') || docTypes.includes('directorAadhaarCardFront');
+                const frontType = docTypes.includes('directorAadhaarCardFront') ? 'directorAadhaarCardFront' : 'aadhaarCardFront';
+                const backType = docTypes.includes('directorAadhaarCardBack') ? 'directorAadhaarCardBack' : 'aadhaarCardBack';
+                const activeAadhaarKey = isSplit ? frontType : aadhaarDocType;
+                const isApproved = isSplit 
+                  ? (profile?.documents?.[frontType]?.status === 'approved' || profile?.documents?.[backType]?.status === 'approved')
+                  : profile?.documents?.[aadhaarDocType]?.status === 'approved';
 
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Aadhaar Number *</label>
-                      <input 
-                        type="text" maxLength={12} placeholder="Enter 12-digit Aadhaar Number"
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:border-primary focus:bg-white"
-                        value={formData.aadhaarNumber}
-                        onChange={(e) => setFormData({...formData, aadhaarNumber: e.target.value.replace(/\D/g, '')})}
-                        readOnly={profile?.documents?.[aadhaarDocType]?.status === 'approved'}
-                      />
+                return (
+                  <div className="bg-white p-6 md:p-8 rounded-[32px] border-2 border-gray-100 hover:border-primary/20 transition-all overflow-hidden shadow-sm">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                        <UserCheck size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-black text-secondary">Aadhaar Card Verification</h3>
+                        <p className="text-[10px] text-primary font-black uppercase tracking-widest flex items-center gap-1.5"><FileText size={12} /> PDF, JPG, PNG</p>
+                      </div>
                     </div>
-                    
-                    <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
-                      <p className="text-xs font-black text-secondary mb-3">Aadhaar Document</p>
-                      {profile?.documents?.[aadhaarDocType]?.url ? (
-                        renderUploadedDocState(profile.documents[aadhaarDocType], (
-                          <label className="block w-full text-center py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer">
-                            {uploading === aadhaarDocType ? 'Uploading...' : 'Re-upload'}
-                            <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === aadhaarDocType} onChange={submitAadhaar} />
-                          </label>
-                        ))
+
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Aadhaar Number *</label>
+                        <input 
+                          type="text" maxLength={12} placeholder="Enter 12-digit Aadhaar Number"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:border-primary focus:bg-white"
+                          value={formData.aadhaarNumber}
+                          onChange={(e) => setFormData({...formData, aadhaarNumber: e.target.value.replace(/\D/g, '')})}
+                          readOnly={isApproved}
+                        />
+                      </div>
+                      
+                      {isSplit ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
+                            <p className="text-xs font-black text-secondary mb-3">Front Side</p>
+                            {profile?.documents?.[frontType]?.url ? (
+                              renderUploadedDocState(profile.documents[frontType], (
+                                <label className="block w-full text-center py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer">
+                                  {uploading === frontType ? 'Uploading...' : 'Re-upload'}
+                                  <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === frontType} onChange={(e) => submitAadhaarSplit(e, 'front', frontType)} />
+                                </label>
+                              ))
+                            ) : (
+                              <label className="w-full py-3 mt-2 bg-primary text-white rounded-xl flex justify-center items-center gap-2 font-black text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-primary/20 hover:bg-primary-dark">
+                                {uploading === frontType ? 'Uploading...' : <><Upload size={14} /> Upload Front</>}
+                                <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === frontType} onChange={(e) => submitAadhaarSplit(e, 'front', frontType)} />
+                              </label>
+                            )}
+                          </div>
+                          <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
+                            <p className="text-xs font-black text-secondary mb-3">Back Side</p>
+                            {profile?.documents?.[backType]?.url ? (
+                              renderUploadedDocState(profile.documents[backType], (
+                                <label className="block w-full text-center py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer">
+                                  {uploading === backType ? 'Uploading...' : 'Re-upload'}
+                                  <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === backType} onChange={(e) => submitAadhaarSplit(e, 'back', backType)} />
+                                </label>
+                              ))
+                            ) : (
+                              <label className="w-full py-3 mt-2 bg-primary text-white rounded-xl flex justify-center items-center gap-2 font-black text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-primary/20 hover:bg-primary-dark">
+                                {uploading === backType ? 'Uploading...' : <><Upload size={14} /> Upload Back</>}
+                                <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === backType} onChange={(e) => submitAadhaarSplit(e, 'back', backType)} />
+                              </label>
+                            )}
+                          </div>
+                        </div>
                       ) : (
-                        <label className="w-full py-3 mt-2 bg-primary text-white rounded-xl flex justify-center items-center gap-2 font-black text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-primary/20 hover:bg-primary-dark">
-                          {uploading === aadhaarDocType ? 'Uploading...' : <><Upload size={14} /> Upload Aadhaar</>}
-                          <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === aadhaarDocType} onChange={submitAadhaar} />
-                        </label>
+                        <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
+                          <p className="text-xs font-black text-secondary mb-3">Aadhaar Document</p>
+                          {profile?.documents?.[aadhaarDocType]?.url ? (
+                            renderUploadedDocState(profile.documents[aadhaarDocType], (
+                              <label className="block w-full text-center py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer">
+                                {uploading === aadhaarDocType ? 'Uploading...' : 'Re-upload'}
+                                <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === aadhaarDocType} onChange={submitAadhaar} />
+                              </label>
+                            ))
+                          ) : (
+                            <label className="w-full py-3 mt-2 bg-primary text-white rounded-xl flex justify-center items-center gap-2 font-black text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-primary/20 hover:bg-primary-dark">
+                              {uploading === aadhaarDocType ? 'Uploading...' : <><Upload size={14} /> Upload Aadhaar</>}
+                              <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === aadhaarDocType} onChange={submitAadhaar} />
+                            </label>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* PAN Card Custom Box */}
               {docTypes.includes(panDocType) && (

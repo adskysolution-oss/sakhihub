@@ -7,7 +7,8 @@ import {
   Edit2, Trash2, ShieldCheck, ShieldAlert,
   Phone, Mail, Calendar, Filter, X,
   Briefcase, Network, Link2, ExternalLink,
-  CheckCircle2, Clock, AlertCircle, FileText
+  CheckCircle2, Clock, AlertCircle, FileText,
+  Landmark, UserCheck, FileCheck
 } from "lucide-react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
@@ -390,6 +391,77 @@ export default function EmployeeManagement() {
                         <div className="text-right">
                            <p className="text-2xl font-black text-primary">{compliance?.approved}/{compliance?.total}</p>
                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Verified</p>
+                        </div>
+                      </div>
+
+                      {/* Credential Details Block */}
+                      <div className="bg-gray-50/50 border border-gray-100 rounded-[32px] p-6 space-y-6">
+                        <h5 className="text-xs font-black text-secondary uppercase tracking-widest flex items-center gap-2 border-b border-gray-100 pb-3">
+                          <FileText size={16} className="text-primary" /> Submitted Credential Details
+                        </h5>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Aadhaar & PAN Card Info */}
+                          <div className="space-y-4">
+                            <div className="bg-white p-5 rounded-2xl border border-gray-50 shadow-sm flex items-start gap-4">
+                              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                <UserCheck size={20} />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Aadhaar Number</p>
+                                <p className="font-mono font-bold text-secondary text-sm mt-1 truncate">
+                                  {selectedEmp.aadhaarNumber ? selectedEmp.aadhaarNumber.replace(/(\d{4})/g, '$1 ').trim() : 'Not Provided'}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="bg-white p-5 rounded-2xl border border-gray-50 shadow-sm flex items-start gap-4">
+                              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                <FileCheck size={20} />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">PAN Number</p>
+                                <p className="font-mono font-bold text-secondary text-sm mt-1 truncate">
+                                  {selectedEmp.panNumber || 'Not Provided'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Bank details info */}
+                          <div className="bg-white p-5 rounded-2xl border border-gray-50 shadow-sm flex flex-col gap-4">
+                            <div className="flex items-center gap-3 border-b border-gray-50 pb-2">
+                              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                <Landmark size={20} />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Bank Details</p>
+                                <p className="font-black text-secondary text-xs truncate">{selectedEmp.bankDetails?.bankName || 'Not Provided'}</p>
+                              </div>
+                            </div>
+                            {selectedEmp.bankDetails?.accountNumber ? (
+                              <div className="grid grid-cols-2 gap-4 text-xs">
+                                <div className="min-w-0">
+                                  <p className="text-[8px] font-black text-gray-400 uppercase">Account Holder</p>
+                                  <p className="font-bold text-secondary truncate mt-0.5">{selectedEmp.bankDetails?.accountHolderName || 'N/A'}</p>
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-[8px] font-black text-gray-400 uppercase">Account Number</p>
+                                  <p className="font-mono font-bold text-secondary truncate mt-0.5">{selectedEmp.bankDetails?.accountNumber}</p>
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-[8px] font-black text-gray-400 uppercase">IFSC Code</p>
+                                  <p className="font-mono font-bold text-secondary truncate mt-0.5">{selectedEmp.bankDetails?.ifscCode || 'N/A'}</p>
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-[8px] font-black text-gray-400 uppercase">Branch</p>
+                                  <p className="font-bold text-secondary truncate mt-0.5">{selectedEmp.bankDetails?.branchName || 'N/A'}</p>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-center py-4 text-gray-400 font-bold italic text-xs">
+                                Bank details not submitted.
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
 

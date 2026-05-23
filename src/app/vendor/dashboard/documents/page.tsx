@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary, getRequiredDocs } from '@/utils/documents';
+import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary, getRequiredDocs, getRequiredDocsForUser } from '@/utils/documents';
 import DocumentCard from '@/components/features/dashboard/DocumentCard';
 import { useDocumentFlow } from '@/hooks/useDocumentFlow';
 import PaymentReceiptCard from "@/components/features/dashboard/PaymentReceiptCard";
@@ -65,7 +65,7 @@ export default function VendorDocuments() {
   }, []);
 
   const compliance = getDocComplianceSummary(documents, 'vendor', vendorType);
-  const docTypes = getRequiredDocs('vendor', vendorType);
+  const docTypes = getRequiredDocsForUser('vendor', documents, vendorType);
 
   if (loading) {
     return (

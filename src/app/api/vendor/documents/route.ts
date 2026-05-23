@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     }
 
     // --- Verification & Duplicate Check Logic ---
-    const aadhaarTypes = ['aadhaarCard', 'aadhaarCardFront', 'aadhaarCardBack', 'directorAadhaarCard'];
+    const aadhaarTypes = ['aadhaarCard', 'aadhaarCardFront', 'aadhaarCardBack', 'directorAadhaarCard', 'directorAadhaarCardFront', 'directorAadhaarCardBack'];
     const panTypes = ['panCard', 'companyPanCard', 'directorPanCard', 'ngoPanCard'];
 
     if (aadhaarTypes.includes(type)) {

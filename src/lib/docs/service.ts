@@ -28,30 +28,44 @@ export function getRequiredDocs(role: string, vendorType?: string): string[] {
  */
 export function getRequiredDocsForUser(role: string, userDocuments: any, vendorType?: string): string[] {
   let docs = getRequiredDocs(role, vendorType);
-  if (role === 'employee') {
-    const hasSingleAadhaar = !!(userDocuments?.aadhaarCard?.url);
-    if (hasSingleAadhaar) {
-      docs = docs.filter(d => d !== 'aadhaarCardFront' && d !== 'aadhaarCardBack');
-      if (!docs.includes('aadhaarCard')) {
-        const panIndex = docs.indexOf('panCard');
-        if (panIndex !== -1) {
-          docs.splice(panIndex + 1, 0, 'aadhaarCard');
-        } else {
-          docs.push('aadhaarCard');
+  
+  const aadhaarKeysToSplit = ['aadhaarCard', 'directorAadhaarCard'];
+  
+  aadhaarKeysToSplit.forEach(aadhaarKey => {
+    const frontKey = `${aadhaarKey}Front`;
+    const backKey = `${aadhaarKey}Back`;
+    
+    const hasAadhaarInDocs = docs.includes(aadhaarKey);
+    const hasAadhaarFrontInDocs = docs.includes(frontKey) || docs.includes(backKey);
+    
+    if (hasAadhaarInDocs || hasAadhaarFrontInDocs) {
+      const hasSingleAadhaarUploaded = !!(userDocuments?.[aadhaarKey]?.url);
+      if (hasSingleAadhaarUploaded) {
+        // Keep single Aadhaar, filter out front and back
+        docs = docs.filter(d => d !== frontKey && d !== backKey);
+        if (!docs.includes(aadhaarKey)) {
+          const companionIndex = docs.indexOf('panCard') !== -1 ? docs.indexOf('panCard') : docs.indexOf('companyPanCard');
+          if (companionIndex !== -1) {
+            docs.splice(companionIndex + 1, 0, aadhaarKey);
+          } else {
+            docs.push(aadhaarKey);
+          }
         }
-      }
-    } else {
-      docs = docs.filter(d => d !== 'aadhaarCard');
-      if (!docs.includes('aadhaarCardFront')) {
-        const panIndex = docs.indexOf('panCard');
-        if (panIndex !== -1) {
-          docs.splice(panIndex + 1, 0, 'aadhaarCardFront', 'aadhaarCardBack');
-        } else {
-          docs.push('aadhaarCardFront', 'aadhaarCardBack');
+      } else {
+        // Use front and back, filter out single
+        docs = docs.filter(d => d !== aadhaarKey);
+        if (!docs.includes(frontKey)) {
+          const companionIndex = docs.indexOf('panCard') !== -1 ? docs.indexOf('panCard') : docs.indexOf('companyPanCard');
+          if (companionIndex !== -1) {
+            docs.splice(companionIndex + 1, 0, frontKey, backKey);
+          } else {
+            docs.push(frontKey, backKey);
+          }
         }
       }
     }
-  }
+  });
+  
   return docs;
 }
 
