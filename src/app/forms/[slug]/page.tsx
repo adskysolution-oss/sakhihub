@@ -179,7 +179,14 @@ export default function PublicFormPage() {
                     type={field.type === 'phone' ? 'tel' : field.type} 
                     required={field.required}
                     value={formData[field.fieldId] || ''}
-                    onChange={(e) => handleInputChange(field.fieldId, e.target.value)}
+                    onChange={(e) => {
+                      if (field.type === 'phone') {
+                        const val = e.target.value.replace(/\D/g, '');
+                        handleInputChange(field.fieldId, val);
+                      } else {
+                        handleInputChange(field.fieldId, e.target.value);
+                      }
+                    }}
                     placeholder={field.placeholder}
                     className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-medium text-gray-900 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all"
                   />

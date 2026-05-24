@@ -284,7 +284,41 @@ function BuilderContent() {
                       </div>
                       <select 
                         value={field.type}
-                        onChange={(e) => updateField(stepIndex, fieldIndex, { type: e.target.value })}
+                        onChange={(e) => {
+                          const newType = e.target.value;
+                          const updates: any = { type: newType };
+                          
+                          if (newType === 'phone') {
+                            updates.label = 'Phone Number';
+                            updates.placeholder = 'Enter phone number';
+                          } else if (newType === 'text') {
+                            updates.label = 'Enter Text';
+                            updates.placeholder = 'Type here';
+                          } else if (newType === 'email') {
+                            updates.label = 'Email Address';
+                            updates.placeholder = 'Enter email address';
+                          } else if (newType === 'number') {
+                            updates.label = 'Enter Number';
+                            updates.placeholder = 'e.g., 100';
+                          } else if (newType === 'textarea') {
+                            updates.label = 'Enter Details';
+                            updates.placeholder = 'Type your details here';
+                          } else if (newType === 'date') {
+                            updates.label = 'Select Date';
+                          } else if (newType === 'select') {
+                            updates.label = 'Choose an option';
+                          } else if (newType === 'radio') {
+                            updates.label = 'Select one option';
+                          } else if (newType === 'checkbox') {
+                            updates.label = 'Select all that apply';
+                          } else if (newType === 'file') {
+                            updates.label = 'Upload Document';
+                          } else if (newType === 'toggle') {
+                            updates.label = 'Enable feature?';
+                          }
+                          
+                          updateField(stepIndex, fieldIndex, updates);
+                        }}
                         className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 font-bold text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
                       >
                         <option value="text">Short Text</option>
