@@ -55,6 +55,7 @@ export const ADMIN_DASHBOARD_LINKS = [
   { name: 'My Profile', icon: User, href: '/admin/profile' },
   { name: 'Payment Config', icon: IndianRupee, href: '/admin/payment-config' },
   { name: 'Finance Control', icon: Wallet, href: '/admin/finance' },
+  { name: 'Dynamic Forms', icon: ClipboardList, href: '/admin/forms' },
   { name: 'CMS Manage', icon: Settings, href: '/admin/cms' },
 ];
 
