@@ -8,6 +8,7 @@ import {
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { usePincodeAutofill } from '@/hooks/usePincodeAutofill';
+import { toast } from 'sonner';
 
 export default function ProfileManager() {
   const [user, setUser] = useState<any>(null);
@@ -74,10 +75,10 @@ export default function ProfileManager() {
       const res = await axios.patch('/api/user/profile', data);
       if (res.data.success) {
         setUser(res.data.data);
-        alert('Profile updated successfully!');
+        toast.success('Profile updated successfully!');
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to update profile');
+      toast.error(err.response?.data?.message || 'Failed to update profile');
     } finally {
       setSaving(false);
     }

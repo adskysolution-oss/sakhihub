@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 import DocumentReviewCard from "@/components/features/dashboard/DocumentReviewCard";
 import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary, getRequiredDocsForUser } from "@/utils/documents";
+import { toast } from 'sonner';
 
 export default function EmployeeManagement() {
   const [employees, setEmployees] = useState<any[]>([]);
@@ -108,7 +109,7 @@ export default function EmployeeManagement() {
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to update assignment");
+      toast.error("Failed to update assignment");
     } finally {
       setIsAssigning(false);
     }
@@ -116,7 +117,7 @@ export default function EmployeeManagement() {
 
   const generateOfferLetter = async () => {
     if (!joiningDate || !salary) {
-      alert("Please enter both Joining Date and Salary.");
+      toast.error("Please enter both Joining Date and Salary.");
       return;
     }
     setIsGeneratingAppt(true);
@@ -129,7 +130,7 @@ export default function EmployeeManagement() {
         setSelectedEmp(res.data.data);
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to generate offer letter");
+      toast.error(err.response?.data?.message || "Failed to generate offer letter");
     } finally {
       setIsGeneratingAppt(false);
     }
@@ -161,7 +162,7 @@ export default function EmployeeManagement() {
         }));
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to update document status');
+      toast.error(err.response?.data?.message || 'Failed to update document status');
     }
   };
 
@@ -661,7 +662,7 @@ export default function EmployeeManagement() {
                                         <button
                                           onClick={async () => {
                                             if (!signedDocRemarks.trim()) {
-                                              alert('Please enter remarks before requesting a reupload.');
+                                              toast.error('Please enter remarks before requesting a reupload.');
                                               return;
                                             }
                                             setSignedDocActionLoading('reupload');
@@ -679,7 +680,7 @@ export default function EmployeeManagement() {
                                         <button
                                           onClick={async () => {
                                             if (!signedDocRemarks.trim()) {
-                                              alert('Please enter a reason for rejection.');
+                                              toast.error('Please enter a reason for rejection.');
                                               return;
                                             }
                                             setSignedDocActionLoading('reject');

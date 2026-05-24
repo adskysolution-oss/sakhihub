@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 interface UseDocumentFlowProps {
   onSuccess?: () => Promise<void>;
@@ -27,12 +28,12 @@ export function useDocumentFlow({
     // Strict Format Validation
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      alert("Invalid format. Only PDF, JPG, PNG, and WEBP files are accepted.");
+      toast.success("Invalid format. Only PDF, JPG, PNG, and WEBP files are accepted.");
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) { // 10MB limit
-      alert("File size should be less than 10MB");
+      toast.error("File size should be less than 10MB");
       return;
     }
 
@@ -66,7 +67,7 @@ export function useDocumentFlow({
     } catch (err: any) {
       console.error(err);
       const msg = err.response?.data?.message || 'Upload failed. Please try again.';
-      alert(msg);
+      toast.error(msg);
       return false;
     } finally {
       setUploading(null);

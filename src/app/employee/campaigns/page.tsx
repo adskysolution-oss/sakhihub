@@ -6,6 +6,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
+import { toast } from 'sonner';
 
 export default function EmployeeCampaignsPage() {
   const [assigned, setAssigned] = useState<any[]>([]);
@@ -114,10 +115,10 @@ function CampaignCard({ camp, type, onFetch }: { camp: any, type: string, onFetc
       if (res.data.success) {
         if (onFetch) onFetch();
       } else {
-        alert(res.data.message || 'Failed to request campaign');
+        toast.error(res.data.message || 'Failed to request campaign');
       }
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to request campaign');
+      toast.error(error.response?.data?.message || 'Failed to request campaign');
     } finally {
       setRequesting(false);
     }

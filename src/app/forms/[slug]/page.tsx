@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useParams, useRouter } from 'next/navigation';
 import { CheckCircle2, ChevronRight, ChevronLeft, Upload } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 export default function PublicFormPage() {
   const params = useParams();
@@ -68,7 +69,7 @@ export default function PublicFormPage() {
           handleInputChange(fieldId, res.data.data.url);
         }
       } catch (err) {
-        alert('Failed to upload file. Please try again.');
+        toast.error('Failed to upload file. Please try again.');
       } finally {
         setUploading(null);
       }
@@ -82,7 +83,7 @@ export default function PublicFormPage() {
       if (field.required) {
         const val = formData[field.fieldId];
         if (val === undefined || val === null || val === '' || (Array.isArray(val) && val.length === 0)) {
-          alert(`Please fill the required field: ${field.label}`);
+          toast.error(`Please fill the required field: ${field.label}`);
           return false;
         }
       }
@@ -115,7 +116,7 @@ export default function PublicFormPage() {
         window.scrollTo(0, 0);
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to submit form');
+      toast.error(err.response?.data?.message || 'Failed to submit form');
     } finally {
       setSubmitting(false);
     }

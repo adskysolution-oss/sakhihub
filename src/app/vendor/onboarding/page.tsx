@@ -11,6 +11,7 @@ import { getDocComplianceSummary, getRequiredDocs, getDocumentViewUrl, getRequir
 import DocumentCard from '@/components/features/dashboard/DocumentCard';
 import { useDocumentFlow } from '@/hooks/useDocumentFlow';
 import OnboardingStepper from '@/components/features/onboarding/OnboardingStepper';
+import { toast } from 'sonner';
 
 export default function VendorOnboarding() {
   const router = useRouter();
@@ -141,7 +142,7 @@ export default function VendorOnboarding() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.aadhaarNumber || formData.aadhaarNumber.length < 12) {
-      alert("Please enter a valid 12-digit Aadhaar Number before uploading.");
+      toast.error("Please enter a valid 12-digit Aadhaar Number before uploading.");
       e.target.value = '';
       return;
     }
@@ -153,7 +154,7 @@ export default function VendorOnboarding() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.aadhaarNumber || formData.aadhaarNumber.length < 12) {
-      alert("Please enter a valid 12-digit Aadhaar Number before uploading.");
+      toast.error("Please enter a valid 12-digit Aadhaar Number before uploading.");
       e.target.value = '';
       return;
     }
@@ -165,7 +166,7 @@ export default function VendorOnboarding() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.panNumber || formData.panNumber.length !== 10) {
-      alert("Please enter a valid 10-character PAN Number before uploading.");
+      toast.error("Please enter a valid 10-character PAN Number before uploading.");
       e.target.value = '';
       return;
     }
@@ -177,17 +178,17 @@ export default function VendorOnboarding() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.accountHolderName || !formData.ifscCode || !formData.accountNumber) {
-      alert("Please fill all bank details before uploading.");
+      toast.error("Please fill all bank details before uploading.");
       e.target.value = '';
       return;
     }
     if (formData.accountNumber !== formData.confirmAccountNumber) {
-      alert("Account numbers do not match.");
+      toast.error("Account numbers do not match.");
       e.target.value = '';
       return;
     }
     if (!formData.bankName) {
-      alert("Invalid IFSC code.");
+      toast.error("Invalid IFSC code.");
       e.target.value = '';
       return;
     }

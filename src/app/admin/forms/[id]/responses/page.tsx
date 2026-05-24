@@ -6,6 +6,7 @@ import { ChevronLeft, FileText, Search, ExternalLink, X } from "lucide-react";
 import axios from "axios";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { toast } from 'sonner';
 
 export default function AdminFormResponsesPage() {
   const params = useParams();
@@ -32,7 +33,7 @@ export default function AdminFormResponsesPage() {
       if (formRes.data.success) setForm(formRes.data.data);
       if (respRes.data.success) setResponses(respRes.data.data);
     } catch (err) {
-      alert('Failed to load responses');
+      toast.error('Failed to load responses');
     } finally {
       setLoading(false);
     }

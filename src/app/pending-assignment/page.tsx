@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { motion } from "framer-motion";
 import OnboardingStepper from '@/components/features/onboarding/OnboardingStepper';
+import { toast } from 'sonner';
 
 export default function PendingAssignmentPage() {
   const router = useRouter();
@@ -74,7 +75,7 @@ export default function PendingAssignmentPage() {
       }
     } catch (error) {
       console.error('Action failed:', error);
-      alert('Failed to process request');
+      toast.error('Failed to process request');
     } finally {
       setActionLoading(null);
     }

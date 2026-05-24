@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Upload, CheckCircle2, ChevronLeft, FileText, User, MapPin, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 import { usePincodeAutofill } from '@/hooks/usePincodeAutofill';
+import { toast } from 'sonner';
 
 export default function ApplyPage() {
   const params = useParams();
@@ -134,7 +135,7 @@ export default function ApplyPage() {
           setFormData(prev => ({ ...prev, [field]: res.data.data.url }));
         }
       } catch (err) {
-        alert(`Failed to upload ${field}. Please try again.`);
+        toast.error(`Failed to upload ${field}. Please try again.`);
       } finally {
         setUploading(null);
       }
@@ -144,19 +145,19 @@ export default function ApplyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (existingApp) return alert("You have already applied for this role.");
-    if (!formData.declarationAccepted) return alert("You must accept the declaration.");
+    if (existingApp) return toast.error("You have already applied for this role.");
+    if (!formData.declarationAccepted) return toast.error("You must accept the declaration.");
     if (!formData.resumeUrl) {
-      return alert("Please upload your Resume/CV.");
+      return toast.error("Please upload your Resume/CV.");
     }
     if (vacancy.requireAadhaar && !formData.aadhaarUrl) {
-      return alert("Please upload your Aadhaar Card.");
+      return toast.error("Please upload your Aadhaar Card.");
     }
     if (vacancy.requirePan && !formData.panUrl) {
-      return alert("Please upload your PAN Card.");
+      return toast.error("Please upload your PAN Card.");
     }
     if (vacancy.requirePhoto && !formData.photoUrl) {
-      return alert("Please upload your Passport Photo.");
+      return toast.error("Please upload your Passport Photo.");
     }
 
     setSubmitting(true);
@@ -171,7 +172,7 @@ export default function ApplyPage() {
         setSuccess(true);
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to submit application');
+      toast.error(err.response?.data?.message || 'Failed to submit application');
       if (err.response?.data?.existingStatus) {
         // Handle case where duplicate is caught by server but missed by frontend
         setExistingApp({ status: err.response.data.existingStatus, applicationId: 'Unknown' });

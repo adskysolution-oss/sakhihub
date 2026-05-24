@@ -5,6 +5,7 @@ import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import { Target, Calendar, Plus, ExternalLink, Users, IndianRupee, BookOpen, Download, ArrowRight, Sparkles, Clock } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { toast } from 'sonner';
 
 export default function SubVendorCampaigns() {
   const [assigned, setAssigned] = useState<any[]>([]);
@@ -117,10 +118,10 @@ function CampaignCard({ camp, type, onFetch }: { camp: any, type: string, onFetc
       if (res.data.success) {
         if (onFetch) onFetch();
       } else {
-        alert(res.data.message || 'Failed to request campaign');
+        toast.error(res.data.message || 'Failed to request campaign');
       }
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to request campaign');
+      toast.error(error.response?.data?.message || 'Failed to request campaign');
     } finally {
       setRequesting(false);
     }

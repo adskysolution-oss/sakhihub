@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import { User, Phone, MapPin, Check, X, Clock, AlertCircle } from "lucide-react";
 import axios from "axios";
+import { toast } from 'sonner';
 
 export default function EmployeeRequestsPage() {
   const [activeTab, setActiveTab] = useState<'received' | 'sent'>('received');
@@ -36,7 +37,7 @@ export default function EmployeeRequestsPage() {
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to update request");
+      toast.error("Failed to update request");
     } finally {
       setActionLoading(null);
     }

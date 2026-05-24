@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from 'sonner';
 
 export default function AdminCampaignsPage() {
   const [campaigns, setCampaigns] = useState<any[]>([]);
@@ -142,7 +143,7 @@ export default function AdminCampaignsPage() {
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to save campaign. If Edit API is missing, make sure to add it.');
+      toast.error('Failed to save campaign. If Edit API is missing, make sure to add it.');
     } finally {
       setLoading(false);
     }
@@ -179,7 +180,7 @@ export default function AdminCampaignsPage() {
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to update request status');
+      toast.error('Failed to update request status');
     }
   };
 
@@ -205,7 +206,7 @@ export default function AdminCampaignsPage() {
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to delete campaign.');
+      toast.error('Failed to delete campaign.');
       setLoading(false);
     }
   };

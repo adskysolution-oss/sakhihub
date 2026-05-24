@@ -20,6 +20,7 @@ import {
   getRequiredDocsForUser
 } from '@/utils/documents';
 import DocumentReviewCard from '@/components/features/dashboard/DocumentReviewCard';
+import { toast } from 'sonner';
 
 interface HierarchyDetailViewProps {
   data: {
@@ -128,7 +129,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
 
   const generateAppointmentLetter = async () => {
     if (!joiningDate || !salary) {
-      alert("Please enter both Joining Date and Salary.");
+      toast.error("Please enter both Joining Date and Salary.");
       return;
     }
     setIsGeneratingAppt(true);
@@ -141,7 +142,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
         setLocalUser(res.data.data);
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to generate appointment letter");
+      toast.error(err.response?.data?.message || "Failed to generate appointment letter");
     } finally {
       setIsGeneratingAppt(false);
     }
@@ -168,7 +169,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
         setDigitalCertificates(prev => prev.map(d => d._id === docId ? { ...d, ...res.data.data.document } : d));
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to update document status');
+      toast.error(err.response?.data?.message || 'Failed to update document status');
     }
   };
 
@@ -705,11 +706,11 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                     <button 
                       onClick={async () => {
                         if (!joiningDate) {
-                          alert("Please enter Joining Date.");
+                          toast.error("Please enter Joining Date.");
                           return;
                         }
                         if (localUser.role === 'employee' && !salary) {
-                          alert("Please enter Salary.");
+                          toast.error("Please enter Salary.");
                           return;
                         }
                         setIsGeneratingAppt(true);
@@ -770,10 +771,10 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                                 }];
                               });
                             }
-                            alert(hasAgreement ? "Details updated successfully" : "Document generated successfully");
+                            toast.success(hasAgreement ? "Details updated successfully" : "Document generated successfully");
                           }
                         } catch (err: any) {
-                          alert(err.response?.data?.message || "Failed to update details");
+                          toast.error(err.response?.data?.message || "Failed to update details");
                         } finally {
                           setIsGeneratingAppt(false);
                         }
@@ -915,7 +916,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                                 <button
                                   onClick={async () => {
                                     if (!signedDocRemarks.trim()) {
-                                      alert('Please enter remarks before requesting a reupload.');
+                                      toast.error('Please enter remarks before requesting a reupload.');
                                       return;
                                     }
                                     setSignedDocActionLoading('reupload');
@@ -933,7 +934,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                                 <button
                                   onClick={async () => {
                                     if (!signedDocRemarks.trim()) {
-                                      alert('Please enter a reason for rejection.');
+                                      toast.error('Please enter a reason for rejection.');
                                       return;
                                     }
                                     setSignedDocActionLoading('reject');
@@ -1001,7 +1002,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                    if (reason !== null && reason.trim() !== "") {
                      onStatusUpdate?.(user._id, 'rejected', reason);
                    } else if (reason !== null) {
-                     alert("A reason is required to reject the partner.");
+                     toast.error("A reason is required to reject the partner.");
                    }
                  }}
                  className="px-8 py-4 rounded-2xl border-2 border-red-100 text-red-500 font-black text-[10px] uppercase tracking-widest hover:bg-red-50 transition-all"
@@ -1012,7 +1013,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                    const allApproved = requiredDocs.every(id => user.documents?.[id]?.status === 'approved');
                    
                    if (user.role === 'vendor' && !allApproved) {
-                     alert("Cannot activate vendor: All required documents must be individually approved first. Go to the Compliance tab to verify them.");
+                     toast.error("Cannot activate vendor: All required documents must be individually approved first. Go to the Compliance tab to verify them.");
                      return;
                    }
                    onStatusUpdate?.(user._id, 'active');
@@ -1028,7 +1029,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                    if (reason !== null && reason.trim() !== "") {
                      onStatusUpdate?.(user._id, 'suspended', reason);
                    } else if (reason !== null) {
-                     alert("A reason is required to suspend the partner.");
+                     toast.error("A reason is required to suspend the partner.");
                    }
                  }}
                  className="px-8 py-4 rounded-2xl border-2 border-amber-100 text-amber-600 font-black text-[10px] uppercase tracking-widest hover:bg-amber-50 transition-all"

@@ -5,6 +5,7 @@ import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import { Plus, Edit, Trash2, List, Settings, Eye } from "lucide-react";
 import axios from "axios";
 import Link from "next/link";
+import { toast } from 'sonner';
 
 export default function AdminFormsPage() {
   const [forms, setForms] = useState<any[]>([]);
@@ -22,7 +23,7 @@ export default function AdminFormsPage() {
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to load forms');
+      toast.error('Failed to load forms');
     } finally {
       setLoading(false);
     }
@@ -32,10 +33,10 @@ export default function AdminFormsPage() {
     if (!confirm("Are you sure you want to delete this form? This action cannot be undone.")) return;
     try {
       await axios.delete(`/api/admin/forms/${id}`);
-      alert('Form deleted successfully');
+      toast.success('Form deleted successfully');
       fetchForms();
     } catch (err) {
-      alert('Failed to delete form');
+      toast.error('Failed to delete form');
     }
   };
 

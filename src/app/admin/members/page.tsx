@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import AssignEmployeeModal from "@/components/features/dashboard/AssignEmployeeModal";
+import { toast } from 'sonner';
 
 export default function MemberManagement() {
   const [members, setMembers] = useState<any[]>([]);
@@ -42,7 +43,7 @@ export default function MemberManagement() {
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to update member status");
+      toast.error("Failed to update member status");
     }
   };
 

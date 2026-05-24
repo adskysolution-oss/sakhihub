@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { X, User, Phone, MapPin, Briefcase, Heart, Calendar } from 'lucide-react';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 interface AddMemberModalProps {
   groupId: string;
@@ -40,7 +41,7 @@ export default function AddMemberModal({ groupId, groupName, onClose, onSuccess 
     } catch (err: any) {
       console.error(err);
       const msg = err.response?.data?.message || 'Failed to add member. Please check all fields.';
-      alert(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 export default function AdminFinancePage() {
   const [stats, setStats] = useState<any>(null);
@@ -203,7 +204,7 @@ export default function AdminFinancePage() {
       }
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to update commission settings.');
+      toast.error(err.response?.data?.message || 'Failed to update commission settings.');
     } finally {
       setActionLoading(false);
     }
@@ -231,7 +232,7 @@ export default function AdminFinancePage() {
       }
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to settle payout request.');
+      toast.error(err.response?.data?.message || 'Failed to settle payout request.');
     } finally {
       setActionLoading(false);
     }

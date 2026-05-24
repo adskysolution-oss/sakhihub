@@ -10,6 +10,7 @@ import {
   HelpCircle, ChevronRight, BookmarkCheck, Calendar
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from 'sonner';
 
 export default function MemberCampaignsPage() {
   const { user } = useAuth();
@@ -68,12 +69,12 @@ export default function MemberCampaignsPage() {
     try {
       const res = await axios.post('/api/member/campaigns', { campaignId });
       if (res.data.success) {
-        alert("Your request to join the campaign was submitted successfully!");
+        toast.success("Your request to join the campaign was submitted successfully!");
         await fetchCampaigns();
       }
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.message || "Failed to join campaign");
+      toast.error(err.response?.data?.message || "Failed to join campaign");
     } finally {
       setJoiningCampaignId("");
     }

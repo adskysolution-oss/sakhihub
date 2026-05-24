@@ -5,6 +5,7 @@ import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import { Plus, Trash2, GripVertical, Save, Settings, X, ChevronDown, ChevronUp } from "lucide-react";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from 'sonner';
 
 function generateId() {
   return Math.random().toString(36).substr(2, 9);
@@ -70,7 +71,7 @@ function BuilderContent() {
         setForm(res.data.data);
       }
     } catch (err) {
-      alert('Failed to load form');
+      toast.error('Failed to load form');
     } finally {
       setLoading(false);
     }
@@ -81,14 +82,14 @@ function BuilderContent() {
     try {
       if (editId) {
         await axios.put(`/api/admin/forms/${editId}`, form);
-        alert('Form updated successfully');
+        toast.success('Form updated successfully');
       } else {
         const res = await axios.post('/api/admin/forms', form);
-        alert('Form created successfully');
+        toast.success('Form created successfully');
         router.push(`/admin/forms/builder?id=${res.data.data._id}`);
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to save form');
+      toast.error(err.response?.data?.message || 'Failed to save form');
     } finally {
       setSaving(false);
     }
@@ -110,7 +111,7 @@ function BuilderContent() {
   };
 
   const deleteStep = (stepIndex: number) => {
-    if (form.steps.length === 1) return alert("Form must have at least one step");
+    if (form.steps.length === 1) return toast.error("Form must have at least one step");
     setForm(prev => {
       const newSteps = [...prev.steps];
       newSteps.splice(stepIndex, 1);

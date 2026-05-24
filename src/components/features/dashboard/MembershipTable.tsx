@@ -4,6 +4,7 @@ import React from 'react';
 import { CreditCard, FileText, CheckCircle, Clock, ShieldCheck, XCircle, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 interface MembershipTableProps {
   data: any[];
@@ -21,7 +22,7 @@ export default function MembershipTable({ data, isAdmin = false, onUpdate }: Mem
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to update status');
+      toast.error('Failed to update status');
     }
   };
 

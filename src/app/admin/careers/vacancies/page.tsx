@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import { Briefcase, MapPin, Search, Plus, Edit, Trash2, CheckCircle2, Clock, X } from "lucide-react";
 import axios from "axios";
+import { toast } from 'sonner';
 
 export default function AdminVacanciesPage() {
   const [vacancies, setVacancies] = useState<any[]>([]);
@@ -52,7 +53,7 @@ export default function AdminVacanciesPage() {
       setShowModal(false);
       fetchVacancies();
     } catch (err) {
-      alert("Failed to save vacancy");
+      toast.error("Failed to save vacancy");
     }
   };
 
@@ -62,7 +63,7 @@ export default function AdminVacanciesPage() {
       await axios.delete(`/api/admin/careers/vacancies/${id}`);
       fetchVacancies();
     } catch (err) {
-      alert("Failed to delete vacancy");
+      toast.error("Failed to delete vacancy");
     }
   };
 

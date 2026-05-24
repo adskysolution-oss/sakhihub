@@ -13,6 +13,7 @@ import PaymentSlip from "@/components/shared/PaymentSlip";
 
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function MemberReceiptLandingPage() {
   return (
@@ -72,10 +73,10 @@ function MemberReceiptContent() {
       try {
         await axios.post('/api/payment/verify', { orderId });
         router.replace('/member/receipt');
-        alert("Payment verified successfully! Welcome to SakhiHub paid membership.");
+        toast.success("Payment verified successfully! Welcome to SakhiHub paid membership.");
       } catch (error) {
         console.error('Verification failed', error);
-        alert("Payment verification failed. Please contact admin if amount was deducted.");
+        toast.error("Payment verification failed. Please contact admin if amount was deducted.");
       } finally {
         setVerifyingPayment(false);
         fetchDashboard();
@@ -107,17 +108,17 @@ function MemberReceiptContent() {
               redirectTarget: "_self"
             });
           } else {
-            alert('Payment gateway is still loading. Please wait a moment.');
+            toast.error('Payment gateway is still loading. Please wait a moment.');
             setPayingOnline(false);
           }
         }
       } else {
-        alert(res.data.message || 'Failed to initiate payment');
+        toast.error(res.data.message || 'Failed to initiate payment');
         setPayingOnline(false);
       }
     } catch (error: any) {
       console.error('Payment initiation failed:', error);
-      alert(error.response?.data?.message || 'Failed to initiate payment');
+      toast.error(error.response?.data?.message || 'Failed to initiate payment');
       setPayingOnline(false);
     }
   };
@@ -206,7 +207,7 @@ function MemberReceiptContent() {
                   </p>
                 </div>
                 <button
-                  onClick={() => alert("Please contact NGO Support or Admin at support@sakhihub.org to present offline transaction proof.")}
+                  onClick={() => toast.error("Please contact NGO Support or Admin at support@sakhihub.org to present offline transaction proof.")}
                   className="mt-6 w-full py-3.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-secondary hover:text-primary rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"
                 >
                   Contact Admin Support

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Search, UserCircle, Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 interface AssignEmployeeModalProps {
   member: any;
@@ -42,7 +43,7 @@ export default function AssignEmployeeModal({ member, onClose }: AssignEmployeeM
       }
     } catch (err) {
       console.error(err);
-      alert("Assignment failed");
+      toast.error("Assignment failed");
     } finally {
       setAssigning(null);
     }

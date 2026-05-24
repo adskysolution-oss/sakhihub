@@ -16,6 +16,7 @@ import { motion } from "framer-motion";
 import { getCashfreeJsUrl } from "@/lib/cashfree";
 import { Suspense } from "react";
 import OnboardingStepper from '@/components/features/onboarding/OnboardingStepper';
+import { toast } from 'sonner';
 
 function PaymentPendingContent() {
   const router = useRouter();
@@ -132,16 +133,16 @@ function PaymentPendingContent() {
             redirectTarget: "_self"
           });
         } else {
-          alert('Payment gateway is still loading. Please wait a moment.');
+          toast.error('Payment gateway is still loading. Please wait a moment.');
           setProcessing(false);
         }
       } else {
-        alert(res.data.message || 'Failed to initiate payment');
+        toast.error(res.data.message || 'Failed to initiate payment');
         setProcessing(false);
       }
     } catch (error: any) {
       console.error('Payment initiation failed:', error);
-      alert(error.response?.data?.message || 'Failed to initiate payment');
+      toast.error(error.response?.data?.message || 'Failed to initiate payment');
       setProcessing(false);
     }
   };

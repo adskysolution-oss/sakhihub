@@ -12,6 +12,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 export default function PaymentConfigPage() {
   const [config, setConfig] = useState<any>(null);
@@ -89,7 +90,7 @@ export default function PaymentConfigPage() {
       if (res.data.success && res.data.data.length > 0) {
         setFoundUser(res.data.data[0]);
       } else {
-        alert('User not found');
+        toast.error('User not found');
       }
     } catch (error) {
       console.error('Search failed', error);
@@ -109,13 +110,13 @@ export default function PaymentConfigPage() {
         action: type === 'all' ? 'complete_all' : undefined
       });
       if (res.data.success) {
-        alert('Payment override successful');
+        toast.success('Payment override successful');
         setFoundUser(null);
         setSearchPhone('');
         refreshPending();
       }
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Override failed');
+      toast.error(error.response?.data?.message || 'Override failed');
     } finally {
       setOverrideLoading(false);
     }

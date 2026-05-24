@@ -11,6 +11,7 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { getDocComplianceSummary, getRequiredDocs, getDocumentViewUrl, getRequiredDocsForUser } from "@/utils/documents";
 import DocumentCard from "@/components/features/dashboard/DocumentCard";
+import { toast } from 'sonner';
 
 export default function VendorDocuments() {
   const [documents, setDocuments] = useState<any>({});
@@ -123,7 +124,7 @@ export default function VendorDocuments() {
       }
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.message || 'Upload failed. Please try again.');
+      toast.error(err.response?.data?.message || 'Upload failed. Please try again.');
     } finally {
       setUploading(null);
     }
@@ -133,7 +134,7 @@ export default function VendorDocuments() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.aadhaarNumber || formData.aadhaarNumber.length < 12) {
-      alert("Please enter a valid 12-digit Aadhaar Number before uploading.");
+      toast.error("Please enter a valid 12-digit Aadhaar Number before uploading.");
       e.target.value = '';
       return;
     }
@@ -145,7 +146,7 @@ export default function VendorDocuments() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.aadhaarNumber || formData.aadhaarNumber.length < 12) {
-      alert("Please enter a valid 12-digit Aadhaar Number before uploading.");
+      toast.error("Please enter a valid 12-digit Aadhaar Number before uploading.");
       e.target.value = '';
       return;
     }
@@ -157,7 +158,7 @@ export default function VendorDocuments() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.panNumber || formData.panNumber.length !== 10) {
-      alert("Please enter a valid 10-character PAN Number before uploading.");
+      toast.error("Please enter a valid 10-character PAN Number before uploading.");
       e.target.value = '';
       return;
     }
@@ -169,17 +170,17 @@ export default function VendorDocuments() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.accountHolderName || !formData.ifscCode || !formData.accountNumber) {
-      alert("Please fill all bank details before uploading.");
+      toast.error("Please fill all bank details before uploading.");
       e.target.value = '';
       return;
     }
     if (formData.accountNumber !== formData.confirmAccountNumber) {
-      alert("Account numbers do not match.");
+      toast.error("Account numbers do not match.");
       e.target.value = '';
       return;
     }
     if (!formData.bankName) {
-      alert("Invalid IFSC code.");
+      toast.error("Invalid IFSC code.");
       e.target.value = '';
       return;
     }
@@ -589,17 +590,17 @@ export default function VendorDocuments() {
                            onClick={async () => {
                              const checkbox = document.getElementById(`accept-${cert._id}`) as HTMLInputElement;
                              if (!checkbox.checked) {
-                               alert("Please accept the terms to continue.");
+                               toast.error("Please accept the terms to continue.");
                                return;
                              }
                              try {
                                const res = await axios.post('/api/vendor/agreement/accept', { accepted: true, agreementId: cert.agreementId });
                                if (res.data.success) {
-                                 alert("Agreement Digitally Accepted!");
+                                 toast.success("Agreement Digitally Accepted!");
                                  fetchDocuments();
                                }
                              } catch (err: any) {
-                               alert(err.response?.data?.message || "Failed to accept agreement");
+                               toast.error(err.response?.data?.message || "Failed to accept agreement");
                              }
                            }}
                            className="mt-4 w-full py-3 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary-dark transition-colors shadow-lg shadow-primary/20"

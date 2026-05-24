@@ -10,6 +10,7 @@ import {
   IndianRupee, CheckCircle2, ChevronDown 
 } from "lucide-react";
 import axios from "axios";
+import { toast } from 'sonner';
 
 export default function EmployeeMembersPage() {
   const [activeTab, setActiveTab] = useState<'my-members' | 'discovery'>('my-members');
@@ -45,7 +46,7 @@ export default function EmployeeMembersPage() {
     try {
       const res = await axios.post('/api/employee/request', { memberUserId });
       if (res.data.success) {
-        alert("Request sent successfully");
+        toast.success("Request sent successfully");
         fetchMembers();
       }
     } catch (err) {

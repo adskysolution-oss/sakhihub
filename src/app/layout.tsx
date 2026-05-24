@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import MainLayoutWrapper from "@/components/shared/MainLayoutWrapper";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
   title: "SakhiHub | Empowering Women Across India",
@@ -25,6 +26,7 @@ export default function RootLayout({
             {children}
           </MainLayoutWrapper>
         </LanguageProvider>
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );

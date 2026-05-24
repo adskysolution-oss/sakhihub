@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from 'sonner';
 
 export default function MemberDashboardPage() {
   return (
@@ -78,10 +79,10 @@ function MemberDashboardContent() {
       try {
         await axios.post('/api/payment/verify', { orderId });
         router.replace('/member/dashboard');
-        alert("Payment verified successfully! Welcome to SakhiHub paid membership.");
+        toast.success("Payment verified successfully! Welcome to SakhiHub paid membership.");
       } catch (error) {
         console.error('Verification failed', error);
-        alert("Payment verification failed. Please contact admin if amount was deducted.");
+        toast.error("Payment verification failed. Please contact admin if amount was deducted.");
       } finally {
         setVerifyingPayment(false);
         fetchData();
@@ -113,17 +114,17 @@ function MemberDashboardContent() {
               redirectTarget: "_self"
             });
           } else {
-            alert('Payment gateway is still loading. Please wait a moment.');
+            toast.error('Payment gateway is still loading. Please wait a moment.');
             setPayingOnline(false);
           }
         }
       } else {
-        alert(res.data.message || 'Failed to initiate payment');
+        toast.error(res.data.message || 'Failed to initiate payment');
         setPayingOnline(false);
       }
     } catch (error: any) {
       console.error('Payment initiation failed:', error);
-      alert(error.response?.data?.message || 'Failed to initiate payment');
+      toast.error(error.response?.data?.message || 'Failed to initiate payment');
       setPayingOnline(false);
     }
   };
@@ -177,7 +178,7 @@ function MemberDashboardContent() {
           pincode: emp.pincode || data?.fieldRecord?.pincode || "000000"
         });
         if (resConnect.data.success) {
-          alert(`Successfully sent connection request to ${emp.fullName}!`);
+          toast.success(`Successfully sent connection request to ${emp.fullName}!`);
           setManualCode("");
           await fetchData();
         }
@@ -299,12 +300,12 @@ function MemberDashboardContent() {
     try {
       const res = await axios.post('/api/member/campaigns', { campaignId });
       if (res.data.success) {
-        alert("Your request to join the campaign was submitted successfully!");
+        toast.success("Your request to join the campaign was submitted successfully!");
         await fetchCampaigns();
       }
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.message || "Failed to join campaign");
+      toast.error(err.response?.data?.message || "Failed to join campaign");
     } finally {
       setJoiningCampaignId("");
     }
@@ -333,7 +334,7 @@ function MemberDashboardContent() {
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to submit support ticket.");
+      toast.error("Failed to submit support ticket.");
     } finally {
       setSupportLoading(false);
     }
@@ -353,13 +354,13 @@ function MemberDashboardContent() {
         occupation: profileOccupation
       });
       if (res.data.success) {
-        alert("Your profile has been updated successfully!");
+        toast.success("Your profile has been updated successfully!");
         setShowProfileModal(false);
         await fetchData();
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to update profile details.");
+      toast.error("Failed to update profile details.");
     } finally {
       setProfileLoading(false);
     }
@@ -820,7 +821,7 @@ function MemberDashboardContent() {
                             if (heroSec) {
                               heroSec.scrollIntoView({ behavior: 'smooth' });
                             } else {
-                              alert("Please contact your local employee. You can find their number in the sidebar.");
+                              toast.error("Please contact your local employee. You can find their number in the sidebar.");
                             }
                           }}
                           className="mt-6 w-full py-3.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-secondary hover:text-primary rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"

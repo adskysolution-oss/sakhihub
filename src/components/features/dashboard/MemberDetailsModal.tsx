@@ -14,6 +14,7 @@ interface MemberDetailsModalProps {
 }
 
 import axios from 'axios';
+import { toast } from 'sonner';
 
 export default function MemberDetailsModal({ member, onClose }: MemberDetailsModalProps) {
   const [groups, setGroups] = React.useState<any[]>([]);
@@ -39,12 +40,12 @@ export default function MemberDetailsModal({ member, onClose }: MemberDetailsMod
     try {
       const res = await axios.patch(`/api/member/${member._id}/group-assign`, { groupId: selectedGroup });
       if (res.data.success) {
-        alert("Member assigned to group successfully");
+        toast.success("Member assigned to group successfully");
         onClose();
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to assign group");
+      toast.error("Failed to assign group");
     } finally {
       setAssigning(false);
     }

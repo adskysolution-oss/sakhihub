@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import axios from "axios";
 import MembershipTable from "@/components/features/dashboard/MembershipTable";
+import { toast } from 'sonner';
 import { 
   Users, CheckCircle2, AlertCircle, IndianRupee, Download, 
   Settings2, Save, FileText, ToggleLeft, ToggleRight, Calendar, Filter, Clock
@@ -84,13 +85,13 @@ export default function AdminMembershipsPage() {
         paymentMode: 'Cash'
       });
       if (res.data.success) {
-        alert(`Successfully registered Cash payment for ${member.name}!`);
+        toast.success(`Successfully registered Cash payment for ${member.name}!`);
         fetchMemberships();
         fetchMemberStats();
       }
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to register membership payment');
+      toast.error(err.response?.data?.message || 'Failed to register membership payment');
     }
   };
 
@@ -104,11 +105,11 @@ export default function AdminMembershipsPage() {
       });
       if (res.data.success) {
         setCommConfig(res.data.data);
-        alert('Membership control settings updated successfully!');
+        toast.success('Membership control settings updated successfully!');
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to save settings.');
+      toast.error('Failed to save settings.');
     } finally {
       setSavingSettings(false);
     }

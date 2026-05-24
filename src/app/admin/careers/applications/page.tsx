@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import { Users, Search, Download, CheckCircle2, XCircle, FileText, ExternalLink, RefreshCw } from "lucide-react";
 import axios from "axios";
+import { toast } from 'sonner';
 
 export default function AdminApplicationsPage() {
   const [applications, setApplications] = useState<any[]>([]);
@@ -33,7 +34,7 @@ export default function AdminApplicationsPage() {
       await axios.put(`/api/admin/careers/applications/${id}`, { status: newStatus });
       fetchApplications();
     } catch (err) {
-      alert("Failed to update status");
+      toast.error("Failed to update status");
     }
   };
 
@@ -54,11 +55,11 @@ export default function AdminApplicationsPage() {
     try {
       const res = await axios.post(`/api/admin/careers/applications/${id}/convert`);
       if (res.data.success) {
-        alert("Candidate successfully converted to Employee! You can now generate their Offer Letter from the Employees module.");
+        toast.success("Candidate successfully converted to Employee! You can now generate their Offer Letter from the Employees module.");
         fetchApplications();
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to convert candidate");
+      toast.error(err.response?.data?.message || "Failed to convert candidate");
     } finally {
       setConverting(null);
     }
