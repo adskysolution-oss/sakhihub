@@ -18,8 +18,9 @@ export interface IApplication extends Document {
   experience: string;
   applyingFor: string;
   resumeUrl: string;
-  aadhaarUrl: string;
-  photoUrl: string;
+  aadhaarUrl?: string;
+  panUrl?: string;
+  photoUrl?: string;
   declarationAccepted: boolean;
   status: ApplicationStatus;
   adminRemarks?: string;
@@ -44,8 +45,9 @@ const ApplicationSchema = new Schema<IApplication>({
   experience: { type: String, required: true },
   applyingFor: { type: String, required: true },
   resumeUrl: { type: String, required: true },
-  aadhaarUrl: { type: String, required: true },
-  photoUrl: { type: String, required: true },
+  aadhaarUrl: { type: String, required: false },
+  panUrl: { type: String, required: false },
+  photoUrl: { type: String, required: false },
   declarationAccepted: { type: Boolean, required: true, default: false },
   status: { type: String, enum: ['New', 'Under Review', 'Selected', 'Rejected', 'On Hold'], default: 'New' },
   adminRemarks: { type: String },

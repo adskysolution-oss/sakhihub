@@ -16,7 +16,7 @@ export default function ApplyPage() {
   const [formData, setFormData] = useState({
     fullName: '', mobile: '', whatsapp: '', email: '', gender: '', dob: '',
     pincode: '', state: '', district: '', block: '', qualification: '', experience: '',
-    resumeUrl: '', aadhaarUrl: '', photoUrl: '', declarationAccepted: false
+    resumeUrl: '', aadhaarUrl: '', panUrl: '', photoUrl: '', declarationAccepted: false
   });
   const [uploading, setUploading] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -146,8 +146,17 @@ export default function ApplyPage() {
     e.preventDefault();
     if (existingApp) return alert("You have already applied for this role.");
     if (!formData.declarationAccepted) return alert("You must accept the declaration.");
-    if (!formData.resumeUrl || !formData.aadhaarUrl || !formData.photoUrl) {
-      return alert("Please upload all required documents (Resume, Aadhaar, Photo).");
+    if (!formData.resumeUrl) {
+      return alert("Please upload your Resume/CV.");
+    }
+    if (vacancy.requireAadhaar && !formData.aadhaarUrl) {
+      return alert("Please upload your Aadhaar Card.");
+    }
+    if (vacancy.requirePan && !formData.panUrl) {
+      return alert("Please upload your PAN Card.");
+    }
+    if (vacancy.requirePhoto && !formData.photoUrl) {
+      return alert("Please upload your Passport Photo.");
     }
 
     setSubmitting(true);
@@ -330,29 +339,38 @@ export default function ApplyPage() {
                 <FileText size={20} className="text-pink-500" /> Required Documents
               </h3>
               <div className="grid md:grid-cols-3 gap-6">
-                {['resumeUrl', 'aadhaarUrl', 'photoUrl'].map((field) => {
-                  const label = field === 'resumeUrl' ? 'Resume / CV' : field === 'aadhaarUrl' ? 'Aadhaar Card' : 'Passport Photo';
-                  return (
-                    <div key={field} className="border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center hover:border-pink-300 transition-colors bg-gray-50">
-                      {(formData as any)[field] ? (
-                        <div className="text-green-600 font-bold text-sm flex flex-col items-center">
-                          <CheckCircle2 size={32} className="mb-2" />
-                          Uploaded Successfully
-                        </div>
-                      ) : uploading === field ? (
-                        <div className="text-pink-600 font-bold text-sm animate-pulse">Uploading...</div>
-                      ) : (
-                        <>
-                          <Upload size={32} className="mx-auto text-gray-400 mb-3" />
-                          <label className="text-xs font-black text-pink-600 uppercase tracking-widest cursor-pointer hover:text-pink-700">
-                            Upload {label}
-                            <input type="file" className="hidden" accept={field === 'photoUrl' ? "image/*" : ".pdf,.jpg,.jpeg,.png"} onChange={(e) => handleFileUpload(e, field)} />
-                          </label>
-                        </>
-                      )}
-                    </div>
-                  );
-                })}
+                {(() => {
+                  const requiredDocs = ['resumeUrl'];
+                  if (vacancy.requireAadhaar) requiredDocs.push('aadhaarUrl');
+                  if (vacancy.requirePan) requiredDocs.push('panUrl');
+                  if (vacancy.requirePhoto) requiredDocs.push('photoUrl');
+
+                  return requiredDocs.map((field) => {
+                    const label = field === 'resumeUrl' ? 'Resume / CV' : 
+                                  field === 'aadhaarUrl' ? 'Aadhaar Card' : 
+                                  field === 'panUrl' ? 'PAN Card' : 'Passport Photo';
+                    return (
+                      <div key={field} className="border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center hover:border-pink-300 transition-colors bg-gray-50">
+                        {(formData as any)[field] ? (
+                          <div className="text-green-600 font-bold text-sm flex flex-col items-center">
+                            <CheckCircle2 size={32} className="mb-2" />
+                            Uploaded Successfully
+                          </div>
+                        ) : uploading === field ? (
+                          <div className="text-pink-600 font-bold text-sm animate-pulse">Uploading...</div>
+                        ) : (
+                          <>
+                            <Upload size={32} className="mx-auto text-gray-400 mb-3" />
+                            <label className="text-xs font-black text-pink-600 uppercase tracking-widest cursor-pointer hover:text-pink-700">
+                              Upload {label}
+                              <input type="file" className="hidden" accept={field === 'photoUrl' ? "image/*" : ".pdf,.jpg,.jpeg,.png"} onChange={(e) => handleFileUpload(e, field)} />
+                            </label>
+                          </>
+                        )}
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             </section>
 

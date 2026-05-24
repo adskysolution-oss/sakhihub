@@ -15,7 +15,8 @@ export default function AdminVacanciesPage() {
   const [formData, setFormData] = useState({
     title: '', department: '', location: '', workType: '', salaryRange: '',
     description: '', responsibilities: '', requirements: '', eligibility: '',
-    experience: '', benefits: '', status: 'Open', isFeatured: false, lastDate: ''
+    experience: '', benefits: '', status: 'Open', isFeatured: false, lastDate: '',
+    requireAadhaar: false, requirePan: false, requirePhoto: false
   });
 
   useEffect(() => {
@@ -80,6 +81,9 @@ export default function AdminVacanciesPage() {
       benefits: vacancy.benefits?.join('\n') || '',
       status: vacancy.status,
       isFeatured: vacancy.isFeatured,
+      requireAadhaar: vacancy.requireAadhaar || false,
+      requirePan: vacancy.requirePan || false,
+      requirePhoto: vacancy.requirePhoto || false,
       lastDate: vacancy.lastDate ? new Date(vacancy.lastDate).toISOString().split('T')[0] : ''
     });
     setEditingId(vacancy._id);
@@ -104,7 +108,8 @@ export default function AdminVacanciesPage() {
             setFormData({
               title: '', department: '', location: '', workType: '', salaryRange: '',
               description: '', responsibilities: '', requirements: '', eligibility: '',
-              experience: '', benefits: '', status: 'Open', isFeatured: false, lastDate: ''
+              experience: '', benefits: '', status: 'Open', isFeatured: false, lastDate: '',
+              requireAadhaar: false, requirePan: false, requirePhoto: false
             });
             setShowModal(true);
           }}
@@ -244,14 +249,38 @@ export default function AdminVacanciesPage() {
                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 block">Last Date</label>
                     <input type="date" value={formData.lastDate} onChange={e => setFormData({...formData, lastDate: e.target.value})} className="w-full px-5 py-3 rounded-2xl border border-gray-200 font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
                   </div>
-                  <div className="flex items-center pt-6">
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${formData.isFeatured ? 'bg-primary border-primary' : 'border-gray-300 group-hover:border-primary'}`}>
-                        {formData.isFeatured && <CheckCircle2 size={16} className="text-white" />}
-                      </div>
-                      <input type="checkbox" checked={formData.isFeatured} onChange={e => setFormData({...formData, isFeatured: e.target.checked})} className="hidden" />
-                      <span className="font-bold text-gray-700 select-none">Featured Vacancy</span>
-                    </label>
+                  <div className="flex flex-col gap-4 pt-6 md:col-span-3">
+                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Additional Settings</p>
+                    <div className="flex flex-wrap items-center gap-6">
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${formData.isFeatured ? 'bg-primary border-primary' : 'border-gray-300 group-hover:border-primary'}`}>
+                          {formData.isFeatured && <CheckCircle2 size={16} className="text-white" />}
+                        </div>
+                        <input type="checkbox" checked={formData.isFeatured} onChange={e => setFormData({...formData, isFeatured: e.target.checked})} className="hidden" />
+                        <span className="font-bold text-gray-700 select-none">Featured Vacancy</span>
+                      </label>
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${formData.requireAadhaar ? 'bg-pink-500 border-pink-500' : 'border-gray-300 group-hover:border-pink-500'}`}>
+                          {formData.requireAadhaar && <CheckCircle2 size={16} className="text-white" />}
+                        </div>
+                        <input type="checkbox" checked={formData.requireAadhaar} onChange={e => setFormData({...formData, requireAadhaar: e.target.checked})} className="hidden" />
+                        <span className="font-bold text-gray-700 select-none">Require Aadhaar Card</span>
+                      </label>
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${formData.requirePan ? 'bg-pink-500 border-pink-500' : 'border-gray-300 group-hover:border-pink-500'}`}>
+                          {formData.requirePan && <CheckCircle2 size={16} className="text-white" />}
+                        </div>
+                        <input type="checkbox" checked={formData.requirePan} onChange={e => setFormData({...formData, requirePan: e.target.checked})} className="hidden" />
+                        <span className="font-bold text-gray-700 select-none">Require PAN Card</span>
+                      </label>
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${formData.requirePhoto ? 'bg-pink-500 border-pink-500' : 'border-gray-300 group-hover:border-pink-500'}`}>
+                          {formData.requirePhoto && <CheckCircle2 size={16} className="text-white" />}
+                        </div>
+                        <input type="checkbox" checked={formData.requirePhoto} onChange={e => setFormData({...formData, requirePhoto: e.target.checked})} className="hidden" />
+                        <span className="font-bold text-gray-700 select-none">Require Passport Photo</span>
+                      </label>
+                    </div>
                   </div>
                 </div>
               </form>

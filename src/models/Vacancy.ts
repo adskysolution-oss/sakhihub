@@ -18,6 +18,9 @@ export interface IVacancy extends Document {
   lastDate?: Date;
   status: VacancyStatus;
   isFeatured: boolean;
+  requireAadhaar: boolean;
+  requirePan: boolean;
+  requirePhoto: boolean;
   posterUrl?: string;
   createdBy?: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -40,6 +43,9 @@ const VacancySchema = new Schema<IVacancy>({
   lastDate: { type: Date },
   status: { type: String, enum: ['Open', 'Closed', 'Coming Soon'], default: 'Open' },
   isFeatured: { type: Boolean, default: false },
+  requireAadhaar: { type: Boolean, default: false },
+  requirePan: { type: Boolean, default: false },
+  requirePhoto: { type: Boolean, default: false },
   posterUrl: { type: String },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
