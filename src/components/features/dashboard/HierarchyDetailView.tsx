@@ -147,15 +147,25 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
     }
   };
 
-  const updateDocumentLock = async (docId: string, isLocked: boolean, isApproved: boolean) => {
+  const [signedDocRemarks, setSignedDocRemarks] = React.useState('');
+  const [signedDocActionLoading, setSignedDocActionLoading] = React.useState<string | null>(null);
+
+  const updateDocumentLock = async (
+    docId: string,
+    isLocked: boolean,
+    isApproved: boolean,
+    adminRemarks?: string,
+    newStatus?: string
+  ) => {
     try {
       const res = await axios.post(`/api/admin/users/${localUser._id}/documents/${docId}/lock`, {
         isLocked,
-        isApproved
+        isApproved,
+        adminRemarks,
+        newStatus
       });
       if (res.data.success) {
-        setDigitalCertificates(prev => prev.map(d => d._id === docId ? res.data.data.document : d));
-        alert(`Document ${isLocked ? 'locked' : 'unlocked'} successfully`);
+        setDigitalCertificates(prev => prev.map(d => d._id === docId ? { ...d, ...res.data.data.document } : d));
       }
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to update document status');
@@ -718,7 +728,48 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
 
                           const res = await axios.post(endpoint, payload);
                           if (res.data.success) {
-                            setLocalUser(res.data.data);
+                            const updatedUser = res.data.data;
+                            setLocalUser(updatedUser);
+
+                            // Immediately inject the new doc into digitalCertificates so the
+                            // signed-doc review panel appears without needing a page refresh
+                            if (localUser.role === 'employee' && updatedUser.offerLetterDetails) {
+                              const ol = updatedUser.offerLetterDetails;
+                              setDigitalCertificates(prev => {
+                                const filtered = prev.filter(c => c.type !== 'employee_offer_letter');
+                                return [...filtered, {
+                                  _id: ol._id,
+                                  type: 'employee_offer_letter',
+                                  title: 'Employee Offer Letter',
+                                  fileUrl: ol.pdfUrl,
+                                  uploadedDocumentUrl: ol.uploadedDocumentUrl,
+                                  status: ol.status || 'generated',
+                                  isLocked: ol.isLocked || false,
+                                  adminRemarks: ol.adminRemarks,
+                                  agreementId: ol.offerLetterId,
+                                  createdAt: ol.createdAt,
+                                  visibleToEmployee: true
+                                }];
+                              });
+                            } else if ((localUser.role === 'vendor' || localUser.role === 'sub_vendor') && updatedUser.vendorAgreementDetails) {
+                              const ag = updatedUser.vendorAgreementDetails;
+                              setDigitalCertificates(prev => {
+                                const filtered = prev.filter(c => c.type !== 'auth_letter');
+                                return [...filtered, {
+                                  _id: ag._id,
+                                  type: 'auth_letter',
+                                  title: 'Partnership Agreement',
+                                  fileUrl: ag.fileUrl || `/api/vendor/agreement/${ag.agreementId}/preview`,
+                                  uploadedDocumentUrl: ag.uploadedDocumentUrl,
+                                  status: ag.status || 'generated',
+                                  isLocked: ag.isLocked || false,
+                                  adminRemarks: ag.adminRemarks,
+                                  agreementId: ag.agreementId,
+                                  createdAt: ag.createdAt,
+                                  visibleToVendor: true
+                                }];
+                              });
+                            }
                             alert(hasAgreement ? "Details updated successfully" : "Document generated successfully");
                           }
                         } catch (err: any) {
@@ -744,52 +795,179 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                   </div>
                 </div>
 
-                {/* Uploaded Document Review logic */}
+                {/* Signed Document Review Panel */}
                 {hasAgreement && (() => {
                   const targetType = localUser.role === 'employee' ? 'employee_offer_letter' : 'auth_letter';
                   const authLetter = digitalCertificates?.find((c: any) => c.type === targetType);
-                  if (!authLetter || !authLetter.uploadedDocumentUrl) return null;
-                  
+                  if (!authLetter) return null;
+
+                  const docStatus = authLetter.status || 'generated';
+                  const isDocLocked = authLetter.isLocked;
+
+                  const statusConfig: Record<string, { label: string; cls: string }> = {
+                    generated: { label: 'Generated — Awaiting Signed Copy', cls: 'bg-blue-100 text-blue-700' },
+                    uploaded:  { label: 'Signed Copy Uploaded — Pending Review', cls: 'bg-amber-100 text-amber-700' },
+                    under_review: { label: 'Under Review', cls: 'bg-amber-100 text-amber-700' },
+                    approved:  { label: 'Approved & Locked', cls: 'bg-green-100 text-green-700' },
+                    rejected:  { label: 'Rejected', cls: 'bg-red-100 text-red-700' },
+                    reupload_required: { label: 'Re-upload Requested', cls: 'bg-orange-100 text-orange-700' },
+                  };
+                  const meta = statusConfig[docStatus] || statusConfig.generated;
+
                   return (
-                    <div className="bg-white border border-gray-100 shadow-soft rounded-[32px] p-8 text-center mt-8">
-                      <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl mx-auto flex items-center justify-center mb-4">
-                        <ShieldCheck size={32} />
+                    <div className="bg-white border border-gray-100 shadow-soft rounded-[32px] p-8 mt-8 space-y-6">
+                      {/* Header */}
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <h4 className="text-lg font-black text-secondary">
+                            {localUser.role === 'employee' ? 'Offer Letter' : 'Vendor Agreement'} — Signed Copy Review
+                          </h4>
+                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
+                            ID: {authLetter.agreementId || authLetter._id?.toString?.()?.slice(-8)}
+                          </p>
+                        </div>
+                        <span className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shrink-0 ${meta.cls}`}>
+                          {meta.label}
+                        </span>
                       </div>
-                      <h4 className="text-xl font-black text-secondary">Signed Document Uploaded</h4>
-                      <p className="text-sm text-gray-500 font-bold mt-2 mb-6">
-                        The user has uploaded the signed document. Please review and lock it to finalize the process.
-                      </p>
-                      
-                      <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <a 
-                          href={authLetter.uploadedDocumentUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="px-6 py-3 bg-gray-50 text-secondary border border-gray-200 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-colors"
-                        >
-                          View Uploaded Document
-                        </a>
-                        
-                        {authLetter.isLocked ? (
-                          <button 
-                            onClick={() => updateDocumentLock(authLetter._id, false, false)}
-                            className="px-6 py-3 bg-amber-50 text-amber-600 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-amber-100 transition-colors flex items-center gap-2"
-                          >
-                            <AlertCircle size={16} /> Unlock Document
-                          </button>
-                        ) : (
-                          <button 
-                            onClick={() => updateDocumentLock(authLetter._id, true, true)}
-                            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 flex items-center gap-2"
-                          >
-                            <ShieldCheck size={16} /> Approve & Lock
-                          </button>
-                        )}
-                      </div>
-                      {authLetter.isLocked && (
-                        <p className="text-[10px] text-green-600 font-bold uppercase tracking-widest mt-4 flex items-center justify-center gap-1">
-                          <CheckCircle2 size={12} /> Document is verified and locked
-                        </p>
+
+                      {/* Signed copy actions / preview */}
+                      {authLetter.uploadedDocumentUrl ? (
+                        <div className="space-y-4">
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <a
+                              href={authLetter.uploadedDocumentUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-secondary border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-100 transition-colors"
+                            >
+                              <ExternalLink size={14} /> View Signed Document
+                            </a>
+                            {!isDocLocked && (
+                              <a
+                                href={authLetter.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-secondary border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-100 transition-colors"
+                              >
+                                <ExternalLink size={14} /> View Generated Copy
+                              </a>
+                            )}
+                          </div>
+
+                          {/* Admin Remarks Input */}
+                          {!isDocLocked && (
+                            <div>
+                              <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1.5">
+                                Admin Remarks (required for rejection / reupload request)
+                              </label>
+                              <textarea
+                                value={signedDocRemarks}
+                                onChange={e => setSignedDocRemarks(e.target.value)}
+                                placeholder="Enter remarks for the partner..."
+                                rows={2}
+                                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-xs font-bold placeholder:text-gray-300 focus:outline-none focus:border-primary resize-none"
+                              />
+                            </div>
+                          )}
+
+                          {/* Display previously saved remarks */}
+                          {authLetter.adminRemarks && (docStatus === 'rejected' || docStatus === 'reupload_required') && (
+                            <div className="p-4 bg-orange-50 border border-orange-100 rounded-2xl flex items-start gap-3">
+                              <AlertCircle size={16} className="text-orange-500 shrink-0 mt-0.5" />
+                              <div>
+                                <p className="text-[9px] font-black text-orange-700 uppercase tracking-widest mb-1">Previous Remarks</p>
+                                <p className="text-xs font-bold text-orange-800">{authLetter.adminRemarks}</p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Action Buttons */}
+                          <div className="flex flex-col sm:flex-row gap-2">
+                            {isDocLocked ? (
+                              <button
+                                onClick={async () => {
+                                  setSignedDocActionLoading('unlock');
+                                  await updateDocumentLock(authLetter._id, false, false);
+                                  setSignedDocActionLoading(null);
+                                }}
+                                disabled={!!signedDocActionLoading}
+                                className="flex-1 px-4 py-3 bg-amber-50 text-amber-700 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-amber-100 transition-colors flex items-center justify-center gap-2"
+                              >
+                                <AlertCircle size={14} /> {signedDocActionLoading === 'unlock' ? 'Unlocking...' : 'Unlock Document'}
+                              </button>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={async () => {
+                                    setSignedDocActionLoading('approve');
+                                    await updateDocumentLock(authLetter._id, true, true, signedDocRemarks || undefined, 'approved');
+                                    setSignedDocRemarks('');
+                                    setSignedDocActionLoading(null);
+                                  }}
+                                  disabled={!!signedDocActionLoading}
+                                  className={`flex-1 px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
+                                    docStatus === 'approved' ? 'bg-green-500 text-white shadow-lg shadow-green-200' : 'bg-green-50 text-green-700 hover:bg-green-100'
+                                  }`}
+                                >
+                                  <ShieldCheck size={14} /> {signedDocActionLoading === 'approve' ? 'Approving...' : 'Approve & Lock'}
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    if (!signedDocRemarks.trim()) {
+                                      alert('Please enter remarks before requesting a reupload.');
+                                      return;
+                                    }
+                                    setSignedDocActionLoading('reupload');
+                                    await updateDocumentLock(authLetter._id, false, false, signedDocRemarks, 'reupload_required');
+                                    setSignedDocRemarks('');
+                                    setSignedDocActionLoading(null);
+                                  }}
+                                  disabled={!!signedDocActionLoading}
+                                  className={`flex-1 px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
+                                    docStatus === 'reupload_required' ? 'bg-amber-500 text-white shadow-lg shadow-amber-200' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                                  }`}
+                                >
+                                  <RefreshCw size={14} /> {signedDocActionLoading === 'reupload' ? 'Requesting...' : 'Request Reupload'}
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    if (!signedDocRemarks.trim()) {
+                                      alert('Please enter a reason for rejection.');
+                                      return;
+                                    }
+                                    setSignedDocActionLoading('reject');
+                                    await updateDocumentLock(authLetter._id, false, false, signedDocRemarks, 'rejected');
+                                    setSignedDocRemarks('');
+                                    setSignedDocActionLoading(null);
+                                  }}
+                                  disabled={!!signedDocActionLoading}
+                                  className={`flex-1 px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
+                                    docStatus === 'rejected' ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-red-50 text-red-700 hover:bg-red-100'
+                                  }`}
+                                >
+                                  <X size={14} /> {signedDocActionLoading === 'reject' ? 'Rejecting...' : 'Reject'}
+                                </button>
+                              </>
+                            )}
+                          </div>
+
+                          {isDocLocked && (
+                            <p className="text-[10px] text-green-600 font-bold uppercase tracking-widest flex items-center justify-center gap-1">
+                              <CheckCircle2 size={12} /> Document is verified and locked
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center bg-gray-50 rounded-2xl border border-dashed border-gray-200 p-8 text-center">
+                          <FileText size={32} className="text-gray-200 mb-3" />
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                            Signed copy not yet uploaded
+                          </p>
+                          <p className="text-[10px] text-gray-400 font-bold mt-2">
+                            The partner must download, sign, and upload the document from their dashboard.
+                          </p>
+                        </div>
                       )}
                     </div>
                   );

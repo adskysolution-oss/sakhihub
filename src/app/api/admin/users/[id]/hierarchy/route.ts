@@ -151,8 +151,11 @@ export async function GET(
           _id: offerLetter._id,
           type: 'employee_offer_letter',
           title: 'Employee Offer Letter',
-          fileUrl: offerLetter.pdfUrl,
+          fileUrl: (offerLetter as any).pdfUrl,
+          uploadedDocumentUrl: (offerLetter as any).uploadedDocumentUrl,
           status: offerLetter.status,
+          isLocked: (offerLetter as any).isLocked || false,
+          adminRemarks: (offerLetter as any).adminRemarks,
           agreementId: offerLetter.offerLetterId,
           createdAt: offerLetter.createdAt,
           visibleToEmployee: true
@@ -182,37 +185,41 @@ export async function GET(
       const certs = await VendorCertificate.find({ vendorId: user._id }).lean();
 
       digitalCertificates = [
-        ...agreements.map(a => ({
-          _id: a._id,
-          type: 'auth_letter',
-          title: 'Partnership Agreement',
-          fileUrl: a.fileUrl,
-          uploadedDocumentUrl: a.uploadedDocumentUrl,
-          status: a.status,
-          isLocked: a.isLocked,
-          adminRemarks: a.adminRemarks,
-          agreementId: a.agreementId,
-          createdAt: a.createdAt,
-          visibleToVendor: true
-        })),
+        ...agreements.map(a => {
+          // Backward compat: old agreements generated with isLocked:true before fix
+          const effectiveLocked = ((a as any).status === 'generated' && !(a as any).uploadedDocumentUrl) ? false : ((a as any).isLocked || false);
+          return {
+            _id: a._id,
+            type: 'auth_letter',
+            title: 'Partnership Agreement',
+            fileUrl: (a as any).fileUrl || `/api/vendor/agreement/${(a as any).agreementId}/preview`,
+            uploadedDocumentUrl: (a as any).uploadedDocumentUrl,
+            status: (a as any).status,
+            isLocked: effectiveLocked,
+            adminRemarks: (a as any).adminRemarks,
+            agreementId: (a as any).agreementId,
+            createdAt: (a as any).createdAt,
+            visibleToVendor: true
+          };
+        }),
         ...mous.map(m => ({
           _id: m._id,
           type: 'ngo_mou',
           title: 'NGO MOU',
-          fileUrl: m.fileUrl,
-          uploadedDocumentUrl: m.uploadedDocumentUrl,
-          status: m.status,
-          isLocked: m.isLocked,
-          adminRemarks: m.adminRemarks,
-          createdAt: m.createdAt,
+          fileUrl: (m as any).fileUrl,
+          uploadedDocumentUrl: (m as any).uploadedDocumentUrl,
+          status: (m as any).status,
+          isLocked: (m as any).isLocked || false,
+          adminRemarks: (m as any).adminRemarks,
+          createdAt: (m as any).createdAt,
           visibleToVendor: true
         })),
         ...certs.map(c => ({
           _id: c._id,
           type: c.certificateType,
           title: c.title,
-          fileUrl: c.fileUrl,
-          createdAt: c.createdAt,
+          fileUrl: (c as any).fileUrl,
+          createdAt: (c as any).createdAt,
           visibleToVendor: true
         }))
       ];

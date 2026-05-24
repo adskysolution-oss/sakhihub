@@ -18,13 +18,13 @@ export async function POST(
 
     const { id } = await params;
     const body = await request.json();
-    const { 
-      joiningDate, 
-      assignedTerritory, 
-      incentiveStructure, 
-      salaryStructure, 
-      monthlyTargets, 
-      operationalRole, 
+    const {
+      joiningDate,
+      assignedTerritory,
+      incentiveStructure,
+      salaryStructure,
+      monthlyTargets,
+      operationalRole,
       membershipCommission,
       partnerType
     } = body;
@@ -87,7 +87,7 @@ export async function POST(
       generatedDate: new Date(),
       agreementId,
       status: 'generated',
-      isLocked: false, // Set to false to allow vendor signature uploads
+      isLocked: false, // Unlocked on generation so vendor can upload signed copy
       qrVerificationCode,
       fileUrl: dynamicPreviewUrl,
       templateData
@@ -111,7 +111,7 @@ export async function POST(
     // We also might want to update the User document to have reference to this agreement if needed, 
     // but the DB schema keeps it separated. We return the updated user payload to refresh frontend.
     const updatedUser = await User.findById(id).populate('assignedCampaigns').lean();
-    
+
     // Attach the agreement for the frontend
     const userToReturn = {
       ...updatedUser,

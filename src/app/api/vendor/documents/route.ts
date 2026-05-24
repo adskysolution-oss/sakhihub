@@ -6,6 +6,9 @@ import User from '@/models/User';
 import Document from '@/models/Document';
 import VendorAgreement from '@/models/VendorAgreement';
 import VendorMOU from '@/models/VendorMOU';
+import VendorCertificate from '@/models/VendorCertificate';
+import EmployeeOfferLetter from '@/models/EmployeeOfferLetter';
+import EmployeeCertificate from '@/models/EmployeeCertificate';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { 
   REQUIRED_DOCS_BY_ROLE, 
@@ -77,7 +80,9 @@ export async function POST(req: NextRequest) {
           if (agreement.vendorId.toString() !== user._id.toString()) {
             return errorResponse('Document not found', 404);
           }
-          if (agreement.isLocked) {
+          // Allow upload for old agreements generated with isLocked:true before the fix
+          const isActuallyLocked = (agreement.status === 'generated' && !agreement.uploadedDocumentUrl) ? false : agreement.isLocked;
+          if (isActuallyLocked) {
             return errorResponse('Document is locked and cannot be modified', 403);
           }
         } else {
@@ -91,7 +96,18 @@ export async function POST(req: NextRequest) {
               return errorResponse('Document is locked and cannot be modified', 403);
             }
           } else {
-            return errorResponse('Document not found', 404);
+            // Try EmployeeOfferLetter
+            const offerLetter = await EmployeeOfferLetter.findById(documentId);
+            if (offerLetter) {
+              if (offerLetter.employeeId.toString() !== user._id.toString()) {
+                return errorResponse('Document not found', 404);
+              }
+              if ((offerLetter as any).isLocked) {
+                return errorResponse('Document is locked and cannot be modified', 403);
+              }
+            } else {
+              return errorResponse('Document not found', 404);
+            }
           }
         }
       }
@@ -196,6 +212,18 @@ export async function POST(req: NextRequest) {
           document: mou
         });
       }
+
+      // Try EmployeeOfferLetter
+      const offerLetter = await EmployeeOfferLetter.findById(documentId);
+      if (offerLetter) {
+        (offerLetter as any).uploadedDocumentUrl = secureUrl;
+        offerLetter.status = 'uploaded';
+        await offerLetter.save();
+        return successResponse({
+          message: 'Signed offer letter uploaded successfully',
+          document: offerLetter
+        });
+      }
     }
 
     // Initialize documents object if it doesn't exist
@@ -298,9 +326,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-import VendorCertificate from '@/models/VendorCertificate';
-import EmployeeOfferLetter from '@/models/EmployeeOfferLetter';
-import EmployeeCertificate from '@/models/EmployeeCertificate';
 
 export async function GET() {
   try {
@@ -325,19 +350,24 @@ export async function GET() {
       const certs = await VendorCertificate.find({ vendorId: user._id }).lean();
 
       digitalCertificates = [
-        ...agreements.map(a => ({
-          _id: a._id,
-          type: 'auth_letter', // Mapping to frontend expectation
-          title: 'Vendor Agreement',
-          fileUrl: a.fileUrl || `/api/vendor/agreement/${a.agreementId}/preview`,
-          uploadedDocumentUrl: a.uploadedDocumentUrl,
-          status: a.status,
-          isLocked: a.isLocked,
-          adminRemarks: a.adminRemarks,
-          agreementId: a.agreementId,
-          createdAt: a.createdAt,
-          visibleToVendor: true
-        })),
+        ...agreements.map(a => {
+          // Backward compat: old agreements were generated with isLocked:true before the fix.
+          // If status is still 'generated' and no signed copy exists, force unlock so vendor can upload.
+          const effectiveLocked = (a.status === 'generated' && !a.uploadedDocumentUrl) ? false : a.isLocked;
+          return {
+            _id: a._id,
+            type: 'auth_letter', // Mapping to frontend expectation
+            title: 'Vendor Agreement',
+            fileUrl: a.fileUrl || `/api/vendor/agreement/${a.agreementId}/preview`,
+            uploadedDocumentUrl: a.uploadedDocumentUrl,
+            status: a.status,
+            isLocked: effectiveLocked,
+            adminRemarks: a.adminRemarks,
+            agreementId: a.agreementId,
+            createdAt: a.createdAt,
+            visibleToVendor: true
+          };
+        }),
         ...mous.map(m => ({
           _id: m._id,
           type: 'ngo_mou',
@@ -369,7 +399,10 @@ export async function GET() {
           type: 'employee_offer_letter', // Mapping to frontend expectation
           title: 'Employee Offer Letter',
           fileUrl: o.pdfUrl,
+          uploadedDocumentUrl: (o as any).uploadedDocumentUrl,
           status: o.status,
+          isLocked: (o as any).isLocked || false,
+          adminRemarks: (o as any).adminRemarks,
           agreementId: o.offerLetterId, // Frontend maps this in the UI
           createdAt: o.createdAt,
           visibleToEmployee: true

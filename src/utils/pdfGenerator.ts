@@ -188,7 +188,12 @@ export const generateAgreementHtml = (data: any) => {
           1.1 Vendor hereby agrees to provide to the Client and the Client hereby agrees to avail operational and recruitment services from Vendor.
         </div>
         <div class="clause sub-clause">
-          1.2 The Vendor is assigned the following territory for operations: <strong>${data.assignedTerritory || 'As assigned by the Company'}</strong>.
+          1.2 The Vendor is assigned the following territory for operations:
+          <div style="margin-left: 20px; margin-top: 10px;">
+            <strong>Assigned State(s):</strong> ${data.state || 'As assigned by the Company'}<br/>
+            <strong>Assigned District(s):</strong> ${data.district || 'As assigned by the Company'}<br/>
+            <strong>Territory Details:</strong> ${data.assignedTerritory || 'As assigned by the Company'}
+          </div>
         </div>
         <div class="clause sub-clause">
           1.3 In rendering the services to the Client, Vendor warrants that:
@@ -215,7 +220,6 @@ export const generateAgreementHtml = (data: any) => {
         <div class="clause sub-clause">
           3.1 In consideration of Vendor rendering the Services to the Client, the Client shall pay to Vendor charges as mentioned:
           <div style="margin-left: 20px; margin-top: 10px;">
-            <strong>Salary Structure:</strong> ${data.salaryStructure || 'Performance Based'}<br/>
             <strong>Incentive Structure:</strong> ${data.incentiveStructure || 'Standard Company Policy'}<br/>
             <strong>Membership Commission:</strong> ${data.membershipCommission || 'Standard Company Policy'}<br/>
             <strong>Monthly Targets:</strong> ${data.monthlyTargets || 'As defined by management'}

@@ -8,7 +8,7 @@ import {
   Phone, Mail, Calendar, Filter, X,
   Briefcase, Network, Link2, ExternalLink,
   CheckCircle2, Clock, AlertCircle, FileText,
-  Landmark, UserCheck, FileCheck
+  Landmark, UserCheck, FileCheck, RefreshCw
 } from "lucide-react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
@@ -34,6 +34,8 @@ export default function EmployeeManagement() {
   const [salary, setSalary] = useState('');
   const [isGeneratingAppt, setIsGeneratingAppt] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [signedDocRemarks, setSignedDocRemarks] = useState('');
+  const [signedDocActionLoading, setSignedDocActionLoading] = useState<string | null>(null);
 
   const fetchEmployees = async () => {
     setLoading(true);
@@ -130,6 +132,36 @@ export default function EmployeeManagement() {
       alert(err.response?.data?.message || "Failed to generate offer letter");
     } finally {
       setIsGeneratingAppt(false);
+    }
+  };
+
+  const updateDocumentLock = async (
+    empId: string,
+    docId: string,
+    isLocked: boolean,
+    isApproved: boolean,
+    adminRemarks?: string,
+    newStatus?: string
+  ) => {
+    try {
+      const res = await axios.post(`/api/admin/users/${empId}/documents/${docId}/lock`, {
+        isLocked,
+        isApproved,
+        adminRemarks,
+        newStatus
+      });
+      if (res.data.success && selectedEmp) {
+        // Refresh employee data to reflect the updated document status
+        setSelectedEmp((prev: any) => ({
+          ...prev,
+          offerLetterDetails: {
+            ...prev.offerLetterDetails,
+            ...res.data.data.document
+          }
+        }));
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to update document status');
     }
   };
 
@@ -492,6 +524,7 @@ export default function EmployeeManagement() {
                       </div>
 
                       {selectedEmp.offerLetterDetails ? (
+                        <>
                         <div className="bg-green-50 border border-green-200 rounded-[32px] p-8 text-center relative overflow-hidden">
                           <div className="absolute top-0 right-0 w-32 h-32 bg-green-200/50 rounded-full blur-2xl -mr-16 -mt-16" />
                           <div className="relative z-10">
@@ -510,6 +543,182 @@ export default function EmployeeManagement() {
                             </a>
                           </div>
                         </div>
+
+                        {/* Signed Document Review Panel */}
+                        {(() => {
+                          const ol = selectedEmp.offerLetterDetails;
+                          const docStatus = ol.status || 'generated';
+                          const isDocLocked = ol.isLocked;
+
+                          const statusConfig: Record<string, { label: string; cls: string }> = {
+                            generated: { label: 'Generated — Awaiting Signed Copy', cls: 'bg-blue-100 text-blue-700' },
+                            uploaded:  { label: 'Signed Copy Uploaded — Pending Review', cls: 'bg-amber-100 text-amber-700' },
+                            under_review: { label: 'Under Review', cls: 'bg-amber-100 text-amber-700' },
+                            approved:  { label: 'Approved & Locked', cls: 'bg-green-100 text-green-700' },
+                            rejected:  { label: 'Rejected', cls: 'bg-red-100 text-red-700' },
+                            reupload_required: { label: 'Re-upload Requested', cls: 'bg-orange-100 text-orange-700' },
+                          };
+                          const meta = statusConfig[docStatus] || statusConfig.generated;
+
+                          return (
+                            <div className="bg-white border border-gray-100 shadow-soft rounded-[32px] p-8 space-y-6">
+                              {/* Header */}
+                              <div className="flex items-start justify-between gap-4">
+                                <div>
+                                  <h4 className="text-lg font-black text-secondary">
+                                    Offer Letter — Signed Copy Review
+                                  </h4>
+                                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
+                                    ID: {ol.offerLetterId}
+                                  </p>
+                                </div>
+                                <span className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shrink-0 ${meta.cls}`}>
+                                  {meta.label}
+                                </span>
+                              </div>
+
+                              {/* Signed copy actions / preview */}
+                              {ol.uploadedDocumentUrl ? (
+                                <div className="space-y-4">
+                                  <div className="flex flex-col sm:flex-row gap-3">
+                                    <a
+                                      href={ol.uploadedDocumentUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-secondary border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-100 transition-colors"
+                                    >
+                                      <ExternalLink size={14} /> View Signed Document
+                                    </a>
+                                    {!isDocLocked && (
+                                      <a
+                                        href={`/employee-offer-letter/${selectedEmp._id}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-secondary border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-100 transition-colors"
+                                      >
+                                        <ExternalLink size={14} /> View Generated Copy
+                                      </a>
+                                    )}
+                                  </div>
+
+                                  {/* Admin Remarks Input */}
+                                  {!isDocLocked && (
+                                    <div>
+                                      <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1.5">
+                                        Admin Remarks (required for rejection / reupload request)
+                                      </label>
+                                      <textarea
+                                        value={signedDocRemarks}
+                                        onChange={e => setSignedDocRemarks(e.target.value)}
+                                        placeholder="Enter remarks for the employee..."
+                                        rows={2}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-xs font-bold placeholder:text-gray-300 focus:outline-none focus:border-primary resize-none"
+                                      />
+                                    </div>
+                                  )}
+
+                                  {/* Display previously saved remarks */}
+                                  {ol.adminRemarks && (docStatus === 'rejected' || docStatus === 'reupload_required') && (
+                                    <div className="p-4 bg-orange-50 border border-orange-100 rounded-2xl flex items-start gap-3">
+                                      <AlertCircle size={16} className="text-orange-500 shrink-0 mt-0.5" />
+                                      <div>
+                                        <p className="text-[9px] font-black text-orange-700 uppercase tracking-widest mb-1">Previous Remarks</p>
+                                        <p className="text-xs font-bold text-orange-800">{ol.adminRemarks}</p>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Action Buttons */}
+                                  <div className="flex flex-col sm:flex-row gap-2">
+                                    {isDocLocked ? (
+                                      <button
+                                        onClick={async () => {
+                                          setSignedDocActionLoading('unlock');
+                                          await updateDocumentLock(selectedEmp._id, ol._id, false, false, undefined, 'uploaded');
+                                          setSignedDocActionLoading(null);
+                                        }}
+                                        disabled={!!signedDocActionLoading}
+                                        className="flex-1 px-4 py-3 bg-amber-50 text-amber-700 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-amber-100 transition-colors flex items-center justify-center gap-2"
+                                      >
+                                        <AlertCircle size={14} /> {signedDocActionLoading === 'unlock' ? 'Unlocking...' : 'Unlock Document'}
+                                      </button>
+                                    ) : (
+                                      <>
+                                        <button
+                                          onClick={async () => {
+                                            setSignedDocActionLoading('approve');
+                                            await updateDocumentLock(selectedEmp._id, ol._id, true, true, signedDocRemarks || undefined, 'approved');
+                                            setSignedDocRemarks('');
+                                            setSignedDocActionLoading(null);
+                                          }}
+                                          disabled={!!signedDocActionLoading}
+                                          className={`flex-1 px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
+                                            docStatus === 'approved' ? 'bg-green-500 text-white shadow-lg shadow-green-200' : 'bg-green-50 text-green-700 hover:bg-green-100'
+                                          }`}
+                                        >
+                                          <ShieldCheck size={14} /> {signedDocActionLoading === 'approve' ? 'Approving...' : 'Approve & Lock'}
+                                        </button>
+                                        <button
+                                          onClick={async () => {
+                                            if (!signedDocRemarks.trim()) {
+                                              alert('Please enter remarks before requesting a reupload.');
+                                              return;
+                                            }
+                                            setSignedDocActionLoading('reupload');
+                                            await updateDocumentLock(selectedEmp._id, ol._id, false, false, signedDocRemarks, 'reupload_required');
+                                            setSignedDocRemarks('');
+                                            setSignedDocActionLoading(null);
+                                          }}
+                                          disabled={!!signedDocActionLoading}
+                                          className={`flex-1 px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
+                                            docStatus === 'reupload_required' ? 'bg-amber-500 text-white shadow-lg shadow-amber-200' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                                          }`}
+                                        >
+                                          <RefreshCw size={14} /> {signedDocActionLoading === 'reupload' ? 'Requesting...' : 'Request Reupload'}
+                                        </button>
+                                        <button
+                                          onClick={async () => {
+                                            if (!signedDocRemarks.trim()) {
+                                              alert('Please enter a reason for rejection.');
+                                              return;
+                                            }
+                                            setSignedDocActionLoading('reject');
+                                            await updateDocumentLock(selectedEmp._id, ol._id, false, false, signedDocRemarks, 'rejected');
+                                            setSignedDocRemarks('');
+                                            setSignedDocActionLoading(null);
+                                          }}
+                                          disabled={!!signedDocActionLoading}
+                                          className={`flex-1 px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
+                                            docStatus === 'rejected' ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-red-50 text-red-700 hover:bg-red-100'
+                                          }`}
+                                        >
+                                          <X size={14} /> {signedDocActionLoading === 'reject' ? 'Rejecting...' : 'Reject'}
+                                        </button>
+                                      </>
+                                    )}
+                                  </div>
+
+                                  {isDocLocked && (
+                                    <p className="text-[10px] text-green-600 font-bold uppercase tracking-widest flex items-center justify-center gap-1">
+                                      <CheckCircle2 size={12} /> Document is verified and locked
+                                    </p>
+                                  )}
+                                </div>
+                              ) : (
+                                <div className="flex flex-col items-center justify-center bg-gray-50 rounded-2xl border border-dashed border-gray-200 p-8 text-center">
+                                  <FileText size={32} className="text-gray-200 mb-3" />
+                                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                    Signed copy not yet uploaded
+                                  </p>
+                                  <p className="text-[10px] text-gray-400 font-bold mt-2">
+                                    The employee must download, sign, and upload the document from their dashboard.
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                        </>
                       ) : (
                         <div className="bg-gray-50 p-8 rounded-[32px] border border-gray-100">
                           <div className="space-y-6">
