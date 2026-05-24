@@ -2,7 +2,7 @@
 
 export type UserRole = 'super_admin' | 'vendor' | 'sub_vendor' | 'employee' | 'member';
 export type UserStatus = 'pending' | 'documents_uploaded' | 'under_review' | 'reupload_required' | 'approved' | 'active' | 'rejected' | 'suspended';
-export type VendorDocumentStatus = 'uploaded' | 'pending' | 'under_review' | 'approved' | 'rejected' | 'reupload_required';
+export type VendorDocumentStatus = 'uploaded' | 'pending' | 'under_review' | 'approved' | 'rejected' | 'reupload_required' | 'exception_requested' | 'exception_responded' | 'exception_approved' | 'on_hold';
 
 export interface IVendorDocumentEntry {
   url: string;
@@ -16,6 +16,9 @@ export interface IVendorDocumentEntry {
   remarks?: string;
   uploadedAt?: Date;
   reviewedAt?: Date;
+  exceptionReason?: string;
+  exceptionAdminRemarks?: string;
+  exceptionUserReply?: string;
 }
 
 export interface IUser extends Document {
@@ -111,10 +114,13 @@ const DocumentEntrySchema = new Schema({
   vendorEmail: { type: String },
   status: { 
     type: String, 
-    enum: ['uploaded', 'pending', 'under_review', 'approved', 'rejected', 'reupload_required'], 
+    enum: ['uploaded', 'pending', 'under_review', 'approved', 'rejected', 'reupload_required', 'exception_requested', 'exception_approved', 'on_hold', 'exception_responded'], 
     default: 'uploaded' 
   },
   remarks: { type: String },
+  exceptionReason: { type: String },
+  exceptionUserReply: { type: String },
+  exceptionAdminRemarks: { type: String },
   uploadedAt: { type: Date },
   reviewedAt: { type: Date }
 }, { _id: false });

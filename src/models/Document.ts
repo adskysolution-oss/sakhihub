@@ -8,7 +8,7 @@ export interface IDocument extends MongooseDocument {
   title: string;
   fileUrl: string; // The generated or base file
   uploadedDocumentUrl?: string; // The signed/uploaded file from vendor
-  status: 'pending' | 'pending_upload' | 'uploaded' | 'under_review' | 'approved' | 'rejected' | 'reupload_required' | 'unlocked';
+  status: 'pending' | 'pending_upload' | 'uploaded' | 'under_review' | 'approved' | 'rejected' | 'reupload_required' | 'unlocked' | 'exception_requested' | 'exception_approved' | 'on_hold' | 'exception_responded';
   isLocked?: boolean;
   isApproved?: boolean;
   adminRemarks?: string;
@@ -45,7 +45,7 @@ const DocumentSchema: Schema = new Schema(
     uploadedDocumentUrl: { type: String },
     status: { 
       type: String, 
-      enum: ['pending', 'pending_upload', 'uploaded', 'under_review', 'approved', 'rejected', 'reupload_required', 'unlocked'], 
+      enum: ['pending', 'pending_upload', 'uploaded', 'under_review', 'approved', 'rejected', 'reupload_required', 'unlocked', 'exception_requested', 'exception_approved', 'on_hold', 'exception_responded'], 
       default: 'pending' 
     },
     isLocked: { type: Boolean, default: false },

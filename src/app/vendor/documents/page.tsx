@@ -11,13 +11,16 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { getDocComplianceSummary, getRequiredDocs, getDocumentViewUrl, getRequiredDocsForUser } from "@/utils/documents";
 import DocumentCard from "@/components/features/dashboard/DocumentCard";
+import { useDocumentFlow } from "@/hooks/useDocumentFlow";
 import { toast } from 'sonner';
 
 export default function VendorDocuments() {
   const [documents, setDocuments] = useState<any>({});
   const [digitalCertificates, setDigitalCertificates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState<string | null>(null);
+  const { uploading, uploadDocument, handleExceptionReply } = useDocumentFlow({
+    onSuccess: async () => { await fetchDocuments(); }
+  });
   const [vendorType, setVendorType] = useState('individual');
   const [role, setRole] = useState('vendor');
 
@@ -93,43 +96,6 @@ export default function VendorDocuments() {
     }
   };
 
-  const performUpload = async (file: File, type: string) => {
-    setUploading(type);
-    try {
-      const data = new FormData();
-      data.append('file', file);
-      data.append('type', type);
-      data.append('fileName', file.name);
-      data.append('fileSize', `${(file.size / (1024 * 1024)).toFixed(2)} MB`);
-      data.append('mimeType', file.type);
-
-      if (type === aadhaarDocType) data.append('aadhaarNumber', formData.aadhaarNumber);
-      if (type === panDocType) data.append('panNumber', formData.panNumber);
-      if (type === 'bankPassbook') {
-        data.append('accountHolderName', formData.accountHolderName);
-        data.append('accountNumber', formData.accountNumber);
-        data.append('ifscCode', formData.ifscCode);
-        data.append('bankName', formData.bankName);
-        data.append('branchName', formData.branchName);
-      }
-
-      const res = await axios.post('/api/vendor/documents', data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-
-      if (res.data.success) {
-        await fetchDocuments();
-      } else {
-        throw new Error(res.data.message || 'Upload failed');
-      }
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err.response?.data?.message || 'Upload failed. Please try again.');
-    } finally {
-      setUploading(null);
-    }
-  };
-
   const submitAadhaar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -138,7 +104,7 @@ export default function VendorDocuments() {
       e.target.value = '';
       return;
     }
-    await performUpload(file, aadhaarDocType);
+    await uploadDocument(file, aadhaarDocType, { aadhaarNumber: formData.aadhaarNumber });
     e.target.value = '';
   };
 
@@ -150,7 +116,7 @@ export default function VendorDocuments() {
       e.target.value = '';
       return;
     }
-    await performUpload(file, type);
+    await uploadDocument(file, type, { aadhaarNumber: formData.aadhaarNumber });
     e.target.value = '';
   };
 
@@ -162,7 +128,7 @@ export default function VendorDocuments() {
       e.target.value = '';
       return;
     }
-    await performUpload(file, panDocType);
+    await uploadDocument(file, panDocType, { panNumber: formData.panNumber });
     e.target.value = '';
   };
 
@@ -184,7 +150,13 @@ export default function VendorDocuments() {
       e.target.value = '';
       return;
     }
-    await performUpload(file, 'bankPassbook');
+    await uploadDocument(file, 'bankPassbook', {
+      accountHolderName: formData.accountHolderName,
+      accountNumber: formData.accountNumber,
+      ifscCode: formData.ifscCode,
+      bankName: formData.bankName,
+      branchName: formData.branchName
+    });
     e.target.value = '';
   };
 
@@ -510,7 +482,8 @@ export default function VendorDocuments() {
                         type={type}
                         docInfo={documents[type]}
                         uploading={uploading === type}
-                        onUpload={(file) => performUpload(file, type)}
+                        onUpload={(file) => uploadDocument(file, type)}
+                        onExceptionReply={handleExceptionReply}
                       />
                     ))}
                   </div>

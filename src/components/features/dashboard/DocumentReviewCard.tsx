@@ -31,6 +31,7 @@ export default function DocumentReviewCard({
   if (!config) return null;
 
   const isUploaded = isDocumentUploaded(docInfo);
+  const isAvailableForReview = isUploaded || ['exception_requested', 'exception_responded', 'on_hold'].includes(docInfo?.status);
   const viewUrl = getDocumentViewUrl(docInfo?.url);
   const status = docInfo?.status || 'missing';
   const statusMeta = DOCUMENT_STATUS_MAP[status] || DOCUMENT_STATUS_MAP.pending;
@@ -39,8 +40,8 @@ export default function DocumentReviewCard({
   const handleAction = async (newStatus: string) => {
     if (loading) return;
     
-    // Validate remarks for negative statuses
-    if (['rejected', 'reupload_required'].includes(newStatus)) {
+    // Validate remarks for negative statuses or hold
+    if (['rejected', 'reupload_required', 'on_hold'].includes(newStatus)) {
       if (!remarks.trim()) {
         setValidationError(true);
         // Focus the textarea for better UX
@@ -63,8 +64,9 @@ export default function DocumentReviewCard({
 
   return (
     <div className={`p-6 rounded-[32px] border-2 transition-all ${
-      status === 'approved' ? 'border-green-100 bg-green-50/20' :
+      status === 'approved' || status === 'exception_approved' ? 'border-green-100 bg-green-50/20' :
       status === 'rejected' ? 'border-red-100 bg-red-50/20' :
+      status === 'exception_requested' || status === 'exception_responded' || status === 'on_hold' ? 'border-amber-100 bg-amber-50/20' :
       isUploaded ? 'border-primary/10 bg-white shadow-sm' : 'border-gray-50 bg-gray-50/50'
     }`}>
       <div className="flex flex-col md:flex-row gap-6">
@@ -99,6 +101,30 @@ export default function DocumentReviewCard({
             </div>
           </div>
 
+          {(status === 'exception_requested' || status === 'exception_responded' || status === 'on_hold') && (
+            <div className="mt-4 p-4 bg-amber-50 rounded-2xl border border-amber-100">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertCircle size={16} className="text-amber-600" />
+                <h6 className="text-xs font-black text-amber-800 uppercase tracking-widest">Exception Context</h6>
+              </div>
+              {docInfo?.exceptionReason && (
+                <p className="text-[11px] text-amber-700 font-bold mb-2">
+                  <span className="opacity-70">User Reason:</span> "{docInfo.exceptionReason}"
+                </p>
+              )}
+              {docInfo?.exceptionUserReply && status === 'exception_responded' && (
+                <p className="text-[11px] text-amber-700 font-bold mb-2">
+                  <span className="opacity-70">User Reply:</span> "{docInfo.exceptionUserReply}"
+                </p>
+              )}
+              {docInfo?.exceptionAdminRemarks && status === 'on_hold' && (
+                <p className="text-[11px] text-red-700 font-bold mb-2">
+                  <span className="opacity-70">Admin Hold Remark:</span> "{docInfo.exceptionAdminRemarks}"
+                </p>
+              )}
+            </div>
+          )}
+
           {isUploaded && (
             <div className="mt-6 flex gap-3">
               <a 
@@ -115,7 +141,7 @@ export default function DocumentReviewCard({
 
         {/* Right: Review Actions */}
         <div className="flex-1 flex flex-col gap-4">
-          {isUploaded ? (
+          {isAvailableForReview ? (
             <>
               <div className="relative">
                 <div className={`absolute top-3 left-4 ${validationError ? 'text-red-500' : 'text-gray-400'}`}>
@@ -143,34 +169,62 @@ export default function DocumentReviewCard({
                 )}
               </div>
 
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleAction('approved')}
-                  disabled={!!loading}
-                  className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
-                    status === 'approved' ? 'bg-green-500 text-white shadow-lg shadow-green-200' : 'bg-green-50 text-green-600 hover:bg-green-100'
-                  }`}
-                >
-                  {loading === 'approved' ? '...' : <><ShieldCheck size={14} /> Approve</>}
-                </button>
-                <button
-                  onClick={() => handleAction('reupload_required')}
-                  disabled={!!loading}
-                  className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
-                    status === 'reupload_required' ? 'bg-amber-500 text-white shadow-lg shadow-amber-200' : 'bg-amber-50 text-amber-600 hover:bg-amber-100'
-                  }`}
-                >
-                  {loading === 'reupload_required' ? '...' : <><RotateCcw size={14} /> Re-upload</>}
-                </button>
-                <button
-                  onClick={() => handleAction('rejected')}
-                  disabled={!!loading}
-                  className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
-                    status === 'rejected' ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-red-50 text-red-600 hover:bg-red-100'
-                  }`}
-                >
-                  {loading === 'rejected' ? '...' : <><XCircle size={14} /> Reject</>}
-                </button>
+              <div className="flex gap-2 flex-wrap">
+                {!isUploaded ? (
+                  <>
+                    <button
+                      onClick={() => handleAction('exception_approved')}
+                      disabled={!!loading}
+                      className="flex-1 min-w-[100px] py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all bg-green-50 text-green-600 hover:bg-green-100"
+                    >
+                      {loading === 'exception_approved' ? '...' : <><ShieldCheck size={14} /> Approve</>}
+                    </button>
+                    <button
+                      onClick={() => handleAction('on_hold')}
+                      disabled={!!loading}
+                      className="flex-1 min-w-[100px] py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all bg-amber-50 text-amber-600 hover:bg-amber-100"
+                    >
+                      {loading === 'on_hold' ? '...' : <><Clock size={14} /> Hold</>}
+                    </button>
+                    <button
+                      onClick={() => handleAction('reupload_required')}
+                      disabled={!!loading}
+                      className="flex-1 min-w-[100px] py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all bg-red-50 text-red-600 hover:bg-red-100"
+                    >
+                      {loading === 'reupload_required' ? '...' : <><RotateCcw size={14} /> Request Upload</>}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => handleAction('approved')}
+                      disabled={!!loading}
+                      className={`flex-1 min-w-[100px] py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+                        status === 'approved' ? 'bg-green-500 text-white shadow-lg shadow-green-200' : 'bg-green-50 text-green-600 hover:bg-green-100'
+                      }`}
+                    >
+                      {loading === 'approved' ? '...' : <><ShieldCheck size={14} /> Approve</>}
+                    </button>
+                    <button
+                      onClick={() => handleAction('reupload_required')}
+                      disabled={!!loading}
+                      className={`flex-1 min-w-[100px] py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+                        status === 'reupload_required' ? 'bg-amber-500 text-white shadow-lg shadow-amber-200' : 'bg-amber-50 text-amber-600 hover:bg-amber-100'
+                      }`}
+                    >
+                      {loading === 'reupload_required' ? '...' : <><RotateCcw size={14} /> Re-upload</>}
+                    </button>
+                    <button
+                      onClick={() => handleAction('rejected')}
+                      disabled={!!loading}
+                      className={`flex-1 min-w-[100px] py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+                        status === 'rejected' ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-red-50 text-red-600 hover:bg-red-100'
+                      }`}
+                    >
+                      {loading === 'rejected' ? '...' : <><XCircle size={14} /> Reject</>}
+                    </button>
+                  </>
+                )}
               </div>
             </>
           ) : (

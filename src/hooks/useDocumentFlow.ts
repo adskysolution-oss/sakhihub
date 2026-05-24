@@ -74,8 +74,34 @@ export function useDocumentFlow({
     }
   };
 
+  const handleExceptionRequest = async (type: string, reason: string) => {
+    try {
+      const res = await axios.post('/api/vendor/documents/exception', { type, exceptionReason: reason });
+      if (res.data.success) {
+        toast.success("Exception requested successfully");
+        if (onSuccess) await onSuccess();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to submit exception request");
+    }
+  };
+
+  const handleExceptionReply = async (type: string, reply: string) => {
+    try {
+      const res = await axios.post('/api/vendor/documents/exception/reply', { type, reply });
+      if (res.data.success) {
+        toast.success("Reply submitted successfully");
+        if (onSuccess) await onSuccess();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to submit reply");
+    }
+  };
+
   return {
     uploading,
     uploadDocument,
+    handleExceptionRequest,
+    handleExceptionReply,
   };
 }

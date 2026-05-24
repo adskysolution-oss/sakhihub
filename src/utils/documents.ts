@@ -1,6 +1,6 @@
 import { 
   FileCheck, CreditCard, UserCheck, Landmark,
-  FileText, Clock, ShieldCheck, AlertCircle
+  FileText, Clock, ShieldCheck, AlertCircle, MessageSquare
 } from 'lucide-react';
 
 /**
@@ -183,11 +183,15 @@ export const DOC_CONFIG: Record<string, { label: string; icon: any; desc: string
  */
 export const DOCUMENT_STATUS_MAP: Record<string, { label: string; className: string; icon: any }> = {
   approved: { label: 'Approved', className: 'bg-green-100 text-green-600', icon: ShieldCheck },
+  exception_approved: { label: 'Exception Approved', className: 'bg-green-100 text-green-600', icon: ShieldCheck },
   rejected: { label: 'Rejected', className: 'bg-red-100 text-red-600', icon: AlertCircle },
   reupload_required: { label: 'Re-upload Required', className: 'bg-red-100 text-red-600', icon: AlertCircle },
   under_review: { label: 'Under Review', className: 'bg-amber-100 text-amber-600', icon: Clock },
   documents_uploaded: { label: 'Submitted', className: 'bg-primary/10 text-primary', icon: FileText },
   uploaded: { label: 'Uploaded', className: 'bg-primary/10 text-primary', icon: FileText },
+  exception_requested: { label: 'Exception Requested', className: 'bg-amber-100 text-amber-600', icon: AlertCircle },
+  exception_responded: { label: 'Exception Reply Sent', className: 'bg-blue-100 text-blue-600', icon: MessageSquare },
+  on_hold: { label: 'On Hold', className: 'bg-amber-100 text-amber-600', icon: Clock },
   pending: { label: 'Pending Upload', className: 'bg-gray-100 text-gray-400', icon: Clock }
 };
 
@@ -227,7 +231,7 @@ export function getDocComplianceSummary(userDocuments: any, role: string, vendor
   required.forEach(type => {
     const doc = userDocuments?.[type];
     if (isDocumentUploaded(doc)) uploaded++;
-    if (doc?.status === 'approved') approved++;
+    if (doc?.status === 'approved' || doc?.status === 'exception_approved') approved++;
     if (doc?.status === 'rejected' || doc?.status === 'reupload_required') rejected++;
   });
 

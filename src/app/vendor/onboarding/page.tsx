@@ -19,6 +19,7 @@ export default function VendorOnboarding() {
   const [loading, setLoading] = useState(true);
   const [vendorType, setVendorType] = useState<string>('');
   const [savingType, setSavingType] = useState(false);
+  const [exceptionModal, setExceptionModal] = useState({ show: false, type: '', reason: '' });
 
   // Form states
   const [formData, setFormData] = useState({
@@ -58,7 +59,7 @@ export default function VendorOnboarding() {
     }
   };
 
-  const { uploading, uploadDocument } = useDocumentFlow({
+  const { uploading, uploadDocument, handleExceptionRequest } = useDocumentFlow({
     onSuccess: async () => { 
       setIsInitialized(false);
       await fetchProfile(); 
@@ -222,27 +223,38 @@ export default function VendorOnboarding() {
   );
 
   const renderUploadedDocState = (docInfo: any, reuploadInput?: React.ReactNode) => {
-    if (!docInfo?.url) return null;
+    if (!docInfo) return null;
+    if (!docInfo.url && !['exception_requested', 'on_hold', 'exception_responded', 'exception_approved'].includes(docInfo.status)) return null;
     return (
       <div className="mt-4 flex flex-col gap-3 bg-white/70 p-3 rounded-2xl border border-gray-100">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">Uploaded</span>
+              {docInfo.status === 'exception_requested' || docInfo.status === 'on_hold' || docInfo.status === 'exception_responded' ? (
+                <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-amber-100 text-amber-600">Exception</span>
+              ) : (
+                <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">Uploaded</span>
+              )}
               {docInfo.status === 'approved' && <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">Approved</span>}
               {docInfo.status === 'rejected' && <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-red-100 text-red-600">Rejected</span>}
+              {docInfo.status === 'exception_approved' && <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">Exception Approved</span>}
             </div>
-            <p className="text-sm font-black text-secondary truncate">{docInfo.fileName}</p>
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
-              Uploaded {new Date(docInfo.uploadedAt).toLocaleString()}
-            </p>
+            {docInfo.fileName && <p className="text-sm font-black text-secondary truncate">{docInfo.fileName}</p>}
+            {docInfo.exceptionReason && <p className="text-xs font-bold text-amber-700 italic mt-1">"{docInfo.exceptionReason}"</p>}
+            {docInfo.uploadedAt && (
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
+                Uploaded {new Date(docInfo.uploadedAt).toLocaleString()}
+              </p>
+            )}
           </div>
         </div>
         
         <div className="flex items-center gap-2 mt-2 pt-3 border-t border-gray-100">
-           <a href={getDocumentViewUrl(docInfo.url)} target="_blank" rel="noopener noreferrer" className="flex-1 text-center py-2.5 bg-gray-50 hover:bg-primary hover:text-white text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-             Preview
-           </a>
+           {docInfo.url && (
+             <a href={getDocumentViewUrl(docInfo.url)} target="_blank" rel="noopener noreferrer" className="flex-1 text-center py-2.5 bg-gray-50 hover:bg-primary hover:text-white text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+               Preview
+             </a>
+           )}
            {docInfo.status !== 'approved' && reuploadInput && (
              <div className="flex-1">
                {reuploadInput}
@@ -381,6 +393,9 @@ export default function VendorOnboarding() {
                                 <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === backType} onChange={(e) => submitAadhaarSplit(e, 'back', backType)} />
                               </label>
                             )}
+                            {(!profile?.documents?.[backType] || (!profile.documents[backType].url && !['exception_requested', 'on_hold', 'exception_responded', 'exception_approved'].includes(profile.documents[backType].status))) && (
+                              <button onClick={() => setExceptionModal({ show: true, type: backType, reason: '' })} className="w-full text-xs font-black text-gray-400 hover:text-amber-600 hover:underline uppercase tracking-widest text-center mt-3">Don't have this document?</button>
+                            )}
                           </div>
                         </div>
                       ) : (
@@ -399,6 +414,9 @@ export default function VendorOnboarding() {
                               <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === aadhaarDocType} onChange={submitAadhaar} />
                             </label>
                           )}
+                          {(!profile?.documents?.[aadhaarDocType] || (!profile.documents[aadhaarDocType].url && !['exception_requested', 'on_hold', 'exception_responded', 'exception_approved'].includes(profile.documents[aadhaarDocType].status))) && (
+                              <button onClick={() => setExceptionModal({ show: true, type: aadhaarDocType, reason: '' })} className="w-full text-xs font-black text-gray-400 hover:text-amber-600 hover:underline uppercase tracking-widest text-center mt-3">Don't have this document?</button>
+                            )}
                         </div>
                       )}
                     </div>
@@ -563,6 +581,7 @@ export default function VendorOnboarding() {
                         docInfo={profile?.documents?.[type]}
                         uploading={uploading === type}
                         onUpload={(file) => uploadDocument(file, type)}
+                        onExceptionRequest={handleExceptionRequest}
                       />
                     ))}
                   </div>
@@ -634,6 +653,40 @@ export default function VendorOnboarding() {
             </div>
           </div>
         </div>
+
+        {/* Exception Modal */}
+        {exceptionModal.show && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div className="bg-white rounded-[32px] p-8 max-w-sm w-full shadow-2xl relative border border-gray-100">
+              <h3 className="text-lg font-black text-secondary mb-2">Request Exception</h3>
+              <p className="text-xs text-gray-400 font-bold mb-6">If you don't have this document, please explain why. An admin will review your request.</p>
+              <textarea 
+                className="w-full bg-gray-50 border border-gray-200 rounded-2xl p-4 text-sm font-bold text-gray-800 focus:outline-none focus:border-amber-400 focus:bg-white mb-6 resize-none h-24"
+                placeholder="E.g., Not applicable for my business..."
+                value={exceptionModal.reason}
+                onChange={(e) => setExceptionModal({ ...exceptionModal, reason: e.target.value })}
+              />
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setExceptionModal({ show: false, type: '', reason: '' })}
+                  className="flex-1 py-3 text-gray-500 font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 rounded-xl transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => {
+                    if (exceptionModal.reason.trim().length < 5) return toast.error('Please provide a valid reason');
+                    handleExceptionRequest(exceptionModal.type, exceptionModal.reason.trim());
+                    setExceptionModal({ show: false, type: '', reason: '' });
+                  }}
+                  className="flex-1 bg-amber-500 text-white py-3 font-black text-[10px] uppercase tracking-widest hover:bg-amber-600 rounded-xl transition-all shadow-lg shadow-amber-500/30"
+                >
+                  Submit Request
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

@@ -101,8 +101,7 @@ export function getDocumentFolderPath(user: any): string {
 export function areAllDocsApproved(user: any): boolean {
   const required = getRequiredDocsForUser(user.role, user.documents, user.vendorType);
   if (required.length === 0) return false;
-  
-  return required.every(type => user.documents?.[type]?.status === 'approved');
+  return required.every(type => user.documents?.[type]?.status === 'approved' || user.documents?.[type]?.status === 'exception_approved');
 }
 
 /**
@@ -121,7 +120,7 @@ export function determineUserStatus(user: any): string {
   if (allApproved) return 'approved'; 
   if (hasRejected || hasReupload) return 'reupload_required';
   
-  const allUploaded = required.every(t => user.documents?.[t]?.url);
+  const allUploaded = required.every(t => user.documents?.[t]?.url || ['exception_requested', 'exception_responded', 'exception_approved', 'on_hold'].includes(user.documents?.[t]?.status));
   if (allUploaded) return 'documents_uploaded';
   
   return user.status; 

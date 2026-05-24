@@ -84,7 +84,7 @@ export async function PATCH(
       if (parts.length !== 3) return errorResponse('Invalid document status format', 400);
       
       const [, docType, docStatus] = parts;
-      const validDocStatuses = ['approved', 'rejected', 'reupload_required'];
+      const validDocStatuses = ['approved', 'rejected', 'reupload_required', 'exception_approved', 'on_hold'];
       
       if (!validDocStatuses.includes(docStatus)) {
         return errorResponse(`Invalid document status: ${docStatus}`, 400);
@@ -96,13 +96,25 @@ export async function PATCH(
       if (!user.documents) user.documents = {};
       const doc = (user.documents as any)[docType];
       
-      if (!doc || !doc.url) return errorResponse('Document not uploaded yet — cannot review', 404);
+      // Allow review even if url is empty for exception requests
+      if (!doc || (!doc.url && doc.status !== 'exception_requested' && doc.status !== 'on_hold' && doc.status !== 'exception_responded')) {
+        return errorResponse('Document not uploaded yet — cannot review', 404);
+      }
 
       // Update doc metadata
       doc.status = docStatus;
       doc.reviewedAt = new Date();
-      if (remarks) doc.remarks = remarks;
-      if (docStatus === 'approved') doc.remarks = ''; // Clear remarks on approval
+      if (remarks) {
+        if (['on_hold', 'exception_approved', 'reupload_required'].includes(docStatus)) {
+          doc.exceptionAdminRemarks = remarks;
+        } else {
+          doc.remarks = remarks;
+        }
+      }
+      if (docStatus === 'approved' || docStatus === 'exception_approved') {
+        doc.remarks = ''; 
+        doc.exceptionAdminRemarks = '';
+      }
 
       // Auto-determine overall user status based on all doc statuses via Service
       user.status = determineUserStatus(user);
@@ -128,9 +140,9 @@ export async function PATCH(
           status: docStatus,
           verificationStatus: docStatus,
           reviewedAt: new Date(),
-          adminRemarks: docStatus === 'approved' ? '' : (remarks || ''),
-          isApproved: docStatus === 'approved',
-          isLocked: docStatus === 'approved'
+          adminRemarks: (docStatus === 'approved' || docStatus === 'exception_approved') ? '' : (remarks || ''),
+          isApproved: docStatus === 'approved' || docStatus === 'exception_approved',
+          isLocked: docStatus === 'approved' || docStatus === 'exception_approved'
         },
         { upsert: true }
       );
