@@ -1010,7 +1010,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                <button 
                  onClick={() => {
                    const requiredDocs = getRequiredDocsForUser(user.role, user.documents, user.vendorType);
-                   const allApproved = requiredDocs.every(id => user.documents?.[id]?.status === 'approved');
+                   const allApproved = requiredDocs.every(id => user.documents?.[id]?.status === 'approved' || user.documents?.[id]?.status === 'exception_approved');
                    
                    if (user.role === 'vendor' && !allApproved) {
                      toast.error("Cannot activate vendor: All required documents must be individually approved first. Go to the Compliance tab to verify them.");
