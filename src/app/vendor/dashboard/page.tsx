@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 import ReferralLinkCard from "@/components/features/dashboard/ReferralLinkCard";
 import PaymentReceiptCard from "@/components/features/dashboard/PaymentReceiptCard";
+import DigitalIdWidget from "@/components/features/dashboard/DigitalIdWidget";
 
 export default function VendorDashboard() {
   const [stats, setStats] = useState<any>(null);
@@ -109,6 +110,8 @@ export default function VendorDashboard() {
             ))}
           </div>
         )}
+
+        <DigitalIdWidget user={user} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <ReferralLinkCard

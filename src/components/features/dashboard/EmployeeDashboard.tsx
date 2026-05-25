@@ -11,6 +11,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import ReferralLinkCard from './ReferralLinkCard';
 import PaymentReceiptCard from './PaymentReceiptCard';
+import DigitalIdWidget from './DigitalIdWidget';
 
 export default function EmployeeDashboard({ user }: { user: any }) {
   const [data, setData] = React.useState<any>(null);
@@ -80,6 +81,11 @@ export default function EmployeeDashboard({ user }: { user: any }) {
             </div>
           </motion.div>
         ))}
+      </section>
+
+      {/* Digital ID Widget */}
+      <section>
+        <DigitalIdWidget user={user} />
       </section>
 
       {/* Recruitment Link */}

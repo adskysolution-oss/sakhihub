@@ -33,7 +33,6 @@ export const EMPLOYEE_DASHBOARD_LINKS = [
   { name: 'Campaigns', icon: Target, href: '/employee/campaigns' },
   { name: 'Documents', icon: FileText, href: '/employee/dashboard/documents' },
   { name: 'My Profile', icon: User, href: '/employee/dashboard/profile' },
-  { name: 'My ID Card', icon: BadgeCheck, href: '/id-card' },
 ];
 
 export const ADMIN_DASHBOARD_LINKS = [
@@ -71,7 +70,6 @@ export const VENDOR_DASHBOARD_LINKS = [
   { name: 'My Wallet', icon: Wallet, href: '/vendor/dashboard/wallet' },
   { name: 'Documents', icon: FileText, href: '/vendor/dashboard/documents' },
   { name: 'My Profile', icon: User, href: '/vendor/dashboard/profile' },
-  { name: 'My ID Card', icon: BadgeCheck, href: '/id-card' },
   { name: 'Support', icon: Heart, href: '/vendor/dashboard/support' },
 ];
 
@@ -85,6 +83,5 @@ export const SUBVENDOR_DASHBOARD_LINKS = [
   { name: 'My Wallet', icon: Wallet, href: '/sub-vendor/dashboard/wallet' },
   { name: 'Documents', icon: FileText, href: '/sub-vendor/dashboard/documents' },
   { name: 'My Profile', icon: User, href: '/sub-vendor/dashboard/profile' },
-  { name: 'My ID Card', icon: BadgeCheck, href: '/id-card' },
   { name: 'Support', icon: Heart, href: '/sub-vendor/dashboard/support' },
 ];

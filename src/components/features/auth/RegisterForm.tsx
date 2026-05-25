@@ -517,10 +517,10 @@ export default function RegisterForm() {
                     )}
 
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-black text-gray-700">Email (Optional)</label>
+                      <label className="text-sm font-black text-gray-700">Email</label>
                       <div className="relative">
                         <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="email@example.com" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="email@example.com" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                       </div>
                     </div>
 
