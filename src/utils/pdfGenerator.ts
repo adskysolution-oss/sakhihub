@@ -3,7 +3,7 @@ import puppeteer from 'puppeteer';
 export const generateAgreementHtml = (data: any) => {
   const currentDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
   const companyName = "SakhiHub Platform (AdSky Solution)";
-  const companyAddress = "Head Office, India";
+  const companyAddress = "Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010";
 
   return `
     <!DOCTYPE html>

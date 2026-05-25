@@ -42,6 +42,7 @@ export default function IDCardPage() {
             fullName: sessionUser.fullName || 'User',
             role: sessionUser.role,
             idNumber: idToSearch,
+            mobile: sessionUser.mobile,
           });
         }
       } catch (err) {

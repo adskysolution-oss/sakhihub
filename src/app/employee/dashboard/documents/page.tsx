@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { getDocComplianceSummary, getRequiredDocsForUser } from '@/utils/documents';
+import { getDocComplianceSummary, getRequiredDocsForUser, getDocumentViewUrl } from '@/utils/documents';
 import DocumentCard from '@/components/features/dashboard/DocumentCard';
 import { useDocumentFlow } from '@/hooks/useDocumentFlow';
 import PaymentReceiptCard from "@/components/features/dashboard/PaymentReceiptCard";
@@ -219,7 +219,7 @@ export default function EmployeeDocuments() {
                             <p className="text-sm font-black text-secondary truncate">Signed_Offer_Letter.pdf</p>
                           </div>
                           <a
-                            href={offerLetter.uploadedDocumentUrl}
+                            href={getDocumentViewUrl(offerLetter.uploadedDocumentUrl)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-3 bg-white rounded-2xl text-primary border border-gray-100 shadow-sm hover:bg-primary hover:text-white transition-all shrink-0"
@@ -229,7 +229,7 @@ export default function EmployeeDocuments() {
                           </a>
                         </div>
                         <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-100">
-                          <a href={offerLetter.uploadedDocumentUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline flex items-center gap-2">
+                          <a href={getDocumentViewUrl(offerLetter.uploadedDocumentUrl)} target="_blank" rel="noopener noreferrer" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline flex items-center gap-2">
                             Preview / Open Signed PDF <ChevronRight size={14} />
                           </a>
                         </div>

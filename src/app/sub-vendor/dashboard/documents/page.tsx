@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary, getRequiredDocsForUser } from '@/utils/documents';
+import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary, getRequiredDocsForUser, getDocumentViewUrl } from '@/utils/documents';
 import DocumentCard from '@/components/features/dashboard/DocumentCard';
 import { useDocumentFlow } from '@/hooks/useDocumentFlow';
 import PaymentReceiptCard from "@/components/features/dashboard/PaymentReceiptCard";
@@ -243,7 +243,7 @@ export default function SubVendorDocuments() {
                             </p>
                           </div>
                         </div>
-                        <a href={authLetter.uploadedDocumentUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-white text-primary rounded-xl shadow-sm hover:bg-primary hover:text-white border border-gray-100 transition-all">
+                        <a href={getDocumentViewUrl(authLetter.uploadedDocumentUrl)} target="_blank" rel="noopener noreferrer" className="p-2 bg-white text-primary rounded-xl shadow-sm hover:bg-primary hover:text-white border border-gray-100 transition-all">
                           <Download size={16} />
                         </a>
                       </div>

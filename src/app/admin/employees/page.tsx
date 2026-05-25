@@ -14,7 +14,7 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 import DocumentReviewCard from "@/components/features/dashboard/DocumentReviewCard";
-import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary, getRequiredDocsForUser } from "@/utils/documents";
+import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary, getRequiredDocsForUser, getDocumentViewUrl } from "@/utils/documents";
 import { toast } from 'sonner';
 
 export default function EmployeeManagement() {
@@ -583,7 +583,7 @@ export default function EmployeeManagement() {
                                 <div className="space-y-4">
                                   <div className="flex flex-col sm:flex-row gap-3">
                                     <a
-                                      href={ol.uploadedDocumentUrl}
+                                      href={getDocumentViewUrl(ol.uploadedDocumentUrl)}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-secondary border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-100 transition-colors"

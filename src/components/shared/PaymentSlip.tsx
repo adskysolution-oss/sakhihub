@@ -550,7 +550,7 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
 
           <div className="flex items-center gap-1">
             <MapPin size={12} className="text-gray-400 shrink-0" />
-            <span>Madhya Pradesh, India</span>
+            <span>Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010</span>
           </div>
         </div>
       </div>

@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
     // Find the user
     const user = await User.findOne({ $or: searchQuery })
-      .select('fullName role profileImage vendorType businessName state district block pincode vendorCode subVendorCode employeeId status createdAt isVerified dashboardAccess documentsVerified joiningDate')
+      .select('fullName role mobile profileImage vendorType businessName state district block pincode vendorCode subVendorCode employeeId status createdAt isVerified dashboardAccess documentsVerified joiningDate')
       .lean();
 
     if (!user) {
@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
     let publicData: any = {
       fullName: user.fullName,
       role: user.role,
+      mobile: user.mobile,
       profileImage: user.profileImage,
       registrationDate: user.joiningDate || user.createdAt,
       state: user.state,
