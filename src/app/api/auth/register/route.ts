@@ -3,7 +3,9 @@ import mongoose from 'mongoose';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import PendingUser from '@/models/PendingUser';
-import { hashPassword } from '@/lib/auth';
+import WomenMember from '@/models/WomenMember';
+import MemberRequest from '@/models/MemberRequest';
+import { hashPassword, getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 import { generateOTP, hashOTP } from '@/lib/otp';
 import { sendEmail } from '@/lib/email';
@@ -48,15 +50,23 @@ export async function POST(req: NextRequest) {
     }
 
     // Hierarchy Logic
-    let parentVendorId = undefined;
+    const session = await getAuthSession();
+    let parentVendorId = body.parentVendorId || undefined;
     let referralSource: 'direct' | 'invite' = 'direct';
     let assignmentStatus: 'pending' | 'completed' = 'pending';
+
+    // Securely auto-assign the logged-in vendor's ID if they are creating an employee
+    if (session && ['vendor', 'sub_vendor', 'super_admin'].includes(session.role)) {
+      parentVendorId = session.id;
+      assignmentStatus = 'completed';
+      referralSource = 'invite';
+    }
 
     const effectiveVendorCode = vendorCode || body.vendor;
     const effectiveSubVendorCode = subVendorCode || body.subvendor;
     const effectiveEmployeeCode = assignedEmployeeId || body.employee;
 
-    if (effectiveVendorCode) {
+    if (!parentVendorId && effectiveVendorCode) {
       const vendor = await User.findOne({ vendorCode: effectiveVendorCode, role: 'vendor' });
       if (vendor) {
         parentVendorId = vendor._id;
@@ -93,7 +103,7 @@ export async function POST(req: NextRequest) {
     const hashedPassword = await hashPassword(password);
     const userRole = role || 'member';
 
-    // OTP logic
+    // OTP logic (compulsory for all registrations)
     const rawOtp = generateOTP();
     const hashedOtp = hashOTP(rawOtp);
     const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
