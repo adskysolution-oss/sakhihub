@@ -73,7 +73,7 @@ export default function ContactPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6 sm:gap-8">
                 {[
                   { title: "Support Email", val: "support@sakhihub.com", icon: Mail, bg: "bg-primary/5", color: "text-primary" },
-                  { title: "Headquarters", val: "Regional Outreach Center, India", icon: MapPin, bg: "bg-primary/5", color: "text-primary" }
+                  { title: "Headquarters", val: "Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010", icon: MapPin, bg: "bg-primary/5", color: "text-primary" }
                 ].map((item, i) => (
                   <div key={i} className="flex flex-col sm:flex-row lg:flex-row items-center gap-4 sm:gap-5 text-center sm:text-left">
                     <div className={`w-14 h-14 sm:w-16 sm:h-16 ${item.bg} ${item.color} rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-black/[0.02]`}>
