@@ -55,7 +55,7 @@ export default function VendorDashboard() {
         <header className="flex justify-between items-start">
           {/* <div>
             <h1 className="text-3xl md:text-4xl font-black text-secondary">Vendor Command Center</h1>
-            <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Manage your recruitment hierarchy and campaign performance</p>
+            <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Manage your field operations team and campaign performance</p>
           </div> */}
           <div className="flex gap-4">
             <button

@@ -52,10 +52,10 @@ export default function ReferralLinkCard({ inviterRole, vendorCode, subVendorCod
         <div className="flex justify-between items-start mb-6">
           <div>
             <h3 className="text-xl font-black text-secondary mb-1 flex items-center gap-2">
-              <Share2 size={20} className="text-primary" /> Recruitment Link
+              <Share2 size={20} className="text-primary" /> Field Partner Registration Link
             </h3>
             <p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest">
-              Automated Hierarchy Onboarding
+              Automated Partner Onboarding
             </p>
           </div>
           
@@ -76,7 +76,7 @@ export default function ReferralLinkCard({ inviterRole, vendorCode, subVendorCod
 
         <div className="space-y-4">
           <div className="flex flex-col gap-2">
-             <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Invite URL for {targetRole.replace('_', ' ')}</label>
+             <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Registration URL for {targetRole.replace('_', ' ')}</label>
              <div className="flex gap-2 p-2 bg-gray-50 rounded-2xl border border-gray-100 items-center">
               <div className="flex-1 px-4 text-xs font-bold text-secondary truncate">
                 {referralUrl}
@@ -96,7 +96,7 @@ export default function ReferralLinkCard({ inviterRole, vendorCode, subVendorCod
                 {targetRole === 'sub_vendor' ? <Users size={20} /> : targetRole === 'employee' ? <Briefcase size={20} /> : <UserPlus size={20} />}
              </div>
              <p className="text-[10px] text-gray-500 font-bold leading-relaxed">
-               Users joining via this link will be <span className="text-secondary">auto-assigned</span> to your team as <span className="text-primary uppercase">{targetRole.replace('_', ' ')}s</span>.
+               Field personnel joining via this link will be <span className="text-secondary">assigned</span> to your operational region as <span className="text-primary uppercase">{targetRole.replace('_', ' ')}s</span>.
              </p>
           </div>
         </div>

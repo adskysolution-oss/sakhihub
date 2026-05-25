@@ -168,7 +168,7 @@ export const generateAgreementHtml = (data: any) => {
         </div>
 
         <div class="intro">
-          <strong>WHEREAS</strong> the Client is in the business of social impact, e-commerce, and community development and desires to engage the Vendor for operational and recruitment services.
+          <strong>WHEREAS</strong> the Client is in the business of social impact, e-commerce, and community development and desires to engage the Vendor for operational and team expansion services.
         </div>
 
         <div class="intro">
@@ -185,7 +185,7 @@ export const generateAgreementHtml = (data: any) => {
         <div class="clause-title">1. SCOPE AND STANDARD OF SERVICES:</div>
         
         <div class="clause sub-clause">
-          1.1 Vendor hereby agrees to provide to the Client and the Client hereby agrees to avail operational and recruitment services from Vendor.
+          1.1 Vendor hereby agrees to provide to the Client and the Client hereby agrees to avail operational and team expansion services from Vendor.
         </div>
         <div class="clause sub-clause">
           1.2 The Vendor is assigned the following territory for operations:
@@ -221,7 +221,7 @@ export const generateAgreementHtml = (data: any) => {
           3.1 In consideration of Vendor rendering the Services to the Client, the Client shall pay to Vendor charges as mentioned:
           <div style="margin-left: 20px; margin-top: 10px;">
             <strong>Incentive Structure:</strong> ${data.incentiveStructure || 'Standard Company Policy'}<br/>
-            <strong>Membership Commission:</strong> ${data.membershipCommission || 'Standard Company Policy'}<br/>
+            <strong>Community Service Incentive:</strong> ${data.membershipCommission || 'Standard Company Policy'}<br/>
             <strong>Monthly Targets:</strong> ${data.monthlyTargets || 'As defined by management'}
           </div>
         </div>

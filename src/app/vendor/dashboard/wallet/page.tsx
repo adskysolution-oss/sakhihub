@@ -8,7 +8,7 @@ export default function VendorWalletPage() {
     <UnifiedWalletView 
       role="vendor" 
       title="Vendor Wallet"
-      subtitle="Real-time commission tracking, ledger history, and direct withdrawals"
+      subtitle="Real-time performance incentive tracking, ledger history, and direct withdrawals"
     />
   );
 }

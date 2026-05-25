@@ -208,7 +208,7 @@ function PaymentPendingContent() {
                   {data.subscription.paid ? <CheckCircle2 size={32} /> : <IndianRupee size={32} />}
                 </div>
                 <div>
-                  <h4 className="text-lg font-black text-secondary leading-tight">Platform Subscription</h4>
+                  <h4 className="text-lg font-black text-secondary leading-tight">Platform Access Subscription</h4>
                   <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1">Required for access</p>
                   <p className="text-2xl font-bold mt-2 text-secondary">₹{data.subscription.amount}</p>
                 </div>
@@ -244,7 +244,7 @@ function PaymentPendingContent() {
                   {data.deposit.paid ? <CheckCircle2 size={32} /> : <ShieldCheck size={32} />}
                 </div>
                 <div>
-                  <h4 className="text-lg font-black text-secondary leading-tight">Security Deposit</h4>
+                  <h4 className="text-lg font-black text-secondary leading-tight">Refundable Vendor Security Deposit</h4>
                   <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1">Refundable Policy</p>
                   <p className="text-2xl font-bold mt-2 text-secondary">₹{data.deposit.amount}</p>
                 </div>

@@ -144,10 +144,10 @@ export default function UnifiedWalletView({ role, title, subtitle }: UnifiedWall
 
   const defaultTitle = role === 'vendor' ? 'Vendor Wallet' : role === 'sub_vendor' ? 'Sub-Vendor Wallet' : 'My Earnings Wallet';
   const defaultSubtitle = role === 'vendor' 
-    ? 'Real-time commission tracking, ledger history, and direct withdrawals'
+    ? 'Real-time performance incentive tracking, ledger history, and direct withdrawals'
     : role === 'sub_vendor'
-      ? 'Track sub-vendor network commission shares, deposits, and payouts'
-      : 'Review your membership recruitment payouts and direct commission rewards';
+      ? 'Track sub-vendor regional performance incentives, deposits, and payouts'
+      : 'Review your community support incentives and direct operational rewards';
 
   if (loading) {
     return (
@@ -263,7 +263,7 @@ export default function UnifiedWalletView({ role, title, subtitle }: UnifiedWall
                   onClick={() => setActiveTab(tab)}
                   className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? 'bg-white text-secondary shadow-sm' : 'text-gray-400 hover:text-secondary'}`}
                 >
-                  {tab === 'all' ? 'Ledger Entries' : tab === 'earnings' ? 'Commissions' : 'Withdrawals'}
+                  {tab === 'all' ? 'Ledger Entries' : tab === 'earnings' ? 'Incentives' : 'Withdrawals'}
                 </button>
               ))}
             </div>
@@ -335,7 +335,7 @@ export default function UnifiedWalletView({ role, title, subtitle }: UnifiedWall
                         <td className="py-6 pr-4">
                           <div className="flex flex-col gap-1">
                             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                              {txn.category?.replace('commission_', 'commission: ')}
+                              {txn.category?.replace('commission_', 'incentive: ')}
                             </span>
                             {txn.referenceId && (
                               <span className="font-bold text-secondary text-xs mt-0.5">Ref: {txn.referenceId}</span>

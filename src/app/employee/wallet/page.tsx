@@ -8,7 +8,7 @@ export default function EmployeeWalletPage() {
     <UnifiedWalletView 
       role="employee" 
       title="My Earnings Wallet"
-      subtitle="Review your membership recruitment payouts and direct commission rewards"
+      subtitle="Review your community support incentives and direct operational rewards"
     />
   );
 }
