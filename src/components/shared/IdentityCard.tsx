@@ -17,6 +17,8 @@ export interface IdentityCardProps {
     organizationName?: string;
     bloodGroup?: string;
     pincode?: string;
+    vendorType?: string;
+    designation?: string;
   };
 }
 
@@ -59,17 +61,33 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
     return formatted;
   };
 
-  const formattedRole = getRoleDisplayName(user.role);
+  // Format the Role display string dynamically
+  const getFormattedRoleString = () => {
+    const base = getRoleDisplayName(user.role);
+    if (user.role === 'employee' && user.designation) {
+      // capitalize designation
+      const d = user.designation.replace(/\b\w/g, l => l.toUpperCase());
+      return `${base} | ${d}`;
+    }
+    if ((user.role === 'vendor' || user.role === 'sub_vendor') && user.vendorType) {
+      // format vendor type (e.g. 'company' -> 'Company Vendor')
+      const vt = user.vendorType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+      return `${base} | ${vt}`;
+    }
+    return base;
+  };
+
+  const formattedRole = getFormattedRoleString();
   const designation = getDesignation(user.role);
   const displayId = formatDisplayId(user.idNumber);
   const verificationUrl = typeof window !== 'undefined' ? `${window.location.origin}/verify/${encodeURIComponent(user.idNumber)}` : `https://www.sakhihub.com/verify/${user.idNumber}`;
 
   return (
     <div className="flex flex-col md:flex-row gap-8 items-center justify-center font-sans text-gray-800 print:flex-row print:gap-6 print:items-start select-none">
-      
+
       {/* ================= FRONT SIDE ================= */}
       <div className="relative w-[340px] h-[540px] bg-white rounded-[24px] overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] flex flex-col shrink-0 border border-gray-100 print:shadow-none print:border-gray-200">
-        
+
         {/* Dotted Texture (Top Right) */}
         <svg className="absolute top-0 right-0 w-[140px] h-[140px] opacity-[0.06] pointer-events-none z-0" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -113,13 +131,13 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
         <div className="absolute right-[-40px] top-[30%] opacity-[0.03] pointer-events-none z-0 mix-blend-multiply">
           <img src="/logo.png" alt="" className="w-[300px]" />
         </div>
-        
+
         {/* Top Header Hole */}
         <div className="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-2.5 rounded-full border border-gray-200/50 bg-gray-50/80 shadow-inner z-20"></div>
 
         {/* Content Container */}
         <div className="relative z-10 flex-1 flex flex-col pt-[55px]">
-          
+
           {/* Top Center Logo */}
           <div className="flex justify-center mb-4">
             <img src="/logo.png" alt="SakhiHub Logo" className="h-[46px] object-contain drop-shadow-sm" />
@@ -166,14 +184,14 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
               ))}
             </div>
           </div>
-          
+
           {/* Bottom QR & Verification Badge */}
           <div className="px-8 w-full flex justify-between items-end pb-[26px] mt-auto relative z-20">
             {/* QR Box */}
             <div className="bg-white p-1 rounded-lg border border-gray-100 shadow-sm shrink-0 relative top-1">
               <QRCode value={verificationUrl} size={46} level="H" />
             </div>
-            
+
             {/* Verified Badge */}
             <div className="flex items-center gap-2 relative top-1">
               <div className="bg-gradient-to-br from-[#E91E63] to-[#C2185B] rounded-lg p-1.5 text-white shadow-sm">
@@ -181,7 +199,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
               </div>
               <div className="flex flex-col text-left">
                 <span className="text-[11.5px] font-extrabold text-gray-900 leading-tight">Verified Member</span>
-                <span className="text-[7px] text-gray-500 leading-tight font-medium mt-0.5">This identity is officially<br/>verified by SakhiHub</span>
+                <span className="text-[7px] text-gray-500 leading-tight font-medium mt-0.5">This identity is officially<br />verified by SakhiHub</span>
               </div>
             </div>
           </div>
@@ -198,7 +216,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
 
       {/* ================= BACK SIDE ================= */}
       <div className="relative w-[340px] h-[540px] bg-white rounded-[24px] overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] flex flex-col shrink-0 border border-gray-100 print:shadow-none print:border-gray-200">
-        
+
         {/* Dotted Texture (Top Left) */}
         <svg className="absolute top-0 left-0 w-[140px] h-[140px] opacity-[0.06] pointer-events-none z-0" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -235,7 +253,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
 
         {/* Content Container (No Logo here) */}
         <div className="relative z-10 flex-1 flex flex-col pt-[85px]">
-          
+
           {/* Detailed Address Table */}
           <div className="px-10 w-full flex flex-col gap-4 text-[11.5px] mb-6 mt-4">
             {[
@@ -284,7 +302,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
               <div className="h-[1px] w-[100px] bg-gray-400 mb-1.5"></div>
               <span className="text-[9px] font-bold text-gray-600">Authorized Signatory</span>
             </div>
-            
+
             <div className="relative ml-2">
               {/* Circular Verification Stamp */}
               <div className="w-[75px] h-[75px] rounded-full border-[1.5px] border-[#E91E63] flex items-center justify-center p-0.5 opacity-90 shadow-sm bg-white">
@@ -314,7 +332,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
                 </linearGradient>
               </defs>
             </svg>
-            
+
             {/* Footer Content */}
             <div className="absolute bottom-4 w-full flex justify-center items-center gap-3.5 text-white/95">
               <div className="flex items-center gap-1.5">
