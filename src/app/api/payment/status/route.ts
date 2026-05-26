@@ -40,15 +40,15 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const paymentEnabled = config.paymentRequired[roleKey];
-    const subRequired = paymentEnabled && config.subscriptionRequired[roleKey];
-    const depRequired = paymentEnabled && config.depositRequired[roleKey];
+    const gatewayEnabled = config.paymentRequired[roleKey];
+    const subRequired = config.subscriptionRequired[roleKey];
+    const depRequired = config.depositRequired[roleKey];
 
-    // Auto-complete payment if requirements are met or disabled
+    // Auto-complete payment if requirements are met
     const isSubMet = !subRequired || user.subscriptionPaid;
     const isDepMet = !depRequired || user.depositPaid;
 
-    if (isSubMet && isDepMet && !user.paymentCompleted) {
+    if (isSubMet && isDepMet && (subRequired || depRequired) && !user.paymentCompleted) {
       await User.findByIdAndUpdate(user._id, { paymentCompleted: true });
       user.paymentCompleted = true; // Update local state for response
     }
@@ -59,17 +59,24 @@ export async function GET(req: NextRequest) {
       .limit(20)
       .lean();
 
+    // Resolve role+type specific payment request URLs for manual mode
+    const roleUrls = (config.paymentRequestUrls as any)?.[roleKey] || {};
+
     return successResponse({
-      paymentRequired: paymentEnabled,
+      gatewayEnabled: gatewayEnabled,
       subscription: {
         required: subRequired,
         amount: config.subscriptionAmount[roleKey],
         paid: user.subscriptionPaid,
+        /** URL for this role's subscription payment (manual mode only) */
+        paymentRequestUrl: roleUrls.subscription || null,
       },
       deposit: {
         required: depRequired,
         amount: config.depositAmount[roleKey],
         paid: user.depositPaid,
+        /** URL for this role's security deposit payment (manual mode only) */
+        paymentRequestUrl: roleUrls.deposit || null,
       },
       paymentCompleted: user.paymentCompleted,
       documentsVerified: user.documentsVerified,

@@ -114,14 +114,14 @@ export async function POST(req: NextRequest) {
     }
 
     // --- Verification & Duplicate Check Logic ---
-    const aadhaarTypes = ['aadhaarCard', 'aadhaarCardFront', 'aadhaarCardBack', 'directorAadhaarCard', 'directorAadhaarCardFront', 'directorAadhaarCardBack'];
-    const panTypes = ['panCard', 'companyPanCard', 'directorPanCard', 'ngoPanCard'];
+    const primaryAadhaarTypes = ['aadhaarCard', 'aadhaarCardFront', 'aadhaarCardBack'];
+    const primaryPanTypes = ['panCard', 'companyPanCard', 'ngoPanCard'];
 
-    if (aadhaarTypes.includes(type)) {
+    if (primaryAadhaarTypes.includes(type)) {
       if (!aadhaarNumber) return errorResponse('Aadhaar number is required', 400);
       const existing = await User.findOne({ aadhaarNumber, _id: { $ne: user._id } });
       if (existing) return errorResponse('Aadhaar already added', 400);
-    } else if (panTypes.includes(type)) {
+    } else if (primaryPanTypes.includes(type)) {
       if (!panNumber) return errorResponse('PAN number is required', 400);
       const existing = await User.findOne({ panNumber, _id: { $ne: user._id } });
       if (existing) return errorResponse('PAN already added', 400);
@@ -251,9 +251,9 @@ export async function POST(req: NextRequest) {
     user.set(`documents.${type}`, docData);
 
     // Save extra data to User model
-    if (aadhaarTypes.includes(type) && aadhaarNumber) {
+    if (primaryAadhaarTypes.includes(type) && aadhaarNumber) {
       user.aadhaarNumber = aadhaarNumber;
-    } else if (panTypes.includes(type) && panNumber) {
+    } else if (primaryPanTypes.includes(type) && panNumber) {
       user.panNumber = panNumber;
     } else if (type === 'bankPassbook' && accountHolderName && accountNumber) {
       user.bankDetails = {

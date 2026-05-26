@@ -33,8 +33,8 @@ async function checkAndUpdatePaymentCompletion(userId: string): Promise<boolean>
   }
 
   // Check if payments are required for this role
-  const subRequired = config.paymentRequired[roleKey] && config.subscriptionRequired[roleKey];
-  const depRequired = config.paymentRequired[roleKey] && config.depositRequired[roleKey];
+  const subRequired = config.subscriptionRequired[roleKey];
+  const depRequired = config.depositRequired[roleKey];
 
   const subPaid = user.subscriptionPaid || !subRequired;
   const depPaid = user.depositPaid || !depRequired;

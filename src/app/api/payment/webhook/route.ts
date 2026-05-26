@@ -148,8 +148,8 @@ export async function POST(req: NextRequest) {
               }
               await user.save();
             } else {
-              const subRequired = config.paymentRequired[roleKey] && config.subscriptionRequired[roleKey];
-              const depRequired = config.paymentRequired[roleKey] && config.depositRequired[roleKey];
+              const subRequired = config.subscriptionRequired[roleKey];
+              const depRequired = config.depositRequired[roleKey];
               const subPaid = user.subscriptionPaid || !subRequired;
               const depPaid = user.depositPaid || !depRequired;
 

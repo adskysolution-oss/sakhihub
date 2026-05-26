@@ -9,7 +9,13 @@ import {
   IndianRupee,
   ShieldCheck,
   Search,
-  CheckCircle2
+  CheckCircle2,
+  Link2,
+  ClipboardList,
+  ThumbsUp,
+  ThumbsDown,
+  Clock,
+  ExternalLink
 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -27,8 +33,15 @@ export default function PaymentConfigPage() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [overrideLoading, setOverrideLoading] = useState(false);
 
+  // Manual payment requests state
+  const [manualRequests, setManualRequests] = useState<any[]>([]);
+  const [requestsLoading, setRequestsLoading] = useState(false);
+  const [reviewLoading, setReviewLoading] = useState<string | null>(null);
+  const [activeRequestsTab, setActiveRequestsTab] = useState<'pending' | 'approved' | 'rejected'>('pending');
+
   useEffect(() => {
     fetchConfig();
+    fetchManualRequests('pending');
   }, []);
 
   const fetchConfig = async () => {
@@ -50,6 +63,25 @@ export default function PaymentConfigPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchManualRequests = async (statusFilter: 'pending' | 'approved' | 'rejected') => {
+    setRequestsLoading(true);
+    try {
+      const res = await axios.get(`/api/admin/manual-payment-requests?status=${statusFilter}`);
+      if (res.data.success) {
+        setManualRequests(res.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch manual payment requests', err);
+    } finally {
+      setRequestsLoading(false);
+    }
+  };
+
+  const handleRequestsTabChange = (tab: 'pending' | 'approved' | 'rejected') => {
+    setActiveRequestsTab(tab);
+    fetchManualRequests(tab);
   };
 
   const refreshPending = async () => {
@@ -122,6 +154,24 @@ export default function PaymentConfigPage() {
     }
   };
 
+  const handleReviewRequest = async (requestId: string, action: 'approve' | 'reject') => {
+    if (!confirm(`Are you sure you want to ${action} this payment request?`)) return;
+
+    setReviewLoading(requestId);
+    try {
+      const res = await axios.patch('/api/admin/manual-payment-requests', { requestId, action });
+      if (res.data.success) {
+        toast.success(action === 'approve' ? 'Payment approved – user unlocked!' : 'Request rejected.');
+        fetchManualRequests(activeRequestsTab);
+        refreshPending();
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || `Failed to ${action} request`);
+    } finally {
+      setReviewLoading(null);
+    }
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -188,7 +238,7 @@ export default function PaymentConfigPage() {
                     </label>
                   </div>
 
-                  <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 transition-opacity ${!config?.paymentRequired?.[role] ? 'opacity-50 pointer-events-none' : ''}`}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 transition-opacity">
                     {/* Subscription */}
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
@@ -259,6 +309,141 @@ export default function PaymentConfigPage() {
               </button>
             </div>
           </form>
+
+          {/* ── Manual Payment Verification Requests Panel ───────────────────────── */}
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 lg:p-8">
+            <div className="flex items-center gap-3 mb-2">
+              <ClipboardList size={20} className="text-primary" />
+              <h3 className="text-lg font-black text-secondary">Payment Verification Requests</h3>
+            </div>
+            <p className="text-sm text-gray-500 mb-6 font-medium">
+              Users who paid via the Payment Request URL and submitted their transaction details for verification.
+            </p>
+
+            {/* Tab Filter */}
+            <div className="flex gap-1 p-1 bg-gray-50 rounded-xl w-fit mb-6">
+              {(['pending', 'approved', 'rejected'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => handleRequestsTabChange(tab)}
+                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                    activeRequestsTab === tab
+                      ? 'bg-white text-secondary shadow-sm'
+                      : 'text-gray-400 hover:text-secondary'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            {requestsLoading ? (
+              <div className="flex justify-center py-10">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : manualRequests.length === 0 ? (
+              <div className="py-10 bg-gray-50 rounded-2xl text-center border border-dashed border-gray-200">
+                <Clock size={28} className="text-gray-300 mx-auto mb-2" />
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                  No {activeRequestsTab} requests
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4 max-h-[480px] overflow-y-auto pr-1 custom-scrollbar">
+                {manualRequests.map((req: any) => (
+                  <div
+                    key={req._id}
+                    className="p-5 border border-gray-100 rounded-2xl hover:border-primary/20 transition-colors"
+                  >
+                    {/* User info */}
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <div>
+                        <p className="font-bold text-secondary text-sm">{req.userId?.fullName || req.name}</p>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">
+                          {req.userId?.role?.replace('_', ' ')} • {req.userId?.mobile || req.mobile}
+                        </p>
+                      </div>
+                      <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${
+                        req.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                        req.status === 'approved' ? 'bg-green-50 text-green-600 border-green-100' :
+                        'bg-red-50 text-red-500 border-red-100'
+                      }`}>
+                        {req.status}
+                      </span>
+                    </div>
+
+                    {/* Transaction details grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs mb-4">
+                      <div className="bg-gray-50 rounded-xl p-3">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Type</p>
+                        <p className="font-bold text-secondary capitalize">{req.type}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-3">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Amount</p>
+                        <p className="font-bold text-secondary">₹{req.amount}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-3">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">UTR / Txn ID</p>
+                        <p className="font-bold text-secondary truncate">{req.transactionId}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-3">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Payment Date</p>
+                        <p className="font-bold text-secondary">
+                          {new Date(req.paymentDate).toLocaleDateString('en-IN')}
+                        </p>
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-3">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Vendor/SV ID</p>
+                        <p className="font-bold text-secondary truncate">{req.vendorOrSubVendorId}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-3">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Submitted</p>
+                        <p className="font-bold text-secondary">
+                          {new Date(req.createdAt).toLocaleDateString('en-IN')}
+                        </p>
+                      </div>
+                    </div>
+
+                    {req.remark && (
+                      <p className="text-xs text-gray-500 mb-4 bg-blue-50/50 border border-blue-100 rounded-xl p-3">
+                        <span className="font-bold text-blue-700">Remark: </span>{req.remark}
+                      </p>
+                    )}
+
+                    {/* Action buttons – only for pending */}
+                    {req.status === 'pending' && (
+                      <div className="flex gap-2 pt-3 border-t border-gray-100">
+                        <button
+                          onClick={() => handleReviewRequest(req._id, 'approve')}
+                          disabled={reviewLoading === req._id}
+                          id={`approve-request-${req._id}`}
+                          className="flex-1 py-2.5 bg-green-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-green-600 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+                        >
+                          <ThumbsUp size={14} />
+                          {reviewLoading === req._id ? 'Processing...' : 'Approve & Unlock'}
+                        </button>
+                        <button
+                          onClick={() => handleReviewRequest(req._id, 'reject')}
+                          disabled={reviewLoading === req._id}
+                          id={`reject-request-${req._id}`}
+                          className="flex-1 py-2.5 bg-white border border-red-200 text-red-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-red-50 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+                        >
+                          <ThumbsDown size={14} />
+                          Reject
+                        </button>
+                      </div>
+                    )}
+
+                    {req.status !== 'pending' && req.adminRemark && (
+                      <p className="text-xs text-gray-400 mt-3 pt-3 border-t border-gray-100">
+                        <span className="font-bold">Admin note: </span>{req.adminRemark}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Col: Manual Payment Confirmed by Admin */}
@@ -267,6 +452,116 @@ export default function PaymentConfigPage() {
             <h3 className="text-lg font-black text-secondary mb-2">Manual Payment Confirmed by Admin</h3>
             <p className="text-sm text-gray-500 mb-6 font-medium">Bypass payment gateway for a specific user after receiving payment through phone, UPI, cash, or offline method.</p>
 
+            {/* ── Role-wise Payment Request URLs (gateway OFF mode) ────────────── */}
+            <div className="mb-6 rounded-2xl bg-primary/5 border border-primary/15 overflow-hidden">
+              <div className="px-4 pt-4 pb-3 border-b border-primary/10">
+                <div className="flex items-center gap-2 mb-1">
+                  <Link2 size={14} className="text-primary" />
+                  <span className="text-xs font-black text-secondary uppercase tracking-widest">Payment Request URLs</span>
+                </div>
+                <p className="text-[10px] text-gray-500 font-medium leading-relaxed">
+                  When Cashfree gateway is OFF, users are redirected to the correct URL based on their role and payment type. Set separate links for each below.
+                </p>
+              </div>
+
+              <div className="p-4 space-y-5">
+                {([
+                  { role: 'vendor',     label: 'Vendor',     color: 'text-purple-600', bg: 'bg-purple-50',  border: 'border-purple-100' },
+                  { role: 'sub_vendor', label: 'Sub-Vendor', color: 'text-blue-600',   bg: 'bg-blue-50',    border: 'border-blue-100' },
+                  { role: 'employee',   label: 'Employee',   color: 'text-amber-600',  bg: 'bg-amber-50',   border: 'border-amber-100' },
+                ] as const).map(({ role, label, color, bg, border }) => (
+                  <div key={role} className={`rounded-xl border ${border} ${bg} p-3`}>
+                    <p className={`text-[10px] font-black uppercase tracking-widest ${color} mb-3`}>{label}</p>
+                    <div className="space-y-2">
+                      {/* Subscription URL */}
+                      <div>
+                        <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                          Subscription URL
+                        </label>
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="url"
+                            id={`url-${role}-subscription`}
+                            placeholder="https://payments.cashfree.com/forms/..."
+                            value={config?.paymentRequestUrls?.[role]?.subscription || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              paymentRequestUrls: {
+                                ...config?.paymentRequestUrls,
+                                [role]: {
+                                  ...config?.paymentRequestUrls?.[role],
+                                  subscription: e.target.value,
+                                },
+                              },
+                            })}
+                            className="flex-1 px-3 py-2 rounded-lg border border-white/80 bg-white/70 focus:ring-2 focus:ring-primary/20 outline-none text-xs font-medium"
+                          />
+                          {config?.paymentRequestUrls?.[role]?.subscription && (
+                            <a
+                              href={config.paymentRequestUrls[role].subscription}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Preview"
+                              className="p-2 rounded-lg bg-white/70 text-primary hover:bg-white transition-colors"
+                            >
+                              <ExternalLink size={12} />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Deposit URL */}
+                      <div>
+                        <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                          Security Deposit URL
+                        </label>
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="url"
+                            id={`url-${role}-deposit`}
+                            placeholder="https://payments.cashfree.com/forms/..."
+                            value={config?.paymentRequestUrls?.[role]?.deposit || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              paymentRequestUrls: {
+                                ...config?.paymentRequestUrls,
+                                [role]: {
+                                  ...config?.paymentRequestUrls?.[role],
+                                  deposit: e.target.value,
+                                },
+                              },
+                            })}
+                            className="flex-1 px-3 py-2 rounded-lg border border-white/80 bg-white/70 focus:ring-2 focus:ring-primary/20 outline-none text-xs font-medium"
+                          />
+                          {config?.paymentRequestUrls?.[role]?.deposit && (
+                            <a
+                              href={config.paymentRequestUrls[role].deposit}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Preview"
+                              className="p-2 rounded-lg bg-white/70 text-primary hover:bg-white transition-colors"
+                            >
+                              <ExternalLink size={12} />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="w-full py-2.5 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-95 transition-all disabled:opacity-60"
+                >
+                  <Save size={13} /> {saving ? 'Saving...' : 'Save Payment Request URLs'}
+                </button>
+              </div>
+            </div>
+
+            {/* ── Manual Admin Override (existing) ──────────────────────────────── */}
             <form onSubmit={handleSearchUser} className="flex gap-2 mb-6">
               <input
                 type="text"

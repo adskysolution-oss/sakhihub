@@ -91,11 +91,18 @@ export async function PUT(req: NextRequest) {
       };
     }
 
-    const config = await PaymentConfig.findOneAndUpdate(
-      { key: 'default' },
-      updateData,
-      { new: true, upsert: true }
-    );
+    // ── Role-wise payment request URLs (used when gateway is OFF) ──────────
+    if (body.paymentRequestUrls && typeof body.paymentRequestUrls === 'object') {
+      updateData.paymentRequestUrls = body.paymentRequestUrls;
+    }
+
+    let config = await PaymentConfig.findOne({ key: 'default' });
+    if (!config) {
+      config = new PaymentConfig({ key: 'default' });
+    }
+
+    config.set(updateData);
+    await config.save();
 
     return successResponse(config, 'Payment configuration updated');
   } catch (error: any) {
