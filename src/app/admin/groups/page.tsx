@@ -4,25 +4,32 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import { Users, MapPin, Calendar, Search, Filter, ArrowRight, ClipboardList } from "lucide-react";
 import axios from "axios";
+import GroupEditModal from "@/components/features/dashboard/GroupEditModal";
+import GroupAnalyticsModal from "@/components/features/dashboard/GroupAnalyticsModal";
 
 export default function AdminGroupsPage() {
   const [groups, setGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [editingGroup, setEditingGroup] = useState<any>(null);
+  const [analyticsGroupId, setAnalyticsGroupId] = useState<string | null>(null);
+
+  const fetchGroups = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`/api/groups`);
+      if (res.data.success) setGroups(res.data.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        const res = await axios.get(`/api/groups`); // Admin can use the same groups API if authorized, or a dedicated admin one
-        if (res.data.success) setGroups(res.data.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchGroups();
   }, []);
+
 
   const filteredGroups = groups.filter(g => 
     g.groupName.toLowerCase().includes(search.toLowerCase()) ||
@@ -75,8 +82,8 @@ export default function AdminGroupsPage() {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <button style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #eee', background: 'white', color: '#666', fontWeight: '700', cursor: 'pointer' }}>Edit Unit</button>
-                <button style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid var(--primary)', background: 'none', color: 'var(--primary)', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <button onClick={() => setEditingGroup(group)} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #eee', background: 'white', color: '#666', fontWeight: '700', cursor: 'pointer' }}>Edit Unit</button>
+                <button onClick={() => setAnalyticsGroupId(group._id)} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid var(--primary)', background: 'none', color: 'var(--primary)', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                   Analytics <ArrowRight size={16} />
                 </button>
               </div>
@@ -89,6 +96,24 @@ export default function AdminGroupsPage() {
              </div>
           )}
         </div>
+      )}
+
+      {editingGroup && (
+        <GroupEditModal 
+          group={editingGroup} 
+          onClose={() => setEditingGroup(null)} 
+          onSuccess={() => {
+            setEditingGroup(null);
+            fetchGroups();
+          }} 
+        />
+      )}
+
+      {analyticsGroupId && (
+        <GroupAnalyticsModal 
+          groupId={analyticsGroupId} 
+          onClose={() => setAnalyticsGroupId(null)} 
+        />
       )}
     </DashboardLayout>
   );

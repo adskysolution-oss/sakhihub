@@ -36,3 +36,51 @@ export async function GET(
     return errorResponse(error.message, 500);
   }
 }
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const session = await getAuthSession();
+    if (!session) return errorResponse('Unauthorized', 401);
+
+    await dbConnect();
+    const role = (session as any).role;
+    const userId = (session as any).id;
+
+    const group = await Group.findById(id);
+    if (!group) return errorResponse('Group not found', 404);
+
+    // Permission check: only super_admin or creator
+    if (role !== 'super_admin' && group.createdBy.toString() !== userId) {
+      return errorResponse('Forbidden: You can only edit your own groups', 403);
+    }
+
+    const body = await req.json();
+    const allowedFields = [
+      'groupName', 'village', 'panchayatWard', 'block', 'district', 
+      'leaderName', 'leaderMobile', 'meetingDate', 'campaignId', 
+      'remarks', 'vendorCode', 'subVendorCode', 'createdBy'
+    ];
+
+    Object.keys(body).forEach(key => {
+      if (allowedFields.includes(key)) {
+        if (key === 'meetingDate' && body[key]) {
+          group[key] = new Date(body[key]);
+        } else if (key === 'campaignId' && (body[key] === 'temp' || !body[key])) {
+          group[key] = undefined;
+        } else {
+          group[key] = body[key];
+        }
+      }
+    });
+
+    await group.save();
+    return successResponse(group, 'Group updated successfully');
+  } catch (error: any) {
+    console.error('Group PATCH Error:', error);
+    return errorResponse(error.message || 'Failed to update group', 500);
+  }
+}
