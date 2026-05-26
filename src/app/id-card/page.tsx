@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import IdentityCard from '@/components/shared/IdentityCard';
-import { Printer, ChevronLeft } from 'lucide-react';
+import { Printer, ChevronLeft, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -101,6 +101,25 @@ export default function IDCardPage() {
             <Printer size={18} /> Print ID Card
           </button>
         </div>
+
+        {/* Missing Profile Image Banner */}
+        {!user.profileImage && (
+          <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-4 print:hidden shadow-sm">
+            <AlertCircle className="text-amber-500 shrink-0" size={24} />
+            <div className="flex-1">
+              <h4 className="font-bold text-amber-800 text-sm">Profile Picture Missing</h4>
+              <p className="text-xs text-amber-700 mt-1">
+                Your ID card currently doesn't have a profile picture. Please update your profile picture in the dashboard to generate a complete official ID card.
+              </p>
+            </div>
+            <Link 
+              href={`/${user.role.replace('_', '-')}/dashboard/profile`}
+              className="px-5 py-2.5 bg-amber-500 text-white text-xs font-bold uppercase tracking-wide rounded-xl hover:bg-amber-600 transition-all whitespace-nowrap shrink-0 shadow-md shadow-amber-500/20"
+            >
+              Update Profile
+            </Link>
+          </div>
+        )}
 
         {/* ID Card Display */}
         <div className="flex justify-center print:block print:w-fit print:mx-auto">
