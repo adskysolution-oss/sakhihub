@@ -61,7 +61,7 @@ export default function VendorSupport() {
                 <div className="space-y-6">
                    {[
                      "How to update KYC?",
-                     "Commission payout cycle",
+                     "Performance incentive payout cycle",
                      "Adding new sub-vendors"
                    ].map((q, i) => (
                      <div key={i} className="flex gap-4 items-start group cursor-pointer">

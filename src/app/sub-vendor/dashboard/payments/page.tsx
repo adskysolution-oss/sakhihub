@@ -30,7 +30,7 @@ export default function SubVendorPayments() {
         <header className="flex justify-between items-start flex-wrap gap-6">
           <div>
             <h1 className="text-3xl md:text-4xl font-black text-secondary">Collections & Earnings</h1>
-            <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Manage membership collections and track your commission payouts</p>
+            <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Manage membership collections and track your performance incentives</p>
           </div>
         </header>
 

@@ -317,7 +317,7 @@ export default function EmployeeDocuments() {
                   </div>
                 </div>
                 <p className="text-xs text-white/60 mt-8 font-medium leading-relaxed">
-                  Your account will be fully activated for recruitment once all mandatory documents are verified by the Admin.
+                  Your account will be fully activated for operations once all mandatory documents are verified by the Admin.
                 </p>
               </div>
             </div>

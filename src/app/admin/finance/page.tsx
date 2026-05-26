@@ -44,13 +44,13 @@ export default function AdminFinancePage() {
     // Membership commission splits
     if (category === 'commission_member' || category === 'commission_split' || txn.ledgerCategory === 'commission_split') {
       if (desc.toLowerCase().includes('tier 2') || desc.toLowerCase().includes('indirect member commission (tier 2)')) {
-        return 'Tier 2 Upline Reward';
+        return 'Tier 2 Coordinator Reward';
       }
       if (desc.toLowerCase().includes('tier 3') || desc.toLowerCase().includes('indirect member commission (tier 3)')) {
         return 'Tier 3 Network Reward';
       }
       if (desc.toLowerCase().includes('indirect')) {
-        return 'Tier 2 Upline Reward';
+        return 'Tier 2 Coordinator Reward';
       }
       if (desc.toLowerCase().includes('grandparent') || desc.toLowerCase().includes('tier 3')) {
         return 'Tier 3 Network Reward';
@@ -64,7 +64,7 @@ export default function AdminFinancePage() {
         if (desc.toLowerCase().includes('grandparent') || desc.toLowerCase().includes('tier 3')) {
           return 'Tier 3 Network Reward';
         }
-        return 'Tier 2 Upline Reward';
+        return 'Tier 2 Coordinator Reward';
       }
       return 'Direct Referral Reward';
     }
@@ -1040,7 +1040,7 @@ export default function AdminFinancePage() {
 
                       {/* Upline fixed rules */}
                       <div className="space-y-4 pt-3 border-t border-gray-100">
-                        <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Upline Distribution Rules (%)</h5>
+                        <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Coordinator Incentive Distribution Rules (%)</h5>
                         <div className="grid grid-cols-3 gap-4">
                           <div>
                             <label className="block text-[9px] font-black text-gray-400 uppercase mb-1">Sub-Vendor Parent (%)</label>

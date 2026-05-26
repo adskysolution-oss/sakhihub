@@ -38,7 +38,7 @@ export default function SubVendorCampaigns() {
         <header className="flex justify-between items-start flex-wrap gap-6 mb-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-black text-secondary">Campaigns</h1>
-            <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Assigned recruitment programs and performance targets</p>
+            <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Assigned field programs and performance targets</p>
           </div>
           <div className="flex gap-4">
              <div className="bg-white p-4 rounded-3xl border border-gray-100 shadow-soft flex items-center gap-3">

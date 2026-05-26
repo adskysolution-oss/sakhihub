@@ -155,7 +155,7 @@ export default function VendorCampaigns() {
                   className="flex flex-col gap-6"
                 >
                   <h3 className="text-2xl font-black text-secondary mb-2 flex items-center gap-3">
-                    <Users size={28} className="text-primary" /> Downline Requests
+                    <Users size={28} className="text-primary" /> Field Partner Requests
                   </h3>
                   <p className="text-gray-400 font-bold mb-6 text-sm">Approve or reject campaign requests from your Sub-Vendors and Employees.</p>
                   

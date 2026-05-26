@@ -42,7 +42,7 @@ export default function SubVendorDashboard() {
     { title: 'Team Employees', value: stats?.totalEmployees || 0, icon: Briefcase, color: '#6A1B9A', trend: 'Field force' },
     { title: 'Total Members', value: stats?.totalMembers || 0, icon: Users, color: '#1565C0', trend: 'Village growth' },
     { title: 'Groups Formed', value: stats?.totalGroups || 0, icon: ClipboardList, color: '#EF6C00', trend: 'Community groups' },
-    { title: 'Paid Members', value: stats?.paidMembers || 0, icon: CheckCircle, color: '#2E7D32', trend: 'Revenue share' },
+    { title: 'Paid Members', value: stats?.paidMembers || 0, icon: CheckCircle, color: '#2E7D32', trend: 'Community reach' },
     { title: 'Pending Tasks', value: 3, icon: Clock, color: '#D32F2F', trend: 'Action required' },
   ];
 
@@ -51,7 +51,7 @@ export default function SubVendorDashboard() {
       <div className="flex flex-col gap-8">
         <header>
           <h1 className="text-3xl md:text-4xl font-black text-secondary">Sub-Vendor Dashboard</h1>
-          <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Monitor your local field force and member recruitment</p>
+          <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Monitor your local field force and community operations</p>
         </header>
 
         {loading ? (
@@ -123,7 +123,7 @@ export default function SubVendorDashboard() {
                 <PaymentReceiptCard />
                 <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft flex flex-col items-center justify-center text-center min-h-[250px]">
                   <TrendingUp size={60} className="text-gray-100 mb-6" />
-                  <h3 className="text-xl font-black text-secondary">Recruitment Trends</h3>
+                  <h3 className="text-xl font-black text-secondary">Field Activity Overview</h3>
                   <p className="text-gray-400 font-bold text-sm max-w-xs mt-2">Visualizing your monthly growth and member activation data.</p>
                 </div>
               </div>

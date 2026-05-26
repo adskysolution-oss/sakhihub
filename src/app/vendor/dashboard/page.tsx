@@ -43,7 +43,7 @@ export default function VendorDashboard() {
   const statCards = [
     { title: 'Active Campaigns', value: stats?.activeCampaigns || 0, icon: Target, color: '#FF4D8C', trend: '+2 this month' },
     { title: 'Total Employees', value: stats?.totalEmployees || 0, icon: Briefcase, color: '#6A1B9A', trend: 'Active force' },
-    { title: 'Sub-Vendors', value: stats?.totalSubVendors || 0, icon: ShieldCheck, color: '#2E7D32', trend: 'Network partners' },
+    { title: 'Sub-Vendors', value: stats?.totalSubVendors || 0, icon: ShieldCheck, color: '#2E7D32', trend: 'Field partners' },
     { title: 'Total Members', value: stats?.totalMembers || 0, icon: Users, color: '#1565C0', trend: 'Community size' },
     { title: 'Paid Members', value: stats?.paidMembers || 0, icon: CheckCircle, color: '#2E7D32', trend: '₹ Collection' },
     { title: 'Free Members', value: stats?.freeMembers || 0, icon: Clock, color: '#EF6C00', trend: 'Pending activation' },
@@ -145,7 +145,7 @@ export default function VendorDashboard() {
 
           {/* Recent Activity */}
           <div className="bg-secondary p-8 rounded-[40px] text-white shadow-2xl">
-            <h2 className="text-xl font-black mb-8">Network Activity</h2>
+            <h2 className="text-xl font-black mb-8">Operations Activity</h2>
             <div className="flex flex-col gap-8">
               {[1, 2, 3].map((_, i) => (
                 <div key={i} className="flex gap-4 relative pl-6 border-l-2 border-white/10 hover:border-primary transition-all">

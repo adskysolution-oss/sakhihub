@@ -32,7 +32,7 @@ export default function SubVendorSupport() {
           <div className="bg-secondary p-8 rounded-[40px] text-white shadow-2xl">
              <Heart className="text-primary mb-6" size={40} fill="currentColor" />
              <h3 className="text-xl font-black mb-4">Partner Support</h3>
-             <p className="text-white/60 font-medium mb-8 leading-relaxed">Need help with field recruitment or payouts? Contact your parent vendor or SakhiHub support.</p>
+             <p className="text-white/60 font-medium mb-8 leading-relaxed">Need help with field operations or payouts? Contact your parent vendor or SakhiHub support.</p>
              <div className="space-y-4">
                <div className="p-4 bg-white/10 rounded-2xl">
                  <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-1">Support Email</p>

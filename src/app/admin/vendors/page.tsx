@@ -131,7 +131,7 @@ export default function VendorManagement() {
         <div className="flex justify-between items-start flex-wrap gap-6">
           <div>
             <h1 className="text-3xl md:text-4xl font-black text-secondary">Vendor Network</h1>
-            <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Manage your primary recruitment partners and legal entities.</p>
+            <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Manage your primary field partners and legal entities.</p>
           </div>
           <button 
             onClick={() => setShowRegisterModal(true)}

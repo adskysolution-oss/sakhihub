@@ -77,7 +77,7 @@ export default function AdminMembershipsPage() {
   }, []);
 
   const handleConfirmCashPayment = async (member: any) => {
-    if (!confirm(`Are you sure you want to confirm Cash payment of ₹${commConfig.membershipFee || 100} for ${member.name}? This will instantly update their status and automatically distribute commission downlines.`)) return;
+    if (!confirm(`Are you sure you want to confirm Cash payment of ₹${commConfig.membershipFee || 100} for ${member.name}? This will instantly update their status and automatically distribute applicable service incentives.`)) return;
     try {
       const res = await axios.post('/api/memberships', {
         memberId: member._id,

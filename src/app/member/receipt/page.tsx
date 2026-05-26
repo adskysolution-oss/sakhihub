@@ -240,7 +240,7 @@ function MemberReceiptContent() {
       role: 'Employee'
     } : fieldRecord?.createdBy ? {
       name: fieldRecord.createdBy.fullName,
-      role: 'Upline Creator'
+      role: 'Regional Coordinator'
     } : undefined,
     feeCollectedBy: membership?.employeeId?.fullName || 'System Admin',
     verifiedBy: 'SakhiHub Auto-Verify API',

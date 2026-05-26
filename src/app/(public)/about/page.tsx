@@ -276,7 +276,7 @@ const AboutPage = () => {
             </p>
             <div style={{ display: 'flex', gap: '25px', justifyContent: 'center' }}>
               <Link href="/register" className="btn-secondary" style={{ background: 'white', color: 'var(--secondary)', padding: '22px 60px', fontSize: '1.2rem', borderRadius: '100px' }}>
-                Join the Revolution
+                Join Our Mission
               </Link>
             </div>
           </div>

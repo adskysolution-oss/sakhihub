@@ -86,7 +86,7 @@ function TrackingForm() {
         
         <div className="text-center mb-10">
           <h1 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">Track Application</h1>
-          <p className="text-gray-500 font-medium">Enter your Application ID and registered Mobile Number to check your current recruitment status.</p>
+          <p className="text-gray-500 font-medium">Enter your Application ID and registered Mobile Number to check your current application status.</p>
         </div>
 
         <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 mb-8">
