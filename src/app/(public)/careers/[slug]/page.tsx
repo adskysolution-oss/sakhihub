@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
-import { useParams } from 'next/navigation';
+
 import { Briefcase, MapPin, Clock, ArrowRight, CheckCircle2, ChevronLeft, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
