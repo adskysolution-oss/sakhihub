@@ -4,8 +4,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Briefcase, MapPin, Search, ArrowRight, Star, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function CareersPage() {
+  const { t } = useLanguage();
   const [vacancies, setVacancies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -38,10 +40,10 @@ export default function CareersPage() {
       <div className="bg-gradient-to-r from-pink-600 to-purple-700 text-white py-20 px-4 mb-12">
         <div className="max-w-6xl mx-auto text-center space-y-6">
           <h1 className="text-4xl md:text-5xl font-black tracking-tight">
-            Join SakhiHub Women Health & Awareness Campaign
+            {t('careersPage.heroTitle')}
           </h1>
           <p className="text-lg md:text-xl text-pink-100 max-w-2xl mx-auto">
-            Empower women, build your career, and make a real difference in the community. Discover your next role with us.
+            {t('careersPage.heroDesc')}
           </p>
         </div>
       </div>
@@ -52,7 +54,7 @@ export default function CareersPage() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input 
             type="text" 
-            placeholder="Search by Job Title or Department..."
+            placeholder={t('careersPage.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-4 py-4 rounded-full border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 font-medium"
@@ -65,7 +67,7 @@ export default function CareersPage() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredVacancies.length === 0 ? (
-              <div className="col-span-full text-center py-12 text-gray-500 font-medium">No vacancies found.</div>
+              <div className="col-span-full text-center py-12 text-gray-500 font-medium">{t('careersPage.noVacancies')}</div>
             ) : (
               filteredVacancies.map((vacancy) => (
                 <div key={vacancy._id} className="bg-white rounded-[24px] p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all relative overflow-hidden flex flex-col h-full">
@@ -88,14 +90,14 @@ export default function CareersPage() {
                       <Briefcase size={16} className="text-gray-400" /> {vacancy.workType}
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600 font-medium">
-                      <Clock size={16} className="text-gray-400" /> Exp: {vacancy.experience}
+                      <Clock size={16} className="text-gray-400" /> {t('careersPage.exp')} {vacancy.experience}
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-auto">
                     <span className="text-lg font-black text-gray-900">{vacancy.salaryRange}</span>
                     <Link href={`/careers/${vacancy.slug}`} className="inline-flex items-center gap-2 text-pink-600 hover:text-pink-700 font-bold text-sm">
-                      View Details <ArrowRight size={16} />
+                      {t('careersPage.viewDetails')} <ArrowRight size={16} />
                     </Link>
                   </div>
                 </div>

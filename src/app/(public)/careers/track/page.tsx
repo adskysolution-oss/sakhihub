@@ -5,8 +5,10 @@ import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
 import { Search, Briefcase, MapPin, CheckCircle2, XCircle, Clock, SearchIcon, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 function TrackingForm() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const initialAppId = searchParams?.get('appId') || '';
 
@@ -40,7 +42,7 @@ function TrackingForm() {
   const handleSearch = async (e?: React.FormEvent | null, appId: string = formData.applicationId, mobile: string = formData.mobile) => {
     if (e) e.preventDefault();
     if (!appId || !mobile) {
-      setError('Please enter both Application ID and Mobile Number.');
+      setError(t('careersPage.errEnterBoth'));
       return;
     }
 
@@ -54,7 +56,7 @@ function TrackingForm() {
         setApplication(res.data.data);
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch application details.');
+      setError(err.response?.data?.message || t('careersPage.errFetchDetails'));
     } finally {
       setLoading(false);
     }
@@ -85,14 +87,14 @@ function TrackingForm() {
       <div className="max-w-3xl mx-auto px-4">
         
         <div className="text-center mb-10">
-          <h1 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">Track Application</h1>
-          <p className="text-gray-500 font-medium">Enter your Application ID and registered Mobile Number to check your current application status.</p>
+          <h1 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">{t('careersPage.trackAppTitle')}</h1>
+          <p className="text-gray-500 font-medium">{t('careersPage.trackAppDesc')}</p>
         </div>
 
         <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 mb-8">
           <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
-              <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 block">Application ID</label>
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 block">{t('careersPage.appIdLabel')}</label>
               <input 
                 type="text" 
                 required 
@@ -103,7 +105,7 @@ function TrackingForm() {
               />
             </div>
             <div className="flex-1">
-              <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 block">Mobile Number</label>
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 block">{t('careersPage.mobileLabel')}</label>
               <input 
                 type="tel" 
                 maxLength={10}
@@ -120,7 +122,7 @@ function TrackingForm() {
                 disabled={loading}
                 className="w-full md:w-auto h-[58px] px-8 bg-pink-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-pink-700 transition-colors shadow-lg shadow-pink-200 flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {loading ? 'Checking...' : <><SearchIcon size={18} /> Track</>}
+                {loading ? t('careersPage.checking') : <><SearchIcon size={18} /> {t('careersPage.trackBtn')}</>}
               </button>
             </div>
           </form>
@@ -136,7 +138,7 @@ function TrackingForm() {
           <div className="bg-white rounded-[32px] p-8 md:p-12 shadow-sm border border-gray-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="border-b border-gray-100 pb-8 mb-8 text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-6">
               <div>
-                <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Application Details</p>
+                <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('careersPage.appDetailsLabel')}</p>
                 <h2 className="text-2xl font-black text-gray-900">{application.fullName}</h2>
                 <div className="flex items-center justify-center md:justify-start gap-4 mt-3 text-sm text-gray-500 font-medium">
                   <span className="flex items-center gap-1.5"><Briefcase size={16} /> {application.vacancyTitle}</span>
@@ -144,7 +146,7 @@ function TrackingForm() {
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-[10px] uppercase font-black text-gray-400 block mb-1">Application ID</span>
+                <span className="text-[10px] uppercase font-black text-gray-400 block mb-1">{t('careersPage.appIdLabel')}</span>
                 <span className="font-bold text-gray-900 bg-gray-100 px-4 py-2 rounded-xl inline-block">{application.applicationId}</span>
               </div>
             </div>
@@ -152,7 +154,7 @@ function TrackingForm() {
             <div className="flex flex-col md:flex-row gap-8 items-start">
               <div className="flex-1 w-full space-y-6">
                 <div>
-                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Current Status</h3>
+                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">{t('careersPage.currentStatus')}</h3>
                   <div className={`inline-flex items-center gap-3 px-6 py-4 rounded-2xl border ${getStatusColor(application.status)}`}>
                     {getStatusIcon(application.status)}
                     <span className="font-black uppercase tracking-widest text-sm">{application.status}</span>
@@ -160,35 +162,35 @@ function TrackingForm() {
                 </div>
 
                 <div>
-                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Applied On</h3>
+                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('careersPage.appliedOn')}</h3>
                   <p className="font-bold text-gray-800">{new Date(application.appliedDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                 </div>
 
                 {application.adminRemarks && (
                   <div className="bg-purple-50 border border-purple-100 rounded-2xl p-6 mt-6">
-                    <h3 className="text-xs font-black text-purple-400 uppercase tracking-widest mb-2">Remarks from HR</h3>
+                    <h3 className="text-xs font-black text-purple-400 uppercase tracking-widest mb-2">{t('careersPage.remarksHR')}</h3>
                     <p className="font-medium text-purple-900">{application.adminRemarks}</p>
                   </div>
                 )}
               </div>
 
               <div className="w-full md:w-64 shrink-0 bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">What's Next?</h3>
+                <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">{t('careersPage.whatsNext')}</h3>
                 <ul className="space-y-4 text-sm text-gray-600 font-medium">
                   {application.status === 'New' && (
-                    <li className="flex gap-3"><ChevronRight size={16} className="text-pink-500 shrink-0 mt-0.5" /> Your application has been received and will be reviewed shortly.</li>
+                    <li className="flex gap-3"><ChevronRight size={16} className="text-pink-500 shrink-0 mt-0.5" /> {t('careersPage.nextNew')}</li>
                   )}
                   {application.status === 'Under Review' && (
-                    <li className="flex gap-3"><ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" /> Our team is currently reviewing your profile. We will update you soon.</li>
+                    <li className="flex gap-3"><ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" /> {t('careersPage.nextReview')}</li>
                   )}
                   {application.status === 'Selected' && (
-                    <li className="flex gap-3"><ChevronRight size={16} className="text-green-500 shrink-0 mt-0.5" /> Congratulations! HR will contact you shortly for onboarding or interview scheduling.</li>
+                    <li className="flex gap-3"><ChevronRight size={16} className="text-green-500 shrink-0 mt-0.5" /> {t('careersPage.nextSelected')}</li>
                   )}
                   {application.status === 'Rejected' && (
-                    <li className="flex gap-3"><ChevronRight size={16} className="text-rose-500 shrink-0 mt-0.5" /> Unfortunately, we are not moving forward at this time. Thank you for your interest!</li>
+                    <li className="flex gap-3"><ChevronRight size={16} className="text-rose-500 shrink-0 mt-0.5" /> {t('careersPage.nextRejected')}</li>
                   )}
                   {application.status === 'On Hold' && (
-                    <li className="flex gap-3"><ChevronRight size={16} className="text-amber-500 shrink-0 mt-0.5" /> Your profile is on hold for future consideration. We'll be in touch if a matching role opens.</li>
+                    <li className="flex gap-3"><ChevronRight size={16} className="text-amber-500 shrink-0 mt-0.5" /> {t('careersPage.nextHold')}</li>
                   )}
                 </ul>
               </div>

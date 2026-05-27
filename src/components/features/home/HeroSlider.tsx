@@ -5,55 +5,58 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Heart, Package, Briefcase, Users } from 'lucide-react';
 import Link from 'next/link';
 import styles from './HeroSlider.module.css';
-
-const slides = [
-  {
-    id: 1,
-    category: 'Awareness Mission',
-    heading: 'SakhiHub Awareness Mission',
-    subheading: 'Join our nationwide movement for menstrual hygiene and health awareness.',
-    buttonText: 'Join Now',
-    buttonLink: '/register',
-    image: '/images/hero_main_banner.png',
-    icon: <Heart />,
-    color: '#E91E63'
-  },
-  {
-    id: 2,
-    category: 'Empowerment',
-    heading: 'Join Women Empowerment Movement',
-    subheading: 'Building a network of strong, independent, and confident women across India.',
-    buttonText: 'Start Campaign',
-    buttonLink: '/campaign',
-    image: '/images/hero_join_movement.png',
-    icon: <Users />,
-    color: '#6A1B9A'
-  },
-  {
-    id: 3,
-    category: 'Opportunities',
-    heading: 'Earn + Learn + Support Women',
-    subheading: 'Become a part of our community and help create sustainable employment for women.',
-    buttonText: 'Employee Login',
-    buttonLink: '/login',
-    image: '/images/hero_awareness_campaign.png',
-    icon: <Briefcase />,
-    color: '#E91E63'
-  },
-  {
-    id: 4,
-    category: 'Health Awareness',
-    heading: 'Health & Awareness Campaigns',
-    subheading: 'Specialized camps and educational drives in rural areas for better health.',
-    buttonText: 'View Campaigns',
-    buttonLink: '/campaign',
-    image: '/images/hero_awareness_campaign.png',
-    icon: <Package />,
-    color: '#6A1B9A'
-  }
-];
+import { useLanguage } from '@/context/LanguageContext';
 
 const HeroSlider = () => {
+  const { t } = useLanguage();
+
+  const slides = [
+    {
+      id: 1,
+      category: t('heroSlider.slide1Cat'),
+      heading: t('heroSlider.slide1Head'),
+      subheading: t('heroSlider.slide1Sub'),
+      buttonText: t('heroSlider.slide1Btn'),
+      buttonLink: '/register',
+      image: '/images/hero_main_banner.png',
+      icon: <Heart />,
+      color: '#E91E63'
+    },
+    {
+      id: 2,
+      category: t('heroSlider.slide2Cat'),
+      heading: t('heroSlider.slide2Head'),
+      subheading: t('heroSlider.slide2Sub'),
+      buttonText: t('heroSlider.slide2Btn'),
+      buttonLink: '/campaign',
+      image: '/images/hero_join_movement.png',
+      icon: <Users />,
+      color: '#6A1B9A'
+    },
+    {
+      id: 3,
+      category: t('heroSlider.slide3Cat'),
+      heading: t('heroSlider.slide3Head'),
+      subheading: t('heroSlider.slide3Sub'),
+      buttonText: t('heroSlider.slide3Btn'),
+      buttonLink: '/login',
+      image: '/images/hero_awareness_campaign.png',
+      icon: <Briefcase />,
+      color: '#E91E63'
+    },
+    {
+      id: 4,
+      category: t('heroSlider.slide4Cat'),
+      heading: t('heroSlider.slide4Head'),
+      subheading: t('heroSlider.slide4Sub'),
+      buttonText: t('heroSlider.slide4Btn'),
+      buttonLink: '/campaign',
+      image: '/images/hero_awareness_campaign.png',
+      icon: <Package />,
+      color: '#6A1B9A'
+    }
+  ];
+
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
@@ -128,7 +131,7 @@ const HeroSlider = () => {
                   <ArrowRight size={22} className="ml-2" />
                 </Link>
                 <Link href="/about" className="flex items-center justify-center py-4 px-10 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white font-black hover:bg-white/20 transition-all text-lg">
-                  Our Mission
+                  {t('heroSlider.ourMission')}
                 </Link>
               </motion.div>
             </div>

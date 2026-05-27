@@ -9,8 +9,10 @@ import {
 import axios from 'axios';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function ProductDetailPage() {
+  const { t } = useLanguage();
   const params = useParams();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -42,9 +44,9 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <main className="min-h-screen bg-[#FFF5F8] flex flex-col items-center justify-center p-6 text-center">
-        <h1 className="text-4xl font-black text-secondary mb-4">Product Not Found</h1>
-        <p className="text-gray-400 font-bold mb-8">The product you are looking for does not exist or is currently inactive.</p>
-        <Link href="/products" className="btn-primary px-8 py-4">Back to Products</Link>
+        <h1 className="text-4xl font-black text-secondary mb-4">{t('productsPage.notFound')}</h1>
+        <p className="text-gray-400 font-bold mb-8">{t('productsPage.notFoundDesc')}</p>
+        <Link href="/products" className="btn-primary px-8 py-4">{t('productsPage.backToProd')}</Link>
       </main>
     );
   }
@@ -63,7 +65,7 @@ export default function ProductDetailPage() {
         {/* Back Link */}
         <div className="mb-10">
           <Link href="/products" className="text-xs font-black text-primary uppercase tracking-widest hover:pl-2 transition-all flex items-center gap-2">
-            ← Back to All Products
+            {t('productsPage.backToAll')}
           </Link>
         </div>
 
@@ -86,26 +88,26 @@ export default function ProductDetailPage() {
 
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <span className="text-base line-through text-gray-300 font-bold">MRP ₹{product.mrp}</span>
+                  <span className="text-base line-through text-gray-300 font-bold">{t('productsPage.mrp')}{product.mrp}</span>
                   <div className="bg-primary/5 px-5 py-2.5 rounded-2xl flex-1 text-center">
-                    <span className="text-2xl font-black text-primary tracking-tight">₹{product.offerPrice} Only</span>
+                    <span className="text-2xl font-black text-primary tracking-tight">{t('productsPage.offer')}{product.offerPrice} {t('productsPage.only')}</span>
                   </div>
                 </div>
 
                 <Link href="/contact" className="w-full flex items-center justify-center gap-3 bg-primary text-white hover:bg-primary/90 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 transition-all">
-                  <ShoppingCart size={18} /> Inquiry for Purchase
+                  <ShoppingCart size={18} /> {t('productsPage.inquiryPurch')}
                 </Link>
               </div>
             </motion.div>
 
             {/* Support Information Box */}
             <div className="p-6 bg-secondary text-white rounded-[32px] shadow-lg">
-              <h5 className="text-xs font-black uppercase tracking-widest mb-2">Bulk Purchases</h5>
+              <h5 className="text-xs font-black uppercase tracking-widest mb-2">{t('productsPage.bulkPurchases')}</h5>
               <p className="text-xs text-white/70 font-medium leading-relaxed mb-4">
-                Are you looking to distribute Sakhi Care Pads or buy in bulk for community campaigns or NGO events? Contact us for special volume pricing.
+                {t('productsPage.bulkPurchDesc')}
               </p>
               <Link href="/contact" className="inline-flex items-center gap-2 text-primary font-black text-xs uppercase tracking-widest hover:gap-4 transition-all">
-                Contact Sales <ArrowRight size={14} />
+                {t('productsPage.contactSales')} <ArrowRight size={14} />
               </Link>
             </div>
           </div>
@@ -136,7 +138,7 @@ export default function ProductDetailPage() {
             {product.highlights && product.highlights.length > 0 && (
               <motion.div {...fadeInUp} className="bg-white p-8 sm:p-10 rounded-[36px] shadow-sm border border-gray-100">
                 <h3 className="text-lg font-black text-secondary mb-6 flex items-center gap-3">
-                  <CheckCircle2 size={22} className="text-primary" /> Product Highlights
+                  <CheckCircle2 size={22} className="text-primary" /> {t('productsPage.highlights')}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {product.highlights.map((h: string, i: number) => (
@@ -155,7 +157,7 @@ export default function ProductDetailPage() {
             {product.benefits && product.benefits.length > 0 && (
               <motion.div {...fadeInUp} className="bg-white p-8 sm:p-10 rounded-[36px] shadow-sm border border-gray-100">
                 <h3 className="text-lg font-black text-secondary mb-6 flex items-center gap-3">
-                  <Heart size={22} className="text-primary" /> Key Benefits
+                  <Heart size={22} className="text-primary" /> {t('productsPage.benefits')}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {product.benefits.map((b: string, i: number) => (
@@ -174,7 +176,7 @@ export default function ProductDetailPage() {
             {product.features && product.features.length > 0 && (
               <motion.div {...fadeInUp} className="bg-white p-8 sm:p-10 rounded-[36px] shadow-sm border border-gray-100">
                 <h3 className="text-lg font-black text-secondary mb-6 flex items-center gap-3">
-                  <ShieldCheck size={22} className="text-primary" /> Product Features
+                  <ShieldCheck size={22} className="text-primary" /> {t('productsPage.features')}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {product.features.map((f: string, i: number) => (
@@ -193,7 +195,7 @@ export default function ProductDetailPage() {
             {product.bestFor && product.bestFor.length > 0 && (
               <motion.div {...fadeInUp} className="bg-white p-8 sm:p-10 rounded-[36px] shadow-sm border border-gray-100">
                 <h3 className="text-lg font-black text-secondary mb-6 flex items-center gap-3">
-                  <Users2 size={22} className="text-primary" /> Best For
+                  <Users2 size={22} className="text-primary" /> {t('productsPage.bestFor')}
                 </h3>
                 <div className="flex flex-wrap gap-3">
                   {product.bestFor.map((bf: string, i: number) => (

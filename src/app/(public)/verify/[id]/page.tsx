@@ -15,6 +15,7 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface VerificationData {
   fullName: string;
@@ -32,6 +33,7 @@ interface VerificationData {
 }
 
 export default function VerifyPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = useLanguage();
   const unwrappedParams = use(params);
   const { id } = unwrappedParams;
   const decodedId = decodeURIComponent(id);
@@ -49,10 +51,10 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
         if (json.success) {
           setData(json.data);
         } else {
-          setError(json.message || 'No verified SakhiHub identity found.');
+          setError(json.message || t('verifyPage.errNoId'));
         }
       } catch (err) {
-        setError('Failed to fetch verification data. Please try again.');
+        setError(t('verifyPage.errFetch'));
       } finally {
         setLoading(false);
       }
@@ -65,7 +67,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
     if (['active', 'approved'].includes(status)) {
       return (
         <div className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full font-bold text-sm border border-green-200 shadow-sm">
-          <BadgeCheck size={18} /> Verified {role.replace('_', ' ')}
+          <BadgeCheck size={18} /> {t('verifyPage.verified')} {role.replace('_', ' ')}
         </div>
       );
     }
@@ -78,7 +80,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
     }
     return (
       <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 rounded-full font-bold text-sm border border-amber-200 shadow-sm">
-        <ShieldAlert size={18} /> Pending Verification
+        <ShieldAlert size={18} /> {t('verifyPage.pending')}
       </div>
     );
   };
@@ -88,7 +90,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
       
       <div className="w-full max-w-2xl mb-8 flex justify-start">
         <Link href="/" className="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors font-bold text-sm">
-          <ChevronLeft size={16} /> Back to Home
+          <ChevronLeft size={16} /> {t('verifyPage.backHome')}
         </Link>
       </div>
 
@@ -98,24 +100,24 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 text-primary rounded-full mb-4 shadow-inner">
             <ShieldCheck size={32} />
           </div>
-          <h1 className="text-3xl md:text-4xl font-black text-secondary">Identity Verification</h1>
-          <p className="text-gray-500 mt-2 font-medium">Official SakhiHub Digital Record</p>
+          <h1 className="text-3xl md:text-4xl font-black text-secondary">{t('verifyPage.identVerify')}</h1>
+          <p className="text-gray-500 mt-2 font-medium">{t('verifyPage.official')}</p>
         </div>
 
         {loading ? (
           <div className="bg-white rounded-3xl p-12 shadow-xl border border-gray-100 flex flex-col items-center justify-center">
             <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p className="text-gray-500 font-semibold animate-pulse">Verifying ID...</p>
+            <p className="text-gray-500 font-semibold animate-pulse">{t('verifyPage.verifying')}</p>
           </div>
         ) : error ? (
           <div className="bg-white rounded-3xl p-12 shadow-xl border border-red-100 flex flex-col items-center justify-center text-center">
             <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6">
               <ShieldAlert size={40} />
             </div>
-            <h2 className="text-2xl font-black text-secondary mb-2">No Record Found</h2>
+            <h2 className="text-2xl font-black text-secondary mb-2">{t('verifyPage.noRecord')}</h2>
             <p className="text-gray-500 font-medium max-w-sm mb-6">{error}</p>
             <div className="px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-mono text-gray-600">
-              Searched ID: <strong>{decodedId}</strong>
+              {t('verifyPage.searchedId')} <strong>{decodedId}</strong>
             </div>
           </div>
         ) : data ? (
@@ -129,7 +131,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                 <div>
                   <img src="/logo.png" alt="SakhiHub Logo" className="h-10 mb-4" />
                   <div className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
-                    Verified Digital Record
+                    {t('verifyPage.verifiedRec')}
                   </div>
                 </div>
                 {getStatusBadge(data.status, data.role)}
@@ -159,7 +161,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                   </p>
                   
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono font-bold text-gray-700">
-                    ID: {data.idNumber}
+                    {t('verifyPage.id')} {data.idNumber}
                   </div>
                 </div>
               </div>
@@ -169,7 +171,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                 <div className="flex items-start gap-3">
                   <Calendar size={18} className="text-gray-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Registration Date</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">{t('verifyPage.regDate')}</p>
                     <p className="font-semibold text-gray-800">{new Date(data.registrationDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                   </div>
                 </div>
@@ -178,7 +180,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                   <div className="flex items-start gap-3">
                     <MapPin size={18} className="text-gray-400 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Region</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">{t('verifyPage.region')}</p>
                       <p className="font-semibold text-gray-800">{data.district ? `${data.district}, ` : ''}{data.state}</p>
                     </div>
                   </div>
@@ -188,7 +190,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                   <div className="flex items-start gap-3 md:col-span-2">
                     <Building size={18} className="text-gray-400 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Organization / Group</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">{t('verifyPage.org')}</p>
                       <p className="font-semibold text-gray-800">{data.organizationName}</p>
                     </div>
                   </div>
@@ -198,7 +200,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                   <div className="flex items-start gap-3">
                     <Briefcase size={18} className="text-gray-400 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Membership</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">{t('verifyPage.membership')}</p>
                       <p className="font-semibold text-gray-800 capitalize">{data.membershipStatus.replace('_', ' ')}</p>
                     </div>
                   </div>
@@ -210,10 +212,10 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
             <div className="bg-slate-900 px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
               <div className="flex items-center gap-2">
                 <ShieldCheck size={16} className="text-primary" />
-                <span className="text-xs text-gray-400 font-medium">Secure SakhiHub Verification System</span>
+                <span className="text-xs text-gray-400 font-medium">{t('verifyPage.secure')}</span>
               </div>
               <div className="text-[10px] text-gray-500 font-mono">
-                Generated: {new Date().toLocaleString()}
+                {t('verifyPage.generated')} {new Date().toLocaleString()}
               </div>
             </div>
           </div>

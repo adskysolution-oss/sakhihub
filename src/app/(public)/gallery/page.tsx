@@ -4,30 +4,38 @@ import PageBanner from "@/components/ui/PageBanner";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Maximize2, Calendar, MapPin } from "lucide-react";
-
-const categories = ['All', 'Events', 'Training', 'Field Work', 'Products'];
-
-const galleryItems = [
-  { id: 1, category: 'Events', image: 'https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=800', title: 'Community Awareness Meet', date: 'May 2024', location: 'Varanasi' },
-  { id: 2, category: 'Training', image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=801', title: 'Group Leader Training', date: 'April 2024', location: 'Lucknow' },
-  { id: 3, category: 'Field Work', image: 'https://images.unsplash.com/photo-1573497019236-17f8177b81e8?q=80&w=802', title: 'Village Survey Drive', date: 'April 2024', location: 'Prayagraj' },
-  { id: 4, category: 'Products', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=803', title: 'Sakhi Care Production', date: 'March 2024', location: 'Plant' },
-  { id: 5, category: 'Events', image: 'https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=804', title: 'Health Camp', date: 'March 2024', location: 'Rampur' },
-  { id: 6, category: 'Field Work', image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=805', title: 'Member Registration', date: 'Feb 2024', location: 'Kashi' },
-];
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function GalleryPage() {
-  const [activeCategory, setActiveCategory] = useState('All');
+  const { t } = useLanguage();
 
-  const filteredItems = activeCategory === 'All' 
+  const categories = [
+    t('galleryPage.catAll'), 
+    t('galleryPage.catEvents'), 
+    t('galleryPage.catTraining'), 
+    t('galleryPage.catFieldWork'), 
+    t('galleryPage.catProducts')
+  ];
+
+  const galleryItems = [
+    { id: 1, category: t('galleryPage.catEvents'), image: 'https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=800', title: t('galleryPage.item1'), date: 'May 2024', location: 'Varanasi' },
+    { id: 2, category: t('galleryPage.catTraining'), image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=801', title: t('galleryPage.item2'), date: 'April 2024', location: 'Lucknow' },
+    { id: 3, category: t('galleryPage.catFieldWork'), image: 'https://images.unsplash.com/photo-1573497019236-17f8177b81e8?q=80&w=802', title: t('galleryPage.item3'), date: 'April 2024', location: 'Prayagraj' },
+    { id: 4, category: t('galleryPage.catProducts'), image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=803', title: t('galleryPage.item4'), date: 'March 2024', location: 'Plant' },
+    { id: 5, category: t('galleryPage.catEvents'), image: 'https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=804', title: t('galleryPage.item5'), date: 'March 2024', location: 'Rampur' },
+    { id: 6, category: t('galleryPage.catFieldWork'), image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=805', title: t('galleryPage.item6'), date: 'Feb 2024', location: 'Kashi' },
+  ];
+  const [activeCategory, setActiveCategory] = useState(t('galleryPage.catAll'));
+
+  const filteredItems = activeCategory === t('galleryPage.catAll')
     ? galleryItems 
     : galleryItems.filter(item => item.category === activeCategory);
 
   return (
     <>
       <PageBanner 
-        title="Visual Journey" 
-        subtitle="Capturing the stories of empowerment and change across India."
+        title={t('galleryPage.title')} 
+        subtitle={t('galleryPage.subtitle')}
         image="https://images.unsplash.com/photo-1590333746438-d835a51052b7?q=80&w=1500"
       />
       

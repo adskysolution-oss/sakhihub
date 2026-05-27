@@ -4,34 +4,38 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Shield, Users, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
-const campaigns = [
-  {
-    id: 1,
-    title: 'Sanitary Awareness',
-    desc: 'Providing essential menstrual hygiene education and kits to rural women.',
-    progress: 75,
-    joined: '1,200+',
+const CampaignsSection = () => {
+  const { t } = useLanguage();
+
+  const campaigns = [
+    {
+      id: 1,
+      title: t('campaignsHome.sanTitle'),
+      desc: t('campaignsHome.sanDesc'),
+      progress: 75,
+      joined: '1,200+',
     icon: <Shield size={30} />,
     color: '#E91E63',
     image: '/images/campaign_sanitary.png'
   },
-  {
-    id: 2,
-    title: 'Health Camp',
-    desc: 'Free health checkups and nutritional guidance for women and children.',
-    progress: 45,
-    joined: '850+',
+    {
+      id: 2,
+      title: t('campaignsHome.healthTitle'),
+      desc: t('campaignsHome.healthDesc'),
+      progress: 45,
+      joined: '850+',
     icon: <Heart size={30} />,
     color: '#6A1B9A',
     image: '/images/campaign_health.png'
   },
-  {
-    id: 3,
-    title: 'Membership Drive',
-    desc: 'Expanding our network to empower more women with digital literacy.',
-    progress: 90,
-    joined: '5,000+',
+    {
+      id: 3,
+      title: t('campaignsHome.memTitle'),
+      desc: t('campaignsHome.memDesc'),
+      progress: 90,
+      joined: '5,000+',
     icon: <Users size={30} />,
     color: '#E91E63',
     image: '/images/campaign_membership.png'
@@ -43,8 +47,8 @@ const CampaignsSection = () => {
     <section className="section-padding" style={{ background: 'var(--bg-light)' }}>
       <div className="container">
         <div className="section-title">
-          <span>Active Initiatives</span>
-          <h2>Our Running <span className="text-gradient">Campaigns</span></h2>
+          <span>{t('campaignsHome.activeInit')}</span>
+          <h2>{t('campaignsHome.ourRunning')} <span className="text-gradient">{t('campaignsHome.campaigns')}</span></h2>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '30px' }}>
@@ -71,7 +75,7 @@ const CampaignsSection = () => {
                 </p>
 
                 <Link href={`/campaign/${camp.id}`} className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                  Join Now
+                  {t('campaignsHome.joinNow')}
                 </Link>
               </div>
             </motion.div>

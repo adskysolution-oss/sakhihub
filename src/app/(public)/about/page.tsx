@@ -5,8 +5,10 @@ import { motion } from 'framer-motion';
 import { Target, Eye, Heart, Sparkles, Quote, ShieldCheck, Milestone, Globe, Users } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useLanguage } from '@/context/LanguageContext';
 
 const AboutPage = () => {
+  const { t } = useLanguage();
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
     whileInView: { opacity: 1, y: 0 },
@@ -47,16 +49,15 @@ const AboutPage = () => {
               border: '1px solid rgba(255,255,255,0.2)',
               display: 'inline-block',
               marginBottom: '30px'
-            }}>Our Legacy & Future</span>
+            }}>{t('aboutPage.legacy')}</span>
             
             <h1 style={{ fontSize: '5rem', fontWeight: '900', lineHeight: '1', marginBottom: '30px', letterSpacing: '-2px' }}>
-              We are the Voice of <br />
-              <span style={{ color: '#E91E63' }}>Empowered India</span>
+              {t('aboutPage.voiceOf')} <br />
+              <span style={{ color: '#E91E63' }}>{t('aboutPage.empoweredIndia')}</span>
             </h1>
             
             <p style={{ fontSize: '1.4rem', opacity: 0.9, maxWidth: '800px', margin: '0 auto 50px', lineHeight: '1.6', fontWeight: '500' }}>
-              SakhiHub is not just an organization; it is a revolution born from the grassroots, 
-              dedicated to bringing dignity, health, and independence to every woman.
+              {t('aboutPage.heroDesc')}
             </p>
           </motion.div>
         </div>
@@ -68,28 +69,28 @@ const AboutPage = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
             <motion.div {...fadeInUp}>
               <h2 style={{ fontSize: '3.5rem', fontWeight: '900', color: 'var(--secondary)', marginBottom: '30px', lineHeight: '1.1' }}>
-                How it all <br /><span className="text-gradient">Started</span>
+                {t('aboutPage.howStarted')} <br /><span className="text-gradient">{t('aboutPage.startedGradient')}</span>
               </h2>
               <div style={{ fontSize: '1.15rem', color: 'var(--text-muted)', lineHeight: '1.8' }}>
                 <p style={{ marginBottom: '25px' }}>
-                  The journey of SakhiHub began in small village meetings, where we noticed a profound gap between available resources and the women who needed them most. Health, hygiene, and financial stability were often treated as luxuries rather than rights.
+                  {t('aboutPage.p1')}
                 </p>
                 <p style={{ marginBottom: '25px' }}>
-                  We realized that true empowerment doesn&apos;t come from outside; it comes from within the community. We started by building groups of local women who could support each other, share knowledge, and grow together.
+                  {t('aboutPage.p2')}
                 </p>
                 <p>
-                  Today, SakhiHub has grown into a powerful network of over 50,000 women, driven by the same spirit of sisterhood and collective progress that sparked our first meeting.
+                  {t('aboutPage.p3')}
                 </p>
               </div>
               
               <div style={{ marginTop: '50px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
                 <div style={{ padding: '25px', background: '#FFF5F8', borderRadius: '24px', borderLeft: '5px solid #E91E63' }}>
-                  <h4 style={{ fontSize: '2.5rem', fontWeight: '900', color: '#E91E63', marginBottom: '5px' }}>2021</h4>
-                  <p style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--secondary)' }}>Foundation Laid</p>
+                  <h4 style={{ fontSize: '2.5rem', fontWeight: '900', color: '#E91E63', marginBottom: '5px' }}>{t('aboutPage.year')}</h4>
+                  <p style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--secondary)' }}>{t('aboutPage.foundation')}</p>
                 </div>
                 <div style={{ padding: '25px', background: '#F8F5FF', borderRadius: '24px', borderLeft: '5px solid #6A1B9A' }}>
-                  <h4 style={{ fontSize: '2.5rem', fontWeight: '900', color: '#6A1B9A', marginBottom: '5px' }}>50k+</h4>
-                  <p style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--secondary)' }}>Active Members</p>
+                  <h4 style={{ fontSize: '2.5rem', fontWeight: '900', color: '#6A1B9A', marginBottom: '5px' }}>{t('aboutPage.members')}</h4>
+                  <p style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--secondary)' }}>{t('aboutPage.activeMembers')}</p>
                 </div>
               </div>
             </motion.div>
@@ -117,11 +118,11 @@ const AboutPage = () => {
               }}>
                 <Quote size={40} color="#E91E63" style={{ marginBottom: '20px', opacity: 0.3 }} />
                 <p style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--secondary)', fontStyle: 'italic', lineHeight: '1.6' }}>
-                  &quot;Empowerment is not just about giving a woman a tool; it&apos;s about reminding her she has the power to use it.&quot;
+                  {t('aboutPage.quote')}
                 </p>
                 <div style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
-                  <p style={{ fontWeight: '800', color: 'var(--primary)', margin: 0 }}>Team SakhiHub</p>
-                  <p style={{ fontSize: '0.8rem', opacity: 0.6, margin: 0 }}>Founding Members</p>
+                  <p style={{ fontWeight: '800', color: 'var(--primary)', margin: 0 }}>{t('aboutPage.team')}</p>
+                  <p style={{ fontSize: '0.8rem', opacity: 0.6, margin: 0 }}>{t('aboutPage.founding')}</p>
                 </div>
               </div>
             </motion.div>
@@ -133,18 +134,18 @@ const AboutPage = () => {
       <section className="section-padding" style={{ background: '#F9FAFB' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-            <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px' }}>CORE PRINCIPLES</span>
-            <h2 style={{ fontSize: '3.5rem', fontWeight: '900', marginTop: '15px' }}>Values that <span className="text-gradient">Drive Us</span></h2>
+            <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px' }}>{t('aboutPage.corePrinciples')}</span>
+            <h2 style={{ fontSize: '3.5rem', fontWeight: '900', marginTop: '15px' }}>{t('aboutPage.valuesDrive')} <span className="text-gradient">{t('aboutPage.driveUs')}</span></h2>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px' }}>
             {[
-              { title: 'Trust', desc: 'Building long-term relationships with every village community.', icon: ShieldCheck, color: '#E91E63' },
-              { title: 'Empowerment', desc: 'Focusing on skill-building and long-term independence.', icon: Sparkles, color: '#6A1B9A' },
-              { title: 'Inclusion', desc: 'Leaving no woman behind, regardless of her background.', icon: Globe, color: '#E91E63' },
-              { title: 'Impact', desc: 'Measuring success through real lives changed, not just numbers.', icon: Milestone, color: '#6A1B9A' },
-              { title: 'Sisterhood', desc: 'Creating a safe space where women support women.', icon: Heart, color: '#E91E63' },
-              { title: 'Transparency', desc: 'Full accountability in every program and campaign.', icon: Eye, color: '#6A1B9A' }
+              { title: t('aboutPage.valTrust'), desc: t('aboutPage.valTrustDesc'), icon: ShieldCheck, color: '#E91E63' },
+              { title: t('aboutPage.valEmp'), desc: t('aboutPage.valEmpDesc'), icon: Sparkles, color: '#6A1B9A' },
+              { title: t('aboutPage.valInc'), desc: t('aboutPage.valIncDesc'), icon: Globe, color: '#E91E63' },
+              { title: t('aboutPage.valImpact'), desc: t('aboutPage.valImpactDesc'), icon: Milestone, color: '#6A1B9A' },
+              { title: t('aboutPage.valSis'), desc: t('aboutPage.valSisDesc'), icon: Heart, color: '#E91E63' },
+              { title: t('aboutPage.valTrans'), desc: t('aboutPage.valTransDesc'), icon: Eye, color: '#6A1B9A' }
             ].map((value, idx) => (
               <motion.div 
                 key={idx}
@@ -194,21 +195,21 @@ const AboutPage = () => {
               <div style={{ marginBottom: '50px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
                   <div style={{ width: '50px', height: '2px', background: 'var(--primary)' }}></div>
-                  <span style={{ fontWeight: '800', color: 'var(--primary)', letterSpacing: '2px', textTransform: 'uppercase' }}>Our Vision</span>
+                  <span style={{ fontWeight: '800', color: 'var(--primary)', letterSpacing: '2px', textTransform: 'uppercase' }}>{t('aboutPage.ourVision')}</span>
                 </div>
                 <h3 style={{ fontSize: '3rem', fontWeight: '900', color: 'var(--secondary)', lineHeight: '1.2', marginBottom: '25px' }}>
-                  Creating a <span className="text-gradient">Self-Reliant</span> Future for Every Woman
+                  {t('aboutPage.createFuture')} <span className="text-gradient">{t('aboutPage.selfReliant')}</span> {t('aboutPage.futureForWoman')}
                 </h3>
                 <p style={{ fontSize: '1.15rem', color: 'var(--text-muted)', lineHeight: '1.8' }}>
-                  We envision an India where every woman has the resources to look after her health, the education to make her own choices, and the career to stand on her own feet. Our roadmap involves expanding to 100+ districts by 2026, reaching over 1 million women.
+                  {t('aboutPage.visionDesc')}
                 </p>
               </div>
 
               <div style={{ display: 'grid', gap: '20px' }}>
                 {[
-                  { title: 'Universal Health Awareness', desc: 'No woman should suffer due to lack of hygiene knowledge.' },
-                  { title: 'Financial Autonomy', desc: 'Every SakhiHub member should have a sustainable source of income.' },
-                  { title: 'Digital Literacy', desc: 'Connecting rural women with modern digital tools and opportunities.' }
+                  { title: t('aboutPage.visHealth'), desc: t('aboutPage.visHealthDesc') },
+                  { title: t('aboutPage.visFin'), desc: t('aboutPage.visFinDesc') },
+                  { title: t('aboutPage.visDig'), desc: t('aboutPage.visDigDesc') }
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', gap: '20px', padding: '25px', background: '#F9FAFB', borderRadius: '24px' }}>
                     <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', boxShadow: '0 5px 15px rgba(0,0,0,0.05)', flexShrink: 0 }}>
@@ -229,8 +230,8 @@ const AboutPage = () => {
       {/* 5. Team Section (Small & Human Centric) */}
       <section className="section-padding" style={{ background: '#FFF5F8' }}>
         <div className="container" style={{ textAlign: 'center' }}>
-          <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px' }}>THE TEAM</span>
-          <h2 style={{ fontSize: '3.5rem', fontWeight: '900', marginTop: '15px', marginBottom: '60px' }}>The Humans Behind <span className="text-gradient">The Movement</span></h2>
+          <span style={{ color: 'var(--primary)', fontWeight: '800', letterSpacing: '2px' }}>{t('aboutPage.theTeam')}</span>
+          <h2 style={{ fontSize: '3.5rem', fontWeight: '900', marginTop: '15px', marginBottom: '60px' }}>{t('aboutPage.humansBehind')} <span className="text-gradient">{t('aboutPage.theMovement')}</span></h2>
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '30px' }}>
             {[1, 2, 3, 4].map((i) => (
@@ -245,14 +246,14 @@ const AboutPage = () => {
                 }}>
                   <Image src={i % 2 === 0 ? "/assets/field-work.png" : "/assets/women-group.png"} alt="Team Member" fill style={{ objectFit: 'cover' }} />
                 </div>
-                <h4 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--secondary)', margin: '0 0 5px 0' }}>Field Leader {i}</h4>
-                <p style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: '700', textTransform: 'uppercase' }}>Ground Outreach</p>
+                <h4 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--secondary)', margin: '0 0 5px 0' }}>{t('aboutPage.fieldLeader')} {i}</h4>
+                <p style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: '700', textTransform: 'uppercase' }}>{t('aboutPage.groundOutreach')}</p>
               </motion.div>
             ))}
           </div>
           
           <p style={{ marginTop: '60px', fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '800px', margin: '60px auto 0' }}>
-            Our team is composed of passionate social workers, health experts, and community leaders who work 24/7 to ensure SakhiHub&apos;s mission reaches the last mile.
+            {t('aboutPage.teamDesc')}
           </p>
         </div>
       </section>
@@ -270,13 +271,13 @@ const AboutPage = () => {
             overflow: 'hidden',
             boxShadow: '0 40px 100px rgba(233, 30, 99, 0.3)'
           }}>
-            <h2 style={{ fontSize: '4rem', fontWeight: '900', marginBottom: '30px' }}>Write the Next Chapter <br /> With Us</h2>
+            <h2 style={{ fontSize: '4rem', fontWeight: '900', marginBottom: '30px' }}>{t('aboutPage.writeChapter')} <br /> {t('aboutPage.withUs')}</h2>
             <p style={{ fontSize: '1.4rem', opacity: 0.9, marginBottom: '50px', maxWidth: '800px', margin: '0 auto 50px' }}>
-              Whether as a member, a volunteer, or a partner, your contribution can change a life today.
+              {t('aboutPage.joinDesc')}
             </p>
             <div style={{ display: 'flex', gap: '25px', justifyContent: 'center' }}>
               <Link href="/register" className="btn-secondary" style={{ background: 'white', color: 'var(--secondary)', padding: '22px 60px', fontSize: '1.2rem', borderRadius: '100px' }}>
-                Join Our Mission
+                {t('aboutPage.joinMission')}
               </Link>
             </div>
           </div>

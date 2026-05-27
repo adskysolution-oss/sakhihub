@@ -10,7 +10,9 @@ import {
   Bell,
   Search,
   Globe,
-  ShieldCheck
+  ShieldCheck,
+  User,
+  AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -229,6 +231,25 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10">
+          {!user?.profileImage && !pathname.includes('/profile') && (
+            <div className="mb-6 bg-rose-50 border border-rose-200 p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center shrink-0">
+                  <AlertCircle size={20} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-rose-900">Profile Incomplete</h3>
+                  <p className="text-xs font-medium text-rose-700 mt-0.5">Please add your profile picture and complete your profile details in the profile section.</p>
+                </div>
+              </div>
+              <Link 
+                href={user?.role === 'super_admin' ? '/admin/profile' : `/${user?.role?.replace('_', '-')}/dashboard/profile`} 
+                className="shrink-0 w-full sm:w-auto text-center px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold tracking-wide hover:bg-rose-700 transition-colors shadow-sm"
+              >
+                Complete Profile
+              </Link>
+            </div>
+          )}
           {children}
         </div>
       </main>

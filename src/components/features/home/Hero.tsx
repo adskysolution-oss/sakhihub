@@ -5,8 +5,10 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Users, Heart, ClipboardCheck } from 'lucide-react';
 import Link from 'next/link';
 import styles from './Hero.module.css';
+import { useLanguage } from '@/context/LanguageContext';
 
 const Hero = () => {
+  const { t } = useLanguage();
   return (
     <section className={styles.hero}>
       <div className="container">
@@ -17,37 +19,37 @@ const Hero = () => {
             transition={{ duration: 0.8 }}
             className={styles.textContent}
           >
-            <span className={styles.badge}>Empowering Women Across India</span>
+            <span className={styles.badge}>{t('heroHome.badge')}</span>
             <h1 className={styles.title}>
-              Every Woman <span className="text-gradient">Healthy</span>, <br />
-              Every Woman <span className="text-gradient">Empowered</span>
+              {t('heroHome.titleP1')} <span className="text-gradient">{t('heroHome.titleHealthy')}</span>, <br />
+              {t('heroHome.titleP2')} <span className="text-gradient">{t('heroHome.titleEmpowered')}</span>
             </h1>
             <p className={styles.subtitle}>
-              SakhiHub is a dedicated platform for women's health, awareness, education, employment, and self-reliance.
+              {t('heroHome.subtitle')}
             </p>
             
             <div className={styles.btnGroup}>
               <Link href="/campaign" className="btn-primary">
-                Join Campaign
+                {t('heroHome.btnCampaign')}
                 <ArrowRight size={18} />
               </Link>
               <Link href="/hiring" className="btn-secondary">
-                Apply Now
+                {t('heroHome.btnApply')}
               </Link>
             </div>
 
             <div className={styles.features}>
               <div className={styles.featureItem}>
                 <div className={styles.featureIcon}><Heart size={20} /></div>
-                <span>Health First</span>
+                <span>{t('heroHome.featHealth')}</span>
               </div>
               <div className={styles.featureItem}>
                 <div className={styles.featureIcon}><Users size={20} /></div>
-                <span>Self-Reliant</span>
+                <span>{t('heroHome.featSelf')}</span>
               </div>
               <div className={styles.featureItem}>
                 <div className={styles.featureIcon}><ClipboardCheck size={20} /></div>
-                <span>Employment</span>
+                <span>{t('heroHome.featEmp')}</span>
               </div>
             </div>
           </motion.div>
@@ -68,8 +70,8 @@ const Hero = () => {
               <div className={styles.floatingCard}>
                 <div className={styles.cardIcon}><Users fill="white" size={24} /></div>
                 <div>
-                  <h4>10,000+</h4>
-                  <p>Women Empowered</p>
+                  <h4>{t('heroHome.statNum')}</h4>
+                  <p>{t('heroHome.statLabel')}</p>
                 </div>
               </div>
             </div>
