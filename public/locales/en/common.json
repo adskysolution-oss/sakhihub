@@ -17,7 +17,8 @@
     "joinMovement": "Join Movement",
     "campaigns": "Campaigns",
     "selectLanguage": "Select Language",
-    "emailUs": "Email Us"
+    "emailUs": "Email Us",
+    "careers": "Careers"
   },
   "footer": {
     "heading": "Empowering Women, \nBuilding Futures",
@@ -40,7 +41,8 @@
     "refundPolicy": "Refund Policy",
     "copyright": "© {year} SAKHIHUB. ALL RIGHTS RESERVED.",
     "empowering": "Empowering Women & COMMUNITY",
-    "proprietorship": "SakhiHub is a Sole Proprietorship owned and operated by Anil Raseniya"
+    "proprietorship": "SakhiHub is a Sole Proprietorship owned and operated by Anil Raseniya",
+    "currentOpenings": "Current Openings"
   },
   "hero": {
     "tagline": "Campaign",

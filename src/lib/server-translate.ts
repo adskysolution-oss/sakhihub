@@ -10,11 +10,11 @@ const translationCache = new Map<string, string>();
 /**
  * Calls the Google Translate REST API for an array of strings.
  */
-async function fetchGoogleTranslations(texts: string[], targetLang: string): Promise<string[]> {
+async function fetchGoogleTranslations(texts: string[], targetLang: string): Promise<string[] | null> {
   const apiKey = process.env.GOOGLE_TRANSLATE_API_KEY || process.env.GOOGLE_API_KEY;
   if (!apiKey) {
     console.warn("GOOGLE_TRANSLATE_API_KEY is not defined. Skipping translation.");
-    return texts;
+    return null;
   }
 
   try {
@@ -33,14 +33,14 @@ async function fetchGoogleTranslations(texts: string[], targetLang: string): Pro
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`Google Translate API Error (${response.status}):`, errorText);
-      return texts; // Fallback to original text on failure
+      return null; // Return null on failure to prevent caching fallbacks
     }
 
     const json = await response.json();
     return json.data.translations.map((t: any) => t.translatedText);
   } catch (error) {
     console.error("Failed to fetch from Google Translate API:", error);
-    return texts; // Fallback
+    return null; // Fallback
   }
 }
 
@@ -64,17 +64,23 @@ export async function translateDynamicData(data: any, targetLang: string, fields
   // 1. Traverse and collect all strings that need translation
   const textQueue: { ref: any; key: string; text: string }[] = [];
 
-  function traverse(obj: any) {
+  function traverse(obj: any, parentKey?: string) {
     if (!obj || typeof obj !== 'object') return;
     
     if (Array.isArray(obj)) {
-      obj.forEach(traverse);
+      obj.forEach((item, index) => {
+        if (typeof item === 'string' && item.trim() !== '' && parentKey && fieldsToTranslate.includes(parentKey)) {
+          textQueue.push({ ref: obj, key: index.toString(), text: item });
+        } else if (typeof item === 'object') {
+          traverse(item, parentKey);
+        }
+      });
     } else {
       for (const key of Object.keys(obj)) {
         if (fieldsToTranslate.includes(key) && typeof obj[key] === 'string' && obj[key].trim() !== '') {
           textQueue.push({ ref: obj, key, text: obj[key] });
         } else if (typeof obj[key] === 'object') {
-          traverse(obj[key]);
+          traverse(obj[key], key);
         }
       }
     }
@@ -109,16 +115,21 @@ export async function translateDynamicData(data: any, targetLang: string, fields
   if (textsToTranslate.length > 0) {
     const translatedTexts = await fetchGoogleTranslations(textsToTranslate, targetLang);
     
+    // If translation failed, translatedTexts will be null. Fallback to original without caching.
+    const hasTranslations = translatedTexts !== null && translatedTexts.length === textsToTranslate.length;
+
     // 4. Re-inject and cache
     for (const [queueIndex, apiIndex] of queueIndexesToApiIndexes.entries()) {
-      const translated = translatedTexts[apiIndex];
       const originalText = textQueue[queueIndex].text;
+      const translated = hasTranslations ? translatedTexts[apiIndex] : originalText;
       
       // Inject back into object
       textQueue[queueIndex].ref[textQueue[queueIndex].key] = translated;
       
-      // Save to cache
-      translationCache.set(`${targetLang}:${originalText}`, translated);
+      // Save to cache ONLY if successful and actually translated
+      if (hasTranslations) {
+        translationCache.set(`${targetLang}:${originalText}`, translated);
+      }
     }
   }
 
