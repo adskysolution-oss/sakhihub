@@ -9,12 +9,13 @@ import axios from "axios";
 import { useLanguage } from "@/context/LanguageContext";
 
 export default function ProductsPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoading(true);
       try {
         const res = await axios.get('/api/products');
         if (res.data.success) {
@@ -27,7 +28,7 @@ export default function ProductsPage() {
       }
     };
     fetchProducts();
-  }, []);
+  }, [language]);
 
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },

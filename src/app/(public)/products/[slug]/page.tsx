@@ -12,13 +12,14 @@ import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function ProductDetailPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const params = useParams();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProduct = async () => {
+      setLoading(true);
       try {
         const res = await axios.get(`/api/products?slug=${params.slug}`);
         if (res.data.success) {
@@ -31,7 +32,7 @@ export default function ProductDetailPage() {
       }
     };
     if (params.slug) fetchProduct();
-  }, [params.slug]);
+  }, [params.slug, language]);
 
   if (loading) {
     return (
