@@ -5,12 +5,14 @@ import DashboardLayout from '@/components/features/dashboard/DashboardLayout';
 import NetworkTree from '@/components/features/dashboard/NetworkTree';
 import { MapPin, Sparkles, RefreshCw } from 'lucide-react';
 import axios from 'axios';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import ChildProfileView from '@/components/features/dashboard/ChildProfileView';
 
 export default function NetworkMappingPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
 
   const fetchNetwork = async () => {
     setLoading(true);
@@ -73,9 +75,38 @@ export default function NetworkMappingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <NetworkTree data={data} loading={loading} viewerRole="vendor" />
+            <NetworkTree 
+              data={data} 
+              loading={loading} 
+              viewerRole="vendor" 
+              onNodeClick={(node) => setSelectedChildId(node.id)}
+            />
           </motion.div>
         )}
+
+        {/* Child Profile Modal */}
+        <AnimatePresence>
+          {selectedChildId && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 bg-secondary/80 backdrop-blur-sm"
+            >
+              <motion.div 
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 50, opacity: 0 }}
+                className="w-full max-w-5xl max-h-[90vh] overflow-hidden"
+              >
+                <ChildProfileView 
+                  childId={selectedChildId}
+                  onClose={() => setSelectedChildId(null)}
+                />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </DashboardLayout>
   );

@@ -7,12 +7,14 @@ import Link from "next/link";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
+import ChildProfileView from "@/components/features/dashboard/ChildProfileView";
 
 export default function VendorSubVendors() {
   const [subVendors, setSubVendors] = useState<any[]>([]);
   const [vendorProfile, setVendorProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
 
   const fetchSubVendors = async () => {
     try {
@@ -121,13 +123,13 @@ export default function VendorSubVendors() {
                         </span>
                       </td>
                       <td className="p-5">
-                        <Link 
-                          href="/vendor/dashboard/network"
+                        <button 
+                          onClick={() => setSelectedChildId(sv._id)}
                           className="p-2.5 bg-gray-50 text-gray-400 rounded-xl hover:bg-secondary hover:text-white transition-all shadow-sm flex items-center justify-center w-fit"
-                          title="View in Network Tree"
+                          title="View Details"
                         >
                           <ExternalLink size={16} />
-                        </Link>
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -144,6 +146,30 @@ export default function VendorSubVendors() {
           parentVendorId={vendorProfile?._id}
           vendorCode={vendorProfile?.vendorCode}
         />
+        
+        {/* Child Profile Modal */}
+        <AnimatePresence>
+          {selectedChildId && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 bg-secondary/80 backdrop-blur-sm"
+            >
+              <motion.div 
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 50, opacity: 0 }}
+                className="w-full max-w-5xl max-h-[90vh] overflow-hidden"
+              >
+                <ChildProfileView 
+                  childId={selectedChildId}
+                  onClose={() => setSelectedChildId(null)}
+                />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </DashboardLayout>
   );
