@@ -17,9 +17,9 @@ export async function GET(req: NextRequest) {
     const subVendor = await User.findById((session as any).id);
     if (!subVendor) return errorResponse('Sub-Vendor not found', 404);
 
-    // Find all employees where subVendorCode matches
+    // Find all employees where parentVendorId matches
     const employees = await User.find({ 
-      subVendorCode: subVendor.subVendorCode,
+      parentVendorId: subVendor._id,
       role: 'employee'
     }).select('-password');
 

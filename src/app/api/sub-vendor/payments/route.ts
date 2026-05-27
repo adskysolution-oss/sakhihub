@@ -18,14 +18,19 @@ export async function GET(req: NextRequest) {
     if (!subVendor) return errorResponse('Sub-Vendor not found', 404);
 
     // Get Membership Collections within this sub-vendor's network
-    const memberUsers = await User.find({ 
-      subVendorCode: subVendor.subVendorCode,
-      role: 'member'
+    const employees = await User.find({
+      parentVendorId: subVendor._id,
+      role: 'employee'
     }).select('_id');
-    const memberUserIds = memberUsers.map(m => m._id);
+    const employeeIds = employees.map(emp => emp._id);
+
+    const queryOr: any[] = [];
+    if (subVendor.subVendorCode) queryOr.push({ subVendorCode: subVendor.subVendorCode });
+    if (employeeIds.length > 0) queryOr.push({ assignedEmployeeId: { $in: employeeIds } });
+    queryOr.push({ createdBy: subVendor._id });
 
     const { default: WomenMember } = await import('@/models/WomenMember');
-    const womenMembers = await WomenMember.find({ userId: { $in: memberUserIds } }).select('_id');
+    const womenMembers = await WomenMember.find({ $or: queryOr }).select('_id');
     const wmIds = womenMembers.map(wm => wm._id);
 
     const collections = await Membership.find({ 

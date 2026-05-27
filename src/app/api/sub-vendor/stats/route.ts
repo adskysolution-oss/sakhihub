@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
       freeMembers
     ] = await Promise.all([
       Campaign.countDocuments({ status: 'active' }), // Simplified for now, should be assigned campaigns
-      User.countDocuments({ role: 'employee', subVendorCode: subVendorCode }),
+      User.countDocuments({ role: 'employee', parentVendorId: subVendorId }),
       WomenMember.countDocuments({ subVendorCode: subVendorCode }),
       Group.countDocuments({ subVendorCode: subVendorCode }),
       WomenMember.countDocuments({ subVendorCode: subVendorCode, membershipStatus: 'paid' }),

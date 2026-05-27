@@ -17,17 +17,28 @@ export async function GET(req: NextRequest) {
     const subVendor = await User.findById((session as any).id);
     if (!subVendor) return errorResponse('Sub-Vendor not found', 404);
 
-    // Get all users who are members and have this subVendorCode
-    const memberUsers = await User.find({ 
-      subVendorCode: subVendor.subVendorCode,
-      role: 'member'
+    // Get employees under this sub-vendor
+    const employees = await User.find({
+      parentVendorId: subVendor._id,
+      role: 'employee'
     }).select('_id');
 
-    const memberIds = memberUsers.map(m => m._id);
+    const employeeIds = employees.map(emp => emp._id);
 
+    // Build query for WomenMember
+    const queryOr: any[] = [];
+    if (subVendor.subVendorCode) queryOr.push({ subVendorCode: subVendor.subVendorCode });
+    if (employeeIds.length > 0) queryOr.push({ assignedEmployeeId: { $in: employeeIds } });
+    
+    // Fallback: If nothing else, at least catch those directly created by the subVendor
+    queryOr.push({ createdBy: subVendor._id });
+
+    // Fetch details from WomenMember collection
     const members = await WomenMember.find({ 
-      userId: { $in: memberIds }
-    }).populate('assignedEmployeeId', 'fullName employeeId');
+      $or: queryOr
+    })
+    .populate('assignedEmployeeId', 'fullName employeeId')
+    .sort({ createdAt: -1 });
 
     return successResponse(members);
   } catch (error: any) {

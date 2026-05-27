@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Vacancy from '@/models/Vacancy';
+import { translateDynamicData } from '@/lib/server-translate';
 
 export async function GET(
   request: Request,
@@ -19,7 +20,12 @@ export async function GET(
       );
     }
     
-    return NextResponse.json({ success: true, data: vacancy });
+    const lang = request.headers.get('x-language') || 'en';
+    const translatedVacancy = await translateDynamicData(vacancy, lang, [
+      'title', 'department', 'location', 'aboutRole', 'responsibilities', 'requirements', 'perks'
+    ]);
+    
+    return NextResponse.json({ success: true, data: translatedVacancy });
   } catch (error: any) {
     console.error('Error fetching vacancy:', error);
     return NextResponse.json(

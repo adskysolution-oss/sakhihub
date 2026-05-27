@@ -75,6 +75,7 @@ export const VENDOR_DASHBOARD_LINKS = [
 
 export const SUBVENDOR_DASHBOARD_LINKS = [
   { name: 'Overview', icon: LayoutDashboard, href: '/sub-vendor/dashboard' },
+  { name: 'Network Mapping', icon: MapPin, href: '/sub-vendor/dashboard/network' },
   { name: 'Campaigns', icon: Target, href: '/sub-vendor/dashboard/campaigns' },
   { name: 'Employees', icon: ClipboardList, href: '/sub-vendor/dashboard/employees' },
   { name: 'Groups', icon: Users, href: '/sub-vendor/dashboard/groups' },

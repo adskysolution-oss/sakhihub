@@ -17,15 +17,27 @@ export async function GET(req: NextRequest) {
     const subVendor = await User.findById((session as any).id);
     if (!subVendor) return errorResponse('Sub-Vendor not found', 404);
 
-    // Find all groups where the assigned employee belongs to this sub-vendor's network
-    const groups = await Group.find({})
-      .populate('assignedEmployeeId', 'fullName employeeId subVendorCode');
+    // Get employees under this sub-vendor
+    const employees = await User.find({
+      parentVendorId: subVendor._id,
+      role: 'employee'
+    }).select('_id');
 
-    const filteredGroups = groups.filter(g => 
-      (g.assignedEmployeeId as any)?.subVendorCode === subVendor.subVendorCode
-    );
+    const employeeIds = employees.map(emp => emp._id);
 
-    return successResponse(filteredGroups);
+    // Build query for Group
+    const queryOr: any[] = [];
+    if (subVendor.subVendorCode) queryOr.push({ subVendorCode: subVendor.subVendorCode });
+    if (employeeIds.length > 0) queryOr.push({ createdBy: { $in: employeeIds } });
+    
+    // Fallback: groups directly created by the subVendor
+    queryOr.push({ createdBy: subVendor._id });
+
+    const groups = await Group.find({ $or: queryOr })
+      .populate('createdBy', 'fullName employeeId subVendorCode')
+      .populate('campaignId', 'title');
+
+    return successResponse(groups);
   } catch (error: any) {
     return errorResponse(error.message, 500);
   }

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 import en from '@/locales/en/common.json';
 import hi from '@/locales/hi/common.json';
 import mr from '@/locales/mr/common.json';
@@ -60,9 +61,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (savedLang) setLanguage(savedLang);
   }, []);
 
-  // Sync html lang attribute
+  // Sync html lang attribute and axios interceptor
   useEffect(() => {
     document.documentElement.lang = language;
+    axios.defaults.headers.common['x-language'] = language;
   }, [language]);
 
   const handleSetLanguage = (lang: Language) => {
