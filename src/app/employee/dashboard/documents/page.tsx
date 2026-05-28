@@ -16,6 +16,7 @@ import PaymentReceiptCard from "@/components/features/dashboard/PaymentReceiptCa
 export default function EmployeeDocuments() {
   const [documents, setDocuments] = useState<any>({});
   const [digitalCertificates, setDigitalCertificates] = useState<any[]>([]);
+  const [designation, setDesignation] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [uploadingDocId, setUploadingDocId] = useState<string | null>(null);
 
@@ -51,6 +52,7 @@ export default function EmployeeDocuments() {
       if (res.data.success) {
         setDocuments(res.data.data.documents || {});
         setDigitalCertificates(res.data.data.digitalCertificates || []);
+        setDesignation(res.data.data.designation || '');
       }
     } catch (err) {
       console.error(err);
@@ -63,8 +65,8 @@ export default function EmployeeDocuments() {
     fetchDocuments();
   }, []);
 
-  const compliance = getDocComplianceSummary(documents, 'employee');
-  const docTypes = getRequiredDocsForUser('employee', documents);
+  const compliance = getDocComplianceSummary(documents, 'employee', undefined, designation);
+  const docTypes = getRequiredDocsForUser('employee', documents, undefined, designation);
 
   if (loading) {
     return (

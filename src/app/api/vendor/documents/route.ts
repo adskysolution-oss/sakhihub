@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!documentId) {
-      const allowedTypes = getRequiredDocsForUser(user.role, user.documents, user.vendorType);
+      const allowedTypes = getRequiredDocsForUser(user.role, user.documents, user.vendorType, user.designation);
       if (!allowedTypes.includes(type)) {
         return errorResponse('Invalid document type for this role', 400);
       }
@@ -253,7 +253,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Update global status if needed (from pending to documents_uploaded)
-    const requiredDocs = getRequiredDocsForUser(user.role, user.documents, user.vendorType);
+    const requiredDocs = getRequiredDocsForUser(user.role, user.documents, user.vendorType, user.designation);
     const uploadedDocs = Object.keys(user.documents).filter(key => !!(user.documents as any)[key]?.url);
     
     if (user.status === 'pending' && requiredDocs.every(doc => uploadedDocs.includes(doc))) {
@@ -409,7 +409,8 @@ export async function GET() {
       documents: user.documents || {},
       digitalCertificates,
       status: user.status,
-      vendorType: user.vendorType
+      vendorType: user.vendorType,
+      designation: user.designation
     });
 
   } catch (error: any) {

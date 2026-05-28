@@ -15,19 +15,30 @@ export const REQUIRED_DOCS_BY_VENDOR_TYPE: Record<string, string[]> = {
   ngo_trust: ['ngoCertificate', 'ngoPanCard', 'aadhaarCard', 'panCard', 'bankPassbook', 'ngoLogo']
 };
 
-export function getRequiredDocs(role: string, vendorType?: string): string[] {
+export function getRequiredDocs(role: string, vendorType?: string, designation?: string): string[] {
   if (role === 'vendor' || role === 'sub_vendor') {
     const type = vendorType || 'individual';
     return REQUIRED_DOCS_BY_VENDOR_TYPE[type] || REQUIRED_DOCS_BY_VENDOR_TYPE.individual;
   }
-  return REQUIRED_DOCS_BY_ROLE[role] || [];
+  
+  let docs = [...(REQUIRED_DOCS_BY_ROLE[role] || [])];
+  
+  if (role === 'employee' && designation) {
+    if (designation === 'Block Employee') {
+      docs.push('certificate12th');
+    } else if (designation === 'District Coordinator') {
+      docs.push('graduationCertificate');
+    }
+  }
+  
+  return docs;
 }
 
 /**
  * Get required documents dynamically adjusting for legacy single aadhaarCard upload compatibility.
  */
-export function getRequiredDocsForUser(role: string, userDocuments: any, vendorType?: string): string[] {
-  let docs = getRequiredDocs(role, vendorType);
+export function getRequiredDocsForUser(role: string, userDocuments: any, vendorType?: string, designation?: string): string[] {
+  let docs = getRequiredDocs(role, vendorType, designation);
   
   const aadhaarKeysToSplit = ['aadhaarCard', 'directorAadhaarCard'];
   
@@ -99,7 +110,7 @@ export function getDocumentFolderPath(user: any): string {
  * Checks if all required documents for a role are approved
  */
 export function areAllDocsApproved(user: any): boolean {
-  const required = getRequiredDocsForUser(user.role, user.documents, user.vendorType);
+  const required = getRequiredDocsForUser(user.role, user.documents, user.vendorType, user.designation);
   if (required.length === 0) return false;
   return required.every(type => user.documents?.[type]?.status === 'approved' || user.documents?.[type]?.status === 'exception_approved');
 }
@@ -108,7 +119,7 @@ export function areAllDocsApproved(user: any): boolean {
  * Determines the overall user status based on individual document statuses
  */
 export function determineUserStatus(user: any): string {
-  const required = getRequiredDocsForUser(user.role, user.documents, user.vendorType);
+  const required = getRequiredDocsForUser(user.role, user.documents, user.vendorType, user.designation);
   if (!user.documents) return user.status;
 
   const statuses = required.map(t => user.documents?.[t]?.status);

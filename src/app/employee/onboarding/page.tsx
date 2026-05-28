@@ -446,17 +446,20 @@ export default function EmployeeOnboarding() {
                 </div>
               </div>
 
-              {/* Remaining Standard Documents (Resume, Passport Photo) */}
+              {/* Remaining Standard Documents (Resume, Passport Photo, Certificates) */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {['resume', 'passportPhoto'].map((type) => (
-                  <DocumentCard 
-                    key={type}
-                    type={type}
-                    docInfo={profile?.documents?.[type]}
-                    uploading={uploading === type}
-                    onUpload={(file) => uploadDocument(file, type)}
-                  />
-                ))}
+                {(() => {
+                  const extraDocs = profile?.designation === 'Block Employee' ? ['certificate12th'] : profile?.designation === 'District Coordinator' ? ['graduationCertificate'] : [];
+                  return [...extraDocs, 'resume', 'passportPhoto'].map((type) => (
+                    <DocumentCard 
+                      key={type}
+                      type={type}
+                      docInfo={profile?.documents?.[type]}
+                      uploading={uploading === type}
+                      onUpload={(file) => uploadDocument(file, type)}
+                    />
+                  ));
+                })()}
               </div>
             </div>
             

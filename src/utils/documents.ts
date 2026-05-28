@@ -18,19 +18,30 @@ export const REQUIRED_DOCS_BY_VENDOR_TYPE: Record<string, string[]> = {
   ngo_trust: ['ngoCertificate', 'ngoPanCard', 'aadhaarCard', 'panCard', 'bankPassbook', 'ngoLogo']
 };
 
-export function getRequiredDocs(role: string, vendorType?: string): string[] {
+export function getRequiredDocs(role: string, vendorType?: string, designation?: string): string[] {
   if (role === 'vendor' || role === 'sub_vendor') {
     const type = vendorType || 'individual';
     return REQUIRED_DOCS_BY_VENDOR_TYPE[type] || REQUIRED_DOCS_BY_VENDOR_TYPE.individual;
   }
-  return REQUIRED_DOCS_BY_ROLE[role] || [];
+  
+  let docs = [...(REQUIRED_DOCS_BY_ROLE[role] || [])];
+  
+  if (role === 'employee' && designation) {
+    if (designation === 'Block Employee') {
+      docs.push('certificate12th');
+    } else if (designation === 'District Coordinator') {
+      docs.push('graduationCertificate');
+    }
+  }
+  
+  return docs;
 }
 
 /**
  * Get required documents dynamically adjusting for legacy single aadhaarCard upload compatibility.
  */
-export function getRequiredDocsForUser(role: string, userDocuments: any, vendorType?: string): string[] {
-  let docs = getRequiredDocs(role, vendorType);
+export function getRequiredDocsForUser(role: string, userDocuments: any, vendorType?: string, designation?: string): string[] {
+  let docs = getRequiredDocs(role, vendorType, designation);
   
   const aadhaarKeysToSplit = ['aadhaarCard', 'directorAadhaarCard'];
   
@@ -175,6 +186,16 @@ export const DOC_CONFIG: Record<string, { label: string; icon: any; desc: string
     label: 'Resume Upload',
     icon: FileText,
     desc: 'Updated resume or curriculum vitae'
+  },
+  certificate12th: {
+    label: '12th Pass Certificate',
+    icon: FileCheck,
+    desc: 'Highest secondary education certificate'
+  },
+  graduationCertificate: {
+    label: 'Graduation Certificate',
+    icon: FileCheck,
+    desc: 'Degree or provisional graduation certificate'
   }
 };
 
@@ -222,8 +243,8 @@ export function formatFileSize(size?: string | number): string {
 /**
  * Get compliance summary for a user's documents
  */
-export function getDocComplianceSummary(userDocuments: any, role: string, vendorType?: string) {
-  const required = getRequiredDocsForUser(role, userDocuments, vendorType);
+export function getDocComplianceSummary(userDocuments: any, role: string, vendorType?: string, designation?: string) {
+  const required = getRequiredDocsForUser(role, userDocuments, vendorType, designation);
   let uploaded = 0;
   let approved = 0;
   let rejected = 0;

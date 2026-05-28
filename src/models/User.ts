@@ -80,6 +80,8 @@ export interface IUser extends Document {
     certificate80G?: IVendorDocumentEntry;
     ngoLogo?: IVendorDocumentEntry;
     resume?: IVendorDocumentEntry;
+    certificate12th?: IVendorDocumentEntry;
+    graduationCertificate?: IVendorDocumentEntry;
     [key: string]: IVendorDocumentEntry | undefined;
   };
   joiningDate?: Date;
@@ -202,6 +204,8 @@ const UserSchema: Schema = new Schema(
       certificate12A: { type: DocumentEntrySchema },
       certificate80G: { type: DocumentEntrySchema },
       ngoLogo: { type: DocumentEntrySchema },
+      certificate12th: { type: DocumentEntrySchema },
+      graduationCertificate: { type: DocumentEntrySchema },
       resume: { type: DocumentEntrySchema }
     },
     lastOtpSentAt: { type: Date },
