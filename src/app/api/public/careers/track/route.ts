@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Application from '@/models/Application';
 import Vacancy from '@/models/Vacancy'; // ensure Vacancy model is loaded for populate
+import { translateDynamicData } from '@/lib/server-translate';
 
 export async function GET(request: Request) {
   try {
@@ -23,18 +24,23 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, message: 'Application not found. Please check your ID and Mobile Number.' }, { status: 404 });
     }
 
+    const data = {
+      applicationId: application.applicationId,
+      vacancyTitle: application.vacancyId?.title || 'Unknown Vacancy',
+      department: application.vacancyId?.department || '',
+      location: application.vacancyId?.location || '',
+      status: application.status,
+      appliedDate: application.createdAt,
+      adminRemarks: application.adminRemarks || '',
+      fullName: application.fullName
+    };
+
+    const lang = request.headers.get('x-language') || 'en';
+    const translatedData = await translateDynamicData(data, lang, ['vacancyTitle', 'department', 'location', 'status', 'adminRemarks']);
+
     return NextResponse.json({
       success: true,
-      data: {
-        applicationId: application.applicationId,
-        vacancyTitle: application.vacancyId?.title || 'Unknown Vacancy',
-        department: application.vacancyId?.department || '',
-        location: application.vacancyId?.location || '',
-        status: application.status,
-        appliedDate: application.createdAt,
-        adminRemarks: application.adminRemarks || '',
-        fullName: application.fullName
-      }
+      data: translatedData
     });
 
   } catch (error: any) {

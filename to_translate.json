@@ -341,5 +341,33 @@
     "nextSelected": "Congratulations! HR will contact you shortly for onboarding or interview scheduling.",
     "nextRejected": "Unfortunately, we are not moving forward at this time. Thank you for your interest!",
     "nextHold": "Your profile is on hold for future consideration. We'll be in touch if a matching role opens."
+  },
+  "projects": {
+    "tag": "Social Impact Initiatives",
+    "title": "Our Ongoing Projects.",
+    "subtitle": "Our projects focus on creating sustainable income opportunities and fostering self-reliance among rural women.",
+    "viewAll": "View All Projects",
+    "activeBadge": "Active Program",
+    "exploreDetails": "Explore Details",
+    "newInitiatives": "New Initiatives Coming Soon",
+    "newInitDesc": "We are currently designing impactful programs to empower more women across India.",
+    "notFound": "Project Not Found",
+    "notFoundDesc": "The project you are looking for does not exist or has been removed.",
+    "backToProjects": "Back to Projects",
+    "initiativeDetail": "Initiative Detail",
+    "joinProgram": "Join Program",
+    "becomeMember": "Become Member",
+    "programOverview": "Program Overview",
+    "overviewHeading": "Redefining Women Empowerment Through <span className=\"text-primary italic\">Micro-Industry.</span>",
+    "featSustainable": "Sustainable",
+    "featSustainableDesc": "Built for long-term rural development.",
+    "featCommunity": "Community",
+    "featCommunityDesc": "Empowering collective growth.",
+    "keyHighlights": "Key Highlights",
+    "wantToKnowMore": "Want to know more?",
+    "expertHelp": "Our field executives are ready to help you join this program in your village.",
+    "contactExpert": "Contact an Expert",
+    "startJourneyHeading": "Start your journey <br /> with <span className=\"text-primary italic\">SakhiHub.</span>",
+    "getStarted": "Get Started Today"
   }
 }

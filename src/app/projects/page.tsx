@@ -10,8 +10,10 @@ import {
 import axios from 'axios';
 import Link from 'next/link';
 import PageBanner from "@/components/ui/PageBanner";
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function PublicProjectsPage() {
+  const { t } = useLanguage();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -52,8 +54,8 @@ export default function PublicProjectsPage() {
 
       {/* Page Banner */}
       <PageBanner
-        title="Our Projects"
-        subtitle="Our projects focus on creating sustainable income opportunities and fostering self-reliance among rural women."
+        title={t('projects.title') || "Our Projects"}
+        subtitle={t('projects.subtitle') || "Our projects focus on creating sustainable income opportunities and fostering self-reliance among rural women."}
         images={displayImages}
       />
 
@@ -71,12 +73,12 @@ export default function PublicProjectsPage() {
               <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center text-gray-200 mx-auto mb-6">
                 <Target size={40} />
               </div>
-              <h3 className="text-2xl font-black text-secondary uppercase tracking-tight">New Initiatives Coming Soon</h3>
-              <p className="text-gray-400 font-bold mt-2 max-w-md mx-auto">We are currently designing impactful programs to empower more women across India.</p>
+              <h3 className="text-2xl font-black text-secondary uppercase tracking-tight">{t('projects.newInitiatives') || "New Initiatives Coming Soon"}</h3>
+              <p className="text-gray-400 font-bold mt-2 max-w-md mx-auto">{t('projects.newInitDesc') || "We are currently designing impactful programs to empower more women across India."}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-14">
-              {projects.map((project, index) => (
+              {projects.map((project: any, index: number) => (
                 <motion.div
                   key={project._id}
                   {...fadeInUp}
@@ -104,13 +106,13 @@ export default function PublicProjectsPage() {
                       <div className="absolute inset-0 p-8 flex flex-col justify-end">
                         <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                           <div className="inline-flex px-4 py-1.5 bg-primary/90 text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-4 shadow-lg backdrop-blur-md">
-                            Active Program
+                            {t('projects.activeBadge')}
                           </div>
                           <h3 className="text-2xl md:text-3xl font-black text-white leading-tight mb-2">{project.title}</h3>
                           <p className="text-white/80 font-bold text-sm line-clamp-2 italic mb-6">"{project.tagline}"</p>
 
                           <div className="flex items-center gap-2 text-white font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                            Explore Details <ArrowUpRight size={16} className="text-primary" />
+                            {t('projects.exploreDetails')} <ArrowUpRight size={16} className="text-primary" />
                           </div>
                         </div>
                       </div>
@@ -138,16 +140,18 @@ export default function PublicProjectsPage() {
           >
             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-[100px] -mr-48 -mt-48"></div>
             <div className="relative z-10">
-              <h2 className="text-4xl md:text-6xl font-black text-white mb-8">Want to support our <span className="text-primary-dark italic">cause?</span></h2>
+              <h2 className="text-4xl md:text-6xl font-black text-white mb-8">
+                <div dangerouslySetInnerHTML={{ __html: t('ctaBanner.title') || "Want to support our <span className='text-primary-dark italic'>cause?</span>" }} />
+              </h2>
               <p className="text-xl text-white/70 font-bold max-w-2xl mx-auto mb-12">
-                Join our network as a vendor, employee, or member and help us reach more villages across the nation.
+                {t('ctaBanner.desc') || "Join our network as a vendor, employee, or member and help us reach more villages across the nation."}
               </p>
               <div className="flex flex-wrap justify-center gap-6">
                 <Link href="/register" className="px-10 py-5 bg-white text-secondary rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all">
-                  Join SakhiHub
+                  {t('ctaBanner.joinBtn')}
                 </Link>
                 <Link href="/contact" className="px-10 py-5 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-white/20 transition-all">
-                  Contact Us
+                  {t('ctaBanner.contactBtn')}
                 </Link>
               </div>
             </div>

@@ -12,9 +12,11 @@ import {
 import axios from 'axios';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function ProjectDetailPage() {
   const params = useParams();
+  const { t } = useLanguage();
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -43,9 +45,9 @@ export default function ProjectDetailPage() {
   if (!project) {
     return (
       <main className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
-        <h1 className="text-4xl font-black text-secondary mb-4">Project Not Found</h1>
-        <p className="text-gray-400 font-bold mb-8">The project you are looking for does not exist or has been removed.</p>
-        <Link href="/projects" className="btn-primary px-8 py-4">Back to Projects</Link>
+        <h1 className="text-4xl font-black text-secondary mb-4">{t('projects.notFound') || "Project Not Found"}</h1>
+        <p className="text-gray-400 font-bold mb-8">{t('projects.notFoundDesc') || "The project you are looking for does not exist or has been removed."}</p>
+        <Link href="/projects" className="btn-primary px-8 py-4">{t('projects.backToProjects') || "Back to Projects"}</Link>
       </main>
     );
   }
@@ -82,7 +84,7 @@ export default function ProjectDetailPage() {
                 animate={{ opacity: 1, x: 0 }}
                 className="inline-flex items-center gap-3 px-6 py-2.5 bg-primary/20 backdrop-blur-xl rounded-full border border-primary/30 text-primary font-black text-[10px] uppercase tracking-[0.2em] mb-10 shadow-2xl"
               >
-                <Sparkles size={16} /> Initiative Detail
+                <Sparkles size={16} /> {t('projects.initiativeDetail') || "Initiative Detail"}
               </motion.div>
 
               <motion.h1
@@ -122,10 +124,10 @@ export default function ProjectDetailPage() {
                 className="flex flex-wrap gap-6"
               >
                 <Link href="/register" className="px-10 py-5 bg-primary text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
-                  {project.heroBanner?.ctaText1 || 'Join Program'} <ArrowRight size={20} />
+                  {project.heroBanner?.ctaText1 || t('projects.joinProgram') || 'Join Program'} <ArrowRight size={20} />
                 </Link>
                 <Link href="/register?role=member" className="px-10 py-5 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-white/20 transition-all">
-                  {project.heroBanner?.ctaText2 || 'Become Member'}
+                  {project.heroBanner?.ctaText2 || t('projects.becomeMember') || 'Become Member'}
                 </Link>
               </motion.div>
             </div>
@@ -155,9 +157,13 @@ export default function ProjectDetailPage() {
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
               <motion.div {...fadeInUp}>
-                <h2 className="text-xs font-black text-primary uppercase tracking-[0.3em] mb-6">Program Overview</h2>
+                <h2 className="text-xs font-black text-primary uppercase tracking-[0.3em] mb-6">{t('projects.programOverview') || "Program Overview"}</h2>
                 <h3 className="text-4xl font-black text-secondary leading-tight mb-8">
-                  Redefining Women Empowerment Through <span className="text-primary italic">Micro-Industry.</span>
+                  {t('projects.overviewHeading') ? (
+                    <div dangerouslySetInnerHTML={{ __html: t('projects.overviewHeading') }} />
+                  ) : (
+                    <>Redefining Women Empowerment Through <span className="text-primary italic">Micro-Industry.</span></>
+                  )}
                 </h3>
                 <p className="text-xl text-gray-500 font-bold leading-relaxed mb-10">
                   {project.shortDescription}
@@ -168,15 +174,15 @@ export default function ProjectDetailPage() {
                     <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4">
                       <Target size={24} />
                     </div>
-                    <h4 className="text-sm font-black text-secondary uppercase tracking-widest mb-2">Sustainable</h4>
-                    <p className="text-xs text-gray-400 font-bold leading-relaxed">Built for long-term rural development.</p>
+                    <h4 className="text-sm font-black text-secondary uppercase tracking-widest mb-2">{t('projects.featSustainable') || "Sustainable"}</h4>
+                    <p className="text-xs text-gray-400 font-bold leading-relaxed">{t('projects.featSustainableDesc') || "Built for long-term rural development."}</p>
                   </div>
                   <div className="p-6 bg-white rounded-3xl shadow-soft border border-gray-50">
                     <div className="w-12 h-12 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center mb-4">
                       <Users size={24} />
                     </div>
-                    <h4 className="text-sm font-black text-secondary uppercase tracking-widest mb-2">Community</h4>
-                    <p className="text-xs text-gray-400 font-bold leading-relaxed">Empowering collective growth.</p>
+                    <h4 className="text-sm font-black text-secondary uppercase tracking-widest mb-2">{t('projects.featCommunity') || "Community"}</h4>
+                    <p className="text-xs text-gray-400 font-bold leading-relaxed">{t('projects.featCommunityDesc') || "Empowering collective growth."}</p>
                   </div>
                 </div>
               </motion.div>
@@ -184,7 +190,7 @@ export default function ProjectDetailPage() {
               <motion.div {...fadeInUp} transition={{ delay: 0.2 }} className="bg-white p-12 rounded-[50px] shadow-2xl border border-gray-50 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16"></div>
                 <h4 className="text-2xl font-black text-secondary mb-10 flex items-center gap-4">
-                  <ShieldCheck size={28} className="text-primary" /> Key Highlights
+                  <ShieldCheck size={28} className="text-primary" /> {t('projects.keyHighlights') || "Key Highlights"}
                 </h4>
                 <div className="space-y-6">
                   {(project.highlights || []).map((highlight: string, i: number) => (
@@ -198,10 +204,10 @@ export default function ProjectDetailPage() {
                 </div>
 
                 <div className="mt-12 p-8 bg-secondary rounded-[32px] text-white">
-                  <h5 className="text-sm font-black uppercase tracking-widest mb-2">Want to know more?</h5>
-                  <p className="text-xs text-white/60 font-bold leading-relaxed mb-6">Our field executives are ready to help you join this program in your village.</p>
+                  <h5 className="text-sm font-black uppercase tracking-widest mb-2">{t('projects.wantToKnowMore') || "Want to know more?"}</h5>
+                  <p className="text-xs text-white/60 font-bold leading-relaxed mb-6">{t('projects.expertHelp') || "Our field executives are ready to help you join this program in your village."}</p>
                   <Link href="/register" className="inline-flex items-center gap-2 text-primary font-black text-xs uppercase tracking-widest hover:gap-4 transition-all">
-                    Contact an Expert <ArrowRight size={16} />
+                    {t('projects.contactExpert') || "Contact an Expert"} <ArrowRight size={16} />
                   </Link>
                 </div>
               </motion.div>
@@ -217,10 +223,16 @@ export default function ProjectDetailPage() {
             {...fadeInUp}
             className="max-w-4xl mx-auto"
           >
-            <h2 className="text-4xl md:text-6xl font-black text-secondary mb-8">Start your journey <br /> with <span className="text-primary italic">SakhiHub.</span></h2>
+            <h2 className="text-4xl md:text-6xl font-black text-secondary mb-8">
+              {t('projects.startJourneyHeading') ? (
+                <div dangerouslySetInnerHTML={{ __html: t('projects.startJourneyHeading') }} />
+              ) : (
+                <>Start your journey <br /> with <span className="text-primary italic">SakhiHub.</span></>
+              )}
+            </h2>
             <p className="text-xl text-gray-400 font-bold mb-12 max-w-2xl mx-auto italic">"{project.tagline}"</p>
             <Link href="/register" className="btn-primary py-6 px-12 text-lg shadow-2xl shadow-primary/30">
-              Get Started Today
+              {t('projects.getStarted') || "Get Started Today"}
             </Link>
           </motion.div>
         </div>
@@ -230,3 +242,4 @@ export default function ProjectDetailPage() {
     </main>
   );
 }
+
