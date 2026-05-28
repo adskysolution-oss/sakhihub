@@ -16,14 +16,16 @@ import { useLanguage } from '@/context/LanguageContext';
 
 export default function ProjectDetailPage() {
   const params = useParams();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const res = await axios.get(`/api/projects?slug=${params.slug}`);
+        const res = await axios.get(`/api/projects?slug=${params.slug}`, {
+          headers: { 'x-language': language }
+        });
         if (res.data.success) setProject(res.data.data);
       } catch (err) {
         console.error("Failed to fetch project", err);
@@ -32,7 +34,7 @@ export default function ProjectDetailPage() {
       }
     };
     if (params.slug) fetchProject();
-  }, [params.slug]);
+  }, [params.slug, language]);
 
   if (loading) {
     return (

@@ -13,8 +13,10 @@ import ReferralLinkCard from './ReferralLinkCard';
 import PaymentReceiptCard from './PaymentReceiptCard';
 import DigitalIdWidget from './DigitalIdWidget';
 import { AlertCircle, FileCheck, CheckCircle2 } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function EmployeeDashboard({ user }: { user: any }) {
+  const { t } = useLanguage();
   const [data, setData] = React.useState<any>(null);
 
   React.useEffect(() => {
@@ -49,19 +51,19 @@ export default function EmployeeDashboard({ user }: { user: any }) {
               <AlertCircle size={28} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-amber-900 leading-tight">Action Required: Verify Your Profile</h2>
+              <h2 className="text-xl font-bold text-amber-900 leading-tight">{t('employeeDashboard.verifyActionReq') || "Action Required: Verify Your Profile"}</h2>
               <p className="text-amber-700/80 mt-1 text-sm leading-relaxed">
                 {user?.status === 'reupload_required' 
-                  ? 'Some of your uploaded documents were rejected. Please check and re-upload.'
+                  ? t('employeeDashboard.verifyReuploadReq') || 'Some of your uploaded documents were rejected. Please check and re-upload.'
                   : user?.status === 'documents_uploaded'
-                  ? 'Your documents are currently under review by the Admin team.'
-                  : 'You must upload all mandatory documents (Aadhaar, PAN, Bank Details, etc.) to activate your account.'}
+                  ? t('employeeDashboard.verifyUnderReview') || 'Your documents are currently under review by the Admin team.'
+                  : t('employeeDashboard.verifyMandatory') || 'You must upload all mandatory documents (Aadhaar, PAN, Bank Details, etc.) to activate your account.'}
               </p>
             </div>
           </div>
           <Link href="/employee/dashboard/documents">
             <button className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-md transition-all whitespace-nowrap flex items-center gap-2">
-              <FileCheck size={18} /> Manage Documents
+              <FileCheck size={18} /> {t('employeeDashboard.manageDocs') || "Manage Documents"}
             </button>
           </Link>
         </section>
@@ -84,11 +86,11 @@ export default function EmployeeDashboard({ user }: { user: any }) {
               </span>
               {isVerified ? (
                 <span className="flex items-center gap-2 px-4 py-2 bg-green-400/20 backdrop-blur-md rounded-2xl text-[10px] md:text-xs font-bold text-green-300 uppercase tracking-widest">
-                  <CheckCircle2 size={14} /> Verified Active
+                  <CheckCircle2 size={14} /> {t('employeeDashboard.verifiedActive') || "Verified Active"}
                 </span>
               ) : (
                 <span className="flex items-center gap-2 px-4 py-2 bg-amber-400/20 backdrop-blur-md rounded-2xl text-[10px] md:text-xs font-bold text-amber-300 uppercase tracking-widest">
-                  <AlertCircle size={14} /> Pending Verification
+                  <AlertCircle size={14} /> {t('employeeDashboard.pendingVerification') || "Pending Verification"}
                 </span>
               )}
             </div>
@@ -148,9 +150,9 @@ export default function EmployeeDashboard({ user }: { user: any }) {
                 <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mb-4">
                   <AlertCircle size={32} />
                 </div>
-                <h3 className="text-2xl font-black text-secondary">Actions Disabled</h3>
+                <h3 className="text-2xl font-black text-secondary">{t('employeeDashboard.actionsDisabled') || "Actions Disabled"}</h3>
                 <p className="text-gray-500 font-semibold max-w-sm mt-2">
-                  You must complete your document verification to unlock member registration, group creation, and other features.
+                  {t('employeeDashboard.actionsDisabledDesc') || "You must complete your document verification to unlock member registration, group creation, and other features."}
                 </p>
              </div>
           )}

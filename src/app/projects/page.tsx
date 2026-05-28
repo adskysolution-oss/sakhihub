@@ -13,14 +13,16 @@ import PageBanner from "@/components/ui/PageBanner";
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function PublicProjectsPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await axios.get('/api/projects');
+        const res = await axios.get('/api/projects', {
+          headers: { 'x-language': language }
+        });
         if (res.data.success) setProjects(res.data.data);
       } catch (err) {
         console.error("Failed to fetch projects", err);
@@ -29,7 +31,7 @@ export default function PublicProjectsPage() {
       }
     };
     fetchProjects();
-  }, []);
+  }, [language]);
 
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
