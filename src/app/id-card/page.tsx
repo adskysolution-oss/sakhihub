@@ -35,8 +35,30 @@ export default function IDCardPage() {
         const verifyData = await verifyRes.json();
 
         if (verifyData.success) {
-          setUser(verifyData.data);
+          const fetchedUser = verifyData.data;
+          
+          // Premium feature lock for members
+          if (sessionUser.role === 'member') {
+            const isPaidVerified = sessionUser.membershipType === 'paid' && (sessionUser.accessStatus === 'unlocked' || sessionUser.paymentStatus === 'completed');
+            if (!isPaidVerified) {
+              setUser({ premiumLocked: true });
+              setLoading(false);
+              return;
+            }
+          }
+          
+          setUser(fetchedUser);
         } else {
+          // Premium feature lock for members
+          if (sessionUser.role === 'member') {
+            const isPaidVerified = sessionUser.membershipType === 'paid' && (sessionUser.accessStatus === 'unlocked' || sessionUser.paymentStatus === 'completed');
+            if (!isPaidVerified) {
+              setUser({ premiumLocked: true });
+              setLoading(false);
+              return;
+            }
+          }
+
           // Fallback if verify API fails
           setUser({
             fullName: sessionUser.fullName || 'User',
@@ -72,6 +94,23 @@ export default function IDCardPage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFCFB]">
         <p className="text-gray-500 mb-4">Could not load ID Card details.</p>
         <Link href="/" className="text-[#D91656] font-bold">Return to Dashboard</Link>
+      </div>
+    );
+  }
+
+  if (user.premiumLocked) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFCFB] p-6 text-center">
+        <div className="w-20 h-20 bg-amber-50 rounded-[25px] flex items-center justify-center text-amber-500 mb-6 border border-amber-100 shadow-inner">
+          <AlertCircle size={36} />
+        </div>
+        <h2 className="text-3xl font-black text-[#2C0A28] mb-3">Premium Section Locked</h2>
+        <p className="text-gray-500 font-bold mb-8 max-w-md mx-auto leading-relaxed">
+          The Digital ID Card is a premium feature. Please upgrade your free membership or verify your pending payment to unlock.
+        </p>
+        <Link href="/member/dashboard" className="px-8 py-3.5 bg-[#D91656] text-white rounded-xl shadow-lg shadow-[#D91656]/30 font-bold hover:scale-105 transition-all">
+          Return to Dashboard
+        </Link>
       </div>
     );
   }

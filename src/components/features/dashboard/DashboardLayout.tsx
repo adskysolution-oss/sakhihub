@@ -79,6 +79,20 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     if (user?.role === 'vendor') return VENDOR_DASHBOARD_LINKS;
     if (user?.role === 'sub_vendor') return SUBVENDOR_DASHBOARD_LINKS;
     if (user?.role === 'employee') return EMPLOYEE_DASHBOARD_LINKS;
+    if (user?.role === 'employee') return EMPLOYEE_DASHBOARD_LINKS;
+
+    if (user?.role === 'member') {
+      const isPaidVerified = user?.membershipType === 'paid' && (user?.accessStatus === 'unlocked' || user?.paymentStatus === 'completed');
+      const isPremiumLocked = !isPaidVerified;
+
+      return MEMBER_DASHBOARD_LINKS.map(link => {
+        if (['My Group', 'Campaigns', 'Resources', 'My ID Card'].includes(link.name)) {
+          return { ...link, locked: isPremiumLocked };
+        }
+        return link;
+      });
+    }
+
     return MEMBER_DASHBOARD_LINKS;
   };
 
@@ -142,9 +156,30 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
             <nav className="flex-1 p-5 overflow-y-auto">
               <div className="grid gap-2">
-                {menuItems.map((item) => {
+                {menuItems.map((item: any) => {
                   const isActive = pathname === item.href || 
                     (item.href.includes('/profile') && pathname.includes('/profile'));
+                  
+                  if (item.locked) {
+                    return (
+                      <button
+                        key={item.name}
+                        onClick={() => {
+                          import('sonner').then((mod) => {
+                            mod.toast.error("Premium Feature: Please upgrade or verify your membership to access " + item.name);
+                          });
+                        }}
+                        className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 w-full text-left bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-100`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <item.icon size={20} />
+                          <span>{item.name}</span>
+                        </div>
+                        <AlertCircle size={14} className="text-gray-300" />
+                      </button>
+                    )
+                  }
+
                   return (
                     <Link
                       key={item.name}
@@ -250,7 +285,30 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               </Link>
             </div>
           )}
-          {children}
+          {(() => {
+            if (user?.role === 'member') {
+              const isPaidVerified = user?.membershipType === 'paid' && (user?.accessStatus === 'unlocked' || user?.paymentStatus === 'completed');
+              const isPremiumLocked = !isPaidVerified;
+              
+              if (isPremiumLocked && ['/member/my-group', '/member/campaigns', '/member/resources'].some(r => pathname.startsWith(r))) {
+                return (
+                  <div className="min-h-[50vh] flex flex-col items-center justify-center bg-white rounded-[35px] p-8 text-center border border-gray-100 shadow-sm mt-4">
+                    <div className="w-20 h-20 bg-amber-50 rounded-[25px] flex items-center justify-center text-amber-500 mb-6 border border-amber-100 shadow-inner">
+                      <AlertCircle size={36} />
+                    </div>
+                    <h2 className="text-3xl font-black text-secondary mb-3">Premium Section Locked</h2>
+                    <p className="text-gray-400 font-bold mb-8 max-w-md mx-auto leading-relaxed">
+                      You are trying to access a premium feature. Please upgrade your free membership or verify your pending payment to unlock.
+                    </p>
+                    <Link href="/member/dashboard" className="px-8 py-3.5 bg-gradient-to-r from-primary to-secondary text-white rounded-xl shadow-lg shadow-primary/20 font-bold hover:scale-105 transition-all">
+                      Return to Dashboard
+                    </Link>
+                  </div>
+                );
+              }
+            }
+            return children;
+          })()}
         </div>
       </main>
     </div>

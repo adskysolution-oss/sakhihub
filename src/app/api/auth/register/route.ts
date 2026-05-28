@@ -17,12 +17,12 @@ export async function POST(req: NextRequest) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { 
-      fullName, mobile, email, password, role, 
-      designation, qualification, experience, state, district, 
+    const {
+      fullName, mobile, email, password, role,
+      designation, qualification, experience, state, district,
       block, area, pincode, address, assignedEmployeeId,
       age, maritalStatus, occupation, interests,
-      vendorCode, subVendorCode, campaignId, vendorType
+      vendorCode, subVendorCode, campaignId, vendorType, membershipType
     } = body;
 
     if (!fullName || !mobile || !password || !email) {
@@ -73,8 +73,8 @@ export async function POST(req: NextRequest) {
         referralSource = 'invite';
         assignmentStatus = 'completed';
       }
-    } 
-    
+    }
+
     if (!parentVendorId && effectiveSubVendorCode) {
       const subVendor = await User.findOne({ subVendorCode: effectiveSubVendorCode, role: 'sub_vendor' });
       if (subVendor) {
@@ -82,16 +82,16 @@ export async function POST(req: NextRequest) {
         referralSource = 'invite';
         assignmentStatus = 'completed';
       }
-    } 
-    
+    }
+
     if (!parentVendorId && effectiveEmployeeCode) {
       const isObjectId = mongoose.Types.ObjectId.isValid(effectiveEmployeeCode);
-      const employee = await User.findOne({ 
+      const employee = await User.findOne({
         $or: [
-          { employeeId: effectiveEmployeeCode }, 
+          { employeeId: effectiveEmployeeCode },
           ...(isObjectId ? [{ _id: effectiveEmployeeCode as any }] : [])
-        ], 
-        role: 'employee' 
+        ],
+        role: 'employee'
       });
       if (employee) {
         parentVendorId = employee._id;
@@ -142,15 +142,16 @@ export async function POST(req: NextRequest) {
       occupation,
       interests,
       assignedEmployeeId: assignedEmployeeId || undefined,
-      vendorType: vendorType || undefined
+      vendorType: vendorType || undefined,
+      membershipType: membershipType || 'free'
     };
 
     const pendingUser = await PendingUser.create(pendingData);
 
     // Send Email
     const emailRes = await sendEmail(
-      email, 
-      'Verify your SakhiHub account', 
+      email,
+      'Verify your SakhiHub account',
       getOTPTemplate(fullName, rawOtp, 'Registration')
     );
 

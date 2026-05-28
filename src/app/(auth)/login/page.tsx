@@ -6,10 +6,10 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
-import { 
-  Heart as HeartIcon, 
-  ShieldCheck as ShieldIcon, 
-  Briefcase as BriefIcon, 
+import {
+  Heart as HeartIcon,
+  ShieldCheck as ShieldIcon,
+  Briefcase as BriefIcon,
   Users as UsersIcon,
   Sparkles as SparkleIcon,
   ArrowRight as ArrowIcon,

@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       if (!verifyOTP(otp, pendingUser.otp)) {
         pendingUser.otpAttempts = (pendingUser.otpAttempts || 0) + 1;
         await pendingUser.save();
-        
+
         if (pendingUser.otpAttempts >= 5) {
           await PendingUser.deleteOne({ _id: pendingUser._id });
           return errorResponse('Too many failed attempts. Registration session cleared.', 400);
@@ -42,19 +42,19 @@ export async function POST(req: NextRequest) {
 
       // Success - Create Final User
       const userRole = pendingUser.role;
-      
+
       // Generate unique codes
       const myVendorCode = userRole === 'vendor' ? `SHVND${Math.random().toString(36).substr(2, 6).toUpperCase()}` : undefined;
       const mySubVendorCode = userRole === 'sub_vendor' ? `SHSVN${Math.random().toString(36).substr(2, 6).toUpperCase()}` : undefined;
       const myEmployeeId = userRole === 'employee' ? `SHEMP${Math.random().toString(36).substr(2, 6).toUpperCase()}` : undefined;
 
       // Status Enforcement
-      let userStatus = userRole === 'super_admin' ? 'active' : 'pending';
+      let userStatus = (userRole === 'super_admin' || userRole === 'member') ? 'active' : 'pending';
       let memberAccountStatus = 'active';
       let memberConnectionStatus = pendingUser.assignedEmployeeId ? 'pending_request' : 'unassigned';
 
       if (userRole === 'member' && pendingUser.parentVendorId) {
-        userStatus = 'active'; 
+        userStatus = 'active';
         memberAccountStatus = 'active';
         memberConnectionStatus = 'approved';
       }
@@ -89,7 +89,11 @@ export async function POST(req: NextRequest) {
         vendorCode: myVendorCode,
         subVendorCode: mySubVendorCode,
         employeeId: myEmployeeId,
-        vendorType: pendingUser.vendorType
+        vendorType: pendingUser.vendorType,
+        membershipType: pendingUser.membershipType || 'free',
+        accessStatus: pendingUser.membershipType === 'paid' ? 'locked' : 'unlocked',
+        paymentStatus: pendingUser.membershipType === 'paid' ? 'pending' : 'completed',
+        verificationStatus: 'pending'
       };
 
       const newUser = await User.create(userData);
@@ -126,7 +130,7 @@ export async function POST(req: NextRequest) {
             requestedBy: 'member',
             status: 'pending'
           });
-          
+
           const { notifyMemberRequest } = await import('@/lib/notifications');
           notifyMemberRequest(pendingUser.assignedEmployeeId.toString(), newUser._id.toString());
         }
@@ -171,7 +175,7 @@ export async function POST(req: NextRequest) {
     if (!verifyOTP(otp, user.otp)) {
       user.otpAttempts = (user.otpAttempts || 0) + 1;
       await user.save();
-      
+
       if (user.otpAttempts >= 5) {
         return errorResponse('Too many failed attempts. Please request a new OTP.', 400);
       }

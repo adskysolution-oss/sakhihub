@@ -1,4 +1,4 @@
- import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
 export type UserRole = 'super_admin' | 'vendor' | 'sub_vendor' | 'employee' | 'member';
 export type UserStatus = 'pending' | 'documents_uploaded' | 'under_review' | 'reupload_required' | 'approved' | 'active' | 'rejected' | 'suspended';
@@ -27,8 +27,8 @@ export interface IUser extends Document {
   email?: string;
   password?: string;
   role: UserRole;
-  designation?: string; 
-  employeeId?: string; 
+  designation?: string;
+  employeeId?: string;
   vendorCode?: string; // For Vendor/Sub-Vendor
   subVendorCode?: string; // For Sub-Vendor
   parentVendorId?: mongoose.Types.ObjectId; // Hierarchy link
@@ -98,6 +98,10 @@ export interface IUser extends Document {
   parentSubVendorCode?: string; // Referral tracking
   parentEmployeeCode?: string; // Referral tracking
   campaignCode?: string; // Referral tracking
+  membershipType?: 'paid' | 'free';
+  accessStatus?: 'locked' | 'unlocked';
+  paymentStatus?: 'pending' | 'completed';
+  verificationStatus?: 'pending' | 'verified';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -112,10 +116,10 @@ const DocumentEntrySchema = new Schema({
   employeeId: { type: String },
   userId: { type: String },
   vendorEmail: { type: String },
-  status: { 
-    type: String, 
-    enum: ['uploaded', 'pending', 'under_review', 'approved', 'rejected', 'reupload_required', 'exception_requested', 'exception_approved', 'on_hold', 'exception_responded'], 
-    default: 'uploaded' 
+  status: {
+    type: String,
+    enum: ['uploaded', 'pending', 'under_review', 'approved', 'rejected', 'reupload_required', 'exception_requested', 'exception_approved', 'on_hold', 'exception_responded'],
+    default: 'uploaded'
   },
   remarks: { type: String },
   exceptionReason: { type: String },
@@ -131,13 +135,13 @@ const UserSchema: Schema = new Schema(
     mobile: { type: String, required: true, unique: true },
     email: { type: String, sparse: true },
     password: { type: String },
-    role: { 
-      type: String, 
-      enum: ['super_admin', 'vendor', 'sub_vendor', 'employee', 'member'], 
-      default: 'member' 
+    role: {
+      type: String,
+      enum: ['super_admin', 'vendor', 'sub_vendor', 'employee', 'member'],
+      default: 'member'
     },
-    vendorType: { 
-      type: String, 
+    vendorType: {
+      type: String,
       enum: ['individual', 'company', 'ngo_trust']
     },
     designation: { type: String },
@@ -156,9 +160,9 @@ const UserSchema: Schema = new Schema(
     parentVendorId: { type: Schema.Types.ObjectId, ref: 'User' },
     campaignId: { type: Schema.Types.ObjectId, ref: 'Campaign' },
     assignedCampaigns: [{ type: Schema.Types.ObjectId, ref: 'Campaign' }],
-    status: { 
-      type: String, 
-      enum: ['pending', 'documents_uploaded', 'under_review', 'reupload_required', 'approved', 'active', 'rejected', 'suspended'], 
+    status: {
+      type: String,
+      enum: ['pending', 'documents_uploaded', 'under_review', 'reupload_required', 'approved', 'active', 'rejected', 'suspended'],
       default: 'pending',
       required: true,
       trim: true,
@@ -216,6 +220,10 @@ const UserSchema: Schema = new Schema(
     parentSubVendorCode: { type: String },
     parentEmployeeCode: { type: String },
     campaignCode: { type: String },
+    membershipType: { type: String, enum: ['paid', 'free'], default: 'free' },
+    accessStatus: { type: String, enum: ['locked', 'unlocked'], default: 'locked' },
+    paymentStatus: { type: String, enum: ['pending', 'completed'], default: 'pending' },
+    verificationStatus: { type: String, enum: ['pending', 'verified'], default: 'pending' },
   },
   { timestamps: true }
 );

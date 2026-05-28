@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
-import { 
-  CreditCard, 
-  ShieldCheck, 
-  RefreshCcw, 
+import {
+  CreditCard,
+  ShieldCheck,
+  RefreshCcw,
   LogOut,
   IndianRupee,
   CheckCircle2,
@@ -283,7 +283,7 @@ function PaymentPendingContent() {
         );
         setSubmittedTypes(pending);
       }
-    } catch (_) {}
+    } catch (_) { }
   };
 
   const fetchStatus = async () => {
@@ -292,14 +292,14 @@ function PaymentPendingContent() {
         axios.get('/api/payment/status'),
         axios.get('/api/auth/me'),
       ]);
-      
+
       if (res.data.success && meRes.data.success) {
         const paymentData = res.data.data;
         const user = meRes.data.data;
-        
+
         setData(paymentData);
         setProfile(user);
-        
+
         if (paymentData.paymentCompleted || user.paymentCompleted) {
           if (user.role === 'vendor') {
             router.push(user.dashboardAccess ? '/vendor/dashboard' : '/vendor/onboarding');
@@ -422,7 +422,7 @@ function PaymentPendingContent() {
         <h1 className="text-4xl md:text-5xl font-black text-secondary mb-6 leading-tight">
           Complete <span className="text-primary">Payment</span>
         </h1>
-        
+
         <p className="text-gray-500 text-lg md:text-xl font-medium mb-12 leading-relaxed max-w-xl mx-auto">
           Your documents have been verified! To unlock your dashboard and activate your account, please complete the required payments.
         </p>
@@ -446,7 +446,7 @@ function PaymentPendingContent() {
         {/* Payment Cards */}
         <div className="flex flex-col gap-6 mb-8 text-left">
           {data?.subscription?.required && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className={`bg-white p-6 md:p-8 rounded-[40px] border shadow-xl flex flex-col gap-6 ${data.subscription.paid ? 'border-green-100 shadow-green-500/5' : 'border-primary/20 shadow-primary/5'}`}
@@ -462,7 +462,7 @@ function PaymentPendingContent() {
                     <p className="text-2xl font-bold mt-2 text-secondary">₹{data.subscription.amount}</p>
                   </div>
                 </div>
-              
+
                 <div className="w-full md:w-auto flex flex-col gap-2 items-end">
                   {data.subscription.paid ? (
                     <div className="px-8 py-4 bg-green-50 text-green-600 rounded-2xl font-black text-[12px] uppercase tracking-widest text-center flex items-center justify-center gap-2">
@@ -502,7 +502,7 @@ function PaymentPendingContent() {
                       )}
                     </>
                   ) : (
-                    <button 
+                    <button
                       onClick={() => initiatePayment('subscription')}
                       className="w-full px-10 py-4 rounded-2xl font-black text-[12px] uppercase tracking-widest shadow-xl transition-all bg-primary text-white shadow-primary/20 hover:scale-105 active:scale-95"
                     >
@@ -527,7 +527,7 @@ function PaymentPendingContent() {
           )}
 
           {data?.deposit?.required && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -544,7 +544,7 @@ function PaymentPendingContent() {
                     <p className="text-2xl font-bold mt-2 text-secondary">₹{data.deposit.amount}</p>
                   </div>
                 </div>
-              
+
                 <div className="w-full md:w-auto flex flex-col gap-2 items-end">
                   {data.deposit.paid ? (
                     <div className="px-8 py-4 bg-green-50 text-green-600 rounded-2xl font-black text-[12px] uppercase tracking-widest text-center flex items-center justify-center gap-2">
@@ -583,7 +583,7 @@ function PaymentPendingContent() {
                       )}
                     </>
                   ) : (
-                    <button 
+                    <button
                       onClick={() => initiatePayment('deposit')}
                       className="w-full px-10 py-4 rounded-2xl font-black text-[12px] uppercase tracking-widest shadow-xl transition-all bg-secondary text-white shadow-secondary/20 hover:scale-105 active:scale-95"
                     >
@@ -611,7 +611,7 @@ function PaymentPendingContent() {
             <div className="bg-white p-8 rounded-[40px] border border-gray-200 text-center">
               <AlertCircle size={48} className="mx-auto text-gray-300 mb-4" />
               <h3 className="text-xl font-bold text-gray-500">No payments required at this time.</h3>
-              <button 
+              <button
                 onClick={fetchStatus}
                 className="mt-6 px-8 py-3 bg-primary text-white rounded-xl font-bold"
               >
@@ -623,14 +623,14 @@ function PaymentPendingContent() {
 
         {/* Footer Actions */}
         <div className="flex flex-col md:flex-row items-center justify-center gap-6">
-          <button 
+          <button
             onClick={fetchStatus}
             className="flex items-center gap-3 px-8 py-4 bg-gray-50 text-gray-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-100 transition-all"
           >
             <RefreshCcw size={16} /> Refresh Status
           </button>
-          
-          <button 
+
+          <button
             onClick={handleLogout}
             className="flex items-center gap-3 px-8 py-4 border-2 border-gray-100 text-gray-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 transition-all"
           >

@@ -77,7 +77,7 @@ export async function proxy(request: NextRequest) {
         }
         return NextResponse.redirect(new URL('/employee/onboarding', request.url));
       }
-      if (payload.role === 'member') return NextResponse.redirect(new URL(payload.status === 'active' ? '/member/dashboard' : '/pending-assignment', request.url));
+      if (payload.role === 'member') return NextResponse.redirect(new URL('/member/dashboard', request.url));
     } catch (e) {
       return NextResponse.next();
     }
@@ -198,12 +198,7 @@ export async function proxy(request: NextRequest) {
         }
       }
 
-      // MEMBER PROTECTION
-      if (payload.role === 'member' && !['active', 'approved'].includes(payload.status)) {
-        if (pathname !== '/pending-approval' && pathname !== '/pending-assignment') {
-          return NextResponse.redirect(new URL('/pending-approval', request.url));
-        }
-      }
+
 
       // RESTRICTED STATUS PROTECTION (All roles)
       if (['rejected', 'suspended', 'inactive'].includes(payload.status)) {
@@ -214,7 +209,7 @@ export async function proxy(request: NextRequest) {
 
       // Hierarchy check (General)
       // Now including sub_vendor in the mandatory assignment check
-      if (!['super_admin', 'vendor'].includes(payload.role) && payload.assignmentStatus === 'pending') {
+      if (!['super_admin', 'vendor', 'member'].includes(payload.role) && payload.assignmentStatus === 'pending') {
         if (pathname !== '/pending-assignment' && pathname !== '/pending-approval' && pathname !== '/vendor/onboarding' && !pathname.includes('onboarding')) {
           return NextResponse.redirect(new URL('/pending-assignment', request.url));
         }

@@ -52,9 +52,9 @@ export async function POST(req: NextRequest) {
       return errorResponse('Invalid credentials', 401);
     }
 
-    const token = signToken({ 
-      id: user._id, 
-      role: user.role, 
+    const token = signToken({
+      id: user._id,
+      role: user.role,
       status: user.status,
       assignmentStatus: user.assignmentStatus,
       fullName: user.fullName,
@@ -65,14 +65,14 @@ export async function POST(req: NextRequest) {
       dashboardAccess: user.dashboardAccess,
       paymentCompleted: user.paymentCompleted
     });
-    
+
     await setAuthCookie(token);
 
     return successResponse(
-      { 
-        id: user._id, 
-        fullName: user.fullName, 
-        role: user.role 
+      {
+        id: user._id,
+        fullName: user.fullName,
+        role: user.role
       },
       'Login successful'
     );

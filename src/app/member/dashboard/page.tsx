@@ -383,7 +383,11 @@ function MemberDashboardContent() {
   }
 
   const { profile, fieldRecord, membership, pendingRequests, membershipFee = 100 } = data || {};
-  const isVerified = membership?.paymentStatus === 'Paid' || fieldRecord?.membershipStatus === 'paid';
+  
+  const isFreeMember = profile?.membershipType === 'free';
+  const isPaidVerified = profile?.membershipType === 'paid' && (profile?.accessStatus === 'unlocked' || membership?.paymentStatus === 'Paid' || fieldRecord?.membershipStatus === 'paid');
+  const isPaidPending = profile?.membershipType === 'paid' && !isPaidVerified;
+  const isPremiumLocked = !isPaidVerified;
 
   return (
     <DashboardLayout>
@@ -458,13 +462,17 @@ function MemberDashboardContent() {
               <span className="px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-[10px] md:text-xs font-bold tracking-widest uppercase">
                 MEMBER PORTAL
               </span>
-              {isVerified ? (
+              {isFreeMember ? (
+                <span className="flex items-center gap-2 px-4 py-1.5 bg-blue-400/20 backdrop-blur-md rounded-full text-[10px] md:text-xs font-bold text-blue-300">
+                  <User size={14} /> FREE MEMBER
+                </span>
+              ) : isPaidVerified ? (
                 <span className="flex items-center gap-2 px-4 py-1.5 bg-green-400/20 backdrop-blur-md rounded-full text-[10px] md:text-xs font-bold text-green-300">
-                  <ShieldCheck size={14} /> VERIFIED MEMBER
+                  <ShieldCheck size={14} /> PREMIUM MEMBER
                 </span>
               ) : (
                 <span className="flex items-center gap-2 px-4 py-1.5 bg-amber-400/20 backdrop-blur-md rounded-full text-[10px] md:text-xs font-bold text-amber-300">
-                  <Clock size={14} /> PENDING VERIFICATION
+                  <Clock size={14} /> PENDING PAYMENT
                 </span>
               )}
             </div>
@@ -487,8 +495,8 @@ function MemberDashboardContent() {
             </div>
             <div className="min-w-0">
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Membership Status</p>
-              <h3 className={`text-lg font-black mt-0.5 truncate ${isVerified ? 'text-green-600' : 'text-amber-600'}`}>
-                {isVerified ? 'Active & Paid' : 'Pending Verification'}
+              <h3 className={`text-lg font-black mt-0.5 truncate ${isPaidVerified ? 'text-green-600' : isFreeMember ? 'text-blue-600' : 'text-amber-600'}`}>
+                {isPaidVerified ? 'Active (Premium)' : isFreeMember ? 'Active (Free)' : 'Pending Payment'}
               </h3>
             </div>
           </div>
@@ -677,10 +685,17 @@ function MemberDashboardContent() {
                 </div>
                 <div className="flex flex-wrap gap-4 mt-8">
                   <button
-                    onClick={handlePrintCard}
-                    className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-primary to-secondary text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-primary/25 hover:scale-105 transition-all cursor-pointer min-w-[140px]"
+                    onClick={() => {
+                      if (isPremiumLocked) {
+                        toast.error("Premium Feature: Please upgrade or verify your membership to unlock printing.");
+                        return;
+                      }
+                      handlePrintCard();
+                    }}
+                    className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer min-w-[140px] ${isPremiumLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed opacity-80' : 'bg-gradient-to-r from-primary to-secondary text-white shadow-xl shadow-primary/25 hover:scale-105'}`}
                   >
-                    <Printer size={16} /> Print Card
+                    {isPremiumLocked ? <ShieldAlert size={16} /> : <Printer size={16} />} 
+                    {isPremiumLocked ? 'Locked (Premium)' : 'Print Card'}
                   </button>
                   <button
                     onClick={() => setShowProfileModal(true)}
@@ -766,6 +781,19 @@ function MemberDashboardContent() {
                       </button>
                     </Link>
                   </div>
+                </div>
+              ) : isFreeMember ? (
+                <div className="p-8 sm:p-12 text-center bg-gradient-to-br from-blue-50/50 via-white to-blue-100/30 rounded-3xl border border-blue-100 shadow-sm">
+                  <div className="w-16 h-16 bg-blue-100/80 rounded-2xl flex items-center justify-center text-blue-600 mx-auto mb-6">
+                    <ShieldCheck size={32} />
+                  </div>
+                  <h3 className="text-xl font-black text-secondary leading-tight">Free Membership Active</h3>
+                  <p className="text-gray-500 text-xs font-semibold max-w-md mx-auto leading-relaxed mt-3 mb-8">
+                    You are currently on the basic free tier. Upgrade to Premium to unlock dynamic digital ID cards, learning manuals, and campaign kit benefits!
+                  </p>
+                  <button onClick={() => { toast.info("Premium upgrade feature coming soon!") }} className="btn-primary py-3.5 px-8 shadow-lg shadow-primary/20 mx-auto w-auto min-w-[200px] justify-center text-center">
+                    Upgrade to Premium
+                  </button>
                 </div>
               ) : (
                 <div className="p-8 sm:p-12 text-center bg-gradient-to-br from-pink-50/50 via-white to-primary/5 rounded-3xl border border-pink-100 shadow-sm">
@@ -884,7 +912,11 @@ function MemberDashboardContent() {
                     const target = document.getElementById("printable-membership-card");
                     target?.scrollIntoView({ behavior: 'smooth' });
                   }},
-                  { label: 'Download Learning Manuals', icon: <Download size={20} />, color: '#6366f1', onClick: () => {
+                  { label: 'Download Learning Manuals', icon: isPremiumLocked ? <ShieldAlert size={20} /> : <Download size={20} />, color: isPremiumLocked ? '#9ca3af' : '#6366f1', onClick: () => {
+                    if (isPremiumLocked) {
+                      toast.error("Premium Feature: Please upgrade or verify your membership to access learning manuals.");
+                      return;
+                    }
                     window.location.href = '/member/resources';
                   }}
                 ].map((action, i) => (

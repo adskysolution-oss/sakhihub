@@ -6,7 +6,7 @@ import {
   User, Phone, MapPin, ShieldCheck,
   ArrowRight, ArrowLeft, Users, Briefcase, Sparkles,
   ClipboardList, BookOpen, Clock, AlertCircle, Mail, Check,
-  CheckCircle
+  CheckCircle, X
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import PasswordField from "@/components/ui/PasswordField";
@@ -18,7 +18,8 @@ const steps = [
   { id: 2, name: "Details" },
   { id: 3, name: "Location" },
   { id: 4, name: "Connect" },
-  { id: 5, name: "Security" },
+  { id: 5, name: "Membership" },
+  { id: 6, name: "Security" },
 ];
 
 const designations = [
@@ -59,6 +60,7 @@ export default function RegisterForm() {
     subVendorCode: "",
     campaignId: "",
     vendorType: "individual",
+    membershipType: "free",
   });
 
   const [referralContext, setReferralContext] = useState<{ role: string, parent: string } | null>(null);
@@ -90,7 +92,7 @@ export default function RegisterForm() {
             const result = await res.json();
             if (result.success && result.data) {
               setReferredEmployee(result.data);
-              
+
               setFormData(prev => {
                 const update: any = { ...prev };
                 if (result.data.role === 'employee') {
@@ -131,6 +133,27 @@ export default function RegisterForm() {
     }
   }, [resendTimer]);
 
+  const [membershipConfig, setMembershipConfig] = useState<any>(null);
+  const [configLoading, setConfigLoading] = useState(false);
+
+  React.useEffect(() => {
+    const fetchConfig = async () => {
+      setConfigLoading(true);
+      try {
+        const res = await fetch('/api/public/membership-config');
+        const data = await res.json();
+        if (data.success && data.data) {
+          setMembershipConfig(data.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch membership config:", err);
+      } finally {
+        setConfigLoading(false);
+      }
+    };
+    fetchConfig();
+  }, []);
+
   const { loading: pincodeLoading } = usePincodeAutofill(formData.pincode, (data) => {
     setFormData(prev => ({
       ...prev,
@@ -168,9 +191,22 @@ export default function RegisterForm() {
 
   const nextStep = () => {
     if (step === 1 && !formData.role) return;
-    setStep((prev) => Math.min(prev + 1, steps.length));
+    setStep((prev) => {
+      let next = prev + 1;
+      if (next === 5 && formData.role !== 'member') next = 6;
+      return Math.min(next, 6);
+    });
   };
-  const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
+  const prevStep = () => {
+    setStep((prev) => {
+      let previous = prev - 1;
+      if (previous === 5 && formData.role !== 'member') previous = 4;
+      return Math.max(previous, 1);
+    });
+  };
+
+  const visibleSteps = steps.filter(s => formData.role === 'member' || s.id !== 5);
+  const currentStepIndex = visibleSteps.findIndex(s => s.id === step) !== -1 ? visibleSteps.findIndex(s => s.id === step) : 0;
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -359,10 +395,10 @@ export default function RegisterForm() {
               <div className="absolute top-[16px] left-0 w-full h-[2px] bg-gray-100 z-0"></div>
               <div
                 className="absolute top-[16px] left-0 h-[2px] bg-gradient-to-r from-primary to-secondary z-0 transition-all duration-500"
-                style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
+                style={{ width: `${(currentStepIndex / Math.max(visibleSteps.length - 1, 1)) * 100}%` }}
               ></div>
 
-              {steps.map((s) => (
+              {visibleSteps.map((s) => (
                 <div key={s.id} className="relative z-10 flex flex-col items-center gap-2">
                   <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xs md:text-sm font-black transition-all duration-300 ${step >= s.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white text-gray-300 border-2 border-gray-100'}`}>
                     {step > s.id ? <CheckCircle size={16} /> : s.id}
@@ -451,11 +487,11 @@ export default function RegisterForm() {
                         <label className="text-sm font-black text-gray-700">Vendor Type</label>
                         <div className="relative">
                           <Briefcase size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                          <select 
-                            name="vendorType" 
-                            value={formData.vendorType} 
-                            onChange={handleChange} 
-                            className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none bg-white font-bold" 
+                          <select
+                            name="vendorType"
+                            value={formData.vendorType}
+                            onChange={handleChange}
+                            className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none bg-white font-bold"
                             required
                           >
                             <option value="individual">Individual Vendor</option>
@@ -465,6 +501,7 @@ export default function RegisterForm() {
                         </div>
                       </div>
                     )}
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                       <div className="flex flex-col gap-2">
                         <label className="text-sm font-black text-gray-700">Full Name</label>
@@ -662,8 +699,65 @@ export default function RegisterForm() {
                   </motion.div>
                 )}
 
-                {step === 5 && (
+                {step === 5 && formData.role === 'member' && (
                   <motion.div key="step5" {...fadeInUp} className="flex flex-col gap-6">
+                    <div className="text-center mb-2">
+                      <h3 className="text-xl md:text-2xl font-black text-secondary">Choose Your Membership</h3>
+                      <p className="text-gray-400 text-sm mt-1">Select a plan to complete your registration.</p>
+                    </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <label className={`relative p-6 rounded-3xl border-2 cursor-pointer flex flex-col gap-3 transition-all text-left ${formData.membershipType === 'free' ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10' : 'border-gray-100 bg-white hover:border-gray-200 shadow-sm'}`}>
+                            <input type="radio" name="membershipType" value="free" checked={formData.membershipType === 'free'} onChange={handleChange} className="sr-only" />
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-[10px] font-black uppercase tracking-widest">Free</span>
+                                <h4 className="font-black text-secondary text-lg mt-2">Base Member</h4>
+                              </div>
+                              <span className="text-xl font-black text-secondary">₹0</span>
+                            </div>
+                            <div className="mt-4 pt-4 border-t border-gray-100/60">
+                              <ul className="flex flex-col gap-2">
+                                <li className="flex items-center gap-2 text-xs font-bold text-gray-500"><Check size={14} className="text-green-500" /> Basic Platform Access</li>
+                                <li className="flex items-center gap-2 text-xs font-bold text-gray-500"><Check size={14} className="text-green-500" /> Community Events</li>
+                                <li className="flex items-center gap-2 text-xs font-bold text-gray-300"><X size={14} className="text-gray-300" /> No Sanitary Pads Benefit</li>
+                              </ul>
+                            </div>
+                          </label>
+
+                          <label className={`relative p-6 rounded-3xl border-2 cursor-pointer flex flex-col gap-3 transition-all text-left ${formData.membershipType === 'paid' ? 'border-secondary bg-secondary/5 shadow-lg shadow-secondary/10' : 'border-gray-100 bg-white hover:border-gray-200 shadow-sm'}`}>
+                            <input type="radio" name="membershipType" value="paid" checked={formData.membershipType === 'paid'} onChange={handleChange} className="sr-only" />
+                            <div className="absolute -top-3 -right-3 w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center text-white shadow-lg animate-bounce">
+                              <Sparkles size={14} />
+                            </div>
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-widest">Premium</span>
+                                <h4 className="font-black text-secondary text-lg mt-2">{membershipConfig?.title || 'Paid Member'}</h4>
+                              </div>
+                              <span className="text-xl font-black text-primary">₹{membershipConfig?.feeAmount || 200}</span>
+                            </div>
+                            <div className="mt-4 pt-4 border-t border-gray-100/60">
+                              <ul className="flex flex-col gap-2">
+                                <li className="flex items-center gap-2 text-xs font-bold text-gray-500"><Check size={14} className="text-green-500" /> Full Platform Access</li>
+                                <li className="flex items-center gap-2 text-xs font-bold text-gray-500"><Check size={14} className="text-green-500" /> Premium ID Card</li>
+                                <li className="flex items-start gap-2 text-xs font-black text-primary bg-primary/10 p-2 rounded-lg">
+                                  <Sparkles size={14} className="shrink-0 mt-0.5" />
+                                  <span>{membershipConfig?.benefitLabel || '1 Year Sanitary Pads Free'}</span>
+                                </li>
+                              </ul>
+                            </div>
+                          </label>
+                        </div>
+                    <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                      <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
+                      <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">Continue to Security</button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {step === 6 && (
+                  <motion.div key="step6" {...fadeInUp} className="flex flex-col gap-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                       <PasswordField
                         label="Password"
