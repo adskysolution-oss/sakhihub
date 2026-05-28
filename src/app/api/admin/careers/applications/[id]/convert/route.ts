@@ -36,7 +36,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       email: application.email,
       role: 'employee',
       employeeId: generateEmployeeId(),
-      status: 'approved',
+      status: 'pending',
       assignmentStatus: 'pending',
       referralSource: 'direct',
       state: application.state,
@@ -44,9 +44,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       block: application.block,
       qualification: application.qualification,
       experience: application.experience,
-      isVerified: true,
-      onboardingCompleted: true,
-      documentsVerified: true,
+      isVerified: false,
+      onboardingCompleted: false,
+      documentsVerified: false,
       dashboardAccess: false,
       documents: {
         resume: {

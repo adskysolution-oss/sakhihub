@@ -49,6 +49,12 @@ export async function GET() {
        const { areAllDocsApproved } = await import('@/lib/docs/service');
        if (areAllDocsApproved(user)) {
          user.documentsVerified = true;
+         
+         if (user.role === 'employee') {
+            user.isVerified = true;
+            user.status = 'active';
+         }
+
          if (user.assignmentStatus === 'completed' && ['active', 'approved'].includes(user.status)) {
            user.dashboardAccess = true;
            user.onboardingCompleted = true;

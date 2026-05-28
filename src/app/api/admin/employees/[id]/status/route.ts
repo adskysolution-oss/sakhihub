@@ -125,6 +125,19 @@ export async function PATCH(
       // DUAL-GATE ACCESS LOGIC:
       // If all docs are approved AND payment is completed AND (hierarchy is already set or role is vendor),
       // we can automatically unlock dashboard access.
+      
+      // Strict Activation for Employees
+      if (user.role === 'employee') {
+         if (user.documentsVerified) {
+            user.status = 'active';
+            user.isVerified = true;
+         } else {
+            user.status = 'pending';
+            user.isVerified = false;
+            user.dashboardAccess = false;
+         }
+      }
+
       if (user.documentsVerified && user.paymentCompleted && (user.role === 'vendor' || user.assignmentStatus === 'completed') && ['active', 'approved', 'documents_uploaded'].includes(user.status)) {
          user.dashboardAccess = true;
          user.onboardingCompleted = true;

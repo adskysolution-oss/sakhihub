@@ -42,7 +42,6 @@ const CampaignsSection = () => {
   }
 ];
 
-const CampaignsSection = () => {
   return (
     <section className="section-padding" style={{ background: 'var(--bg-light)' }}>
       <div className="container">
