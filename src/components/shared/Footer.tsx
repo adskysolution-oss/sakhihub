@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Mail, Globe, Camera, Play, Heart, Search, ShieldCheck } from 'lucide-react';
+import { Mail, Globe, Camera, Play, Heart, Search, ShieldCheck, PhoneCall } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -107,6 +107,10 @@ const Footer = () => {
               <a href="mailto:info@sakhihub.com" className="flex items-center gap-4 group justify-start">
                 <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-blue-500 transition-all text-blue-500 group-hover:text-white shrink-0"><Mail size={18} /></div>
                 <span className="text-sm font-semibold text-white group-hover:text-blue-500 transition-colors truncate">info@sakhihub.com</span>
+              </a>
+              <a href="tel:+918062179122" className="flex items-center gap-4 group justify-start">
+                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-green-500 transition-all text-green-500 group-hover:text-white shrink-0"><PhoneCall size={18} /></div>
+                <span className="text-sm font-semibold text-white group-hover:text-green-500 transition-colors truncate">+91 8062179122</span>
               </a>
             </div>
           </div>
