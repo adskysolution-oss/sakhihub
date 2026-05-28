@@ -22,18 +22,31 @@ export const uploadToS3 = async (fileUri: string, folder: string, options: any =
     const mimeType = match[1];
     const base64Data = match[2];
     const buffer = Buffer.from(base64Data, 'base64');
+    
+    return await uploadBufferToS3(buffer, mimeType, folder, options);
+  } catch (error) {
+    console.error("S3 upload error:", error);
+    throw error;
+  }
+};
+
+export const uploadBufferToS3 = async (buffer: Buffer, mimeType: string, folder: string, options: any = {}) => {
+  try {
+    const bucketName = process.env.AWS_S3_BUCKET_NAME;
+    if (!bucketName) throw new Error("AWS_S3_BUCKET_NAME is not configured");
 
     // Extract extension from mimeType
     const ext = mimeType.split('/')[1]?.split('+')[0] || 'bin';
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(7);
     
-    // Maintain sakhihub prefix just like Cloudinary
-    let objectKey = `sakhihub/${folder}/${timestamp}_${randomStr}.${ext}`;
+    // Maintain sakhihub prefix just like Cloudinary without duplicating it
+    const cleanFolder = folder.startsWith('sakhihub/') ? folder : `sakhihub/${folder}`;
+    let objectKey = `${cleanFolder}/${timestamp}_${randomStr}.${ext}`;
     
     // If public_id is provided in options, use it
     if (options.public_id) {
-        objectKey = `sakhihub/${folder}/${options.public_id}.${ext}`;
+        objectKey = `${cleanFolder}/${options.public_id}.${ext}`;
     }
 
     const command = new PutObjectCommand({
@@ -41,8 +54,6 @@ export const uploadToS3 = async (fileUri: string, folder: string, options: any =
       Key: objectKey,
       Body: buffer,
       ContentType: mimeType,
-      // For public read access, though often governed by bucket policies
-      ACL: 'public-read', 
       ...options.s3Options // any explicit S3 options
     });
 
@@ -58,7 +69,7 @@ export const uploadToS3 = async (fileUri: string, folder: string, options: any =
       mimeType: mimeType
     };
   } catch (error) {
-    console.error("S3 upload error:", error);
+    console.error("S3 buffer upload error:", error);
     throw error;
   }
 };

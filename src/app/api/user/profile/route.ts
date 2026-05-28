@@ -3,13 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import { getAuthSession } from '@/lib/auth';
 import { errorResponse, successResponse } from '@/utils/response';
 import User from '@/models/User';
-import { v2 as cloudinary } from 'cloudinary';
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+import { uploadBuffer } from '@/lib/storage';
 
 export async function GET() {
   try {
@@ -75,24 +69,19 @@ export async function PATCH(req: NextRequest) {
     if (file && typeof file !== 'string') {
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      
-      const uploadResult = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          {
-            folder: `sakhihub/profiles/${user.role}`,
-            public_id: `profile_${user._id}`,
-            resource_type: 'image',
-            invalidate: true,
-          },
-          (error: any, result: any) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        ).end(buffer);
-      }) as any;
+      const uploadResult = await uploadBuffer(
+        buffer, 
+        file.type, 
+        `profiles/${user.role}`, 
+        { 
+          uploadedBy: user._id, 
+          uploadedFor: 'profileImage',
+          originalName: file.name
+        }
+      );
 
-      if (uploadResult?.secure_url) {
-        user.profileImage = uploadResult.secure_url;
+      if (uploadResult?.url) {
+        user.profileImage = uploadResult.url;
       }
     }
 

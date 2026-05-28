@@ -40,4 +40,29 @@ export const uploadToCloudinary = async (fileUri: string, folder: string, option
   }
 };
 
+export const uploadBufferToCloudinary = async (buffer: Buffer, mimeType: string, folder: string, options: any = {}) => {
+  return new Promise<any>((resolve, reject) => {
+    const isPDF = mimeType === 'application/pdf';
+    const uploadOptions = {
+      folder: `sakhihub/${folder}`,
+      resource_type: isPDF ? 'image' : 'auto',
+      ...options
+    };
+
+    if (isPDF) {
+      uploadOptions.format = 'pdf';
+    }
+
+    const stream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
+      if (error) {
+        console.error("Cloudinary stream upload error:", error);
+        return reject(error);
+      }
+      resolve(result);
+    });
+
+    stream.end(buffer);
+  });
+};
+
 export default cloudinary;

@@ -9,7 +9,7 @@ import VendorMOU from '@/models/VendorMOU';
 import VendorCertificate from '@/models/VendorCertificate';
 import EmployeeOfferLetter from '@/models/EmployeeOfferLetter';
 import EmployeeCertificate from '@/models/EmployeeCertificate';
-import { uploadToCloudinary } from '@/lib/cloudinary';
+import { uploadBuffer } from '@/lib/storage';
 import { 
   REQUIRED_DOCS_BY_ROLE, 
   getDocumentFolderPath,
@@ -143,35 +143,22 @@ export async function POST(req: NextRequest) {
     // Structure publicId as: documentType_timestamp (Do not append .pdf here, format will handle it)
     const publicId = `${type}_${Date.now()}`;
 
-    const uploadResult = await new Promise((resolve, reject) => {
-      const { v2: cloudinary } = require('cloudinary');
-      cloudinary.config({
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET,
-      });
+    const uploadResult = await uploadBuffer(
+      buffer,
+      file.type,
+      folder,
+      {
+        uploadedBy: user._id,
+        uploadedFor: type,
+        originalName: fileName || file.name
+      }
+    );
 
-      cloudinary.uploader.upload_stream(
-        {
-          folder: folder,
-          public_id: publicId,
-          resource_type: 'image', // Must use 'image' for PDFs on free tier to avoid 'Blocked for delivery' error
-          format: isPDF ? 'pdf' : undefined, // Tell Cloudinary to explicitly treat it as PDF
-          flags: 'attachment:false', // Try to ensure it can be opened inline
-          invalidate: true,
-        },
-        (error: any, result: any) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      ).end(buffer);
-    }) as any;
-
-    if (!uploadResult || !uploadResult.secure_url) {
-      return errorResponse('Cloudinary upload failed', 500);
+    if (!uploadResult || !uploadResult.url) {
+      return errorResponse('Upload failed', 500);
     }
 
-    let secureUrl = uploadResult.secure_url;
+    let secureUrl = uploadResult.url;
     if (isPDF && !secureUrl.toLowerCase().endsWith('.pdf')) {
       secureUrl = secureUrl + '.pdf';
     }
@@ -233,7 +220,7 @@ export async function POST(req: NextRequest) {
 
     const docData: any = {
       url: secureUrl,
-      publicId: uploadResult.public_id,
+      publicId: uploadResult.publicId,
       fileName: fileName || file.name || `${type}.pdf`,
       fileSize: fileSize || `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
       mimeType: mimeType || file.type || 'application/pdf',
@@ -300,7 +287,7 @@ export async function POST(req: NextRequest) {
         title: type,
         fileUrl: secureUrl,
         uploadedDocumentUrl: secureUrl,
-        publicId: uploadResult.public_id,
+        publicId: uploadResult.publicId,
         fileName: fileName || file.name || `${type}.pdf`,
         fileSize: fileSize || `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
         mimeType: mimeType || file.type || 'application/pdf',

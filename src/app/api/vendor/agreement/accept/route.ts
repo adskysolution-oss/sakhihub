@@ -4,7 +4,7 @@ import VendorAgreement from '@/models/VendorAgreement';
 import AgreementAcceptanceLog from '@/models/AgreementAcceptanceLog';
 import { getAuthSession } from '@/lib/auth';
 import { generateAgreementHtml, generatePdfBuffer } from '@/utils/pdfGenerator';
-import { uploadToCloudinary } from '@/lib/cloudinary';
+import { uploadBuffer } from '@/lib/storage';
 
 export async function POST(request: NextRequest) {
   try {
@@ -64,12 +64,18 @@ export async function POST(request: NextRequest) {
     const htmlContent = generateAgreementHtml(updatedTemplateData);
     const pdfBuffer = await generatePdfBuffer(htmlContent);
 
-    // Convert Buffer to base64 data URI
-    const base64Pdf = `data:application/pdf;base64,${Buffer.from(pdfBuffer).toString('base64')}`;
-
-    // Upload Final Signed PDF to Cloudinary
-    const uploadResult = await uploadToCloudinary(base64Pdf, 'vendor_agreements');
-    const finalFileUrl = uploadResult.secure_url;
+    // Upload Final Signed PDF to unified storage
+    const uploadResult = await uploadBuffer(
+      Buffer.from(pdfBuffer),
+      'application/pdf',
+      'vendor_agreements',
+      {
+        uploadedBy: currentUserId,
+        uploadedFor: 'vendorAgreement',
+        originalName: `${agreementId}_signed.pdf`
+      }
+    );
+    const finalFileUrl = uploadResult.url;
 
     // Update main agreement status and store the final Cloudinary URL
     agreement.status = 'approved';

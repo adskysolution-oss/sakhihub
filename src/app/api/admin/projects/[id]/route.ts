@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import { successResponse, errorResponse } from '@/utils/response';
-import { uploadToCloudinary } from '@/lib/cloudinary';
+import { uploadFile } from '@/lib/storage';
 
 export async function GET(
   req: NextRequest,
@@ -51,12 +51,12 @@ export async function PUT(
 
     // Handle image uploads if provided as base64 and it's new
     if (body.posterImage && body.posterImage.startsWith('data:')) {
-      const uploadRes = await uploadToCloudinary(body.posterImage, 'projects');
-      body.posterImage = uploadRes.secure_url;
+      const uploadRes = await uploadFile(body.posterImage, 'projects', { uploadedFor: 'projectPosterUpdate' });
+      body.posterImage = uploadRes.url;
     }
     if (body.secondaryImage && body.secondaryImage.startsWith('data:')) {
-      const uploadRes = await uploadToCloudinary(body.secondaryImage, 'projects');
-      body.secondaryImage = uploadRes.secure_url;
+      const uploadRes = await uploadFile(body.secondaryImage, 'projects', { uploadedFor: 'projectSecondaryUpdate' });
+      body.secondaryImage = uploadRes.url;
     }
 
     const project = await Project.findByIdAndUpdate(id, body, { returnDocument: 'after', runValidators: true });

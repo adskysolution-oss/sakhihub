@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import { successResponse, errorResponse } from '@/utils/response';
-import { uploadToCloudinary } from '@/lib/cloudinary';
+import { uploadFile } from '@/lib/storage';
 
 export async function GET(req: NextRequest) {
   try {
@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
 
     // Handle image upload
     if (body.posterImage && body.posterImage.startsWith('data:')) {
-      const uploadRes = await uploadToCloudinary(body.posterImage, 'products');
-      body.posterImage = uploadRes.secure_url;
+      const uploadRes = await uploadFile(body.posterImage, 'products', { uploadedFor: 'productPoster' });
+      body.posterImage = uploadRes.url;
     }
 
     const product = await Product.create(body);

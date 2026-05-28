@@ -3,13 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import Document from '@/models/Document';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
-import { v2 as cloudinary } from 'cloudinary';
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+import { uploadBuffer } from '@/lib/storage';
 
 export async function GET(req: NextRequest) {
   try {
@@ -42,23 +36,24 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Upload to Cloudinary
-    const uploadResult = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
-        { folder: 'sakhihub/documents', resource_type: 'auto' },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      ).end(buffer);
-    }) as any;
+    // Upload to unified storage
+    const uploadResult = await uploadBuffer(
+      buffer,
+      file.type,
+      'documents',
+      {
+        uploadedBy: (session as any).id,
+        uploadedFor: 'userDocument',
+        originalName: file.name
+      }
+    );
 
     await dbConnect();
     const document = await Document.create({
       userId: (session as any).id,
       type,
       title,
-      fileUrl: uploadResult.secure_url,
+      fileUrl: uploadResult.url,
       status: 'pending'
     });
 

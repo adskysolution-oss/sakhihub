@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import { successResponse, errorResponse } from '@/utils/response';
-import { uploadToCloudinary } from '@/lib/cloudinary';
+import { uploadFile } from '@/lib/storage';
 import mongoose from 'mongoose';
 
 export async function GET(req: NextRequest) {
@@ -47,12 +47,12 @@ export async function POST(req: NextRequest) {
 
     // Handle image uploads if provided as base64
     if (body.posterImage && body.posterImage.startsWith('data:')) {
-      const uploadRes = await uploadToCloudinary(body.posterImage, 'projects');
-      body.posterImage = uploadRes.secure_url;
+      const uploadRes = await uploadFile(body.posterImage, 'projects', { uploadedFor: 'projectPoster' });
+      body.posterImage = uploadRes.url;
     }
     if (body.secondaryImage && body.secondaryImage.startsWith('data:')) {
-      const uploadRes = await uploadToCloudinary(body.secondaryImage, 'projects');
-      body.secondaryImage = uploadRes.secure_url;
+      const uploadRes = await uploadFile(body.secondaryImage, 'projects', { uploadedFor: 'projectSecondary' });
+      body.secondaryImage = uploadRes.url;
     }
 
     const project = await Project.create(body);

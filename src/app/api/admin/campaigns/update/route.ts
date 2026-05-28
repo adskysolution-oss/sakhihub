@@ -3,13 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import Campaign from '@/models/Campaign';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
-import { v2 as cloudinary } from 'cloudinary';
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+import { uploadBuffer } from '@/lib/storage';
 
 export async function PUT(req: NextRequest) {
   try {
@@ -40,16 +34,17 @@ export async function PUT(req: NextRequest) {
       const buffer = Buffer.from(arrayBuffer);
       const folderName = `sakhihub/campaigns/${formData.get('title')?.toString().replace(/[^a-zA-Z0-9]/g, '_').toLowerCase() || 'default'}`;
       
-      const uploadResult = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          { folder: folderName, resource_type: 'image' },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        ).end(buffer);
-      });
-      bannerImageUrl = (uploadResult as any).secure_url;
+      const uploadResult = await uploadBuffer(
+        buffer,
+        bannerFile.type,
+        folderName,
+        {
+          uploadedBy: (session as any).id,
+          uploadedFor: 'campaignBannerUpdate',
+          originalName: bannerFile.name
+        }
+      );
+      bannerImageUrl = uploadResult.url;
     }
 
     // Update visibility and fields
