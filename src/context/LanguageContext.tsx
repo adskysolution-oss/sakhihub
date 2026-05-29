@@ -8,8 +8,13 @@ import mr from '@/locales/mr/common.json';
 import bn from '@/locales/bn/common.json';
 import ta from '@/locales/ta/common.json';
 import te from '@/locales/te/common.json';
+import gu from '@/locales/gu/common.json';
+import kn from '@/locales/kn/common.json';
+import ml from '@/locales/ml/common.json';
+import pa from '@/locales/pa/common.json';
+import or from '@/locales/or/common.json';
 
-type Language = 'en' | 'hi' | 'mr' | 'bn' | 'ta' | 'te';
+type Language = 'en' | 'hi' | 'mr' | 'bn' | 'ta' | 'te' | 'gu' | 'kn' | 'ml' | 'pa' | 'or';
 
 interface LanguageContextType {
   language: Language;
@@ -24,6 +29,11 @@ const allTranslations: Record<Language, any> = {
   bn,
   ta,
   te,
+  gu,
+  kn,
+  ml,
+  pa,
+  or,
 };
 
 const oldKeysMap: Record<string, string> = {

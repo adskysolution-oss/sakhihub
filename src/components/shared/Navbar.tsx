@@ -51,11 +51,16 @@ const Navbar = () => {
 
   const languages = [
     { code: 'en', name: 'English' },
-    { code: 'hi', name: 'Hindi' },
-    { code: 'mr', name: 'Marathi' },
-    { code: 'bn', name: 'Bengali' },
-    { code: 'ta', name: 'Tamil' },
-    { code: 'te', name: 'Telugu' },
+    { code: 'hi', name: 'हिन्दी' },
+    { code: 'mr', name: 'मराठी' },
+    { code: 'bn', name: 'বাংলা' },
+    { code: 'ta', name: 'தமிழ்' },
+    { code: 'te', name: 'తెలుగు' },
+    { code: 'gu', name: 'ગુજરાતી' },
+    { code: 'kn', name: 'ಕನ್ನಡ' },
+    { code: 'ml', name: 'മലയാളം' },
+    { code: 'pa', name: 'ਪੰਜਾਬੀ' },
+    { code: 'or', name: 'ଓଡ଼ିଆ' },
   ];
 
   const navLinks = [
@@ -190,7 +195,7 @@ const Navbar = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
-                className="absolute top-full right-0 mt-2 bg-white rounded-xl shadow-xl overflow-hidden z-[100] w-[140px] border border-gray-100"
+                className="absolute top-full right-0 mt-2 bg-white rounded-xl shadow-xl z-[100] w-[140px] border border-gray-100 max-h-[300px] overflow-y-auto overflow-x-hidden"
               >
                 {languages.map((l) => (
                   <button
@@ -215,7 +220,7 @@ const Navbar = () => {
             className="btn-primary !p-2 md:!px-5 md:!py-2.5 !rounded-xl md:!rounded-full flex items-center gap-2 no-underline text-white font-bold"
           >
             <User size={18} />
-            <span className="text-xs font-bold">Dashboard ({user.fullName?.split(' ')[0]})</span>
+            <span className="text-xs font-bold">{t('nav.dashboard', 'Dashboard')} ({user.fullName?.split(' ')[0]})</span>
           </Link>
         ) : (
           <div
@@ -321,7 +326,7 @@ const Navbar = () => {
                   style={{ justifyContent: 'center', fontSize: '0.85rem', borderRadius: '12px' }}
                   onClick={() => setIsOpen(false)}
                 >
-                  Dashboard ({user.fullName?.split(' ')[0]})
+                  {t('nav.dashboard', 'Dashboard')} ({user.fullName?.split(' ')[0]})
                 </Link>
               ) : (
                 <div className="grid grid-cols-2 gap-2 md:gap-3">

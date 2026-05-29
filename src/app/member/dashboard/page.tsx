@@ -18,14 +18,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from 'sonner';
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function MemberDashboardPage() {
+  const { t } = useLanguage();
+
   return (
     <Suspense fallback={
       <DashboardLayout>
         <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
           <div className="spinner" style={{ width: '40px', height: '40px', border: '4px solid #f3f3f3', borderTop: '4px solid var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-          <p style={{ color: '#666', fontWeight: '600' }}>Loading your Member Dashboard...</p>
+          <p style={{ color: '#666', fontWeight: '600' }}>{t('dashboardMember.loadingDashboard', 'Loading your Member Dashboard...')}</p>
         </div>
         <style jsx>{` @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } `}</style>
       </DashboardLayout>
@@ -36,6 +39,7 @@ export default function MemberDashboardPage() {
 }
 
 function MemberDashboardContent() {
+  const { t } = useLanguage();
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -79,10 +83,10 @@ function MemberDashboardContent() {
       try {
         await axios.post('/api/payment/verify', { orderId });
         router.replace('/member/dashboard');
-        toast.success("Payment verified successfully! Welcome to SakhiHub paid membership.");
+        toast.success(t('dashboardMember.paymentVerified', "Payment verified successfully! Welcome to SakhiHub paid membership."));
       } catch (error) {
         console.error('Verification failed', error);
-        toast.error("Payment verification failed. Please contact admin if amount was deducted.");
+        toast.error(t('dashboardMember.paymentFailed', "Payment verification failed. Please contact admin if amount was deducted."));
       } finally {
         setVerifyingPayment(false);
         fetchData();
@@ -114,17 +118,17 @@ function MemberDashboardContent() {
               redirectTarget: "_self"
             });
           } else {
-            toast.error('Payment gateway is still loading. Please wait a moment.');
+            toast.error(t('dashboardMember.paymentLoading', 'Payment gateway is still loading. Please wait a moment.'));
             setPayingOnline(false);
           }
         }
       } else {
-        toast.error(res.data.message || 'Failed to initiate payment');
+        toast.error(res.data.message || t('dashboardMember.paymentInitiationFailed', 'Failed to initiate payment'));
         setPayingOnline(false);
       }
     } catch (error: any) {
       console.error('Payment initiation failed:', error);
-      toast.error(error.response?.data?.message || 'Failed to initiate payment');
+      toast.error(error.response?.data?.message || t('dashboardMember.paymentInitiationFailed', 'Failed to initiate payment'));
       setPayingOnline(false);
     }
   };
@@ -178,16 +182,16 @@ function MemberDashboardContent() {
           pincode: emp.pincode || data?.fieldRecord?.pincode || "000000"
         });
         if (resConnect.data.success) {
-          toast.success(`Successfully sent connection request to ${emp.fullName}!`);
+          toast.success(t('dashboardMember.connectionSent', `Successfully sent connection request to {{name}}!`, { name: emp.fullName }));
           setManualCode("");
           await fetchData();
         }
       } else {
-        setManualError("Employee Code not found or not active. Please check the code.");
+        setManualError(t('dashboardMember.employeeNotFound', "Employee Code not found or not active. Please check the code."));
       }
     } catch (err: any) {
       console.error(err);
-      setManualError(err.response?.data?.message || "Failed to send manual connection request.");
+      setManualError(err.response?.data?.message || t('dashboardMember.manualConnectionFailed', "Failed to send manual connection request."));
     } finally {
       setManualSearching(false);
     }
@@ -218,7 +222,7 @@ function MemberDashboardContent() {
         }
       }
     } catch (err: any) {
-      setError("Failed to load dashboard data");
+      setError(t('dashboardMember.dashboardLoadFailed', "Failed to load dashboard data"));
       console.error(err);
     } finally {
       setLoading(false);
@@ -300,12 +304,12 @@ function MemberDashboardContent() {
     try {
       const res = await axios.post('/api/member/campaigns', { campaignId });
       if (res.data.success) {
-        toast.success("Your request to join the campaign was submitted successfully!");
+        toast.success(t('dashboardMember.joinCampaignSuccess', "Your request to join the campaign was submitted successfully!"));
         await fetchCampaigns();
       }
     } catch (err: any) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to join campaign");
+      toast.error(err.response?.data?.message || t('dashboardMember.joinCampaignFailed', "Failed to join campaign"));
     } finally {
       setJoiningCampaignId("");
     }
@@ -334,7 +338,7 @@ function MemberDashboardContent() {
       }
     } catch (err) {
       console.error(err);
-      toast.error("Failed to submit support ticket.");
+      toast.error(t('dashboardMember.supportFailed', "Failed to submit support ticket."));
     } finally {
       setSupportLoading(false);
     }
@@ -354,13 +358,13 @@ function MemberDashboardContent() {
         occupation: profileOccupation
       });
       if (res.data.success) {
-        toast.success("Your profile has been updated successfully!");
+        toast.success(t('dashboardMember.profileUpdated', "Your profile has been updated successfully!"));
         setShowProfileModal(false);
         await fetchData();
       }
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update profile details.");
+      toast.error(t('dashboardMember.profileUpdateFailed', "Failed to update profile details."));
     } finally {
       setProfileLoading(false);
     }
@@ -375,7 +379,7 @@ function MemberDashboardContent() {
       <DashboardLayout>
         <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
           <div className="spinner" style={{ width: '40px', height: '40px', border: '4px solid #f3f3f3', borderTop: '4px solid var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-          <p style={{ color: '#666', fontWeight: '600' }}>Loading your Member Dashboard...</p>
+          <p style={{ color: '#666', fontWeight: '600' }}>{t('dashboardMember.loadingDashboard', 'Loading your Member Dashboard...')}</p>
         </div>
         <style jsx>{` @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } `}</style>
       </DashboardLayout>
@@ -432,9 +436,9 @@ function MemberDashboardContent() {
                 <Users size={32} />
               </div>
               <div>
-                <h2 className="text-xl md:text-2xl font-bold leading-tight">Connection Request Received</h2>
+                <h2 className="text-xl md:text-2xl font-bold leading-tight">{t('dashboardMember.connectionRequestTitle', 'Connection Request Received')}</h2>
                 <p className="mt-2 opacity-90 text-sm md:text-base">
-                  A SakhiHub Hero (<span className="font-semibold underline">{pendingRequests.find((r: any) => r.requestedBy === 'employee').employeeId?.fullName}</span>) wants to connect with you.
+                  {t('dashboardMember.connectionRequestDesc', 'A SakhiHub Hero ({{name}}) wants to connect with you.', { name: pendingRequests.find((r: any) => r.requestedBy === 'employee').employeeId?.fullName })}
                 </p>
               </div>
             </div>
@@ -443,13 +447,13 @@ function MemberDashboardContent() {
                 onClick={() => handleResponseRequest(pendingRequests.find((r: any) => r.requestedBy === 'employee')._id, 'rejected')}
                 className="flex-1 md:flex-none py-4 px-6 rounded-2xl bg-white/10 hover:bg-white/20 font-semibold transition-all"
               >
-                Reject
+                {t('dashboardMember.rejectBtn', 'Reject')}
               </button>
               <button
                 onClick={() => handleResponseRequest(pendingRequests.find((r: any) => r.requestedBy === 'employee')._id, 'approved')}
                 className="flex-1 md:flex-none py-4 px-8 rounded-2xl bg-white text-primary font-bold shadow-xl shadow-black/10 hover:scale-105 transition-all"
               >
-                Approve & Connect
+                {t('dashboardMember.approveConnectBtn', 'Approve & Connect')}
               </button>
             </div>
           </motion.section>
@@ -460,27 +464,27 @@ function MemberDashboardContent() {
           <div className="relative z-10">
             <div className="flex flex-wrap items-center gap-3 mb-6">
               <span className="px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-[10px] md:text-xs font-bold tracking-widest uppercase">
-                MEMBER PORTAL
+                {t('dashboardMember.portalTag', 'MEMBER PORTAL')}
               </span>
               {isFreeMember ? (
                 <span className="flex items-center gap-2 px-4 py-1.5 bg-blue-400/20 backdrop-blur-md rounded-full text-[10px] md:text-xs font-bold text-blue-300">
-                  <User size={14} /> FREE MEMBER
+                  <User size={14} /> {t('dashboardMember.freeMemberTag', 'FREE MEMBER')}
                 </span>
               ) : isPaidVerified ? (
                 <span className="flex items-center gap-2 px-4 py-1.5 bg-green-400/20 backdrop-blur-md rounded-full text-[10px] md:text-xs font-bold text-green-300">
-                  <ShieldCheck size={14} /> PREMIUM MEMBER
+                  <ShieldCheck size={14} /> {t('dashboardMember.premiumMemberTag', 'PREMIUM MEMBER')}
                 </span>
               ) : (
                 <span className="flex items-center gap-2 px-4 py-1.5 bg-amber-400/20 backdrop-blur-md rounded-full text-[10px] md:text-xs font-bold text-amber-300">
-                  <Clock size={14} /> PENDING PAYMENT
+                  <Clock size={14} /> {t('dashboardMember.pendingPaymentTag', 'PENDING PAYMENT')}
                 </span>
               )}
             </div>
             <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black mb-4 leading-tight">
-              Welcome Back, <br className="sm:hidden" /> {profile?.fullName.split(' ')[0]}! <Sparkles className="inline ml-2 text-amber-300" />
+              {t('dashboardMember.welcomeBack', 'Welcome Back,')} <br className="sm:hidden" /> {profile?.fullName.split(' ')[0]}! <Sparkles className="inline ml-2 text-amber-300" />
             </h1>
             <p className="text-sm md:text-lg opacity-85 max-w-2xl leading-relaxed">
-              We're glad to have you in the SakhiHub community. Manage your membership, print your card, view your group, and join campaigns.
+              {t('dashboardMember.welcomeDesc', "We're glad to have you in the SakhiHub community. Manage your membership, print your card, view your group, and join campaigns.")}
             </p>
           </div>
           <Heart className="absolute -right-20 -bottom-20 w-80 h-80 opacity-10 text-white transform -rotate-12" />
@@ -494,9 +498,9 @@ function MemberDashboardContent() {
               <CreditCard size={24} />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Membership Status</p>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">{t('dashboardMember.statusLabel', 'Membership Status')}</p>
               <h3 className={`text-lg font-black mt-0.5 truncate ${isPaidVerified ? 'text-green-600' : isFreeMember ? 'text-blue-600' : 'text-amber-600'}`}>
-                {isPaidVerified ? 'Active (Premium)' : isFreeMember ? 'Active (Free)' : 'Pending Payment'}
+                {isPaidVerified ? t('dashboardMember.statusActivePremium', 'Active (Premium)') : isFreeMember ? t('dashboardMember.statusActiveFree', 'Active (Free)') : t('dashboardMember.statusPending', 'Pending Payment')}
               </h3>
             </div>
           </div>
@@ -506,9 +510,9 @@ function MemberDashboardContent() {
               <Users size={24} />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Your Community Group</p>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">{t('dashboardMember.groupLabel', 'Your Community Group')}</p>
               <h3 className="text-lg font-black text-secondary mt-0.5 truncate">
-                {fieldRecord?.groupId?.groupName || 'Not Assigned'}
+                {fieldRecord?.groupId?.groupName || t('dashboardMember.notAssigned', 'Not Assigned')}
               </h3>
             </div>
           </div>
@@ -518,9 +522,9 @@ function MemberDashboardContent() {
               <MapPin size={24} />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Regional Village</p>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">{t('dashboardMember.villageLabel', 'Regional Village')}</p>
               <h3 className="text-lg font-black text-secondary mt-0.5 truncate">
-                {fieldRecord?.village || profile?.area || 'Global Member'}
+                {fieldRecord?.village || profile?.area || t('dashboardMember.globalMember', 'Global Member')}
               </h3>
             </div>
           </div>
@@ -531,24 +535,24 @@ function MemberDashboardContent() {
         {fieldRecord?.connectionStatus === 'unassigned' && (
           <section className="p-6 sm:p-10 bg-primary/5 rounded-[40px] border-2 border-dashed border-primary/30 text-center print-hide">
             <Users size={50} className="mx-auto text-primary mb-6 animate-pulse" />
-            <h2 className="text-2xl font-black text-secondary leading-tight">Connect with Local Sakhi</h2>
-            <p className="text-gray-500 mt-3 mb-10 max-w-lg mx-auto leading-relaxed">Find and connect with an active field employee in your area to get your membership verified and join a community group.</p>
+            <h2 className="text-2xl font-black text-secondary leading-tight">{t('dashboardMember.connectLocalTitle', 'Connect with Local Sakhi')}</h2>
+            <p className="text-gray-500 mt-3 mb-10 max-w-lg mx-auto leading-relaxed">{t('dashboardMember.connectLocalDesc', 'Find and connect with an active field employee in your area to get your membership verified and join a community group.')}</p>
             <div className="grid gap-4 max-w-2xl mx-auto">
               {discoveryLoading ? (
                 <div className="py-10 flex flex-col items-center gap-4">
                   <div className="w-10 h-10 border-4 border-gray-100 border-t-primary rounded-full animate-spin"></div>
-                  <p className="text-gray-400 font-bold">Searching nearby Heroes...</p>
+                  <p className="text-gray-400 font-bold">{t('dashboardMember.searchingHeroes', 'Searching nearby Heroes...')}</p>
                 </div>
               ) : nearbyEmployees.length > 0 ? (
                 nearbyEmployees.map((emp) => (
-                  <div key={emp._id} className="p-6 bg-white rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-5 shadow-soft border border-gray-50">
-                    <div className="flex items-center gap-5 text-left">
-                      <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary font-black text-xl">
+                  <div key={emp._id} className="p-4 sm:p-5 bg-white rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-gray-100 shadow-sm hover:shadow-md transition-all text-left">
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                      <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-primary font-black text-xl shrink-0">
                         {emp.fullName.charAt(0)}
                       </div>
                       <div>
                         <h4 className="text-lg font-bold text-secondary leading-tight">{emp.fullName}</h4>
-                        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">{emp.area || 'Field'}, {emp.block || 'Local'}</p>
+                        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">{emp.area || t('dashboardMember.field', 'Field')}, {emp.block || t('dashboardMember.local', 'Local')}</p>
                       </div>
                     </div>
                     <button
@@ -556,7 +560,7 @@ function MemberDashboardContent() {
                       disabled={requestStatus === emp._id}
                       className="btn-primary w-full sm:w-auto py-3 px-8 text-xs font-black uppercase tracking-wider"
                     >
-                      {requestStatus === emp._id ? 'Connecting...' : 'Connect'}
+                      {requestStatus === emp._id ? t('dashboardMember.connecting', 'Connecting...') : t('dashboardMember.connect', 'Connect')}
                     </button>
                   </div>
                 ))
@@ -564,7 +568,7 @@ function MemberDashboardContent() {
                 <div className="py-12 bg-white/50 rounded-3xl border border-gray-100 px-6">
                   <AlertCircle size={40} className="mx-auto text-gray-300 mb-4" />
                   <p className="text-gray-400 font-bold italic">
-                    No active employees found in your pincode ({fieldRecord?.pincode || 'N/A'}) yet.
+                    {t('dashboardMember.noEmployeesFound', 'No active employees found in your pincode ({{pincode}}) yet.', { pincode: fieldRecord?.pincode || 'N/A' })}
                   </p>
                 </div>
               )}
@@ -573,15 +577,15 @@ function MemberDashboardContent() {
             {/* Manual Connection Input Form */}
             <div className="mt-12 pt-8 border-t border-gray-200/50 max-w-xl mx-auto text-left">
               <h4 className="text-sm font-black text-secondary flex items-center gap-2 mb-2">
-                <Sparkle size={16} className="text-primary animate-pulse" /> Connect Manually by Employee Code
+                <Sparkle size={16} className="text-primary animate-pulse" /> {t('dashboardMember.manualConnectTitle', 'Connect Manually by Employee Code')}
               </h4>
               <p className="text-xs text-gray-400 font-bold mb-4 uppercase tracking-wider leading-relaxed">
-                If you already know your regional Sakhi Hero's code (e.g. SHEMP001), enter it below to send a direct request.
+                {t('dashboardMember.manualConnectDesc', "If you already know your regional Sakhi Hero's code (e.g. SHEMP001), enter it below to send a direct request.")}
               </p>
               <form onSubmit={handleManualConnect} className="flex flex-col sm:flex-row gap-3">
                 <input
                   type="text"
-                  placeholder="Enter Hero Code (e.g. SHEMP001)..."
+                  placeholder={t('dashboardMember.manualPlaceholder', 'Enter Hero Code (e.g. SHEMP001)...')}
                   value={manualCode}
                   onChange={(e) => setManualCode(e.target.value)}
                   className="flex-1 px-5 py-3.5 bg-white border border-gray-200 focus:border-primary/50 rounded-2xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/10 shadow-sm"
@@ -591,7 +595,7 @@ function MemberDashboardContent() {
                   disabled={manualSearching || !manualCode.trim()}
                   className="py-3.5 px-8 bg-gradient-to-r from-primary to-secondary text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-md shrink-0 cursor-pointer disabled:opacity-50 disabled:hover:scale-100"
                 >
-                  {manualSearching ? 'Searching...' : 'Send Request'}
+                  {manualSearching ? t('dashboardMember.searchingBtn', 'Searching...') : t('dashboardMember.sendRequestBtn', 'Send Request')}
                 </button>
               </form>
               {manualError && (
@@ -608,8 +612,8 @@ function MemberDashboardContent() {
               <Clock size={32} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-amber-900 leading-tight">Connection Request Pending</h2>
-              <p className="text-amber-700/80 mt-2 text-sm leading-relaxed">Your request to connect with our local field employee is awaiting approval. You will be notified once they accept.</p>
+              <h2 className="text-xl font-bold text-amber-900 leading-tight">{t('dashboardMember.pendingRequestTitle', 'Connection Request Pending')}</h2>
+              <p className="text-amber-700/80 mt-2 text-sm leading-relaxed">{t('dashboardMember.pendingRequestDesc', 'Your request to connect with our local field employee is awaiting approval. You will be notified once they accept.')}</p>
             </div>
           </section>
         )}
@@ -635,7 +639,7 @@ function MemberDashboardContent() {
                 <div className="flex justify-between items-center relative z-10">
                   <div>
                     <h4 className="text-[10px] font-black tracking-widest text-primary">SAKHIHUB</h4>
-                    <p className="text-[6px] text-white/60 font-black tracking-widest uppercase">Self Help Group Member</p>
+                    <p className="text-[6px] text-white/60 font-black tracking-widest uppercase">{t('dashboardMember.idCardSubTitle', 'Self Help Group Member')}</p>
                   </div>
                   <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-primary backdrop-blur-md">
                     <Sparkle size={10} className="animate-spin-slow" />
@@ -643,65 +647,59 @@ function MemberDashboardContent() {
                 </div>
 
                 {/* Card Body */}
-                <div className="flex items-center gap-3 relative z-10 my-1">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-primary to-secondary p-0.5 shrink-0">
-                    <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center font-black text-base text-white">
-                      {profile?.fullName?.charAt(0) || 'M'}
-                    </div>
+                <div className="flex gap-4 items-center relative z-10">
+                  <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-xl font-black text-white border border-white/20 backdrop-blur-sm shrink-0 shadow-lg">
+                    {profile?.fullName.charAt(0)}
                   </div>
                   <div>
                     <h3 className="text-sm font-black tracking-tight leading-tight">{profile?.fullName}</h3>
-                    <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{fieldRecord?.village || 'Member'}</p>
-                    <p className="text-[7px] text-primary font-black uppercase tracking-wider mt-0.5">{fieldRecord?.groupId?.groupName || 'Community Pool'}</p>
+                    <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{fieldRecord?.village || t('dashboardMember.globalMember', 'Global Member')}</p>
+                    <p className="text-[7px] text-primary font-black uppercase tracking-wider mt-0.5">{fieldRecord?.groupId?.groupName || t('dashboardMember.communityPool', 'Community Pool')}</p>
                   </div>
                 </div>
 
                 {/* Card Footer */}
                 <div className="flex justify-between items-center border-t border-white/10 pt-2 relative z-10">
                   <div className="text-left">
-                    <p className="text-[5px] text-white/40 font-bold uppercase tracking-widest">Membership ID</p>
+                    <p className="text-[5px] text-white/40 font-bold uppercase tracking-widest">{t('dashboardMember.membershipId', 'Membership ID')}</p>
                     <p className="text-[9px] font-mono font-black text-primary tracking-wider mt-0.5">
                       {membership?.membershipId || 'SH-MEM-PENDING'}
                     </p>
                   </div>
-                  <div className="p-1 bg-white rounded-md shrink-0 flex items-center justify-center shadow-md">
-                    <QrCode size={24} className="text-slate-900" />
-                  </div>
+                  <QrCode size={28} className="text-white/80" />
                 </div>
               </div>
 
-              {/* Card Description & Print Trigger */}
+              {/* ID Card Actions */}
               <div className="flex-1 flex flex-col justify-between py-2 print-hide text-left">
                 <div>
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-primary/10 text-primary border border-primary/20 mb-3">
-                    Verified Digital ID
+                    {t('dashboardMember.verifiedDigitalTag', 'Verified Digital ID')}
                   </span>
                   <h3 className="text-2xl font-black text-secondary flex items-center gap-2">
-                    <ShieldCheck size={24} className="text-primary animate-pulse" /> Digital Membership ID Card
+                    <ShieldCheck size={24} className="text-primary animate-pulse" /> {t('dashboardMember.digitalIdTitle', 'Digital Membership ID Card')}
                   </h3>
                   <p className="text-gray-500 text-xs font-semibold leading-relaxed mt-3">
-                    This is your verified digital ID card in the SakhiHub Community. Keep this copy saved or print it for offline self-help group verifications, campaigns, and kit distribution meetings.
+                    {t('dashboardMember.digitalIdDesc', 'This is your verified digital ID card in the SakhiHub Community. Keep this copy saved or print it for offline self-help group verifications, campaigns, and kit distribution meetings.')}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-4 mt-8">
                   <button
                     onClick={() => {
-                      if (isPremiumLocked) {
-                        toast.error("Premium Feature: Please upgrade or verify your membership to unlock printing.");
-                        return;
+                      if (!isPremiumLocked) {
+                        window.print();
                       }
-                      handlePrintCard();
                     }}
                     className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer min-w-[140px] ${isPremiumLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed opacity-80' : 'bg-gradient-to-r from-primary to-secondary text-white shadow-xl shadow-primary/25 hover:scale-105'}`}
                   >
                     {isPremiumLocked ? <ShieldAlert size={16} /> : <Printer size={16} />} 
-                    {isPremiumLocked ? 'Locked (Premium)' : 'Print Card'}
+                    {isPremiumLocked ? t('dashboardMember.lockedPremium', 'Locked (Premium)') : t('dashboardMember.printCard', 'Print Card')}
                   </button>
                   <button
                     onClick={() => setShowProfileModal(true)}
                     className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-secondary hover:text-primary hover:border-primary/30 rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all cursor-pointer min-w-[140px]"
                   >
-                    <User size={16} /> Edit Card Info
+                    <User size={16} /> {t('dashboardMember.editCardInfo', 'Edit Card Info')}
                   </button>
                 </div>
               </div>

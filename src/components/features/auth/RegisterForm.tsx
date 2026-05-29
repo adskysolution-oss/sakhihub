@@ -12,15 +12,7 @@ import { useRouter } from "next/navigation";
 import PasswordField from "@/components/ui/PasswordField";
 import { validatePassword } from "@/utils/validation";
 import { usePincodeAutofill } from "@/hooks/usePincodeAutofill";
-
-const steps = [
-  { id: 1, name: "Role" },
-  { id: 2, name: "Details" },
-  { id: 3, name: "Location" },
-  { id: 4, name: "Connect" },
-  { id: 5, name: "Membership" },
-  { id: 6, name: "Security" },
-];
+import { useLanguage } from "@/context/LanguageContext";
 
 const designations = [
   "Block Employee",
@@ -31,6 +23,7 @@ const designations = [
 ];
 
 export default function RegisterForm() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -38,6 +31,15 @@ export default function RegisterForm() {
   const [showOtpStep, setShowOtpStep] = useState(false);
   const [otp, setOtp] = useState("");
   const [resendTimer, setResendTimer] = useState(0);
+
+  const steps = [
+    { id: 1, name: t('auth.register.steps.role') },
+    { id: 2, name: t('auth.register.steps.details') },
+    { id: 3, name: t('auth.register.steps.location') },
+    { id: 4, name: t('auth.register.steps.connect') },
+    { id: 5, name: t('auth.register.steps.membership') },
+    { id: 6, name: t('auth.register.steps.security') },
+  ];
 
   const [formData, setFormData] = useState({
     role: "",
@@ -219,6 +221,7 @@ export default function RegisterForm() {
 
     // Password Strength Validation
     const passwordValid = validatePassword(formData.password);
+    // (Will need translatable errors later, skipping for now)
     if (!passwordValid.isValid) {
       setError(`Password is too weak: ${passwordValid.errors.join(', ')}`);
       return;
@@ -341,16 +344,16 @@ export default function RegisterForm() {
               <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <ShieldCheck size={40} className="text-primary" />
               </div>
-              <h2 className="text-3xl font-black text-secondary">Verify Your Email</h2>
+              <h2 className="text-3xl font-black text-secondary">{t('auth.register.form.verifyEmail')}</h2>
               <p className="text-gray-400 font-bold mt-2">
-                We've sent a 6-digit code to <br />
+                {t('auth.register.form.codeSent')} <br />
                 <span className="text-primary">{formData.email}</span>
               </p>
             </div>
 
             <form onSubmit={handleVerifyOtp} className="flex flex-col gap-8">
               <div className="flex flex-col gap-4">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest text-center">Enter Verification Code</label>
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest text-center">{t('auth.register.form.enterCode')}</label>
                 <input
                   type="text"
                   maxLength={6}
@@ -374,7 +377,7 @@ export default function RegisterForm() {
                   disabled={loading || otp.length !== 6}
                   className="btn-primary w-full py-5 justify-center text-lg shadow-xl shadow-primary/20"
                 >
-                  {loading ? "Verifying..." : "Verify & Activate Account"}
+                  {loading ? "Verifying..." : t('auth.register.form.verifyBtn')}
                 </button>
 
                 <button
@@ -383,7 +386,7 @@ export default function RegisterForm() {
                   disabled={loading || resendTimer > 0}
                   className="text-sm font-black text-gray-400 uppercase tracking-widest hover:text-primary transition-all disabled:opacity-50"
                 >
-                  {resendTimer > 0 ? `Resend Code in ${resendTimer}s` : "Resend Verification Code"}
+                  {resendTimer > 0 ? `${t('auth.register.form.resendIn')} ${resendTimer}s` : t('auth.register.form.resendCode')}
                 </button>
               </div>
             </form>
@@ -421,7 +424,7 @@ export default function RegisterForm() {
                 </div>
                 <div>
                   <h4 className="text-sm font-black text-secondary uppercase tracking-tight">Joining as {referralContext.role}</h4>
-                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Invited by parent: <span className="text-primary">{referralContext.parent}</span></p>
+                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1"> {t("auth.register.form.invitedBy")} <span className="text-primary">{referralContext.parent}</span></p>
                 </div>
               </motion.div>
             )}
@@ -440,8 +443,8 @@ export default function RegisterForm() {
                     >
                       <div className="w-12 h-12 md:w-16 md:h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"><ShieldCheck size={28} /></div>
                       <div>
-                        <h3 className="text-lg md:text-xl font-black text-secondary">Vendor</h3>
-                        <p className="text-xs md:text-sm text-gray-400">Campaign Partner</p>
+                        <h3 className="text-lg md:text-xl font-black text-secondary">{t("auth.register.form.vendor")}</h3>
+                        <p className="text-xs md:text-sm text-gray-400">{t("auth.register.form.vendorDesc")}</p>
                       </div>
                     </div>
                     <div
@@ -450,8 +453,8 @@ export default function RegisterForm() {
                     >
                       <div className="w-12 h-12 md:w-16 md:h-16 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary"><CheckCircle size={28} /></div>
                       <div>
-                        <h3 className="text-lg md:text-xl font-black text-secondary">Sub-Vendor</h3>
-                        <p className="text-xs md:text-sm text-gray-400">Regional Partner</p>
+                        <h3 className="text-lg md:text-xl font-black text-secondary">{t("auth.register.form.subVendor")}</h3>
+                        <p className="text-xs md:text-sm text-gray-400">{t("auth.register.form.subVendorDesc")}</p>
                       </div>
                     </div>
                     <div
@@ -460,8 +463,8 @@ export default function RegisterForm() {
                     >
                       <div className="w-12 h-12 md:w-16 md:h-16 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary"><Briefcase size={28} /></div>
                       <div>
-                        <h3 className="text-lg md:text-xl font-black text-secondary">Employee</h3>
-                        <p className="text-xs md:text-sm text-gray-400">Field worker / Lead</p>
+                        <h3 className="text-lg md:text-xl font-black text-secondary">{t("auth.register.form.employee")}</h3>
+                        <p className="text-xs md:text-sm text-gray-400">{t("auth.register.form.employeeDesc")}</p>
                       </div>
                     </div>
                     <div
@@ -470,12 +473,12 @@ export default function RegisterForm() {
                     >
                       <div className="w-12 h-12 md:w-16 md:h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"><Users size={28} /></div>
                       <div>
-                        <h3 className="text-lg md:text-xl font-black text-secondary">Member</h3>
-                        <p className="text-xs md:text-sm text-gray-400">Community user</p>
+                        <h3 className="text-lg md:text-xl font-black text-secondary">{t("auth.register.form.member")}</h3>
+                        <p className="text-xs md:text-sm text-gray-400">{t("auth.register.form.memberDesc")}</p>
                       </div>
                     </div>
                     <div className="sm:col-span-2">
-                      <button type="button" disabled={!formData.role} onClick={nextStep} className="btn-primary w-full py-4 justify-center text-sm md:text-base">Continue <ArrowRight size={20} /></button>
+                      <button type="button" disabled={!formData.role} onClick={nextStep} className="btn-primary w-full py-4 justify-center text-sm md:text-base">{t("auth.register.form.continue")} <ArrowRight size={20} /></button>
                     </div>
                   </motion.div>
                 )}
@@ -484,7 +487,7 @@ export default function RegisterForm() {
                   <motion.div key="step2" {...fadeInUp} className="flex flex-col gap-4 md:gap-6">
                     {(formData.role === 'vendor' || formData.role === 'sub_vendor') && (
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-black text-gray-700">Vendor Type</label>
+                        <label className="text-sm font-black text-gray-700">{t("auth.register.form.vendorType")}</label>
                         <div className="relative">
                           <Briefcase size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                           <select
@@ -494,9 +497,9 @@ export default function RegisterForm() {
                             className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none bg-white font-bold"
                             required
                           >
-                            <option value="individual">Individual Vendor</option>
-                            <option value="company">Company Vendor</option>
-                            <option value="ngo_trust">NGO / Trust Vendor</option>
+                            <option value="individual">{t("auth.register.form.individualVendor")}</option>
+                            <option value="company">{t("auth.register.form.companyVendor")}</option>
+                            <option value="ngo_trust">{t("auth.register.form.ngoVendor")}</option>
                           </select>
                         </div>
                       </div>
@@ -504,17 +507,17 @@ export default function RegisterForm() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-black text-gray-700">Full Name</label>
+                        <label className="text-sm font-black text-gray-700">{t("auth.register.form.fullName")}</label>
                         <div className="relative">
                           <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                          <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Full Name" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                          <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder={t("auth.register.form.fullName")} className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                         </div>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-black text-gray-700">Mobile</label>
+                        <label className="text-sm font-black text-gray-700">{t("auth.register.form.mobile")}</label>
                         <div className="relative">
                           <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                          <input type="tel" name="mobile" value={formData.mobile} onChange={handleChange} placeholder="Mobile No" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                          <input type="tel" name="mobile" value={formData.mobile} onChange={handleChange} placeholder={t("auth.register.form.mobile")} className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                         </div>
                       </div>
                     </div>
@@ -522,11 +525,11 @@ export default function RegisterForm() {
                     {formData.role === 'employee' && (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                         <div className="flex flex-col gap-2">
-                          <label className="text-sm font-black text-gray-700">Apply For</label>
+                          <label className="text-sm font-black text-gray-700">{t("auth.register.form.applyFor")}</label>
                           <div className="relative">
                             <ClipboardList size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                             <select name="designation" value={formData.designation} onChange={handleChange} className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none bg-white font-bold" required>
-                              <option value="">Select Designation</option>
+                              <option value="">{t("auth.register.form.selectDesignation")}</option>
                               {designations.map(d => <option key={d} value={d}>{d}</option>)}
                             </select>
                           </div>
@@ -537,14 +540,14 @@ export default function RegisterForm() {
                     {formData.role === 'employee' && (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                         <div className="flex flex-col gap-2">
-                          <label className="text-sm font-black text-gray-700">Qualification</label>
+                          <label className="text-sm font-black text-gray-700">{t("auth.register.form.qualification")}</label>
                           <div className="relative">
                             <BookOpen size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                             <input type="text" name="qualification" value={formData.qualification} onChange={handleChange} placeholder="B.A, 12th, etc." className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
                           </div>
                         </div>
                         <div className="flex flex-col gap-2">
-                          <label className="text-sm font-black text-gray-700">Experience</label>
+                          <label className="text-sm font-black text-gray-700">{t("auth.register.form.experience")}</label>
                           <div className="relative">
                             <Clock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                             <input type="text" name="experience" value={formData.experience} onChange={handleChange} placeholder="Years/Details" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" />
@@ -554,7 +557,7 @@ export default function RegisterForm() {
                     )}
 
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-black text-gray-700">Email</label>
+                      <label className="text-sm font-black text-gray-700">{t("auth.register.form.email")}</label>
                       <div className="relative">
                         <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="email@example.com" className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
@@ -562,8 +565,8 @@ export default function RegisterForm() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                      <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
-                      <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">Next Step</button>
+                      <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">{t("auth.register.form.back")}</button>
+                      <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">{t("auth.register.form.nextStep")}</button>
                     </div>
                   </motion.div>
                 )}
@@ -571,7 +574,7 @@ export default function RegisterForm() {
                 {step === 3 && (
                   <motion.div key="step3" {...fadeInUp} className="flex flex-col gap-4 md:gap-6">
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-black text-gray-700">Pincode</label>
+                      <label className="text-sm font-black text-gray-700">{t("auth.register.form.pincode")}</label>
                       <div className="relative">
                         <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} placeholder="6 Digit Pincode" maxLength={6} className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 font-black text-lg" required />
@@ -581,34 +584,34 @@ export default function RegisterForm() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-black text-gray-700">State</label>
-                        <input type="text" name="state" value={formData.state} onChange={handleChange} placeholder="State" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                        <label className="text-sm font-black text-gray-700">{t("auth.register.form.state")}</label>
+                        <input type="text" name="state" value={formData.state} onChange={handleChange} placeholder={t("auth.register.form.state")} className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-black text-gray-700">District</label>
-                        <input type="text" name="district" value={formData.district} onChange={handleChange} placeholder="District" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                        <label className="text-sm font-black text-gray-700">{t("auth.register.form.district")}</label>
+                        <input type="text" name="district" value={formData.district} onChange={handleChange} placeholder={t("auth.register.form.district")} className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-black text-gray-700">Block / Tehsil</label>
+                        <label className="text-sm font-black text-gray-700">{t("auth.register.form.block")}</label>
                         <input type="text" name="block" value={formData.block} onChange={handleChange} placeholder="Block Name" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-black text-gray-700">Panchayat / Area</label>
+                        <label className="text-sm font-black text-gray-700">{t("auth.register.form.area")}</label>
                         <input type="text" name="area" value={formData.area} onChange={handleChange} placeholder="Area Name" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
                       </div>
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-black text-gray-700">Full Address</label>
+                      <label className="text-sm font-black text-gray-700">{t("auth.register.form.address")}</label>
                       <textarea name="address" value={formData.address} onChange={handleChange} placeholder="Village, Landmark, etc." rows={3} className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required></textarea>
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                      <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
-                      <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">{formData.role === 'member' ? 'Find Nearby Sakhi' : 'Last Step'}</button>
+                      <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">{t("auth.register.form.back")}</button>
+                      <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">{formData.role === 'member' ? t('auth.register.form.findNearby') : t('auth.register.form.lastStep')}</button>
                     </div>
                   </motion.div>
                 )}
@@ -618,8 +621,8 @@ export default function RegisterForm() {
                     {referredEmployee ? (
                       <>
                         <div className="text-center">
-                          <h3 className="text-xl md:text-2xl font-black text-secondary">Connection Confirmed</h3>
-                          <p className="text-gray-400 text-sm mt-1">You are automatically connecting with your inviting partner.</p>
+                          <h3 className="text-xl md:text-2xl font-black text-secondary">{t("auth.register.form.connectionConfirmed")}</h3>
+                          <p className="text-gray-400 text-sm mt-1">{t("auth.register.form.autoConnect")}</p>
                         </div>
 
                         <div className="p-6 rounded-3xl border-2 border-green-200 bg-green-50/50 flex justify-between items-center gap-4 shadow-md text-left">
@@ -645,8 +648,8 @@ export default function RegisterForm() {
                     ) : (
                       <>
                         <div className="text-center">
-                          <h3 className="text-xl md:text-2xl font-black text-secondary">{formData.role === 'member' ? 'Connect with Local Sakhi' : 'Verify Location'}</h3>
-                          <p className="text-gray-400 text-sm mt-1">{formData.role === 'member' ? 'Choose an employee to assist you with your registration.' : 'Confirm your service area.'}</p>
+                          <h3 className="text-xl md:text-2xl font-black text-secondary">{formData.role === 'member' ? t('auth.register.form.connectLocal') : t('auth.register.form.verifyLocation')}</h3>
+                          <p className="text-gray-400 text-sm mt-1">{formData.role === 'member' ? t('auth.register.form.chooseEmployee') : t('auth.register.form.confirmArea')}</p>
                         </div>
 
                         {formData.role === 'member' ? (
@@ -654,7 +657,7 @@ export default function RegisterForm() {
                             {discoveryLoading ? (
                               <div className="text-center py-12 flex flex-col items-center gap-3">
                                 <div className="w-8 h-8 border-4 border-gray-100 border-t-primary rounded-full animate-spin"></div>
-                                <p className="text-gray-400 font-bold">Searching for nearby employees...</p>
+                                <p className="text-gray-400 font-bold">{t("auth.register.form.searching")}</p>
                               </div>
                             ) : nearbyEmployees.length > 0 ? (
                               nearbyEmployees.map((emp) => (
@@ -677,15 +680,15 @@ export default function RegisterForm() {
                             ) : (
                               <div className="text-center py-12 bg-gray-50 rounded-3xl px-6">
                                 <AlertCircle size={40} className="mx-auto text-gray-200 mb-4" />
-                                <p className="text-gray-500 font-bold">No active employees found in your area yet.</p>
-                                <button type="button" onClick={nextStep} className="text-primary font-black mt-4 underline">Continue without connecting</button>
+                                <p className="text-gray-500 font-bold">{t("auth.register.form.noEmployees")}</p>
+                                <button type="button" onClick={nextStep} className="text-primary font-black mt-4 underline">{t("auth.register.form.continueWithout")}</button>
                               </div>
                             )}
                           </div>
                         ) : (
                           <div className="text-center py-12 bg-gray-50 rounded-3xl px-6">
                             <CheckCircle size={48} className="mx-auto text-secondary mb-4 animate-bounce" />
-                            <p className="text-gray-500 font-bold">Your service area is set to:</p>
+                            <p className="text-gray-500 font-bold">{t("auth.register.form.yourArea")}</p>
                             <p className="text-xl md:text-2xl font-black text-primary mt-2">{formData.block}, {formData.district}</p>
                           </div>
                         )}
@@ -693,8 +696,8 @@ export default function RegisterForm() {
                     )}
 
                     <div className="flex flex-col sm:flex-row gap-3">
-                      <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
-                      <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">Continue</button>
+                      <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">{t("auth.register.form.back")}</button>
+                      <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">{t("auth.register.form.continue")}</button>
                     </div>
                   </motion.div>
                 )}
@@ -702,8 +705,8 @@ export default function RegisterForm() {
                 {step === 5 && formData.role === 'member' && (
                   <motion.div key="step5" {...fadeInUp} className="flex flex-col gap-6">
                     <div className="text-center mb-2">
-                      <h3 className="text-xl md:text-2xl font-black text-secondary">Choose Your Membership</h3>
-                      <p className="text-gray-400 text-sm mt-1">Select a plan to complete your registration.</p>
+                      <h3 className="text-xl md:text-2xl font-black text-secondary">{t("auth.register.form.chooseMembership")}</h3>
+                      <p className="text-gray-400 text-sm mt-1">{t("auth.register.form.selectPlan")}</p>
                     </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -711,8 +714,8 @@ export default function RegisterForm() {
                             <input type="radio" name="membershipType" value="free" checked={formData.membershipType === 'free'} onChange={handleChange} className="sr-only" />
                             <div className="flex justify-between items-start">
                               <div>
-                                <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-[10px] font-black uppercase tracking-widest">Free</span>
-                                <h4 className="font-black text-secondary text-lg mt-2">Base Member</h4>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-[10px] font-black uppercase tracking-widest">{t("auth.register.form.free")}</span>
+                                <h4 className="font-black text-secondary text-lg mt-2">{t("auth.register.form.baseMember")}</h4>
                               </div>
                               <span className="text-xl font-black text-secondary">₹0</span>
                             </div>
@@ -732,7 +735,7 @@ export default function RegisterForm() {
                             </div>
                             <div className="flex justify-between items-start">
                               <div>
-                                <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-widest">Premium</span>
+                                <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-widest">{t("auth.register.form.premium")}</span>
                                 <h4 className="font-black text-secondary text-lg mt-2">{membershipConfig?.title || 'Paid Member'}</h4>
                               </div>
                               <span className="text-xl font-black text-primary">₹{membershipConfig?.feeAmount || 200}</span>
@@ -750,8 +753,8 @@ export default function RegisterForm() {
                           </label>
                         </div>
                     <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                      <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
-                      <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">Continue to Security</button>
+                      <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">{t("auth.register.form.back")}</button>
+                      <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">{t("auth.register.form.continueSecurity")}</button>
                     </div>
                   </motion.div>
                 )}
@@ -778,14 +781,14 @@ export default function RegisterForm() {
                     </div>
 
                     <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100">
-                      <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Password Requirements</h4>
+                      <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">{t("auth.register.form.passwordReq")}</h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {[
-                          { label: '8+ Characters', check: formData.password.length >= 8 },
-                          { label: 'Uppercase', check: /[A-Z]/.test(formData.password) },
-                          { label: 'Lowercase', check: /[a-z]/.test(formData.password) },
-                          { label: 'Number', check: /[0-9]/.test(formData.password) },
-                          { label: 'Special Char', check: /[!@#$%^&*(),.?":{}|<>]/.test(formData.password) }
+                          { label: t('auth.register.form.char8'), check: formData.password.length >= 8 },
+                          { label: t('auth.register.form.upper'), check: /[A-Z]/.test(formData.password) },
+                          { label: t('auth.register.form.lower'), check: /[a-z]/.test(formData.password) },
+                          { label: t('auth.register.form.number'), check: /[0-9]/.test(formData.password) },
+                          { label: t('auth.register.form.special'), check: /[!@#$%^&*(),.?":{}|<>]/.test(formData.password) }
                         ].map((req, i) => (
                           <div key={i} className="flex items-center gap-2">
                             <div className={`w-4 h-4 rounded-full flex items-center justify-center ${req.check ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'}`}>
@@ -799,7 +802,7 @@ export default function RegisterForm() {
 
                     <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
                       <input type="checkbox" id="terms" required className="mt-1 w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary transition-all" />
-                      <label htmlFor="terms" className="text-xs md:text-sm text-gray-500 leading-relaxed font-medium">I agree to the <span className="text-secondary font-bold">terms and conditions</span> and <span className="text-secondary font-bold">privacy policy</span> of SakhiHub.</label>
+                      <label htmlFor="terms" className="text-xs md:text-sm text-gray-500 leading-relaxed font-medium">{t("auth.register.form.agreeTerms")} <span className="text-secondary font-bold">terms and conditions</span> {t("auth.register.form.and")} <span className="text-secondary font-bold">privacy policy</span> of SakhiHub.</label>
                     </div>
 
                     {error && (
@@ -809,7 +812,7 @@ export default function RegisterForm() {
                     )}
 
                     <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                      <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">Back</button>
+                      <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">{t("auth.register.form.back")}</button>
                       <button type="submit" disabled={loading} className="btn-primary w-full justify-center order-1 sm:order-2 py-4 shadow-xl shadow-primary/20">
                         {loading ? "Registering..." : (formData.role === 'employee' ? "Register as Employee" : "Join Movement")} <Sparkles size={18} />
                       </button>

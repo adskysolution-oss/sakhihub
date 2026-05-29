@@ -20,12 +20,14 @@ import {
   EyeOff as EyeOffIcon
 } from "lucide-react";
 import PasswordField from "@/components/ui/PasswordField";
+import { useLanguage } from "@/context/LanguageContext";
 
 type Role = 'member' | 'employee' | 'vendor' | 'sub_vendor';
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   const [role, setRole] = useState<Role>('member');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -44,9 +46,9 @@ function LoginContent() {
       return;
     }
     if (searchParams.get('registered')) {
-      setSuccess("Registration successful! Please login.");
+      setSuccess(t('auth.login.registrationSuccess'));
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, t]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -80,7 +82,7 @@ function LoginContent() {
         else window.location.href = '/member/dashboard';
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Invalid credentials or unauthorized access");
+      setError(err.response?.data?.message || t('auth.login.invalidCredentials'));
     } finally {
       setLoading(false);
     }
@@ -110,7 +112,7 @@ function LoginContent() {
             transition={{ delay: 0.2 }}
             className="text-6xl font-black mb-6 leading-tight"
           >
-            Empowering <br /> Rural <span className="text-primary-dark">Sakhis.</span>
+            {t('auth.login.title')} <br /> {t('auth.login.subtitle')} <span className="text-primary-dark">{t('auth.login.highlight')}</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -118,7 +120,7 @@ function LoginContent() {
             transition={{ delay: 0.3 }}
             className="text-xl opacity-80 leading-relaxed mb-12"
           >
-            Access your unified SakhiHub dashboard to manage field operations, member compliance and community impact.
+            {t('auth.login.description')}
           </motion.p>
 
           <div className="grid gap-6">
@@ -132,8 +134,8 @@ function LoginContent() {
                 <ShieldIcon size={28} />
               </div>
               <div>
-                <p className="font-black text-lg">Secure Access Control</p>
-                <p className="text-xs opacity-60">Identity verified & encrypted</p>
+                <p className="font-black text-lg">{t('auth.login.secureAccess')}</p>
+                <p className="text-xs opacity-60">{t('auth.login.secureAccessDesc')}</p>
               </div>
             </motion.div>
           </div>
@@ -157,8 +159,8 @@ function LoginContent() {
             <Link href="/" className="inline-block text-3xl font-black text-secondary no-underline mb-6 group">
               Sakhi<span className="text-primary transition-all group-hover:pl-1">Hub</span>
             </Link>
-            <h2 className="text-3xl md:text-4xl font-black text-secondary leading-tight">Member Portal</h2>
-            <p className="text-gray-400 font-bold mt-2">Welcome back! Please login to continue.</p>
+            <h2 className="text-3xl md:text-4xl font-black text-secondary leading-tight">{t('auth.login.memberPortal')}</h2>
+            <p className="text-gray-400 font-bold mt-2">{t('auth.login.welcomeBack')}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 mb-10 p-1.5 bg-gray-50 rounded-3xl border border-gray-100">
@@ -177,7 +179,7 @@ function LoginContent() {
 
           <form onSubmit={handleLogin} className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-black text-gray-500 uppercase tracking-widest pl-2">Email or Mobile Number</label>
+              <label className="text-xs font-black text-gray-500 uppercase tracking-widest pl-2">{t('auth.login.emailLabel')}</label>
               <div className="relative group">
                 <ShieldIcon size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" />
                 <input
@@ -185,7 +187,7 @@ function LoginContent() {
                   name="identifier"
                   value={formData.identifier}
                   onChange={handleChange}
-                  placeholder="Enter Email or Mobile Number"
+                  placeholder={t('auth.login.emailPlaceholder')}
                   className="w-full pl-14 pr-5 py-4 md:py-5 rounded-2xl md:rounded-3xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/30 transition-all font-bold text-lg"
                   required
                 />
@@ -194,14 +196,14 @@ function LoginContent() {
 
             <div className="flex flex-col gap-2">
               <div className="flex justify-between items-center px-2">
-                <label className="text-xs font-black text-gray-500 uppercase tracking-widest">Password</label>
-                <Link href="/forgot" className="text-xs text-primary font-black hover:underline">Forgot Password?</Link>
+                <label className="text-xs font-black text-gray-500 uppercase tracking-widest">{t('auth.login.passwordLabel')}</label>
+                <Link href="/forgot" className="text-xs text-primary font-black hover:underline">{t('auth.login.forgotPassword')}</Link>
               </div>
               <PasswordField
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="********"
+                placeholder={t('auth.login.passwordPlaceholder')}
                 required
               />
             </div>
@@ -233,19 +235,19 @@ function LoginContent() {
               disabled={loading}
               className="btn-primary w-full py-5 md:py-6 justify-center text-lg shadow-2xl shadow-primary/25 mt-4 transition-all active:scale-95 disabled:opacity-50"
             >
-              {loading ? 'Verifying...' : `Login as ${role.charAt(0).toUpperCase() + role.slice(1)}`}
+              {loading ? t('auth.login.verifying') : `${t('auth.login.loginAs')} ${role.charAt(0).toUpperCase() + role.slice(1)}`}
               {!loading && <ArrowIcon size={22} className="ml-2" />}
             </button>
           </form>
 
           <div className="mt-12 text-center pt-8 border-t border-gray-50">
             <p className="text-gray-400 font-bold text-base">
-              New to SakhiHub?
-              <Link href="/register" className="text-primary hover:text-secondary transition-colors ml-2 border-b-2 border-primary/20 hover:border-primary">Create Account</Link>
+              {t('auth.login.newTo')}
+              <Link href="/register" className="text-primary hover:text-secondary transition-colors ml-2 border-b-2 border-primary/20 hover:border-primary">{t('auth.login.createAccount')}</Link>
             </p>
             <div className="mt-6">
               <Link href="/admin/login" className="text-xs text-gray-300 font-bold uppercase tracking-widest hover:text-secondary flex items-center justify-center gap-2">
-                Admin Access <ChevronIcon size={14} />
+                {t('auth.login.adminAccess')} <ChevronIcon size={14} />
               </Link>
             </div>
           </div>

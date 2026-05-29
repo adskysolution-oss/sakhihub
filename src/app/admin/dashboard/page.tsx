@@ -4,8 +4,10 @@ import React, { useEffect, useState } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import SuperAdminDashboard from "@/components/features/dashboard/SuperAdminDashboard";
 import axios from "axios";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function AdminDashboardPage() {
+  const { t } = useLanguage();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -29,7 +31,7 @@ export default function AdminDashboardPage() {
     return (
       <DashboardLayout>
         <div style={{ padding: '40px', textAlign: 'center' }}>
-          <p>Loading Dashboard Data...</p>
+          <p>{t('dashboardAdmin.loadingData', 'Loading Dashboard Data...')}</p>
         </div>
       </DashboardLayout>
     );
@@ -38,8 +40,8 @@ export default function AdminDashboardPage() {
   return (
     <DashboardLayout>
       <div style={{ marginBottom: '30px' }}>
-        <h2 style={{ fontSize: '2.5rem', fontWeight: '900', color: 'var(--secondary)' }}>Platform Command Center</h2>
-        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Global overview of SakhiHub operations, employees, and community growth.</p>
+        <h2 style={{ fontSize: '2.5rem', fontWeight: '900', color: 'var(--secondary)' }}>{t('dashboardAdmin.commandCenter', 'Platform Command Center')}</h2>
+        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>{t('dashboardAdmin.commandCenterDesc', 'Global overview of SakhiHub operations, employees, and community growth.')}</p>
       </div>
       <SuperAdminDashboard stats={data} />
     </DashboardLayout>

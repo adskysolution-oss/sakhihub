@@ -590,8 +590,9 @@
     "issuesTitle": "Payment Issues?",
     "issuesDesc": "Our compliance and finance team is here to help you. Reach out to info@sakhihub.com",
     "raiseTicket": "Raise Support Ticket",
-    "noReturn": "We have no return policy.",
-    "deliveryTime": "Products will be delivered within 5-7Days."
+    "noReturnTitle": "Return Policy & Delivery",
+    "noReturnText": "We have no return policy.",
+    "deliveryTimeText": "Products will be delivered within 5-7 Days."
   },
   "termsAndConditions": {
     "title": "Terms and Conditions",

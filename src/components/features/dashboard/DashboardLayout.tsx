@@ -23,8 +23,10 @@ import {
   VENDOR_DASHBOARD_LINKS,
   SUBVENDOR_DASHBOARD_LINKS
 } from '@/constants/navigation';
+import { useLanguage } from '@/context/LanguageContext';
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { t } = useLanguage();
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -102,7 +104,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 gap-4">
         <div className="w-10 h-10 border-4 border-gray-200 border-t-primary rounded-full animate-spin"></div>
-        <p className="text-gray-500 font-semibold animate-pulse">Loading Session...</p>
+        <p className="text-gray-500 font-semibold animate-pulse">{t('dashboardCommon.loadingSession', 'Loading Session...')}</p>
       </div>
     );
   }
@@ -114,8 +116,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
         <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-6 animate-bounce">
           <ShieldCheck size={32} />
         </div>
-        <h2 className="text-2xl font-black text-secondary">Verification Required</h2>
-        <p className="text-gray-400 font-bold mt-2">Redirecting to onboarding portal...</p>
+        <h2 className="text-2xl font-black text-secondary">{t('dashboardCommon.verificationRequired', 'Verification Required')}</h2>
+        <p className="text-gray-400 font-bold mt-2">{t('dashboardCommon.redirectingOnboarding', 'Redirecting to onboarding portal...')}</p>
       </div>
     );
   }
@@ -166,7 +168,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                         key={item.name}
                         onClick={() => {
                           import('sonner').then((mod) => {
-                            mod.toast.error("Premium Feature: Please upgrade or verify your membership to access " + item.name);
+                            mod.toast.error(`${t('dashboardCommon.premiumLocked', 'Premium Feature: Please upgrade or verify your membership to access')} ${item.name}`);
                           });
                         }}
                         className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 w-full text-left bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-100`}
@@ -200,7 +202,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-secondary font-semibold hover:bg-gray-50 transition-all no-underline"
                 >
                   <Globe size={20} className="text-primary" />
-                  <span>Visit Website</span>
+                  <span>{t('dashboardCommon.visitWebsite', 'Visit Website')}</span>
                 </Link>
               </div>
             </nav>
@@ -211,7 +213,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 font-semibold bg-transparent border-none cursor-pointer hover:bg-red-50 transition-colors"
               >
                 <LogOut size={20} />
-                <span>Logout</span>
+                <span>{t('dashboardCommon.logout', 'Logout')}</span>
               </button>
             </div>
           </motion.aside>
@@ -233,7 +235,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder={t('dashboardCommon.search', 'Search...')}
                 className="pl-10 pr-4 py-2 rounded-xl border border-[#eee] bg-[#f8f9fa] w-[200px] lg:w-[300px] text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
@@ -273,15 +275,15 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                   <AlertCircle size={20} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-rose-900">Profile Incomplete</h3>
-                  <p className="text-xs font-medium text-rose-700 mt-0.5">Please add your profile picture and complete your profile details in the profile section.</p>
+                  <h3 className="text-sm font-bold text-rose-900">{t('dashboardCommon.profileIncomplete', 'Profile Incomplete')}</h3>
+                  <p className="text-xs font-medium text-rose-700 mt-0.5">{t('dashboardCommon.completeProfileMsg', 'Please add your profile picture and complete your profile details in the profile section.')}</p>
                 </div>
               </div>
               <Link 
                 href={user?.role === 'super_admin' ? '/admin/profile' : `/${user?.role?.replace('_', '-')}/dashboard/profile`} 
                 className="shrink-0 w-full sm:w-auto text-center px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold tracking-wide hover:bg-rose-700 transition-colors shadow-sm"
               >
-                Complete Profile
+                {t('dashboardCommon.completeProfileBtn', 'Complete Profile')}
               </Link>
             </div>
           )}
@@ -296,12 +298,12 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                     <div className="w-20 h-20 bg-amber-50 rounded-[25px] flex items-center justify-center text-amber-500 mb-6 border border-amber-100 shadow-inner">
                       <AlertCircle size={36} />
                     </div>
-                    <h2 className="text-3xl font-black text-secondary mb-3">Premium Section Locked</h2>
+                    <h2 className="text-3xl font-black text-secondary mb-3">{t('dashboardCommon.premiumSectionLocked', 'Premium Section Locked')}</h2>
                     <p className="text-gray-400 font-bold mb-8 max-w-md mx-auto leading-relaxed">
-                      You are trying to access a premium feature. Please upgrade your free membership or verify your pending payment to unlock.
+                      {t('dashboardCommon.premiumLockedMsg', 'You are trying to access a premium feature. Please upgrade your free membership or verify your pending payment to unlock.')}
                     </p>
                     <Link href="/member/dashboard" className="px-8 py-3.5 bg-gradient-to-r from-primary to-secondary text-white rounded-xl shadow-lg shadow-primary/20 font-bold hover:scale-105 transition-all">
-                      Return to Dashboard
+                      {t('dashboardCommon.returnToDashboard', 'Return to Dashboard')}
                     </Link>
                   </div>
                 );

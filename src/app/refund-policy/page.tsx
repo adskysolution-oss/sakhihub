@@ -38,22 +38,21 @@ export default function RefundPolicy() {
               </p>
             </div>
 
-            <div className="bg-amber-50 p-8 rounded-[32px] border border-amber-100 mb-12">
-              <h2 className="text-xl font-black text-amber-900 mb-4">{t('refundPolicy.noReturn', 'Return Policy')}</h2>
-              <p className="text-amber-800 font-bold leading-relaxed mb-2 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                {t('refundPolicy.noReturn')}
-              </p>
-              <p className="text-amber-800 font-bold leading-relaxed mb-0 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                {t('refundPolicy.deliveryTime')}
-              </p>
-            </div>
+            <section className="mb-12">
+              <h2 className="text-2xl font-black text-secondary flex items-center gap-3 mb-6">
+                <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-base">01</span>
+                {t('refundPolicy.noReturnTitle', 'Return Policy & Delivery')}
+              </h2>
+              <ul className="list-disc pl-6 space-y-3 text-gray-600 font-semibold leading-relaxed">
+                <li>{t('refundPolicy.noReturnText', 'We have no return policy.')}</li>
+                <li>{t('refundPolicy.deliveryTimeText', 'Products will be delivered within 5-7 Days.')}</li>
+              </ul>
+            </section>
 
             <div className="space-y-12 text-gray-600">
               <section>
                 <h2 className="text-2xl font-black text-secondary flex items-center gap-3 mb-6">
-                  <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-base">01</span>
+                  <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-base">02</span>
                   {t('refundPolicy.sec1Title')}
                 </h2>
                 <p className="leading-relaxed mb-4">
@@ -68,7 +67,7 @@ export default function RefundPolicy() {
 
               <section>
                 <h2 className="text-2xl font-black text-secondary flex items-center gap-3 mb-6">
-                  <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-base">02</span>
+                  <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-base">03</span>
                   {t('refundPolicy.sec2Title')}
                 </h2>
                 <p className="leading-relaxed mb-4">
@@ -82,7 +81,7 @@ export default function RefundPolicy() {
 
               <section>
                 <h2 className="text-2xl font-black text-secondary flex items-center gap-3 mb-6">
-                  <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-base">03</span>
+                  <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-base">04</span>
                   {t('refundPolicy.sec3Title')}
                 </h2>
                 <p className="leading-relaxed">
@@ -92,7 +91,7 @@ export default function RefundPolicy() {
 
               <section>
                 <h2 className="text-2xl font-black text-secondary flex items-center gap-3 mb-6">
-                  <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-base">04</span>
+                  <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-base">05</span>
                   {t('refundPolicy.sec4Title')}
                 </h2>
                 <p className="leading-relaxed">
@@ -102,7 +101,7 @@ export default function RefundPolicy() {
 
               <section>
                 <h2 className="text-2xl font-black text-secondary flex items-center gap-3 mb-6">
-                  <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-base">05</span>
+                  <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-base">07</span>
                   {t('refundPolicy.sec5Title')}
                 </h2>
                 <p className="leading-relaxed mb-4">
@@ -118,7 +117,7 @@ export default function RefundPolicy() {
 
               <section>
                 <h2 className="text-2xl font-black text-secondary flex items-center gap-3 mb-6">
-                  <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-base">06</span>
+                  <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-base">07</span>
                   {t('refundPolicy.sec6Title')}
                 </h2>
                 <p className="leading-relaxed">

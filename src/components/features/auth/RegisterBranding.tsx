@@ -5,8 +5,10 @@ import { motion } from "framer-motion";
 import { Users, Briefcase, Heart, Sparkles, ShieldCheck, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function RegisterBranding() {
+  const { t } = useLanguage();
   const stats = [
     { number: "50,000+", label: "Women Empowered", icon: Heart },
     { number: "1,200+", label: "Field Heroes", icon: ShieldCheck },
@@ -43,21 +45,21 @@ export default function RegisterBranding() {
 
         <div className="inline-flex items-center gap-2.5 px-4 md:px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-full text-white text-[10px] md:text-sm font-bold mb-8 border border-white/10">
           <Sparkles size={16} className="text-primary" />
-          Real People • Real Impact • Real Trust
+          {t('auth.register.branding.tagline')}
         </div>
 
         <h1 className="text-4xl md:text-6xl lg:text-[3.8rem] font-black leading-[1.1] mb-6 tracking-tighter">
-          The Hearts Behind <br />
+          {t('auth.register.branding.title1')} <br />
           <span className="text-gradient brightness-[1.8]">SakhiHub</span>
         </h1>
         
         <p className="text-base md:text-xl opacity-90 leading-relaxed max-w-lg mb-10 text-gray-200">
-          Our field team works at the grassroots level, connecting directly with women in villages to build a stronger, independent India.
+          {t('auth.register.branding.description')}
         </p>
 
         {/* Feature List */}
         <div className="flex flex-col gap-4 mb-12">
-          {['Ground-level Awareness', 'Trust-based Community', 'Verified Growth Network'].map((item, i) => (
+          {[t('auth.register.branding.feature1'), t('auth.register.branding.feature2'), t('auth.register.branding.feature3')].map((item, i) => (
             <div key={i} className="flex items-center gap-3">
               <div className="bg-primary/20 p-1 rounded-full">
                 <CheckCircle2 size={18} className="text-primary" />
@@ -89,7 +91,7 @@ export default function RegisterBranding() {
           {/* Floating Stats Badge */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-4 md:px-6 py-3 md:py-4 rounded-2xl text-[#2E0249] shadow-2xl flex flex-col items-center z-20 min-w-[100px] md:min-w-[140px]">
             <span className="text-lg md:text-2xl font-black text-primary">50k+</span>
-            <span className="text-[8px] md:text-[10px] font-black uppercase opacity-60">Active Sakhis</span>
+            <span className="text-[8px] md:text-[10px] font-black uppercase opacity-60">{t('auth.register.branding.activeSakhis')}</span>
           </div>
         </div>
       </motion.div>

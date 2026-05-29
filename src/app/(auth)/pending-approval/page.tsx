@@ -9,6 +9,7 @@ import Link from 'next/link';
 import axios from 'axios';
 
 export default function PendingApprovalPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const { user, logout, loading } = useAuth();
 
