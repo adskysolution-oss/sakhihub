@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
-import { 
-  FileText, Upload, Clock, 
+import {
+  FileText, Upload, Clock,
   AlertCircle, ExternalLink, ShieldCheck,
   FileCheck, CreditCard, UserCheck, Landmark, ChevronRight
 } from "lucide-react";
@@ -46,7 +46,7 @@ export default function VendorDocuments() {
       if (docRes.data.success && meRes.data.success) {
         setDocuments(docRes.data.data.documents || {});
         setDigitalCertificates(docRes.data.data.digitalCertificates || []);
-        
+
         const user = meRes.data.data;
         setVendorType(user.vendorType || 'individual');
         setRole(user.role || 'vendor');
@@ -80,7 +80,7 @@ export default function VendorDocuments() {
     if (code.length === 11) {
       setIfscLoading(true);
       try {
-        const res = await axios.get(`https://ifsc.razorpay.com/${code}`);
+        const res = await axios.get(`/api/ifsc/${code}`);
         setFormData(prev => ({
           ...prev,
           bankName: res.data.BANK,
@@ -164,9 +164,9 @@ export default function VendorDocuments() {
   const aadhaarDocType = docTypes.find(d => ['aadhaarCard', 'directorAadhaarCard', 'aadhaarCardFront', 'aadhaarCardBack', 'directorAadhaarCardFront', 'directorAadhaarCardBack'].includes(d)) || 'aadhaarCard';
   const panDocType = docTypes.find(d => ['panCard', 'companyPanCard', 'directorPanCard', 'ngoPanCard'].includes(d)) || 'panCard';
   const bankDocType = 'bankPassbook';
-  const generalDocTypes = docTypes.filter(d => 
-    !['aadhaarCard', 'directorAadhaarCard', 'aadhaarCardFront', 'aadhaarCardBack', 'directorAadhaarCardFront', 'directorAadhaarCardBack'].includes(d) && 
-    d !== panDocType && 
+  const generalDocTypes = docTypes.filter(d =>
+    !['aadhaarCard', 'directorAadhaarCard', 'aadhaarCardFront', 'aadhaarCardBack', 'directorAadhaarCardFront', 'directorAadhaarCardBack'].includes(d) &&
+    d !== panDocType &&
     d !== bankDocType
   );
 
@@ -191,16 +191,16 @@ export default function VendorDocuments() {
             </p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2 mt-2 pt-3 border-t border-gray-100">
-           <a href={getDocumentViewUrl(docInfo.url)} target="_blank" rel="noopener noreferrer" className="flex-1 text-center py-2.5 bg-gray-50 hover:bg-primary hover:text-white text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-             Preview
-           </a>
-           {docInfo.status !== 'approved' && reuploadInput && (
-             <div className="flex-1">
-               {reuploadInput}
-             </div>
-           )}
+          <a href={getDocumentViewUrl(docInfo.url)} target="_blank" rel="noopener noreferrer" className="flex-1 text-center py-2.5 bg-gray-50 hover:bg-primary hover:text-white text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+            Preview
+          </a>
+          {docInfo.status !== 'approved' && reuploadInput && (
+            <div className="flex-1">
+              {reuploadInput}
+            </div>
+          )}
         </div>
 
         {docInfo?.remarks && ['rejected', 'reupload_required'].includes(docInfo.status) && (
@@ -240,7 +240,7 @@ export default function VendorDocuments() {
                 const frontType = docTypes.includes('directorAadhaarCardFront') ? 'directorAadhaarCardFront' : 'aadhaarCardFront';
                 const backType = docTypes.includes('directorAadhaarCardBack') ? 'directorAadhaarCardBack' : 'aadhaarCardBack';
                 const activeAadhaarKey = isSplit ? frontType : aadhaarDocType;
-                const isApproved = isSplit 
+                const isApproved = isSplit
                   ? (documents[frontType]?.status === 'approved' || documents[backType]?.status === 'approved')
                   : documents[aadhaarDocType]?.status === 'approved';
 
@@ -259,15 +259,15 @@ export default function VendorDocuments() {
                     <div className="space-y-6">
                       <div>
                         <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Aadhaar Number *</label>
-                        <input 
+                        <input
                           type="text" maxLength={12} placeholder="Enter 12-digit Aadhaar Number"
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:border-primary focus:bg-white"
                           value={formData.aadhaarNumber}
-                          onChange={(e) => setFormData({...formData, aadhaarNumber: e.target.value.replace(/\D/g, '')})}
+                          onChange={(e) => setFormData({ ...formData, aadhaarNumber: e.target.value.replace(/\D/g, '') })}
                           readOnly={isApproved}
                         />
                       </div>
-                      
+
                       {isSplit ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
@@ -342,15 +342,15 @@ export default function VendorDocuments() {
                   <div className="space-y-6">
                     <div>
                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">PAN Number *</label>
-                      <input 
+                      <input
                         type="text" maxLength={10} placeholder="Enter 10-character PAN"
                         className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:outline-none focus:border-primary focus:bg-white"
                         value={formData.panNumber}
-                        onChange={(e) => setFormData({...formData, panNumber: e.target.value.toUpperCase()})}
+                        onChange={(e) => setFormData({ ...formData, panNumber: e.target.value.toUpperCase() })}
                         readOnly={documents[panDocType]?.status === 'approved'}
                       />
                     </div>
-                    
+
                     <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
                       <p className="text-xs font-black text-secondary mb-3">PAN Document</p>
                       {documents[panDocType]?.url ? (
@@ -388,18 +388,18 @@ export default function VendorDocuments() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="md:col-span-2">
                         <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Account Holder Name *</label>
-                        <input 
+                        <input
                           type="text" placeholder="Name exactly as per bank records"
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:outline-none focus:border-primary focus:bg-white"
                           value={formData.accountHolderName}
-                          onChange={(e) => setFormData({...formData, accountHolderName: e.target.value.toUpperCase()})}
+                          onChange={(e) => setFormData({ ...formData, accountHolderName: e.target.value.toUpperCase() })}
                           readOnly={documents[bankDocType]?.status === 'approved'}
                         />
                       </div>
                       <div>
                         <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">IFSC Code *</label>
                         <div className="relative">
-                          <input 
+                          <input
                             type="text" maxLength={11} placeholder="e.g. SBIN0001234"
                             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:outline-none focus:border-primary focus:bg-white"
                             value={formData.ifscCode}
@@ -424,25 +424,24 @@ export default function VendorDocuments() {
                       </div>
                       <div>
                         <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Account Number *</label>
-                        <input 
+                        <input
                           type="text" placeholder="Enter Account Number"
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:border-primary focus:bg-white"
                           value={formData.accountNumber}
-                          onChange={(e) => setFormData({...formData, accountNumber: e.target.value.replace(/\D/g, '')})}
+                          onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value.replace(/\D/g, '') })}
                           readOnly={documents[bankDocType]?.status === 'approved'}
                         />
                       </div>
                       <div>
                         <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Confirm Account Number *</label>
-                        <input 
+                        <input
                           type="text" placeholder="Re-enter Account Number"
-                          className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:bg-white ${
-                            formData.confirmAccountNumber && formData.accountNumber !== formData.confirmAccountNumber 
-                            ? 'border-red-400 focus:border-red-500 focus:ring-red-500' 
+                          className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:bg-white ${formData.confirmAccountNumber && formData.accountNumber !== formData.confirmAccountNumber
+                            ? 'border-red-400 focus:border-red-500 focus:ring-red-500'
                             : 'border-gray-200 focus:border-primary focus:ring-primary'
-                          }`}
+                            }`}
                           value={formData.confirmAccountNumber}
-                          onChange={(e) => setFormData({...formData, confirmAccountNumber: e.target.value.replace(/\D/g, '')})}
+                          onChange={(e) => setFormData({ ...formData, confirmAccountNumber: e.target.value.replace(/\D/g, '') })}
                           readOnly={documents[bankDocType]?.status === 'approved'}
                         />
                       </div>
@@ -477,7 +476,7 @@ export default function VendorDocuments() {
                   </section>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {generalDocTypes.map((type) => (
-                      <DocumentCard 
+                      <DocumentCard
                         key={type}
                         type={type}
                         docInfo={documents[type]}
@@ -509,7 +508,7 @@ export default function VendorDocuments() {
                     <span className="text-2xl font-black">{Math.round((uploadedCount / docTypes.length) * 100) || 0}%</span>
                   </div>
                   <div className="h-3 bg-white/10 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-gradient-to-r from-primary to-secondary-light transition-all duration-1000"
                       style={{ width: `${(uploadedCount / docTypes.length) * 100 || 0}%` }}
                     ></div>
@@ -546,54 +545,53 @@ export default function VendorDocuments() {
                           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">ID: {cert.agreementId || 'N/A'}</p>
                         </div>
                       </div>
-                      <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest ${
-                        cert.status === 'approved' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
-                      }`}>
+                      <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest ${cert.status === 'approved' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
+                        }`}>
                         {cert.status === 'approved' ? 'Digitally Accepted' : 'Pending Acceptance'}
                       </span>
                     </div>
 
                     {cert.status !== 'approved' && cert.type === 'auth_letter' && (
                       <div className="mb-4 p-4 bg-white border border-dashed border-gray-200 rounded-2xl">
-                         <label className="flex items-start gap-3 cursor-pointer">
-                           <input type="checkbox" id={`accept-${cert._id}`} className="mt-1 w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary" />
-                           <span className="text-xs font-bold text-gray-600">I have read, understood, and accept all the terms and conditions outlined in the Vendor Agreement.</span>
-                         </label>
-                         <button 
-                           onClick={async () => {
-                             const checkbox = document.getElementById(`accept-${cert._id}`) as HTMLInputElement;
-                             if (!checkbox.checked) {
-                               toast.error("Please accept the terms to continue.");
-                               return;
-                             }
-                             try {
-                               const res = await axios.post('/api/vendor/agreement/accept', { accepted: true, agreementId: cert.agreementId });
-                               if (res.data.success) {
-                                 toast.success("Agreement Digitally Accepted!");
-                                 fetchDocuments();
-                               }
-                             } catch (err: any) {
-                               toast.error(err.response?.data?.message || "Failed to accept agreement");
-                             }
-                           }}
-                           className="mt-4 w-full py-3 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary-dark transition-colors shadow-lg shadow-primary/20"
-                         >
-                           Verify & Sign Digitally
-                         </button>
+                        <label className="flex items-start gap-3 cursor-pointer">
+                          <input type="checkbox" id={`accept-${cert._id}`} className="mt-1 w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary" />
+                          <span className="text-xs font-bold text-gray-600">I have read, understood, and accept all the terms and conditions outlined in the Vendor Agreement.</span>
+                        </label>
+                        <button
+                          onClick={async () => {
+                            const checkbox = document.getElementById(`accept-${cert._id}`) as HTMLInputElement;
+                            if (!checkbox.checked) {
+                              toast.error("Please accept the terms to continue.");
+                              return;
+                            }
+                            try {
+                              const res = await axios.post('/api/vendor/agreement/accept', { accepted: true, agreementId: cert.agreementId });
+                              if (res.data.success) {
+                                toast.success("Agreement Digitally Accepted!");
+                                fetchDocuments();
+                              }
+                            } catch (err: any) {
+                              toast.error(err.response?.data?.message || "Failed to accept agreement");
+                            }
+                          }}
+                          className="mt-4 w-full py-3 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary-dark transition-colors shadow-lg shadow-primary/20"
+                        >
+                          Verify & Sign Digitally
+                        </button>
                       </div>
                     )}
 
                     <div className="flex gap-2">
-                      <a 
-                        href={cert.fileUrl} 
-                        target="_blank" 
+                      <a
+                        href={cert.fileUrl}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="flex-1 text-center py-2 bg-white border border-gray-200 text-gray-600 font-black text-[9px] uppercase tracking-widest rounded-xl hover:border-primary hover:text-primary transition-all"
                       >
                         Preview
                       </a>
-                      <a 
-                        href={cert.fileUrl} 
+                      <a
+                        href={cert.fileUrl}
                         download
                         target="_blank"
                         className="flex-1 text-center py-2 bg-secondary text-white font-black text-[9px] uppercase tracking-widest rounded-xl hover:bg-secondary-light transition-all"

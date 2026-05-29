@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   ShieldCheck, CheckCircle2, Clock, LogOut, FileCheck, AlertCircle, Network, Lock,
   UserCheck, CreditCard, Landmark, Upload, ChevronRight, FileText
 } from 'lucide-react';
@@ -46,7 +46,7 @@ export default function EmployeeOnboarding() {
       if (res.data.success) {
         const user = res.data.data;
         setProfile(user);
-        
+
         if (['rejected', 'suspended', 'inactive'].includes(user.status)) {
           router.push('/pending-approval');
           return;
@@ -107,7 +107,7 @@ export default function EmployeeOnboarding() {
     if (code.length === 11) {
       setIfscLoading(true);
       try {
-        const res = await axios.get(`https://ifsc.razorpay.com/${code}`);
+        const res = await axios.get(`/api/ifsc/${code}`);
         setFormData(prev => ({ ...prev, bankName: res.data.BANK, branchName: res.data.BRANCH }));
       } catch (err) {
         setFormData(prev => ({ ...prev, bankName: '', branchName: '' }));
@@ -198,16 +198,16 @@ export default function EmployeeOnboarding() {
             </p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2 mt-2 pt-3 border-t border-gray-100">
-           <a href={getDocumentViewUrl(docInfo.url)} target="_blank" rel="noopener noreferrer" className="flex-1 text-center py-2.5 bg-gray-50 hover:bg-primary hover:text-white text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-             Preview
-           </a>
-           {docInfo.status !== 'approved' && reuploadInput && (
-             <div className="flex-1">
-               {reuploadInput}
-             </div>
-           )}
+          <a href={getDocumentViewUrl(docInfo.url)} target="_blank" rel="noopener noreferrer" className="flex-1 text-center py-2.5 bg-gray-50 hover:bg-primary hover:text-white text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+            Preview
+          </a>
+          {docInfo.status !== 'approved' && reuploadInput && (
+            <div className="flex-1">
+              {reuploadInput}
+            </div>
+          )}
         </div>
 
         {docInfo?.remarks && ['rejected', 'reupload_required'].includes(docInfo.status) && (
@@ -262,15 +262,15 @@ export default function EmployeeOnboarding() {
                 <div className="space-y-6">
                   <div>
                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Aadhaar Number *</label>
-                    <input 
+                    <input
                       type="text" maxLength={12} placeholder="Enter 12-digit Aadhaar Number"
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:border-primary focus:bg-white"
                       value={formData.aadhaarNumber}
-                      onChange={(e) => setFormData({...formData, aadhaarNumber: e.target.value.replace(/\D/g, '')})}
+                      onChange={(e) => setFormData({ ...formData, aadhaarNumber: e.target.value.replace(/\D/g, '') })}
                       readOnly={profile?.documents?.aadhaarCardFront?.status === 'approved' || profile?.documents?.aadhaarCardBack?.status === 'approved'}
                     />
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
                       <p className="text-xs font-black text-secondary mb-3">Front Side</p>
@@ -307,7 +307,7 @@ export default function EmployeeOnboarding() {
                   </div>
                 </div>
               </div>
- 
+
               {/* PAN Card Custom Box */}
               <div className="bg-white p-6 md:p-8 rounded-[32px] border-2 border-gray-100 hover:border-primary/20 transition-all overflow-hidden shadow-sm">
                 <div className="flex items-center gap-4 mb-6">
@@ -319,19 +319,19 @@ export default function EmployeeOnboarding() {
                     <p className="text-[10px] text-primary font-black uppercase tracking-widest flex items-center gap-1.5"><FileText size={12} /> PDF, JPG, PNG</p>
                   </div>
                 </div>
- 
+
                 <div className="space-y-6">
                   <div>
                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">PAN Number *</label>
-                    <input 
+                    <input
                       type="text" maxLength={10} placeholder="Enter 10-character PAN"
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:outline-none focus:border-primary focus:bg-white"
                       value={formData.panNumber}
-                      onChange={(e) => setFormData({...formData, panNumber: e.target.value.toUpperCase()})}
+                      onChange={(e) => setFormData({ ...formData, panNumber: e.target.value.toUpperCase() })}
                       readOnly={profile?.documents?.panCard?.status === 'approved'}
                     />
                   </div>
-                  
+
                   <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
                     <p className="text-xs font-black text-secondary mb-3">PAN Document</p>
                     {profile?.documents?.panCard?.url ? (
@@ -350,7 +350,7 @@ export default function EmployeeOnboarding() {
                   </div>
                 </div>
               </div>
- 
+
               {/* Bank Details Custom Box */}
               <div className="bg-white p-6 md:p-8 rounded-[32px] border-2 border-gray-100 hover:border-primary/20 transition-all overflow-hidden shadow-sm">
                 <div className="flex items-center gap-4 mb-6">
@@ -362,23 +362,23 @@ export default function EmployeeOnboarding() {
                     <p className="text-[10px] text-primary font-black uppercase tracking-widest flex items-center gap-1.5"><FileText size={12} /> Passbook or Cheque</p>
                   </div>
                 </div>
- 
+
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Account Holder Name *</label>
-                      <input 
+                      <input
                         type="text" placeholder="Name exactly as per bank records"
                         className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:outline-none focus:border-primary focus:bg-white"
                         value={formData.accountHolderName}
-                        onChange={(e) => setFormData({...formData, accountHolderName: e.target.value.toUpperCase()})}
+                        onChange={(e) => setFormData({ ...formData, accountHolderName: e.target.value.toUpperCase() })}
                         readOnly={profile?.documents?.bankPassbook?.status === 'approved'}
                       />
                     </div>
                     <div>
                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">IFSC Code *</label>
                       <div className="relative">
-                        <input 
+                        <input
                           type="text" maxLength={11} placeholder="e.g. SBIN0001234"
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:outline-none focus:border-primary focus:bg-white"
                           value={formData.ifscCode}
@@ -403,30 +403,29 @@ export default function EmployeeOnboarding() {
                     </div>
                     <div>
                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Account Number *</label>
-                      <input 
+                      <input
                         type="text" placeholder="Enter Account Number"
                         className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:border-primary focus:bg-white"
                         value={formData.accountNumber}
-                        onChange={(e) => setFormData({...formData, accountNumber: e.target.value.replace(/\D/g, '')})}
+                        onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value.replace(/\D/g, '') })}
                         readOnly={profile?.documents?.bankPassbook?.status === 'approved'}
                       />
                     </div>
                     <div>
                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Confirm Account Number *</label>
-                      <input 
+                      <input
                         type="text" placeholder="Re-enter Account Number"
-                        className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:bg-white ${
-                          formData.confirmAccountNumber && formData.accountNumber !== formData.confirmAccountNumber 
-                          ? 'border-red-400 focus:border-red-500 focus:ring-red-500' 
+                        className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:bg-white ${formData.confirmAccountNumber && formData.accountNumber !== formData.confirmAccountNumber
+                          ? 'border-red-400 focus:border-red-500 focus:ring-red-500'
                           : 'border-gray-200 focus:border-primary focus:ring-primary'
-                        }`}
+                          }`}
                         value={formData.confirmAccountNumber}
-                        onChange={(e) => setFormData({...formData, confirmAccountNumber: e.target.value.replace(/\D/g, '')})}
+                        onChange={(e) => setFormData({ ...formData, confirmAccountNumber: e.target.value.replace(/\D/g, '') })}
                         readOnly={profile?.documents?.bankPassbook?.status === 'approved'}
                       />
                     </div>
                   </div>
- 
+
                   <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200 mt-4">
                     <p className="text-xs font-black text-secondary mb-3">Upload Passbook / Cheque</p>
                     {profile?.documents?.bankPassbook?.url ? (
@@ -451,7 +450,7 @@ export default function EmployeeOnboarding() {
                 {(() => {
                   const extraDocs = profile?.designation === 'Block Employee' ? ['certificate12th'] : profile?.designation === 'District Coordinator' ? ['graduationCertificate'] : [];
                   return [...extraDocs, 'resume', 'passportPhoto'].map((type) => (
-                    <DocumentCard 
+                    <DocumentCard
                       key={type}
                       type={type}
                       docInfo={profile?.documents?.[type]}
@@ -462,19 +461,19 @@ export default function EmployeeOnboarding() {
                 })()}
               </div>
             </div>
-            
+
             <AnimatePresence>
               {isComplianceDone && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                   className="p-8 bg-green-50 border border-green-100 rounded-[32px] flex items-center gap-6 mt-8"
                 >
                   <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg shadow-green-200">
-                     <ShieldCheck size={32} />
+                    <ShieldCheck size={32} />
                   </div>
                   <div>
-                     <h3 className="text-xl font-black text-green-700">Verification Completed!</h3>
-                     <p className="text-green-600/80 font-bold text-sm">Your documents have been approved by the administrator. We are now proceeding to Step 2.</p>
+                    <h3 className="text-xl font-black text-green-700">Verification Completed!</h3>
+                    <p className="text-green-600/80 font-bold text-sm">Your documents have been approved by the administrator. We are now proceeding to Step 2.</p>
                   </div>
                 </motion.div>
               )}
@@ -483,48 +482,48 @@ export default function EmployeeOnboarding() {
 
           <div className="space-y-8">
             <div className="bg-secondary-dark p-10 rounded-[40px] text-white shadow-2xl relative overflow-hidden">
-               <div className="absolute top-[-50px] right-[-50px] w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
-               <h4 className="text-2xl font-black mb-6 relative z-10">Onboarding Status</h4>
-               
-               <div className="space-y-8 relative z-10">
-                 <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${isComplianceDone ? 'bg-green-500' : 'bg-primary shadow-lg shadow-primary/20'}`}>
-                      <ShieldCheck size={24} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Step 1</p>
-                      <p className="font-bold text-sm">Verification</p>
-                    </div>
-                 </div>
+              <div className="absolute top-[-50px] right-[-50px] w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
+              <h4 className="text-2xl font-black mb-6 relative z-10">Onboarding Status</h4>
 
-                 <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${profile?.assignmentStatus === 'completed' ? 'bg-green-500' : isComplianceDone ? 'bg-amber-500 animate-pulse' : 'bg-white/10'}`}>
-                      <Network size={24} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Step 2</p>
-                      <p className="font-bold text-sm">Hierarchy Mapping</p>
-                    </div>
-                 </div>
+              <div className="space-y-8 relative z-10">
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${isComplianceDone ? 'bg-green-500' : 'bg-primary shadow-lg shadow-primary/20'}`}>
+                    <ShieldCheck size={24} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Step 1</p>
+                    <p className="font-bold text-sm">Verification</p>
+                  </div>
+                </div>
 
-                 <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${profile?.dashboardAccess && profile?.assignmentStatus === 'completed' ? 'bg-green-500' : 'bg-white/10'}`}>
-                      <CheckCircle2 size={24} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Step 3</p>
-                      <p className="font-bold text-sm">Dashboard Access</p>
-                    </div>
-                 </div>
-               </div>
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${profile?.assignmentStatus === 'completed' ? 'bg-green-500' : isComplianceDone ? 'bg-amber-500 animate-pulse' : 'bg-white/10'}`}>
+                    <Network size={24} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Step 2</p>
+                    <p className="font-bold text-sm">Hierarchy Mapping</p>
+                  </div>
+                </div>
 
-               <div className="mt-12 pt-8 border-t border-white/10 relative z-10 text-center">
-                 <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
-                    {isComplianceDone ? 
-                      'Compliance verified! Please wait for final manual activation and network assignment by our administrator.' :
-                      'Our compliance team will verify your employee profile once all documents are uploaded.'}
-                 </p>
-               </div>
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${profile?.dashboardAccess && profile?.assignmentStatus === 'completed' ? 'bg-green-500' : 'bg-white/10'}`}>
+                    <CheckCircle2 size={24} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Step 3</p>
+                    <p className="font-bold text-sm">Dashboard Access</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-12 pt-8 border-t border-white/10 relative z-10 text-center">
+                <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
+                  {isComplianceDone ?
+                    'Compliance verified! Please wait for final manual activation and network assignment by our administrator.' :
+                    'Our compliance team will verify your employee profile once all documents are uploaded.'}
+                </p>
+              </div>
             </div>
 
             <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm">

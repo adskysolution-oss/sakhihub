@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   ShieldCheck, CheckCircle2, Clock, LogOut, AlertCircle, FileCheck,
   UserCheck, CreditCard, Landmark, Upload, FileText, Network
 } from 'lucide-react';
@@ -59,9 +59,9 @@ export default function SubVendorOnboarding() {
   };
 
   const { uploading, uploadDocument } = useDocumentFlow({
-    onSuccess: async () => { 
+    onSuccess: async () => {
       setIsInitialized(false);
-      await fetchProfile(); 
+      await fetchProfile();
     }
   });
 
@@ -71,7 +71,7 @@ export default function SubVendorOnboarding() {
       if (res.data.success) {
         const user = res.data.data;
         setProfile(user);
-        
+
         // Real-time Auto Redirect Logic
         if (user.documentsVerified) {
           if (!user.paymentCompleted) {
@@ -128,7 +128,7 @@ export default function SubVendorOnboarding() {
     if (code.length === 11) {
       setIfscLoading(true);
       try {
-        const res = await axios.get(`https://ifsc.razorpay.com/${code}`);
+        const res = await axios.get(`/api/ifsc/${code}`);
         setFormData(prev => ({ ...prev, bankName: res.data.BANK, branchName: res.data.BRANCH }));
       } catch (err) {
         setFormData(prev => ({ ...prev, bankName: '', branchName: '' }));
@@ -217,9 +217,9 @@ export default function SubVendorOnboarding() {
   const aadhaarDocType = docTypes.find(d => ['aadhaarCard', 'directorAadhaarCard', 'aadhaarCardFront', 'aadhaarCardBack', 'directorAadhaarCardFront', 'directorAadhaarCardBack'].includes(d)) || 'aadhaarCard';
   const panDocType = docTypes.find(d => ['panCard', 'companyPanCard', 'directorPanCard', 'ngoPanCard'].includes(d)) || 'panCard';
   const bankDocType = 'bankPassbook';
-  const generalDocTypes = docTypes.filter(d => 
-    !['aadhaarCard', 'directorAadhaarCard', 'aadhaarCardFront', 'aadhaarCardBack', 'directorAadhaarCardFront', 'directorAadhaarCardBack'].includes(d) && 
-    d !== panDocType && 
+  const generalDocTypes = docTypes.filter(d =>
+    !['aadhaarCard', 'directorAadhaarCard', 'aadhaarCardFront', 'aadhaarCardBack', 'directorAadhaarCardFront', 'directorAadhaarCardBack'].includes(d) &&
+    d !== panDocType &&
     d !== bankDocType
   );
 
@@ -240,16 +240,16 @@ export default function SubVendorOnboarding() {
             </p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2 mt-2 pt-3 border-t border-gray-100">
-           <a href={getDocumentViewUrl(docInfo.url)} target="_blank" rel="noopener noreferrer" className="flex-1 text-center py-2.5 bg-gray-50 hover:bg-primary hover:text-white text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-             Preview
-           </a>
-           {docInfo.status !== 'approved' && reuploadInput && (
-             <div className="flex-1">
-               {reuploadInput}
-             </div>
-           )}
+          <a href={getDocumentViewUrl(docInfo.url)} target="_blank" rel="noopener noreferrer" className="flex-1 text-center py-2.5 bg-gray-50 hover:bg-primary hover:text-white text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+            Preview
+          </a>
+          {docInfo.status !== 'approved' && reuploadInput && (
+            <div className="flex-1">
+              {reuploadInput}
+            </div>
+          )}
         </div>
 
         {docInfo?.remarks && ['rejected', 'reupload_required'].includes(docInfo.status) && (
@@ -286,14 +286,14 @@ export default function SubVendorOnboarding() {
             <section className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
               <h3 className="text-xl font-black text-secondary mb-2">Select Vendor Entity Type</h3>
               <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-6">This determines which documents and KYC details are required for your organization.</p>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
                   { id: 'individual', title: 'Individual Vendor', desc: 'Proprietor, freelancer, or single contractor' },
                   { id: 'company', title: 'Company Vendor', desc: 'Private Limited, LLP, Partnership or Sole Proprietorship' },
                   { id: 'ngo_trust', title: 'NGO / Trust Vendor', desc: 'Non-governmental organization, Society, or Trust' }
                 ].map(type => (
-                  <div 
+                  <div
                     key={type.id}
                     onClick={() => handleUpdateVendorType(type.id)}
                     className={`p-5 rounded-3xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-2 ${vendorType === type.id ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'}`}
@@ -322,7 +322,7 @@ export default function SubVendorOnboarding() {
                 const frontType = docTypes.includes('directorAadhaarCardFront') ? 'directorAadhaarCardFront' : 'aadhaarCardFront';
                 const backType = docTypes.includes('directorAadhaarCardBack') ? 'directorAadhaarCardBack' : 'aadhaarCardBack';
                 const activeAadhaarKey = isSplit ? frontType : aadhaarDocType;
-                const isApproved = isSplit 
+                const isApproved = isSplit
                   ? (profile?.documents?.[frontType]?.status === 'approved' || profile?.documents?.[backType]?.status === 'approved')
                   : profile?.documents?.[aadhaarDocType]?.status === 'approved';
 
@@ -341,15 +341,15 @@ export default function SubVendorOnboarding() {
                     <div className="space-y-6">
                       <div>
                         <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Aadhaar Number *</label>
-                        <input 
+                        <input
                           type="text" maxLength={12} placeholder="Enter 12-digit Aadhaar Number"
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:border-primary focus:bg-white"
                           value={formData.aadhaarNumber}
-                          onChange={(e) => setFormData({...formData, aadhaarNumber: e.target.value.replace(/\D/g, '')})}
+                          onChange={(e) => setFormData({ ...formData, aadhaarNumber: e.target.value.replace(/\D/g, '') })}
                           readOnly={isApproved}
                         />
                       </div>
-                      
+
                       {isSplit ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
@@ -424,15 +424,15 @@ export default function SubVendorOnboarding() {
                   <div className="space-y-6">
                     <div>
                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">PAN Number *</label>
-                      <input 
+                      <input
                         type="text" maxLength={10} placeholder="Enter 10-character PAN"
                         className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:outline-none focus:border-primary focus:bg-white"
                         value={formData.panNumber}
-                        onChange={(e) => setFormData({...formData, panNumber: e.target.value.toUpperCase()})}
+                        onChange={(e) => setFormData({ ...formData, panNumber: e.target.value.toUpperCase() })}
                         readOnly={profile?.documents?.[panDocType]?.status === 'approved'}
                       />
                     </div>
-                    
+
                     <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
                       <p className="text-xs font-black text-secondary mb-3">PAN Document</p>
                       {profile?.documents?.[panDocType]?.url ? (
@@ -470,18 +470,18 @@ export default function SubVendorOnboarding() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="md:col-span-2">
                         <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Account Holder Name *</label>
-                        <input 
+                        <input
                           type="text" placeholder="Name exactly as per bank records"
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:outline-none focus:border-primary focus:bg-white"
                           value={formData.accountHolderName}
-                          onChange={(e) => setFormData({...formData, accountHolderName: e.target.value.toUpperCase()})}
+                          onChange={(e) => setFormData({ ...formData, accountHolderName: e.target.value.toUpperCase() })}
                           readOnly={profile?.documents?.[bankDocType]?.status === 'approved'}
                         />
                       </div>
                       <div>
                         <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">IFSC Code *</label>
                         <div className="relative">
-                          <input 
+                          <input
                             type="text" maxLength={11} placeholder="e.g. SBIN0001234"
                             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:outline-none focus:border-primary focus:bg-white"
                             value={formData.ifscCode}
@@ -506,25 +506,24 @@ export default function SubVendorOnboarding() {
                       </div>
                       <div>
                         <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Account Number *</label>
-                        <input 
+                        <input
                           type="text" placeholder="Enter Account Number"
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:border-primary focus:bg-white"
                           value={formData.accountNumber}
-                          onChange={(e) => setFormData({...formData, accountNumber: e.target.value.replace(/\D/g, '')})}
+                          onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value.replace(/\D/g, '') })}
                           readOnly={profile?.documents?.[bankDocType]?.status === 'approved'}
                         />
                       </div>
                       <div>
                         <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Confirm Account Number *</label>
-                        <input 
+                        <input
                           type="text" placeholder="Re-enter Account Number"
-                          className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:bg-white ${
-                            formData.confirmAccountNumber && formData.accountNumber !== formData.confirmAccountNumber 
-                            ? 'border-red-400 focus:border-red-500 focus:ring-red-500' 
+                          className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:bg-white ${formData.confirmAccountNumber && formData.accountNumber !== formData.confirmAccountNumber
+                            ? 'border-red-400 focus:border-red-500 focus:ring-red-500'
                             : 'border-gray-200 focus:border-primary focus:ring-primary'
-                          }`}
+                            }`}
                           value={formData.confirmAccountNumber}
-                          onChange={(e) => setFormData({...formData, confirmAccountNumber: e.target.value.replace(/\D/g, '')})}
+                          onChange={(e) => setFormData({ ...formData, confirmAccountNumber: e.target.value.replace(/\D/g, '') })}
                           readOnly={profile?.documents?.[bankDocType]?.status === 'approved'}
                         />
                       </div>
@@ -559,7 +558,7 @@ export default function SubVendorOnboarding() {
                   </section>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {generalDocTypes.map((type) => (
-                      <DocumentCard 
+                      <DocumentCard
                         key={type}
                         type={type}
                         docInfo={profile?.documents?.[type]}
@@ -575,56 +574,56 @@ export default function SubVendorOnboarding() {
 
           <div className="space-y-8">
             <div className="bg-secondary-dark p-10 rounded-[40px] text-white shadow-2xl relative overflow-hidden">
-               <div className="absolute top-[-50px] right-[-50px] w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
-               <h4 className="text-2xl font-black mb-6 relative z-10">Onboarding Status</h4>
-               
-               <div className="space-y-6 relative z-10">
-                 <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${['active', 'approved'].includes(profile?.status) ? 'bg-green-500' : profile?.status === 'pending' ? 'bg-white/10' : 'bg-amber-500'}`}>
-                      <ShieldCheck size={24} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Step 1: Verification</p>
-                      <p className="font-bold text-sm">
-                        {['active', 'approved'].includes(profile?.status) ? 'Docs Verified' : 
-                         profile?.status === 'reupload_required' ? 'Action Required' :
-                         'In Progress'}
-                      </p>
-                    </div>
-                 </div>
+              <div className="absolute top-[-50px] right-[-50px] w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
+              <h4 className="text-2xl font-black mb-6 relative z-10">Onboarding Status</h4>
 
-                 <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${profile?.assignmentStatus === 'completed' ? 'bg-green-500' : 'bg-white/10'}`}>
-                      <Network size={24} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Step 2: Mapping</p>
-                      <p className="font-bold text-sm">
-                        {profile?.assignmentStatus === 'completed' ? 'Hierarchy Set' : 'Awaiting Admin'}
-                      </p>
-                    </div>
-                 </div>
+              <div className="space-y-6 relative z-10">
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${['active', 'approved'].includes(profile?.status) ? 'bg-green-500' : profile?.status === 'pending' ? 'bg-white/10' : 'bg-amber-500'}`}>
+                    <ShieldCheck size={24} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Step 1: Verification</p>
+                    <p className="font-bold text-sm">
+                      {['active', 'approved'].includes(profile?.status) ? 'Docs Verified' :
+                        profile?.status === 'reupload_required' ? 'Action Required' :
+                          'In Progress'}
+                    </p>
+                  </div>
+                </div>
 
-                 <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${profile?.dashboardAccess && profile?.assignmentStatus === 'completed' ? 'bg-green-500' : 'bg-white/10'}`}>
-                      <CheckCircle2 size={24} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Step 3: Access</p>
-                      <p className="font-bold text-sm">{profile?.dashboardAccess && profile?.assignmentStatus === 'completed' ? 'Dashboard Open' : 'Locked'}</p>
-                    </div>
-                 </div>
-               </div>
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${profile?.assignmentStatus === 'completed' ? 'bg-green-500' : 'bg-white/10'}`}>
+                    <Network size={24} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Step 2: Mapping</p>
+                    <p className="font-bold text-sm">
+                      {profile?.assignmentStatus === 'completed' ? 'Hierarchy Set' : 'Awaiting Admin'}
+                    </p>
+                  </div>
+                </div>
 
-               <div className="mt-12 pt-8 border-t border-white/10 relative z-10 text-center">
-                 <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
-                    {profile?.status === 'active' && !profile?.dashboardAccess ? 
-                      'Compliance verified! Waiting for final hierarchy assignment and parent vendor mapping to unlock your dashboard.' :
-                     profile?.status === 'approved' ? 
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${profile?.dashboardAccess && profile?.assignmentStatus === 'completed' ? 'bg-green-500' : 'bg-white/10'}`}>
+                    <CheckCircle2 size={24} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Step 3: Access</p>
+                    <p className="font-bold text-sm">{profile?.dashboardAccess && profile?.assignmentStatus === 'completed' ? 'Dashboard Open' : 'Locked'}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-12 pt-8 border-t border-white/10 relative z-10 text-center">
+                <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
+                  {profile?.status === 'active' && !profile?.dashboardAccess ?
+                    'Compliance verified! Waiting for final hierarchy assignment and parent vendor mapping to unlock your dashboard.' :
+                    profile?.status === 'approved' ?
                       'Compliance verified! Please wait for final manual activation and hierarchy mapping by our administrator.' :
                       'Once all documents are uploaded, our compliance team will verify your organization within 24-48 business hours.'}
-                 </p>
-               </div>
+                </p>
+              </div>
             </div>
 
             <div className="bg-white p-8 rounded-[40px] border border-gray-100">
