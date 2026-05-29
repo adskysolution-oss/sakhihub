@@ -38,6 +38,18 @@ export default function RefundPolicy() {
               </p>
             </div>
 
+            <div className="bg-amber-50 p-8 rounded-[32px] border border-amber-100 mb-12">
+              <h2 className="text-xl font-black text-amber-900 mb-4">{t('refundPolicy.noReturn', 'Return Policy')}</h2>
+              <p className="text-amber-800 font-bold leading-relaxed mb-2 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                {t('refundPolicy.noReturn')}
+              </p>
+              <p className="text-amber-800 font-bold leading-relaxed mb-0 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                {t('refundPolicy.deliveryTime')}
+              </p>
+            </div>
+
             <div className="space-y-12 text-gray-600">
               <section>
                 <h2 className="text-2xl font-black text-secondary flex items-center gap-3 mb-6">
