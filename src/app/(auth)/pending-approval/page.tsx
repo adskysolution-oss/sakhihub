@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import axios from 'axios';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function PendingApprovalPage() {
   const { t } = useLanguage();
