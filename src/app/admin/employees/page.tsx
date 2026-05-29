@@ -166,7 +166,7 @@ export default function EmployeeManagement() {
     }
   };
 
-  const compliance = selectedEmp ? getDocComplianceSummary(selectedEmp.documents, 'employee') : null;
+  const compliance = selectedEmp ? getDocComplianceSummary(selectedEmp.documents, 'employee', undefined, selectedEmp.designation) : null;
 
   return (
     <DashboardLayout>
@@ -228,7 +228,7 @@ export default function EmployeeManagement() {
                    <tr><td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">No employees found.</td></tr>
                 ) : (
                    employees.map((emp) => {
-                     const empComp = getDocComplianceSummary(emp.documents, 'employee');
+                     const empComp = getDocComplianceSummary(emp.documents, 'employee', undefined, emp.designation);
                      return (
                       <tr key={emp._id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer group">
                         <td className="p-5" onClick={() => setSelectedEmp(emp)}>
@@ -499,7 +499,7 @@ export default function EmployeeManagement() {
                       </div>
 
                       <div className="grid grid-cols-1 gap-6">
-                        {getRequiredDocsForUser('employee', selectedEmp.documents).map(type => (
+                        {getRequiredDocsForUser('employee', selectedEmp.documents, undefined, selectedEmp.designation).map(type => (
                           <DocumentReviewCard 
                             key={type}
                             type={type}
