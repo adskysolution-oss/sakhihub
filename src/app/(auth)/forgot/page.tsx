@@ -2,9 +2,9 @@
 
 import { useLanguage } from "@/context/LanguageContext";
 import React, { useState, useEffect } from "react";
-import { 
-  Phone, Lock, Heart, ShieldCheck, ArrowRight, ArrowLeft, 
-  Mail, AlertCircle, CheckCircle, Sparkles 
+import {
+  Phone, Lock, Heart, ShieldCheck, ArrowRight, ArrowLeft,
+  Mail, AlertCircle, CheckCircle, Sparkles
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,6 +15,7 @@ import { validatePassword } from "@/utils/validation";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [step, setStep] = useState(1); // 1: Email/Request, 2: OTP, 3: New Password
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -85,10 +86,10 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.post('/api/auth/reset-password', { 
-        email, 
-        otp, 
-        newPassword 
+      const res = await axios.post('/api/auth/reset-password', {
+        email,
+        otp,
+        newPassword
       });
       if (res.data.success) {
         setSuccess("Password reset successful! Redirecting to login...");
