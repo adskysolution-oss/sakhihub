@@ -1,9 +1,20 @@
 import puppeteer from 'puppeteer';
+import fs from 'fs';
+import path from 'path';
 
 export const generateAgreementHtml = (data: any) => {
   const currentDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
   const companyName = "SakhiHub Platform (AdSky Solution)";
   const companyAddress = "Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010";
+
+  let signatureBase64 = '';
+  try {
+    const sigPath = path.join(process.cwd(), 'public', 'manager-signature.png');
+    const sigData = fs.readFileSync(sigPath);
+    signatureBase64 = `data:image/png;base64,${sigData.toString('base64')}`;
+  } catch (e) {
+    console.error('Signature image not found:', e);
+  }
 
   return `
     <!DOCTYPE html>
@@ -257,7 +268,8 @@ export const generateAgreementHtml = (data: any) => {
         </div>
 
         <div class="flex-between">
-          <div class="signature-box">
+          <div class="signature-box" style="position: relative;">
+            ${signatureBase64 ? `<img src="${signatureBase64}" alt="Signature" style="height: 60px; position: absolute; top: -25px; left: 10px; opacity: 0.8;" />` : ''}
             <div class="line"></div>
             <strong>For Client (SakhiHub)</strong><br/>
             Authorized Signatory<br/>

@@ -125,7 +125,8 @@ const AppointmentLetterPreview: React.FC<{ data: AppointmentLetterData }> = ({ d
       </p>
 
       <div className="flex justify-between items-end mt-12 pt-8">
-        <div className="text-center">
+        <div className="text-center relative">
+          <img src="/manager-signature.png" alt="Manager Signature" className="h-16 w-auto mx-auto object-contain opacity-80" />
           <p className="font-bold border-t border-gray-400 pt-2 px-8 uppercase text-sm">Official Company Details</p>
           <p className="text-xs text-gray-500 mt-1">Authorized Signatory For {companyName}</p>
         </div>

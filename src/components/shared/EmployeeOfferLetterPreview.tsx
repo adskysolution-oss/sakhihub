@@ -139,7 +139,8 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
 
       {/* Signatures */}
       <div className="flex justify-between items-end mt-4 pt-8">
-        <div className="text-center">
+        <div className="text-center relative">
+          <img src="/manager-signature.png" alt="Manager Signature" className="h-16 w-auto mx-auto object-contain opacity-80" />
           <p className="font-bold border-t border-gray-400 pt-2 px-8 uppercase text-xs">Authorized By</p>
           <p className="text-[10px] text-gray-500 mt-1">For {companyName}</p>
         </div>
