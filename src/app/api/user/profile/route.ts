@@ -14,7 +14,7 @@ export async function GET() {
     const user = await User.findById((session as any).id)
       .select('-password')
       .populate('parentVendorId', 'fullName mobile role');
-    
+
     if (!user) return errorResponse('User not found', 404);
 
     return successResponse(user);
@@ -46,7 +46,7 @@ export async function PATCH(req: NextRequest) {
 
     // Update text fields
     if (fullName) user.fullName = fullName;
-    
+
     // Handle Mobile update with duplicate check
     if (mobile && mobile !== user.mobile) {
       const existing = await User.findOne({ mobile, _id: { $ne: user._id } });
@@ -70,11 +70,11 @@ export async function PATCH(req: NextRequest) {
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       const uploadResult = await uploadBuffer(
-        buffer, 
-        file.type, 
-        `profiles/${user.role}`, 
-        { 
-          uploadedBy: user._id, 
+        buffer,
+        file.type,
+        `profiles/${user.role}`,
+        {
+          uploadedBy: user._id,
           uploadedFor: 'profileImage',
           originalName: file.name
         }

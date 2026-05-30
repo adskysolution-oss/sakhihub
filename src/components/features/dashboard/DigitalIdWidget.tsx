@@ -27,7 +27,7 @@ export default function DigitalIdWidget({ user }: DigitalIdWidgetProps) {
       )}
 
       <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        
+
         {/* Left Side: Avatar & Details */}
         <div className="flex items-center gap-5">
           <div className={`w-20 h-20 rounded-2xl flex items-center justify-center shrink-0 border-4 overflow-hidden ${isReady ? 'border-white/20 bg-white/10' : 'border-gray-50 bg-gray-100'}`}>
@@ -37,7 +37,7 @@ export default function DigitalIdWidget({ user }: DigitalIdWidgetProps) {
               <User size={32} className={isReady ? 'text-white/70' : 'text-gray-400'} />
             )}
           </div>
-          
+
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h3 className={`text-xl font-black ${isReady ? 'text-white' : 'text-gray-800'}`}>
@@ -49,11 +49,11 @@ export default function DigitalIdWidget({ user }: DigitalIdWidgetProps) {
                 </span>
               )}
             </div>
-            
+
             <p className={`text-sm font-bold tracking-wide ${isReady ? 'text-white/80' : 'text-gray-500'}`}>
               {displayRole}
             </p>
-            
+
             <div className="flex items-center gap-3 mt-3">
               <span className={`text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest ${isReady ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
                 ID: {idNumber || 'N/A'}
@@ -67,7 +67,7 @@ export default function DigitalIdWidget({ user }: DigitalIdWidgetProps) {
 
         {/* Right Side: QR & Actions */}
         <div className="flex flex-col sm:flex-row items-center gap-6 w-full md:w-auto mt-4 md:mt-0">
-          
+
           {/* Dummy QR Icon to represent Digital nature */}
           <div className={`hidden sm:flex items-center justify-center w-16 h-16 rounded-xl ${isReady ? 'bg-white/10 text-white/50' : 'bg-gray-50 text-gray-300'}`}>
             <QrCode size={32} />
@@ -76,13 +76,13 @@ export default function DigitalIdWidget({ user }: DigitalIdWidgetProps) {
           <div className="flex sm:flex-col gap-3 w-full sm:w-auto">
             {isReady ? (
               <>
-                <Link 
+                <Link
                   href="/id-card"
                   className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white text-[#D91656] hover:bg-gray-50 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
                 >
                   <ExternalLink size={16} /> View Full Card
                 </Link>
-                <Link 
+                <Link
                   href="/id-card"
                   className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-black/20 hover:bg-black/30 text-white border border-white/20 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all"
                 >

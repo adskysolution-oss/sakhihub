@@ -1250,5 +1250,16 @@
     "joinPremiumDesc": "Unlock the full potential of SakhiHub! Get your official digital ID card, join self-help groups, and participate in campaigns.",
     "payOnline": "Pay Online Now",
     "payCash": "Pay Cash to Agent"
+  },
+  "employeeDashboard": {
+    "verifyActionReq": "Action Required: Verify Your Profile",
+    "verifyReuploadReq": "Some of your uploaded documents were rejected. Please check and re-upload.",
+    "verifyUnderReview": "Your documents are currently under review by the Admin team.",
+    "verifyMandatory": "You must upload all mandatory documents (Aadhaar, PAN, Bank Details, etc.) to activate your account.",
+    "manageDocs": "Manage Documents",
+    "verifiedActive": "Verified Active",
+    "pendingVerification": "Pending Verification",
+    "actionsDisabled": "Actions Disabled",
+    "actionsDisabledDesc": "You must complete your document verification to unlock member registration, group creation, and other features."
   }
 }

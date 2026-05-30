@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useEffect, useState, use } from 'react';
-import { 
-  BadgeCheck, 
-  ShieldAlert, 
-  XCircle, 
-  User, 
-  MapPin, 
-  Briefcase, 
-  Calendar, 
+import {
+  BadgeCheck,
+  ShieldAlert,
+  XCircle,
+  User,
+  MapPin,
+  Briefcase,
+  Calendar,
   ShieldCheck,
   Building,
   CheckCircle2,
@@ -47,7 +47,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
       try {
         const res = await fetch(`/api/public/verify-id?id=${encodeURIComponent(decodedId)}`);
         const json = await res.json();
-        
+
         if (json.success) {
           setData(json.data);
         } else {
@@ -87,7 +87,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] flex flex-col items-center justify-center p-6 md:p-12">
-      
+
       <div className="w-full max-w-2xl mb-8 flex justify-start">
         <Link href="/" className="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors font-bold text-sm">
           <ChevronLeft size={16} /> {t('verifyPage.backHome')}
@@ -124,7 +124,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
           <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden relative">
             {/* Top Security Strip */}
             <div className="h-2 w-full bg-gradient-to-r from-primary via-blue-400 to-primary"></div>
-            
+
             <div className="p-8 md:p-10">
               {/* Header inside card */}
               <div className="flex justify-between items-start mb-10 border-b border-gray-100 pb-8">
@@ -159,7 +159,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                   <p className="text-primary font-bold uppercase tracking-widest text-xs mb-4">
                     {data.role.replace('_', ' ')}
                   </p>
-                  
+
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono font-bold text-gray-700">
                     {t('verifyPage.id')} {data.idNumber}
                   </div>
@@ -175,7 +175,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                     <p className="font-semibold text-gray-800">{new Date(data.registrationDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                   </div>
                 </div>
-                
+
                 {(data.state || data.district) && (
                   <div className="flex items-start gap-3">
                     <MapPin size={18} className="text-gray-400 shrink-0 mt-0.5" />
@@ -195,7 +195,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                     </div>
                   </div>
                 )}
-                
+
                 {data.membershipStatus && (
                   <div className="flex items-start gap-3">
                     <Briefcase size={18} className="text-gray-400 shrink-0 mt-0.5" />
@@ -221,7 +221,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
           </div>
         ) : null}
       </div>
-      
+
       {/* Background Decorative */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
         <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl"></div>

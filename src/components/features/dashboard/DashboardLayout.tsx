@@ -16,9 +16,9 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import { 
-  MEMBER_DASHBOARD_LINKS, 
-  ADMIN_DASHBOARD_LINKS, 
+import {
+  MEMBER_DASHBOARD_LINKS,
+  ADMIN_DASHBOARD_LINKS,
   EMPLOYEE_DASHBOARD_LINKS,
   VENDOR_DASHBOARD_LINKS,
   SUBVENDOR_DASHBOARD_LINKS
@@ -159,9 +159,9 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             <nav className="flex-1 p-5 overflow-y-auto">
               <div className="grid gap-2">
                 {menuItems.map((item: any) => {
-                  const isActive = pathname === item.href || 
+                  const isActive = pathname === item.href ||
                     (item.href.includes('/profile') && pathname.includes('/profile'));
-                  
+
                   if (item.locked) {
                     return (
                       <button
@@ -247,7 +247,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-white"></span>
             </button>
 
-            <Link 
+            <Link
               href={user?.role === 'super_admin' ? '/admin/profile' : `/${user?.role?.replace('_', '-')}/dashboard/profile`}
               className="flex items-center gap-3 pl-3 md:pl-5 border-l border-[#eee] no-underline group"
             >
@@ -279,8 +279,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                   <p className="text-xs font-medium text-rose-700 mt-0.5">{t('dashboardCommon.completeProfileMsg', 'Please add your profile picture and complete your profile details in the profile section.')}</p>
                 </div>
               </div>
-              <Link 
-                href={user?.role === 'super_admin' ? '/admin/profile' : `/${user?.role?.replace('_', '-')}/dashboard/profile`} 
+              <Link
+                href={user?.role === 'super_admin' ? '/admin/profile' : `/${user?.role?.replace('_', '-')}/dashboard/profile`}
                 className="shrink-0 w-full sm:w-auto text-center px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold tracking-wide hover:bg-rose-700 transition-colors shadow-sm"
               >
                 {t('dashboardCommon.completeProfileBtn', 'Complete Profile')}
@@ -291,7 +291,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             if (user?.role === 'member') {
               const isPaidVerified = user?.membershipType === 'paid' && (user?.accessStatus === 'unlocked' || user?.paymentStatus === 'completed');
               const isPremiumLocked = !isPaidVerified;
-              
+
               if (isPremiumLocked && ['/member/my-group', '/member/campaigns', '/member/resources'].some(r => pathname.startsWith(r))) {
                 return (
                   <div className="min-h-[50vh] flex flex-col items-center justify-center bg-white rounded-[35px] p-8 text-center border border-gray-100 shadow-sm mt-4">

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  User, Mail, MapPin, Phone, Camera, Save, Loader2, 
+import {
+  User, Mail, MapPin, Phone, Camera, Save, Loader2,
   Building2, Briefcase, Calendar, ShieldCheck, Map
 } from 'lucide-react';
 import axios from 'axios';
@@ -94,15 +94,15 @@ export default function ProfileManager() {
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white rounded-[40px] shadow-2xl shadow-black/5 overflow-hidden border border-gray-50"
       >
         {/* Banner Decor */}
         <div className="h-40 bg-gradient-to-r from-primary/10 via-secondary/5 to-primary/10 relative">
-          <div className="absolute inset-0 opacity-20 pointer-events-none" 
-               style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, gray 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+          <div className="absolute inset-0 opacity-20 pointer-events-none"
+            style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, gray 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
         </div>
 
         <div className="px-8 pb-12 -mt-20 relative z-10">
@@ -111,24 +111,24 @@ export default function ProfileManager() {
             <div className="flex flex-col md:flex-row items-end gap-8">
               <div className="relative group">
                 <div className="w-40 h-40 rounded-[40px] bg-white p-2 shadow-2xl border border-gray-100 overflow-hidden">
-                  <img 
-                    src={preview || user?.profileImage || `https://ui-avatars.com/api/?name=${user?.fullName}&background=random&size=200`} 
-                    alt="Profile" 
+                  <img
+                    src={preview || user?.profileImage || `https://ui-avatars.com/api/?name=${user?.fullName}&background=random&size=200`}
+                    alt="Profile"
                     className="w-full h-full object-cover rounded-[32px]"
                   />
                 </div>
-                <button 
+                <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   className="absolute bottom-2 right-2 w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all group-hover:ring-4 ring-primary/20"
                 >
                   <Camera size={20} />
                 </button>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleFileChange} 
-                  className="hidden" 
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="hidden"
                   accept="image/*"
                 />
               </div>
@@ -145,8 +145,8 @@ export default function ProfileManager() {
                 </div>
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={saving}
                 className="mb-4 px-10 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -160,18 +160,18 @@ export default function ProfileManager() {
               {/* Personal Information */}
               <section className="space-y-8">
                 <h3 className="text-xl font-black text-secondary uppercase tracking-wider flex items-center gap-3">
-                   <User size={20} className="text-primary" /> Personal Information
+                  <User size={20} className="text-primary" /> Personal Information
                 </h3>
-                
+
                 <div className="grid gap-6">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Full Name</label>
                     <div className="relative">
                       <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
-                      <input 
-                        type="text" 
-                        name="fullName" 
-                        value={formData.fullName || ''} 
+                      <input
+                        type="text"
+                        name="fullName"
+                        value={formData.fullName || ''}
                         onChange={handleChange}
                         className="w-full pl-12 pr-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:ring-4 ring-primary/10 focus:border-primary transition-all outline-none font-bold text-secondary"
                         placeholder="Your full name"
@@ -183,9 +183,9 @@ export default function ProfileManager() {
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Email Address (Read-only)</label>
                     <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
-                      <input 
-                        type="email" 
-                        value={user?.email || ''} 
+                      <input
+                        type="email"
+                        value={user?.email || ''}
                         readOnly
                         className="w-full pl-12 pr-6 py-4 bg-gray-100/50 border border-gray-100 rounded-2xl font-bold text-gray-400 cursor-not-allowed"
                       />
@@ -196,10 +196,10 @@ export default function ProfileManager() {
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Phone Number</label>
                     <div className="relative">
                       <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="mobile"
-                        value={formData.mobile || ''} 
+                        value={formData.mobile || ''}
                         onChange={handleChange}
                         className="w-full pl-12 pr-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:ring-4 ring-primary/10 focus:border-primary transition-all outline-none font-bold text-secondary"
                         placeholder="10 digit mobile"
@@ -212,10 +212,10 @@ export default function ProfileManager() {
                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Business Name</label>
                       <div className="relative">
                         <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
-                        <input 
-                          type="text" 
-                          name="businessName" 
-                          value={formData.businessName || ''} 
+                        <input
+                          type="text"
+                          name="businessName"
+                          value={formData.businessName || ''}
                           onChange={handleChange}
                           className="w-full pl-12 pr-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:ring-4 ring-primary/10 focus:border-primary transition-all outline-none font-bold text-secondary"
                           placeholder="Organization Name"
@@ -229,36 +229,36 @@ export default function ProfileManager() {
               {/* Address Information */}
               <section className="space-y-8">
                 <h3 className="text-xl font-black text-secondary uppercase tracking-wider flex items-center gap-3">
-                   <MapPin size={20} className="text-primary" /> Location & Address
+                  <MapPin size={20} className="text-primary" /> Location & Address
                 </h3>
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">State</label>
-                    <input 
-                      type="text" 
-                      name="state" 
-                      value={formData.state || ''} 
+                    <input
+                      type="text"
+                      name="state"
+                      value={formData.state || ''}
                       onChange={handleChange}
                       className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:ring-4 ring-primary/10 focus:border-primary transition-all outline-none font-bold text-secondary"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">District</label>
-                    <input 
-                      type="text" 
-                      name="district" 
-                      value={formData.district || ''} 
+                    <input
+                      type="text"
+                      name="district"
+                      value={formData.district || ''}
                       onChange={handleChange}
                       className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:ring-4 ring-primary/10 focus:border-primary transition-all outline-none font-bold text-secondary"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Block</label>
-                    <input 
-                      type="text" 
-                      name="block" 
-                      value={formData.block || ''} 
+                    <input
+                      type="text"
+                      name="block"
+                      value={formData.block || ''}
                       onChange={handleChange}
                       className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:ring-4 ring-primary/10 focus:border-primary transition-all outline-none font-bold text-secondary"
                     />
@@ -267,12 +267,12 @@ export default function ProfileManager() {
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Pincode</label>
                     <div className="relative">
                       <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
-                      <input 
-                        type="text" 
-                        name="pincode" 
+                      <input
+                        type="text"
+                        name="pincode"
                         maxLength={6}
-                        value={formData.pincode || ''} 
-                        onChange={(e) => setFormData({...formData, pincode: e.target.value.replace(/\D/g, '')})}
+                        value={formData.pincode || ''}
+                        onChange={(e) => setFormData({ ...formData, pincode: e.target.value.replace(/\D/g, '') })}
                         className="w-full pl-12 pr-10 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:ring-4 ring-primary/10 focus:border-primary transition-all outline-none font-bold text-secondary"
                         placeholder="6 digit pincode"
                       />
@@ -283,10 +283,10 @@ export default function ProfileManager() {
                   </div>
                   <div className="col-span-2 space-y-2">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Detailed Address</label>
-                    <textarea 
-                      name="address" 
+                    <textarea
+                      name="address"
                       rows={3}
-                      value={formData.address || ''} 
+                      value={formData.address || ''}
                       onChange={handleChange}
                       className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:ring-4 ring-primary/10 focus:border-primary transition-all outline-none font-bold text-secondary resize-none"
                       placeholder="Street, Landmark, City..."
@@ -299,30 +299,30 @@ export default function ProfileManager() {
             {/* Other Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-gray-50/50 p-8 rounded-[35px] border border-gray-100 grid grid-cols-2 gap-8">
-                 <div className="space-y-1">
-                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Joining Date</p>
-                   <div className="flex items-center gap-2 font-black text-secondary">
-                     <Calendar size={16} className="text-primary" /> {user?.joiningDate ? new Date(user.joiningDate).toLocaleDateString() : 'N/A'}
-                   </div>
-                 </div>
-                 <div className="space-y-1">
-                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Designation</p>
-                   <div className="flex items-center gap-2 font-black text-secondary">
-                     <Briefcase size={16} className="text-primary" /> {user?.designation || 'Member'}
-                   </div>
-                 </div>
-                 <div className="space-y-1">
-                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">User ID</p>
-                   <div className="flex items-center gap-2 font-black text-secondary uppercase">
-                     <ShieldCheck size={16} className="text-primary" /> {user?.employeeId || user?.subVendorCode || user?.vendorCode || 'N/A'}
-                   </div>
-                 </div>
-                 <div className="space-y-1">
-                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">User Status</p>
-                   <div className="flex items-center gap-2 font-black text-green-600 uppercase">
-                     <span className="w-2 h-2 rounded-full bg-green-500"></span> {user?.status}
-                   </div>
-                 </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Joining Date</p>
+                  <div className="flex items-center gap-2 font-black text-secondary">
+                    <Calendar size={16} className="text-primary" /> {user?.joiningDate ? new Date(user.joiningDate).toLocaleDateString() : 'N/A'}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Designation</p>
+                  <div className="flex items-center gap-2 font-black text-secondary">
+                    <Briefcase size={16} className="text-primary" /> {user?.designation || 'Member'}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">User ID</p>
+                  <div className="flex items-center gap-2 font-black text-secondary uppercase">
+                    <ShieldCheck size={16} className="text-primary" /> {user?.employeeId || user?.subVendorCode || user?.vendorCode || 'N/A'}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">User Status</p>
+                  <div className="flex items-center gap-2 font-black text-green-600 uppercase">
+                    <span className="w-2 h-2 rounded-full bg-green-500"></span> {user?.status}
+                  </div>
+                </div>
               </div>
 
               {/* Parent Info Section */}

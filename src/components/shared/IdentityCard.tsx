@@ -298,7 +298,12 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
           {/* Signatures & Seal Area */}
           <div className="flex justify-between items-end px-10 mt-auto pb-8 z-10">
             <div className="flex flex-col items-center">
-              <img src="/signature-placeholder.png" alt="Signature" className="h-8 opacity-80 mb-1" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+              <img
+                src={user.role === 'employee' ? "/manager-signature.png" : "/signature-placeholder.png"}
+                alt="Signature"
+                className={user.role === 'employee' ? "h-10 w-auto object-contain mb-0.5 mix-blend-darken" : "h-8 opacity-80 mb-1"}
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
               <div className="h-[1px] w-[100px] bg-gray-400 mb-1.5"></div>
               <span className="text-[9px] font-bold text-gray-600">Authorized Signatory</span>
             </div>
