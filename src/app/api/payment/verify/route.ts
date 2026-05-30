@@ -5,7 +5,7 @@ import { successResponse, errorResponse } from '@/utils/response';
 import User from '@/models/User';
 import PaymentConfig from '@/models/PaymentConfig';
 import PaymentTransaction from '@/models/PaymentTransaction';
-import { getCashfreeOrderStatus, getCashfreePayments } from '@/lib/cashfree';
+import { PaymentResolver } from '@/lib/payments/PaymentResolver';
 import { distributeCommission } from '@/lib/commission';
 
 import WomenMember from '@/models/WomenMember';
@@ -78,7 +78,10 @@ export async function POST(req: NextRequest) {
 
     // Find the transaction
     const transaction = await PaymentTransaction.findOne({
-      cashfreeOrderId: orderId,
+      $or: [
+        { cashfreeOrderId: orderId },
+        { gatewayOrderId: orderId }
+      ],
       userId: sessionUser.id,
     });
 
@@ -89,31 +92,21 @@ export async function POST(req: NextRequest) {
       return successResponse({ status: 'paid', type: transaction.type }, 'Payment already verified');
     }
 
-    // Verify with Cashfree
-    const orderStatus = await getCashfreeOrderStatus(orderId);
-    
-    if (orderStatus.order_status === 'PAID') {
-      // Fetch payment details
-      let paymentDetails: any = null;
-      try {
-        const payments = await getCashfreePayments(orderId);
-        if (payments && payments.length > 0) {
-          paymentDetails = payments[0];
-        }
-      } catch (e) {
-        // Non-critical, continue without payment details
-      }
+    // Resolve the appropriate provider
+    const providerName = transaction.provider || 'cashfree';
+    const provider = await PaymentResolver.resolveProviderByName(providerName);
 
+    // Verify with the provider
+    const verification = await provider.verifyPayment({
+      gatewayOrderId: transaction.gatewayOrderId || transaction.cashfreeOrderId,
+    });
+    
+    if (verification.success && verification.status === 'PAYMENT_SUCCESS') {
       // Update transaction
       transaction.status = 'paid';
       transaction.paidAt = new Date();
-      transaction.gatewayResponse = orderStatus;
-      if (paymentDetails) {
-        transaction.cashfreePaymentId = paymentDetails.cf_payment_id?.toString();
-        transaction.paymentMethod = typeof paymentDetails.payment_method === 'object' 
-          ? JSON.stringify(paymentDetails.payment_method) 
-          : paymentDetails.payment_method;
-      }
+      transaction.gatewayResponse = verification;
+      transaction.gatewayPaymentId = verification.gatewayPaymentId;
       await transaction.save();
 
       // Trigger upline commission distribution
@@ -217,21 +210,21 @@ export async function POST(req: NextRequest) {
           dashboardAccess: updatedUser?.dashboardAccess || false,
         }, 'Payment verified successfully');
       }
-    } else if (['EXPIRED', 'CANCELLED', 'VOID'].includes(orderStatus.order_status)) {
+    } else if (['EXPIRED', 'CANCELLED', 'VOID', 'FAILED'].includes(verification.status)) {
       transaction.status = 'failed';
-      transaction.failureReason = orderStatus.order_status;
-      transaction.gatewayResponse = orderStatus;
+      transaction.failureReason = verification.status;
+      transaction.gatewayResponse = verification;
       await transaction.save();
 
       return successResponse({
         status: 'failed',
         type: transaction.type,
-        reason: orderStatus.order_status,
+        reason: verification.status,
       }, 'Payment failed or expired');
     } else {
       // Still pending
       transaction.status = 'pending';
-      transaction.gatewayResponse = orderStatus;
+      transaction.gatewayResponse = verification;
       await transaction.save();
 
       return successResponse({

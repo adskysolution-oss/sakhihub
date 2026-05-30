@@ -5,7 +5,7 @@ import PaymentConfig from '@/models/PaymentConfig';
 import PaymentTransaction from '@/models/PaymentTransaction';
 import WomenMember from '@/models/WomenMember';
 import Membership from '@/models/Membership';
-import { verifyCashfreeWebhook, isCashfreeConfigured } from '@/lib/cashfree';
+import { PaymentResolver } from '@/lib/payments/PaymentResolver';
 import { distributeCommission } from '@/lib/commission';
 import { notifyMembershipPayment } from '@/lib/notifications';
 
@@ -14,49 +14,55 @@ export async function POST(req: NextRequest) {
     await dbConnect();
 
     const rawBody = await req.text();
-    const timestamp = req.headers.get('x-webhook-timestamp') || '';
-    const signature = req.headers.get('x-webhook-signature') || '';
+    const headersObj: Record<string, string> = {};
+    req.headers.forEach((value, key) => {
+      headersObj[key.toLowerCase()] = value;
+    });
 
-    // Verify webhook signature (enforced in production when Cashfree is configured)
-    if (isCashfreeConfigured()) {
-      if (!verifyCashfreeWebhook(rawBody, timestamp, signature)) {
-        console.error('Cashfree Webhook: Invalid signature');
-        return NextResponse.json({ success: false, message: 'Invalid signature' }, { status: 401 });
-      }
+    // Detect provider based on headers
+    const isPhonePe = !!headersObj['x-verify'];
+    const providerName = isPhonePe ? 'phonepe' : 'cashfree';
+
+    const provider = await PaymentResolver.resolveProviderByName(providerName);
+    
+    // Abstract webhook verification
+    const verification = provider.verifyWebhook(rawBody, headersObj);
+
+    if (!verification.isValid) {
+      console.error(`${providerName} Webhook: Invalid signature`);
+      // We don't block strictly for cashfree if not configured in legacy, but provider abstraction handles it
+      // For now, if invalid, we return 401
+      return NextResponse.json({ success: false, message: 'Invalid signature' }, { status: 401 });
     }
 
-    const body = JSON.parse(rawBody);
-    const eventType = body.type;
+    if (!verification.gatewayOrderId) {
+      // Valid signature but unhandled event type
+      return NextResponse.json({ success: true, message: 'Event type not handled' });
+    }
 
-    if (eventType === 'PAYMENT_SUCCESS_WEBHOOK' || eventType === 'PAYMENT_STATUS') {
-      const data = body.data || {};
-      const orderId = data.order?.order_id;
-      const paymentStatus = data.payment?.payment_status;
+    const transaction = await PaymentTransaction.findOne({
+      $or: [
+        { cashfreeOrderId: verification.gatewayOrderId },
+        { gatewayOrderId: verification.gatewayOrderId }
+      ]
+    });
 
-      if (!orderId) {
-        return NextResponse.json({ success: false, message: 'Missing order ID' }, { status: 400 });
-      }
+    if (!transaction) {
+      console.error(`${providerName} Webhook: Transaction not found for order`, verification.gatewayOrderId);
+      return NextResponse.json({ success: false, message: 'Transaction not found' }, { status: 404 });
+    }
 
-      const transaction = await PaymentTransaction.findOne({ cashfreeOrderId: orderId });
-      if (!transaction) {
-        console.error('Cashfree Webhook: Transaction not found for order', orderId);
-        return NextResponse.json({ success: false, message: 'Transaction not found' }, { status: 404 });
-      }
+    // Already processed
+    if (transaction.status === 'paid') {
+      return NextResponse.json({ success: true, message: 'Already processed' });
+    }
 
-      // Already processed
-      if (transaction.status === 'paid') {
-        return NextResponse.json({ success: true, message: 'Already processed' });
-      }
-
-      if (paymentStatus === 'SUCCESS') {
-        transaction.status = 'paid';
-        transaction.paidAt = new Date();
-        transaction.cashfreePaymentId = data.payment?.cf_payment_id?.toString();
-        transaction.paymentMethod = typeof data.payment?.payment_method === 'object'
-          ? JSON.stringify(data.payment.payment_method)
-          : data.payment?.payment_method;
-        transaction.gatewayResponse = data;
-        await transaction.save();
+    if (verification.status === 'SUCCESS' || verification.status === 'PAYMENT_SUCCESS') {
+      transaction.status = 'paid';
+      transaction.paidAt = new Date();
+      transaction.webhookReceived = true;
+      transaction.gatewayResponse = JSON.parse(rawBody); // Store raw webhook data
+      await transaction.save();
 
         // Trigger upline commission distribution
         try {
@@ -172,18 +178,16 @@ export async function POST(req: NextRequest) {
             }
           }
         }
-      } else if (['FAILED', 'CANCELLED', 'VOID'].includes(paymentStatus)) {
+      } else if (['FAILED', 'CANCELLED', 'VOID'].includes(verification.status)) {
         transaction.status = 'failed';
-        transaction.failureReason = paymentStatus;
-        transaction.gatewayResponse = data;
+        transaction.failureReason = verification.status;
+        transaction.webhookReceived = true;
+        transaction.gatewayResponse = JSON.parse(rawBody);
         await transaction.save();
       }
 
       return NextResponse.json({ success: true, message: 'Webhook processed' });
-    }
-
-    return NextResponse.json({ success: true, message: 'Event type not handled' });
-  } catch (error: any) {
+    } catch (error: any) {
     console.error('Cashfree Webhook Error:', error);
     return NextResponse.json({ success: false, message: 'Webhook processing failed' }, { status: 500 });
   }

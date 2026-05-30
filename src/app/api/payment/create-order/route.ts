@@ -5,8 +5,8 @@ import { successResponse, errorResponse } from '@/utils/response';
 import User from '@/models/User';
 import PaymentConfig from '@/models/PaymentConfig';
 import PaymentTransaction from '@/models/PaymentTransaction';
-import { createCashfreeOrder, generateOrderId, isCashfreeConfigured } from '@/lib/cashfree';
-
+import { generateOrderId, isCashfreeConfigured } from '@/lib/cashfree';
+import { PaymentResolver } from '@/lib/payments/PaymentResolver';
 import CommissionConfig from '@/models/CommissionConfig';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://sakhihub.com';
@@ -21,9 +21,8 @@ export async function POST(req: NextRequest) {
       return errorResponse('Invalid payment type. Must be "subscription" or "deposit".', 400);
     }
 
-    if (!isCashfreeConfigured()) {
-      return errorResponse('Payment gateway is not configured. Please contact admin.', 503);
-    }
+    // Note: We don't block here with isCashfreeConfigured() anymore.
+    // The PaymentResolver will handle failure if provider is missing.
 
     await dbConnect();
 
@@ -125,8 +124,10 @@ export async function POST(req: NextRequest) {
       notifyUrl = notifyUrl.replace('http://', 'https://');
     }
 
-    // Create Cashfree order
-    const cashfreeOrder = await createCashfreeOrder({
+    // Create Order using the resolved provider
+    const provider = await PaymentResolver.resolveActiveProvider();
+    
+    const orderResult = await provider.createOrder({
       orderId,
       orderAmount: amount,
       customerName: user.fullName,
@@ -136,22 +137,26 @@ export async function POST(req: NextRequest) {
       notifyUrl,
     });
 
-    // Save transaction record
+    // Save transaction record with provider info
     await PaymentTransaction.create({
       userId: user._id,
       type,
       role: user.role,
       amount,
       status: 'created',
-      cashfreeOrderId: orderId,
-      paymentSessionId: cashfreeOrder.payment_session_id,
+      provider: provider.getProviderName(), // NEW FIELD
+      cashfreeOrderId: orderId, // Still saving for backward compatibility, though it acts as a generic orderId now
+      gatewayOrderId: orderResult.gatewayOrderId, // NEW FIELD
+      paymentSessionId: orderResult.paymentSessionId || '',
     });
 
     return successResponse({
       orderId,
-      paymentSessionId: cashfreeOrder.payment_session_id,
+      paymentSessionId: orderResult.paymentSessionId,
+      paymentUrl: orderResult.paymentUrl, // PhonePe returns paymentUrl
       amount,
       type,
+      provider: provider.getProviderName(),
     }, 'Payment order created successfully');
   } catch (error: any) {
     console.error('Create Payment Order Error:', error);

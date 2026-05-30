@@ -93,6 +93,7 @@ export async function GET(req: NextRequest) {
         }
       },
       { $unwind: '$employee' },
+      { $match: { 'employee.role': { $ne: 'super_admin' } } },
       {
         $group: {
           _id: '$employee.fullName',

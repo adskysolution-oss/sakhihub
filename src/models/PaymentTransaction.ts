@@ -10,10 +10,16 @@ export interface IPaymentTransaction extends Document {
   amount: number;
   currency: string;
   status: PaymentStatus;
-  cashfreeOrderId: string;
+  cashfreeOrderId?: string;
   cashfreePaymentId?: string;
   paymentSessionId?: string;
   paymentMethod?: string;
+  provider?: string;
+  gatewayOrderId?: string;
+  gatewayPaymentId?: string;
+  gatewayReferenceId?: string;
+  webhookReceived?: boolean;
+  verifiedAt?: Date;
   gatewayResponse?: any;
   failureReason?: string;
   paidAt?: Date;
@@ -33,10 +39,16 @@ const PaymentTransactionSchema: Schema = new Schema(
       enum: ['created', 'pending', 'paid', 'failed', 'refunded'],
       default: 'created',
     },
-    cashfreeOrderId: { type: String, required: true, unique: true },
+    cashfreeOrderId: { type: String, unique: true, sparse: true },
     cashfreePaymentId: { type: String },
     paymentSessionId: { type: String },
     paymentMethod: { type: String },
+    provider: { type: String, enum: ['cashfree', 'phonepe'] },
+    gatewayOrderId: { type: String },
+    gatewayPaymentId: { type: String },
+    gatewayReferenceId: { type: String },
+    webhookReceived: { type: Boolean, default: false },
+    verifiedAt: { type: Date },
     gatewayResponse: { type: Schema.Types.Mixed },
     failureReason: { type: String },
     paidAt: { type: Date },

@@ -92,25 +92,34 @@ function MemberReceiptContent() {
     setPayingOnline(true);
     try {
       const res = await axios.post('/api/payment/create-order', { type: 'subscription' });
-      if (res.data.success && res.data.data.paymentSessionId) {
-        if (cashfree) {
-          cashfree.checkout({
-            paymentSessionId: res.data.data.paymentSessionId,
-            redirectTarget: "_self"
-          });
-        } else {
-          const mode = 'production';
-          if ((window as any).Cashfree) {
-            const cf = (window as any).Cashfree({ mode });
-            setCashfree(cf);
-            cf.checkout({
+      if (res.data.success) {
+        if (res.data.data.paymentUrl) {
+          // PhonePe or other redirect-based gateways
+          window.location.href = res.data.data.paymentUrl;
+        } else if (res.data.data.paymentSessionId) {
+          // Cashfree inline checkout
+          if (cashfree) {
+            cashfree.checkout({
               paymentSessionId: res.data.data.paymentSessionId,
               redirectTarget: "_self"
             });
           } else {
-            toast.error('Payment gateway is still loading. Please wait a moment.');
-            setPayingOnline(false);
+            const mode = 'production';
+            if ((window as any).Cashfree) {
+              const cf = (window as any).Cashfree({ mode });
+              setCashfree(cf);
+              cf.checkout({
+                paymentSessionId: res.data.data.paymentSessionId,
+                redirectTarget: "_self"
+              });
+            } else {
+              toast.error('Payment gateway is still loading. Please wait a moment.');
+              setPayingOnline(false);
+            }
           }
+        } else {
+          toast.error('Invalid payment response from server');
+          setPayingOnline(false);
         }
       } else {
         toast.error(res.data.message || 'Failed to initiate payment');

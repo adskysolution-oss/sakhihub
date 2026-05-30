@@ -366,14 +366,23 @@ function PaymentPendingContent() {
     setProcessing(true);
     try {
       const res = await axios.post('/api/payment/create-order', { type });
-      if (res.data.success && res.data.data.paymentSessionId) {
-        if (cashfree) {
-          cashfree.checkout({
-            paymentSessionId: res.data.data.paymentSessionId,
-            redirectTarget: "_self"
-          });
+      if (res.data.success) {
+        if (res.data.data.paymentUrl) {
+          // PhonePe or other redirect-based gateways
+          window.location.href = res.data.data.paymentUrl;
+        } else if (res.data.data.paymentSessionId) {
+          // Cashfree inline checkout
+          if (cashfree) {
+            cashfree.checkout({
+              paymentSessionId: res.data.data.paymentSessionId,
+              redirectTarget: "_self"
+            });
+          } else {
+            toast.error('Payment gateway is still loading. Please wait a moment.');
+            setProcessing(false);
+          }
         } else {
-          toast.error('Payment gateway is still loading. Please wait a moment.');
+          toast.error('Invalid payment response from server');
           setProcessing(false);
         }
       } else {

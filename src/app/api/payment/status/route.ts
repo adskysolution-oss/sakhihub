@@ -6,6 +6,7 @@ import User from '@/models/User';
 import PaymentConfig from '@/models/PaymentConfig';
 import { isCashfreeConfigured } from '@/lib/cashfree';
 import PaymentTransaction from '@/models/PaymentTransaction';
+import { PaymentResolver } from '@/lib/payments/PaymentResolver';
 
 export async function GET(req: NextRequest) {
   try {
@@ -40,7 +41,6 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const gatewayEnabled = config.paymentRequired[roleKey];
     const subRequired = config.subscriptionRequired[roleKey];
     const depRequired = config.depositRequired[roleKey];
 
@@ -60,10 +60,23 @@ export async function GET(req: NextRequest) {
       .lean();
 
     // Resolve role+type specific payment request URLs for manual mode
-    const roleUrls = (config.paymentRequestUrls as any)?.[roleKey] || {};
+    const paymentMethod = config.paymentMethod || 'payment_link';
+    const activeProvider = config.activeProvider || 'cashfree';
+    
+    let roleUrls = {};
+    if (paymentMethod === 'payment_link') {
+      if (config.providers && config.providers[activeProvider] && config.providers[activeProvider].linkUrls) {
+        roleUrls = config.providers[activeProvider].linkUrls[roleKey] || {};
+      } else {
+        roleUrls = (config.paymentRequestUrls as any)?.[roleKey] || {};
+      }
+    }
+
+    // Determine legacy gatewayEnabled flag
+    const isGatewayEnabled = paymentMethod === 'gateway_api' || (paymentMethod === undefined && config.paymentRequired[roleKey]);
 
     return successResponse({
-      gatewayEnabled: gatewayEnabled,
+      gatewayEnabled: isGatewayEnabled,
       subscription: {
         required: subRequired,
         amount: config.subscriptionAmount[roleKey],
@@ -81,7 +94,9 @@ export async function GET(req: NextRequest) {
       paymentCompleted: user.paymentCompleted,
       documentsVerified: user.documentsVerified,
       isCashfreeConfigured: isCashfreeConfigured(),
-      cashfreeEnv: 'production',
+      cashfreeEnv: config.environment || 'production',
+      paymentMethod,
+      provider: activeProvider,
       transactions,
     }, 'Payment status retrieved');
   } catch (error: any) {

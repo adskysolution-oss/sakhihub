@@ -49,8 +49,9 @@ export default function EmployeeMembersPage() {
         toast.success("Request sent successfully");
         fetchMembers();
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      toast.error(err.response?.data?.message || "Failed to send request");
     } finally {
       setActionLoading(null);
     }

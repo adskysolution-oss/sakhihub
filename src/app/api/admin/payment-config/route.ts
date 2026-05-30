@@ -3,7 +3,9 @@ import dbConnect from '@/lib/mongodb';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 import PaymentConfig from '@/models/PaymentConfig';
+import AuditLog from '@/models/AuditLog';
 import { isCashfreeConfigured } from '@/lib/cashfree';
+import { encrypt, decrypt } from '@/lib/encryption';
 
 export async function GET() {
   try {
@@ -28,6 +30,22 @@ export async function GET() {
 
     return successResponse({
       ...config.toObject(),
+      // Send decrypted keys if they exist, otherwise empty
+      providers: {
+        cashfree: {
+          appId: config.providers?.cashfree?.appId,
+          secretKey: decrypt(config.providers?.cashfree?.secretKey || ''),
+          linkUrls: config.providers?.cashfree?.linkUrls,
+        },
+        phonepe: {
+          merchantId: config.providers?.phonepe?.merchantId,
+          clientId: config.providers?.phonepe?.clientId,
+          clientSecret: decrypt(config.providers?.phonepe?.clientSecret || ''),
+          clientVersion: config.providers?.phonepe?.clientVersion,
+          webhookSecret: decrypt(config.providers?.phonepe?.webhookSecret || ''),
+          linkUrls: config.providers?.phonepe?.linkUrls,
+        }
+      },
       isConfigured: isCashfreeConfigured()
     }, 'Payment configuration retrieved');
   } catch (error: any) {
@@ -96,6 +114,25 @@ export async function PUT(req: NextRequest) {
       updateData.paymentRequestUrls = body.paymentRequestUrls;
     }
 
+    if (body.paymentMethod) updateData.paymentMethod = body.paymentMethod;
+    if (body.activeProvider) updateData.activeProvider = body.activeProvider;
+    if (body.environment) updateData.environment = body.environment;
+
+    if (body.providers) {
+      updateData.providers = body.providers;
+      
+      // Encrypt sensitive fields
+      if (updateData.providers.cashfree?.secretKey) {
+        updateData.providers.cashfree.secretKey = encrypt(updateData.providers.cashfree.secretKey);
+      }
+      if (updateData.providers.phonepe?.clientSecret) {
+        updateData.providers.phonepe.clientSecret = encrypt(updateData.providers.phonepe.clientSecret);
+      }
+      if (updateData.providers.phonepe?.webhookSecret) {
+        updateData.providers.phonepe.webhookSecret = encrypt(updateData.providers.phonepe.webhookSecret);
+      }
+    }
+
     let config = await PaymentConfig.findOne({ key: 'default' });
     if (!config) {
       config = new PaymentConfig({ key: 'default' });
@@ -103,6 +140,16 @@ export async function PUT(req: NextRequest) {
 
     config.set(updateData);
     await config.save();
+
+    await AuditLog.create({
+      action: 'PAYMENT_CONFIG_UPDATED',
+      details: {
+        paymentMethod: updateData.paymentMethod,
+        activeProvider: updateData.activeProvider,
+        environment: updateData.environment,
+      },
+      performedBy: (session as any).id,
+    });
 
     return successResponse(config, 'Payment configuration updated');
   } catch (error: any) {

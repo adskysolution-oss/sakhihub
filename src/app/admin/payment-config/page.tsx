@@ -3,25 +3,25 @@
 import React, { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/features/dashboard/DashboardLayout';
 import { 
-  CreditCard, 
-  Save, 
-  AlertCircle, 
-  IndianRupee,
-  ShieldCheck,
-  Search,
-  CheckCircle2,
-  Link2,
-  ClipboardList,
-  ThumbsUp,
-  ThumbsDown,
-  Clock,
-  ExternalLink
+  CreditCard, Save, AlertCircle, IndianRupee, ShieldCheck,
+  Search, CheckCircle2, Link2, ClipboardList, ThumbsUp,
+  ThumbsDown, Clock, ExternalLink, Settings, Shield
 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 
 export default function PaymentConfigPage() {
-  const [config, setConfig] = useState<any>(null);
+  const [config, setConfig] = useState<any>({
+    paymentMethod: 'payment_link',
+    activeProvider: 'cashfree',
+    environment: 'production',
+    providers: {
+      cashfree: { appId: '', secretKey: '', linkUrls: {} },
+      phonepe: { merchantId: '', clientId: '', clientSecret: '', clientVersion: '1', webhookSecret: '', linkUrls: {} }
+    },
+    subscriptionAmount: { vendor: 0, sub_vendor: 0, employee: 0 },
+    depositAmount: { vendor: 0, sub_vendor: 0, employee: 0 },
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -52,7 +52,28 @@ export default function PaymentConfigPage() {
       ]);
       
       if (res.data.success) {
-        setConfig(res.data.data);
+        // Merge fetched config with default structure to avoid undefined errors
+        setConfig({
+          ...res.data.data,
+          paymentMethod: res.data.data.paymentMethod || 'payment_link',
+          activeProvider: res.data.data.activeProvider || 'cashfree',
+          environment: res.data.data.environment || 'production',
+          providers: {
+            cashfree: {
+              appId: res.data.data.providers?.cashfree?.appId || '',
+              secretKey: res.data.data.providers?.cashfree?.secretKey || '',
+              linkUrls: res.data.data.providers?.cashfree?.linkUrls || res.data.data.paymentRequestUrls || {},
+            },
+            phonepe: {
+              merchantId: res.data.data.providers?.phonepe?.merchantId || '',
+              clientId: res.data.data.providers?.phonepe?.clientId || '',
+              clientSecret: res.data.data.providers?.phonepe?.clientSecret || '',
+              clientVersion: res.data.data.providers?.phonepe?.clientVersion || '1',
+              webhookSecret: res.data.data.providers?.phonepe?.webhookSecret || '',
+              linkUrls: res.data.data.providers?.phonepe?.linkUrls || {},
+            }
+          }
+        });
       }
       if (pendingRes.data.success) {
         setPendingUsers(pendingRes.data.data);
@@ -69,11 +90,9 @@ export default function PaymentConfigPage() {
     setRequestsLoading(true);
     try {
       const res = await axios.get(`/api/admin/manual-payment-requests?status=${statusFilter}`);
-      if (res.data.success) {
-        setManualRequests(res.data.data);
-      }
+      if (res.data.success) setManualRequests(res.data.data);
     } catch (err) {
-      console.error('Failed to fetch manual payment requests', err);
+      console.error(err);
     } finally {
       setRequestsLoading(false);
     }
@@ -87,9 +106,7 @@ export default function PaymentConfigPage() {
   const refreshPending = async () => {
     try {
       const pendingRes = await axios.get('/api/admin/users?status=pending_payment');
-      if (pendingRes.data.success) {
-        setPendingUsers(pendingRes.data.data);
-      }
+      if (pendingRes.data.success) setPendingUsers(pendingRes.data.data);
     } catch (err) {}
   };
 
@@ -102,10 +119,12 @@ export default function PaymentConfigPage() {
       const res = await axios.put('/api/admin/payment-config', config);
       if (res.data.success) {
         setMessage('Configuration saved successfully!');
+        toast.success('Configuration saved successfully');
         setTimeout(() => setMessage(''), 3000);
       }
     } catch (error: any) {
       setMessage(error.response?.data?.message || 'Failed to save configuration');
+      toast.error('Failed to save configuration');
     } finally {
       setSaving(false);
     }
@@ -114,7 +133,6 @@ export default function PaymentConfigPage() {
   const handleSearchUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchPhone) return;
-    
     setSearchLoading(true);
     setFoundUser(null);
     try {
@@ -125,15 +143,14 @@ export default function PaymentConfigPage() {
         toast.error('User not found');
       }
     } catch (error) {
-      console.error('Search failed', error);
+      toast.error('Search failed');
     } finally {
       setSearchLoading(false);
     }
   };
 
   const handleOverride = async (type: string) => {
-    if (!foundUser || !confirm(`Are you sure you want to mark ${type} as paid for ${foundUser.fullName}? This cannot be undone.`)) return;
-    
+    if (!foundUser || !confirm(`Are you sure you want to mark ${type} as paid?`)) return;
     setOverrideLoading(true);
     try {
       const res = await axios.post('/api/admin/payment-override', {
@@ -148,7 +165,7 @@ export default function PaymentConfigPage() {
         refreshPending();
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Override failed');
+      toast.error('Override failed');
     } finally {
       setOverrideLoading(false);
     }
@@ -156,17 +173,16 @@ export default function PaymentConfigPage() {
 
   const handleReviewRequest = async (requestId: string, action: 'approve' | 'reject') => {
     if (!confirm(`Are you sure you want to ${action} this payment request?`)) return;
-
     setReviewLoading(requestId);
     try {
       const res = await axios.patch('/api/admin/manual-payment-requests', { requestId, action });
       if (res.data.success) {
-        toast.success(action === 'approve' ? 'Payment approved – user unlocked!' : 'Request rejected.');
+        toast.success(action === 'approve' ? 'Payment approved!' : 'Request rejected.');
         fetchManualRequests(activeRequestsTab);
         refreshPending();
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || `Failed to ${action} request`);
+      toast.error(`Failed to ${action} request`);
     } finally {
       setReviewLoading(null);
     }
@@ -182,27 +198,17 @@ export default function PaymentConfigPage() {
     );
   }
 
+  const activeProviderStr = config.activeProvider as 'cashfree' | 'phonepe';
+
   return (
     <DashboardLayout>
       <div className="mb-8">
         <h2 className="text-3xl font-black text-secondary flex items-center gap-3">
-          <CreditCard className="text-primary" />
-          Payment Gateway Rules
+          <Settings className="text-primary" />
+          Payment Control Center
         </h2>
-        <p className="text-gray-500 mt-2 font-medium">Configure subscription and deposit amounts for each role.</p>
+        <p className="text-gray-500 mt-2 font-medium">Configure global payment architecture, gateway routing, and pricing.</p>
       </div>
-
-      {config?.isConfigured === false && (
-        <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
-          <AlertCircle className="text-red-500 shrink-0 mt-0.5" />
-          <div>
-            <h4 className="font-bold text-red-800 text-sm">Cashfree Payment Gateway is not configured</h4>
-            <p className="text-xs text-red-600 mt-1">
-              Users will not be able to complete their online payments. Please update the `.env.local` file with <code className="bg-white/50 px-1 rounded">CASHFREE_APP_ID</code> and <code className="bg-white/50 px-1 rounded">CASHFREE_SECRET_KEY</code>, then restart the server. Manual admin approval will continue to work.
-            </p>
-          </div>
-        </div>
-      )}
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Left Col: Config Form */}
@@ -215,83 +221,196 @@ export default function PaymentConfigPage() {
               </div>
             )}
 
-            <div className="space-y-8">
+            {/* PAYMENT ENGINE SETTINGS */}
+            <div className="mb-8 p-6 rounded-2xl bg-primary/5 border border-primary/20">
+              <h3 className="text-lg font-black text-secondary mb-4 flex items-center gap-2">
+                <Shield className="text-primary" size={20} /> Architecture Settings
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Payment Method</label>
+                  <select 
+                    value={config.paymentMethod}
+                    onChange={(e) => setConfig({...config, paymentMethod: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary/20 font-bold text-gray-700 bg-white"
+                  >
+                    <option value="payment_link">Payment Link (Redirect)</option>
+                    <option value="gateway_api">Gateway API (Inline)</option>
+                    <option value="manual">Manual Approval Only</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Payment Provider</label>
+                  <select 
+                    value={config.activeProvider}
+                    onChange={(e) => setConfig({...config, activeProvider: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary/20 font-bold text-gray-700 bg-white"
+                  >
+                    <option value="cashfree">Cashfree</option>
+                    <option value="phonepe">PhonePe</option>
+                    <option value="razorpay" disabled>Razorpay (Coming Soon)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Environment</label>
+                  <select 
+                    value={config.environment}
+                    onChange={(e) => setConfig({...config, environment: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary/20 font-bold text-gray-700 bg-white"
+                  >
+                    <option value="production">Production</option>
+                    <option value="sandbox">Sandbox (Testing)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* GATEWAY PROVIDER CONFIGURATION */}
+            <div className="mb-8">
+              <h3 className="text-lg font-black text-secondary mb-4 pb-2 border-b">Gateway Credentials ({config.activeProvider.toUpperCase()})</h3>
+              
+              {config.activeProvider === 'cashfree' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1">App ID</label>
+                    <input 
+                      type="text" 
+                      value={config.providers.cashfree.appId}
+                      onChange={(e) => setConfig({...config, providers: {...config.providers, cashfree: {...config.providers.cashfree, appId: e.target.value}}})}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1">Secret Key</label>
+                    <input 
+                      type="password" 
+                      value={config.providers.cashfree.secretKey}
+                      onChange={(e) => setConfig({...config, providers: {...config.providers, cashfree: {...config.providers.cashfree, secretKey: e.target.value}}})}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {config.activeProvider === 'phonepe' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1">Merchant ID</label>
+                    <input 
+                      type="text" 
+                      value={config.providers.phonepe.merchantId}
+                      onChange={(e) => setConfig({...config, providers: {...config.providers, phonepe: {...config.providers.phonepe, merchantId: e.target.value}}})}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1">Client ID</label>
+                    <input 
+                      type="text" 
+                      value={config.providers.phonepe.clientId}
+                      onChange={(e) => setConfig({...config, providers: {...config.providers, phonepe: {...config.providers.phonepe, clientId: e.target.value}}})}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1">Client Secret (Salt Key)</label>
+                    <input 
+                      type="password" 
+                      value={config.providers.phonepe.clientSecret}
+                      onChange={(e) => setConfig({...config, providers: {...config.providers, phonepe: {...config.providers.phonepe, clientSecret: e.target.value}}})}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1">Client Version (Salt Index)</label>
+                    <input 
+                      type="text" 
+                      value={config.providers.phonepe.clientVersion}
+                      onChange={(e) => setConfig({...config, providers: {...config.providers, phonepe: {...config.providers.phonepe, clientVersion: e.target.value}}})}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1">Webhook Secret</label>
+                    <input 
+                      type="password" 
+                      value={config.providers.phonepe.webhookSecret}
+                      onChange={(e) => setConfig({...config, providers: {...config.providers, phonepe: {...config.providers.phonepe, webhookSecret: e.target.value}}})}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* ROLE SETTINGS */}
+            <h3 className="text-lg font-black text-secondary mb-4 pb-2 border-b">Pricing & Links</h3>
+            <div className="space-y-6">
               {['vendor', 'sub_vendor', 'employee'].map((role) => (
-                <div key={role} className="p-6 rounded-2xl bg-gray-50/50 border border-gray-100">
-                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                <div key={role} className="p-5 rounded-2xl bg-gray-50 border border-gray-100">
+                  <h4 className="text-md font-black text-secondary capitalize mb-4">{role.replace('_', ' ')}</h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                     <div>
-                      <h3 className="text-lg font-black text-secondary capitalize">{role.replace('_', ' ')} Settings</h3>
-                      <p className="text-xs text-gray-500 uppercase font-bold tracking-widest mt-1">Payment Configuration</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        className="sr-only peer" 
-                        checked={config?.paymentRequired?.[role] || false}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          paymentRequired: { ...config.paymentRequired, [role]: e.target.checked }
-                        })}
+                      <label className="text-xs font-bold text-gray-700 flex items-center gap-2 mb-2">
+                        <IndianRupee size={14} className="text-primary" /> Subscription Amount (₹)
+                      </label>
+                      <input
+                        type="number"
+                        value={config.subscriptionAmount?.[role] || 0}
+                        onChange={(e) => setConfig({...config, subscriptionAmount: { ...config.subscriptionAmount, [role]: Number(e.target.value) }})}
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                      <span className="ml-3 text-sm font-bold text-gray-700">Enable Gateway</span>
-                    </label>
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-gray-700 flex items-center gap-2 mb-2">
+                        <ShieldCheck size={14} className="text-secondary" /> Deposit Amount (₹)
+                      </label>
+                      <input
+                        type="number"
+                        value={config.depositAmount?.[role] || 0}
+                        onChange={(e) => setConfig({...config, depositAmount: { ...config.depositAmount, [role]: Number(e.target.value) }})}
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200"
+                      />
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 transition-opacity">
-                    {/* Subscription */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                          <IndianRupee size={16} className="text-primary" /> Subscription (₹)
-                        </label>
-                        <input 
-                          type="checkbox" 
-                          checked={config?.subscriptionRequired?.[role] || false}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            subscriptionRequired: { ...config.subscriptionRequired, [role]: e.target.checked }
-                          })}
-                          className="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary"
-                        />
-                      </div>
+                  <div className="space-y-3 pt-3 border-t border-gray-200">
+                    <div>
+                      <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">
+                        Subscription Payment Link URL ({config.activeProvider})
+                      </label>
                       <input
-                        type="number"
-                        min="0"
-                        value={config?.subscriptionAmount?.[role] || 0}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          subscriptionAmount: { ...config.subscriptionAmount, [role]: Number(e.target.value) }
-                        })}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary/20 outline-none font-medium"
+                        type="url"
+                        value={config.providers[activeProviderStr]?.linkUrls?.[role]?.subscription || ''}
+                        onChange={(e) => {
+                          const newProviders = {...config.providers};
+                          if (!newProviders[activeProviderStr].linkUrls) newProviders[activeProviderStr].linkUrls = {};
+                          if (!newProviders[activeProviderStr].linkUrls[role]) newProviders[activeProviderStr].linkUrls[role] = {};
+                          newProviders[activeProviderStr].linkUrls[role].subscription = e.target.value;
+                          setConfig({...config, providers: newProviders});
+                        }}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs"
                       />
                     </div>
-
-                    {/* Deposit */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                          <ShieldCheck size={16} className="text-secondary" /> Security Deposit (₹)
-                        </label>
-                        <input 
-                          type="checkbox" 
-                          checked={config?.depositRequired?.[role] || false}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            depositRequired: { ...config.depositRequired, [role]: e.target.checked }
-                          })}
-                          className="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary"
-                        />
-                      </div>
+                    <div>
+                      <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">
+                        Deposit Payment Link URL ({config.activeProvider})
+                      </label>
                       <input
-                        type="number"
-                        min="0"
-                        value={config?.depositAmount?.[role] || 0}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          depositAmount: { ...config.depositAmount, [role]: Number(e.target.value) }
-                        })}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary/20 outline-none font-medium"
+                        type="url"
+                        value={config.providers[activeProviderStr]?.linkUrls?.[role]?.deposit || ''}
+                        onChange={(e) => {
+                          const newProviders = {...config.providers};
+                          if (!newProviders[activeProviderStr].linkUrls) newProviders[activeProviderStr].linkUrls = {};
+                          if (!newProviders[activeProviderStr].linkUrls[role]) newProviders[activeProviderStr].linkUrls[role] = {};
+                          newProviders[activeProviderStr].linkUrls[role].deposit = e.target.value;
+                          setConfig({...config, providers: newProviders});
+                        }}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs"
                       />
                     </div>
                   </div>
@@ -303,353 +422,81 @@ export default function PaymentConfigPage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="px-8 py-4 bg-primary text-white rounded-xl font-bold uppercase tracking-widest text-xs flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20 disabled:opacity-70 disabled:hover:scale-100"
+                className="px-8 py-4 bg-primary text-white rounded-xl font-bold uppercase tracking-widest text-xs flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20 disabled:opacity-70"
               >
-                {saving ? 'Saving...' : <><Save size={16} /> Save Configuration</>}
+                {saving ? 'Saving...' : <><Save size={16} /> Save Architecture Details</>}
               </button>
             </div>
           </form>
-
-          {/* ── Manual Payment Verification Requests Panel ───────────────────────── */}
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 lg:p-8">
-            <div className="flex items-center gap-3 mb-2">
-              <ClipboardList size={20} className="text-primary" />
-              <h3 className="text-lg font-black text-secondary">Payment Verification Requests</h3>
-            </div>
-            <p className="text-sm text-gray-500 mb-6 font-medium">
-              Users who paid via the Payment Request URL and submitted their transaction details for verification.
-            </p>
-
-            {/* Tab Filter */}
-            <div className="flex gap-1 p-1 bg-gray-50 rounded-xl w-fit mb-6">
-              {(['pending', 'approved', 'rejected'] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => handleRequestsTabChange(tab)}
-                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
-                    activeRequestsTab === tab
-                      ? 'bg-white text-secondary shadow-sm'
-                      : 'text-gray-400 hover:text-secondary'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {requestsLoading ? (
-              <div className="flex justify-center py-10">
-                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-              </div>
-            ) : manualRequests.length === 0 ? (
-              <div className="py-10 bg-gray-50 rounded-2xl text-center border border-dashed border-gray-200">
-                <Clock size={28} className="text-gray-300 mx-auto mb-2" />
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                  No {activeRequestsTab} requests
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4 max-h-[480px] overflow-y-auto pr-1 custom-scrollbar">
-                {manualRequests.map((req: any) => (
-                  <div
-                    key={req._id}
-                    className="p-5 border border-gray-100 rounded-2xl hover:border-primary/20 transition-colors"
-                  >
-                    {/* User info */}
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <div>
-                        <p className="font-bold text-secondary text-sm">{req.userId?.fullName || req.name}</p>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">
-                          {req.userId?.role?.replace('_', ' ')} • {req.userId?.mobile || req.mobile}
-                        </p>
-                      </div>
-                      <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${
-                        req.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                        req.status === 'approved' ? 'bg-green-50 text-green-600 border-green-100' :
-                        'bg-red-50 text-red-500 border-red-100'
-                      }`}>
-                        {req.status}
-                      </span>
-                    </div>
-
-                    {/* Transaction details grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs mb-4">
-                      <div className="bg-gray-50 rounded-xl p-3">
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Type</p>
-                        <p className="font-bold text-secondary capitalize">{req.type}</p>
-                      </div>
-                      <div className="bg-gray-50 rounded-xl p-3">
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Amount</p>
-                        <p className="font-bold text-secondary">₹{req.amount}</p>
-                      </div>
-                      <div className="bg-gray-50 rounded-xl p-3">
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">UTR / Txn ID</p>
-                        <p className="font-bold text-secondary truncate">{req.transactionId}</p>
-                      </div>
-                      <div className="bg-gray-50 rounded-xl p-3">
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Payment Date</p>
-                        <p className="font-bold text-secondary">
-                          {new Date(req.paymentDate).toLocaleDateString('en-IN')}
-                        </p>
-                      </div>
-                      <div className="bg-gray-50 rounded-xl p-3">
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Vendor/SV ID</p>
-                        <p className="font-bold text-secondary truncate">{req.vendorOrSubVendorId}</p>
-                      </div>
-                      <div className="bg-gray-50 rounded-xl p-3">
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Submitted</p>
-                        <p className="font-bold text-secondary">
-                          {new Date(req.createdAt).toLocaleDateString('en-IN')}
-                        </p>
-                      </div>
-                    </div>
-
-                    {req.remark && (
-                      <p className="text-xs text-gray-500 mb-4 bg-blue-50/50 border border-blue-100 rounded-xl p-3">
-                        <span className="font-bold text-blue-700">Remark: </span>{req.remark}
-                      </p>
-                    )}
-
-                    {/* Action buttons – only for pending */}
-                    {req.status === 'pending' && (
-                      <div className="flex gap-2 pt-3 border-t border-gray-100">
-                        <button
-                          onClick={() => handleReviewRequest(req._id, 'approve')}
-                          disabled={reviewLoading === req._id}
-                          id={`approve-request-${req._id}`}
-                          className="flex-1 py-2.5 bg-green-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-green-600 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
-                        >
-                          <ThumbsUp size={14} />
-                          {reviewLoading === req._id ? 'Processing...' : 'Approve & Unlock'}
-                        </button>
-                        <button
-                          onClick={() => handleReviewRequest(req._id, 'reject')}
-                          disabled={reviewLoading === req._id}
-                          id={`reject-request-${req._id}`}
-                          className="flex-1 py-2.5 bg-white border border-red-200 text-red-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-red-50 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
-                        >
-                          <ThumbsDown size={14} />
-                          Reject
-                        </button>
-                      </div>
-                    )}
-
-                    {req.status !== 'pending' && req.adminRemark && (
-                      <p className="text-xs text-gray-400 mt-3 pt-3 border-t border-gray-100">
-                        <span className="font-bold">Admin note: </span>{req.adminRemark}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
 
-        {/* Right Col: Manual Payment Confirmed by Admin */}
+        {/* Right Col: Manual Processing & Requests */}
         <div className="space-y-6">
+          {/* Manual Admin Override */}
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-            <h3 className="text-lg font-black text-secondary mb-2">Manual Payment Confirmed by Admin</h3>
-            <p className="text-sm text-gray-500 mb-6 font-medium">Bypass payment gateway for a specific user after receiving payment through phone, UPI, cash, or offline method.</p>
+            <h3 className="text-lg font-black text-secondary mb-2">Manual Approval</h3>
+            <p className="text-sm text-gray-500 mb-6 font-medium">Bypass gateway and mark offline payments.</p>
 
-            {/* ── Role-wise Payment Request URLs (gateway OFF mode) ────────────── */}
-            <div className="mb-6 rounded-2xl bg-primary/5 border border-primary/15 overflow-hidden">
-              <div className="px-4 pt-4 pb-3 border-b border-primary/10">
-                <div className="flex items-center gap-2 mb-1">
-                  <Link2 size={14} className="text-primary" />
-                  <span className="text-xs font-black text-secondary uppercase tracking-widest">Payment Request URLs</span>
-                </div>
-                <p className="text-[10px] text-gray-500 font-medium leading-relaxed">
-                  When Cashfree gateway is OFF, users are redirected to the correct URL based on their role and payment type. Set separate links for each below.
-                </p>
-              </div>
-
-              <div className="p-4 space-y-5">
-                {([
-                  { role: 'vendor',     label: 'Vendor',     color: 'text-purple-600', bg: 'bg-purple-50',  border: 'border-purple-100' },
-                  { role: 'sub_vendor', label: 'Sub-Vendor', color: 'text-blue-600',   bg: 'bg-blue-50',    border: 'border-blue-100' },
-                  { role: 'employee',   label: 'Employee',   color: 'text-amber-600',  bg: 'bg-amber-50',   border: 'border-amber-100' },
-                ] as const).map(({ role, label, color, bg, border }) => (
-                  <div key={role} className={`rounded-xl border ${border} ${bg} p-3`}>
-                    <p className={`text-[10px] font-black uppercase tracking-widest ${color} mb-3`}>{label}</p>
-                    <div className="space-y-2">
-                      {/* Subscription URL */}
-                      <div>
-                        <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                          Subscription URL
-                        </label>
-                        <div className="flex items-center gap-1">
-                          <input
-                            type="url"
-                            id={`url-${role}-subscription`}
-                            placeholder="https://payments.cashfree.com/forms/..."
-                            value={config?.paymentRequestUrls?.[role]?.subscription || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              paymentRequestUrls: {
-                                ...config?.paymentRequestUrls,
-                                [role]: {
-                                  ...config?.paymentRequestUrls?.[role],
-                                  subscription: e.target.value,
-                                },
-                              },
-                            })}
-                            className="flex-1 px-3 py-2 rounded-lg border border-white/80 bg-white/70 focus:ring-2 focus:ring-primary/20 outline-none text-xs font-medium"
-                          />
-                          {config?.paymentRequestUrls?.[role]?.subscription && (
-                            <a
-                              href={config.paymentRequestUrls[role].subscription}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              title="Preview"
-                              className="p-2 rounded-lg bg-white/70 text-primary hover:bg-white transition-colors"
-                            >
-                              <ExternalLink size={12} />
-                            </a>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Deposit URL */}
-                      <div>
-                        <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                          Security Deposit URL
-                        </label>
-                        <div className="flex items-center gap-1">
-                          <input
-                            type="url"
-                            id={`url-${role}-deposit`}
-                            placeholder="https://payments.cashfree.com/forms/..."
-                            value={config?.paymentRequestUrls?.[role]?.deposit || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              paymentRequestUrls: {
-                                ...config?.paymentRequestUrls,
-                                [role]: {
-                                  ...config?.paymentRequestUrls?.[role],
-                                  deposit: e.target.value,
-                                },
-                              },
-                            })}
-                            className="flex-1 px-3 py-2 rounded-lg border border-white/80 bg-white/70 focus:ring-2 focus:ring-primary/20 outline-none text-xs font-medium"
-                          />
-                          {config?.paymentRequestUrls?.[role]?.deposit && (
-                            <a
-                              href={config.paymentRequestUrls[role].deposit}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              title="Preview"
-                              className="p-2 rounded-lg bg-white/70 text-primary hover:bg-white transition-colors"
-                            >
-                              <ExternalLink size={12} />
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="w-full py-2.5 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-95 transition-all disabled:opacity-60"
-                >
-                  <Save size={13} /> {saving ? 'Saving...' : 'Save Payment Request URLs'}
-                </button>
-              </div>
-            </div>
-
-            {/* ── Manual Admin Override (existing) ──────────────────────────────── */}
             <form onSubmit={handleSearchUser} className="flex gap-2 mb-6">
               <input
                 type="text"
-                placeholder="Search by Mobile No..."
+                placeholder="Search by Mobile..."
                 value={searchPhone}
                 onChange={(e) => setSearchPhone(e.target.value)}
-                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary/20 outline-none text-sm font-medium"
+                className="flex-1 px-4 py-2 rounded-xl border border-gray-200 outline-none text-sm"
               />
-              <button 
-                type="submit"
-                disabled={searchLoading}
-                className="px-4 py-3 bg-secondary text-white rounded-xl hover:bg-secondary/90 transition-colors disabled:opacity-50"
-              >
+              <button type="submit" disabled={searchLoading} className="px-4 py-2 bg-secondary text-white rounded-xl">
                 <Search size={18} />
               </button>
             </form>
 
             {foundUser && (
               <div className="p-4 rounded-2xl border-2 border-primary/20 bg-primary/5 space-y-4">
-                <div>
-                  <p className="font-bold text-secondary">{foundUser.fullName}</p>
-                  <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">{foundUser.role.replace('_', ' ')} • {foundUser.mobile}</p>
-                </div>
-                
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
-                  <span className={`px-2 py-1 rounded-md ${foundUser.subscriptionPaid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>Sub: {foundUser.subscriptionPaid ? 'Paid' : 'Pending'}</span>
-                  <span className={`px-2 py-1 rounded-md ${foundUser.depositPaid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>Dep: {foundUser.depositPaid ? 'Paid' : 'Pending'}</span>
-                </div>
-
+                <p className="font-bold text-secondary">{foundUser.fullName}</p>
                 <div className="pt-4 border-t border-primary/10 grid gap-2">
                   {!foundUser.subscriptionPaid && (
-                    <button 
-                      onClick={() => handleOverride('subscription')}
-                      disabled={overrideLoading}
-                      className="w-full py-2 bg-white border border-gray-200 text-gray-700 font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      Mark Sub Paid
-                    </button>
+                    <button onClick={() => handleOverride('subscription')} className="w-full py-2 bg-white border text-xs rounded-lg">Mark Sub Paid</button>
                   )}
                   {!foundUser.depositPaid && (
-                    <button 
-                      onClick={() => handleOverride('deposit')}
-                      disabled={overrideLoading}
-                      className="w-full py-2 bg-white border border-gray-200 text-gray-700 font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      Mark Dep Paid
-                    </button>
+                    <button onClick={() => handleOverride('deposit')} className="w-full py-2 bg-white border text-xs rounded-lg">Mark Dep Paid</button>
                   )}
                   {(!foundUser.subscriptionPaid || !foundUser.depositPaid) && (
-                    <button 
-                      onClick={() => handleOverride('all')}
-                      disabled={overrideLoading}
-                      className="w-full py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                    >
-                      Confirm Payment & Unlock Next Step
-                    </button>
+                    <button onClick={() => handleOverride('all')} className="w-full py-3 bg-primary text-white text-xs rounded-xl shadow-lg">Confirm Payment</button>
                   )}
                 </div>
               </div>
             )}
+          </div>
 
-            {!foundUser && pendingUsers.length > 0 && (
-              <div className="mt-6">
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Pending Payments Queue</h4>
-                <div className="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
-                  {pendingUsers.map(u => (
-                    <div 
-                      key={u._id} 
-                      onClick={() => setFoundUser(u)}
-                      className="p-4 border border-gray-100 rounded-2xl hover:border-primary/30 hover:bg-primary/5 cursor-pointer transition-colors"
-                    >
-                      <p className="font-bold text-secondary text-sm">{u.fullName}</p>
-                      <div className="flex justify-between items-center mt-1">
-                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{u.role.replace('_', ' ')} • {u.mobile}</p>
-                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                      </div>
+          {/* Verification Requests */}
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+            <h3 className="text-lg font-black text-secondary mb-4 flex items-center gap-2"><ClipboardList size={20}/> Verification Requests</h3>
+            
+            <div className="flex gap-1 p-1 bg-gray-50 rounded-xl mb-4">
+              {(['pending', 'approved', 'rejected'] as const).map(tab => (
+                <button key={tab} onClick={() => handleRequestsTabChange(tab)} className={`flex-1 py-1.5 rounded-lg text-[10px] font-black uppercase ${activeRequestsTab === tab ? 'bg-white shadow' : 'text-gray-400'}`}>
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            <div className="space-y-3 max-h-[400px] overflow-y-auto">
+              {manualRequests.map(req => (
+                <div key={req._id} className="p-4 border rounded-xl">
+                  <p className="font-bold text-sm">{req.userId?.fullName || req.name}</p>
+                  <p className="text-xs text-gray-500 mb-2">₹{req.amount} - {req.type}</p>
+                  <p className="text-[10px] bg-gray-100 p-1.5 rounded font-mono break-all">{req.transactionId}</p>
+                  
+                  {req.status === 'pending' && (
+                    <div className="flex gap-2 mt-3">
+                      <button onClick={() => handleReviewRequest(req._id, 'approve')} className="flex-1 py-2 bg-green-500 text-white rounded text-[10px] uppercase font-bold">Approve</button>
+                      <button onClick={() => handleReviewRequest(req._id, 'reject')} className="flex-1 py-2 border text-red-500 rounded text-[10px] uppercase font-bold">Reject</button>
                     </div>
-                  ))}
+                  )}
                 </div>
-              </div>
-            )}
-
-            {!foundUser && pendingUsers.length === 0 && (
-              <div className="mt-6 p-6 bg-gray-50 rounded-2xl text-center border border-dashed border-gray-200">
-                <CheckCircle2 size={32} className="text-gray-300 mx-auto mb-2" />
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">No pending payments</p>
-              </div>
-            )}
+              ))}
+              {manualRequests.length === 0 && <p className="text-xs text-center text-gray-400 py-4">No {activeRequestsTab} requests</p>}
+            </div>
           </div>
         </div>
       </div>
