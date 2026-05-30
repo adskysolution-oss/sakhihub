@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { BadgeCheck, QrCode, ExternalLink, Printer, User } from 'lucide-react';
 import Image from 'next/image';
+import { getProxiedImageUrl } from '@/utils/imageUrl';
 
 interface DigitalIdWidgetProps {
   user: any;
@@ -32,7 +33,7 @@ export default function DigitalIdWidget({ user }: DigitalIdWidgetProps) {
         <div className="flex items-center gap-5">
           <div className={`w-20 h-20 rounded-2xl flex items-center justify-center shrink-0 border-4 overflow-hidden ${isReady ? 'border-white/20 bg-white/10' : 'border-gray-50 bg-gray-100'}`}>
             {user.profileImage ? (
-              <img src={user.profileImage} alt={user.fullName} className="w-full h-full object-cover" />
+              <img src={getProxiedImageUrl(user.profileImage)} alt={user.fullName} className="w-full h-full object-cover" />
             ) : (
               <User size={32} className={isReady ? 'text-white/70' : 'text-gray-400'} />
             )}

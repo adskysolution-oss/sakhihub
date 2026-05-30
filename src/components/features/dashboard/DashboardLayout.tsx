@@ -24,6 +24,7 @@ import {
   SUBVENDOR_DASHBOARD_LINKS
 } from '@/constants/navigation';
 import { useLanguage } from '@/context/LanguageContext';
+import { getProxiedImageUrl } from '@/utils/imageUrl';
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useLanguage();
@@ -257,7 +258,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               </div>
               <div className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-gradient-to-br from-primary to-secondary text-white flex items-center justify-center font-bold text-sm md:text-base shadow-lg shadow-primary/20 ring-2 ring-white overflow-hidden group-hover:ring-primary/30 transition-all">
                 {user?.profileImage ? (
-                  <img src={user.profileImage} alt={user.fullName} className="w-full h-full object-cover" />
+                  <img src={getProxiedImageUrl(user.profileImage)} alt={user.fullName} className="w-full h-full object-cover" />
                 ) : (
                   user?.fullName?.charAt(0)
                 )}

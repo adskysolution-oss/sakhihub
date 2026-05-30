@@ -9,6 +9,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { usePincodeAutofill } from '@/hooks/usePincodeAutofill';
 import { toast } from 'sonner';
+import { getProxiedImageUrl } from '@/utils/imageUrl';
 
 export default function ProfileManager() {
   const [user, setUser] = useState<any>(null);
@@ -112,7 +113,7 @@ export default function ProfileManager() {
               <div className="relative group">
                 <div className="w-40 h-40 rounded-[40px] bg-white p-2 shadow-2xl border border-gray-100 overflow-hidden">
                   <img
-                    src={preview || user?.profileImage || `https://ui-avatars.com/api/?name=${user?.fullName}&background=random&size=200`}
+                    src={preview || (user?.profileImage ? getProxiedImageUrl(user.profileImage) : null) || `https://ui-avatars.com/api/?name=${user?.fullName}&background=random&size=200`}
                     alt="Profile"
                     className="w-full h-full object-cover rounded-[32px]"
                   />

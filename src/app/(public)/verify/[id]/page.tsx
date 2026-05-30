@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
+import { getProxiedImageUrl } from '@/utils/imageUrl';
+
 
 interface VerificationData {
   fullName: string;
@@ -142,7 +144,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                 <div className="relative">
                   <div className="w-32 h-32 rounded-2xl bg-gray-50 border-2 border-gray-100 overflow-hidden shadow-inner flex flex-col items-center justify-center">
                     {data.profileImage ? (
-                      <img src={data.profileImage} alt={data.fullName} className="w-full h-full object-cover" />
+                      <img src={getProxiedImageUrl(data.profileImage)} alt={data.fullName} className="w-full h-full object-cover" />
                     ) : (
                       <User size={48} className="text-gray-300" />
                     )}

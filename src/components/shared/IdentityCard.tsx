@@ -1,6 +1,7 @@
 import React from 'react';
 import QRCode from 'react-qr-code';
 import { User, MapPin, Calendar, ShieldCheck, PhoneCall, Building, FileText, Hash, Globe, Phone, Mail } from 'lucide-react';
+import { getProxiedImageUrl } from '@/utils/imageUrl';
 
 export interface IdentityCardProps {
   user: {
@@ -148,7 +149,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
             <div className="w-[105px] h-[105px] rounded-full p-[3px] bg-gradient-to-br from-[#E91E63] to-[#9C27B0] shadow-md flex items-center justify-center">
               <div className="w-full h-full rounded-full border-2 border-white overflow-hidden bg-gray-50 flex items-center justify-center">
                 {user.profileImage ? (
-                  <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  <img src={getProxiedImageUrl(user.profileImage)} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
                   <User size={44} className="text-gray-300" />
                 )}
