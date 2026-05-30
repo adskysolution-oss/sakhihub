@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   CreditCard,
   ShieldCheck,
@@ -251,6 +251,14 @@ function PaymentPendingContent() {
   const [verificationFormType, setVerificationFormType] = useState<'subscription' | 'deposit' | null>(null);
   const [submittedTypes, setSubmittedTypes] = useState<Set<string>>(new Set());
 
+  const hasVerified = useRef(false);
+  const processingRef = useRef(false);
+
+  // Sync processing ref
+  useEffect(() => {
+    processingRef.current = processing;
+  }, [processing]);
+
   useEffect(() => {
     // Load Cashfree SDK
     const script = document.createElement('script');
@@ -321,18 +329,20 @@ function PaymentPendingContent() {
 
   const handleVerifyCallback = async () => {
     const orderId = searchParams.get('order_id');
-    if (orderId) {
+    if (orderId && !hasVerified.current) {
+      hasVerified.current = true;
       setProcessing(true);
       try {
         await axios.post('/api/payment/verify', { orderId });
         router.replace('/payment-pending');
       } catch (error) {
         console.error('Verification failed', error);
+        hasVerified.current = false;
       } finally {
         setProcessing(false);
         fetchStatus();
       }
-    } else {
+    } else if (!orderId) {
       fetchStatus();
     }
   };
@@ -343,14 +353,14 @@ function PaymentPendingContent() {
 
     // Poll for status updates (admin approval / webhook)
     const interval = setInterval(() => {
-      if (!processing) {
+      if (!processingRef.current) {
         fetchStatus();
         fetchManualRequestStatus();
       }
     }, 5000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, processing]);
+  }, [searchParams]);
 
   const handleLogout = async () => {
     try {

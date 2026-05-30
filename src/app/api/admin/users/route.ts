@@ -18,13 +18,22 @@ export async function GET(req: NextRequest) {
 
     let query: any = {};
     if (search) {
-      // Allow searching by mobile or email or exact name match
+      // Escape regex special characters to prevent syntax errors (e.g. "+")
+      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const cleanPhone = search.replace(/\D/g, ''); // keep only digits
+
       query = {
         $or: [
-          { mobile: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } }
+          { fullName: { $regex: escapedSearch, $options: 'i' } },
+          { email: { $regex: escapedSearch, $options: 'i' } }
         ]
       };
+
+      if (cleanPhone) {
+        query.$or.push({ mobile: { $regex: cleanPhone, $options: 'i' } });
+      } else {
+        query.$or.push({ mobile: { $regex: escapedSearch, $options: 'i' } });
+      }
     } else if (searchParams.get('status') === 'pending_payment') {
       query = { documentsVerified: true, paymentCompleted: false, role: { $in: ['vendor', 'sub_vendor', 'employee'] } };
     }
