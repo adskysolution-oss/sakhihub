@@ -8,7 +8,7 @@ import {
   Phone, Mail, Calendar, Filter, X,
   Briefcase, Network, Link2, ExternalLink,
   CheckCircle2, Clock, AlertCircle, FileText,
-  Landmark, UserCheck, FileCheck, RefreshCw
+  Landmark, UserCheck, FileCheck, RefreshCw, Upload, FileX
 } from "lucide-react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
@@ -302,14 +302,32 @@ export default function EmployeeManagement() {
                            )}
                          </td>
                         <td className="p-5">
-                          <div className="flex items-center gap-2">
-                             <div className="h-1.5 w-16 bg-gray-100 rounded-full overflow-hidden">
-                               <div 
-                                 className="h-full bg-primary" 
-                                 style={{ width: `${(empComp.approved / empComp.total) * 100}%` }}
-                               />
-                             </div>
-                             <span className="text-[10px] font-black text-secondary">{empComp.approved}/{empComp.total}</span>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2">
+                              <div className="flex gap-1">
+                                {Array.from({ length: Math.max(1, empComp.total) }).map((_, i) => (
+                                  <div key={i} className={`w-4 h-1.5 rounded-full ${
+                                    i < empComp.approved ? 'bg-green-500' :
+                                    i < empComp.uploaded ? 'bg-primary' :
+                                    'bg-gray-200'
+                                  }`} />
+                                ))}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest">
+                              {empComp.uploaded > 0 && (
+                                <span className="text-primary flex items-center gap-1"><Upload size={10} /> {empComp.uploaded}/{empComp.total}</span>
+                              )}
+                              {empComp.approved > 0 && (
+                                <span className="text-green-600 flex items-center gap-1"><FileCheck size={10} /> {empComp.approved}</span>
+                              )}
+                              {empComp.rejected > 0 && (
+                                <span className="text-red-500 flex items-center gap-1"><FileX size={10} /> {empComp.rejected}</span>
+                              )}
+                              {empComp.uploaded === 0 && (
+                                <span className="text-gray-400 flex items-center gap-1"><Clock size={10} /> No docs</span>
+                              )}
+                            </div>
                           </div>
                         </td>
                         <td className="p-5">
