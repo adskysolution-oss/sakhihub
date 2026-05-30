@@ -1,5 +1,6 @@
 'use client';
 
+import { getProxiedImageUrl } from "@/utils/imageUrl";
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import { 
@@ -192,8 +193,12 @@ export default function VendorManagement() {
                       <tr key={vendor._id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer group" onClick={() => fetchHierarchyDetails(vendor)}>
                         <td className="p-5">
                           <div className="flex gap-4 items-center">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-black text-xl shadow-lg">
-                              {vendor.fullName[0]}
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-black text-xl shadow-lg overflow-hidden">
+                              {vendor.profileImage ? (
+                                <img src={getProxiedImageUrl(vendor.profileImage)} alt={vendor.fullName} className="w-full h-full object-cover" />
+                              ) : (
+                                vendor.fullName[0]
+                              )}
                             </div>
                             <div>
                               <p className="font-black text-secondary leading-tight">{vendor.fullName}</p>

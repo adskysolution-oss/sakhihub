@@ -20,17 +20,17 @@ export async function GET(req: NextRequest) {
     const vendors = await User.find({
       role: 'vendor',
       status: { $in: operationalStatuses }
-    }).select('fullName vendorCode role mobile status district block');
+    }).select('fullName vendorCode role mobile status district block profileImage');
 
     const subVendors = await User.find({
       role: 'sub_vendor',
       status: { $in: operationalStatuses }
-    }).select('fullName subVendorCode role mobile status district block parentVendorId');
+    }).select('fullName subVendorCode role mobile status district block parentVendorId profileImage');
 
     const employees = await User.find({
       role: 'employee',
       status: { $in: operationalStatuses }
-    }).select('fullName employeeId role mobile status district block parentVendorId');
+    }).select('fullName employeeId role mobile status district block parentVendorId profileImage');
 
     const members = await WomenMember.find({
       accountStatus: 'active'
@@ -63,6 +63,7 @@ export async function GET(req: NextRequest) {
         mobile: v.mobile,
         status: v.status,
         location: `${v.block || ''}, ${v.district || ''}`,
+        profileImage: v.profileImage,
         children: []
       };
       nodeMap[id] = node;
@@ -81,6 +82,7 @@ export async function GET(req: NextRequest) {
         mobile: sv.mobile,
         status: sv.status,
         location: `${sv.block || ''}, ${sv.district || ''}`,
+        profileImage: sv.profileImage,
         children: []
       };
       nodeMap[id] = node;
@@ -104,6 +106,7 @@ export async function GET(req: NextRequest) {
         mobile: emp.mobile,
         status: emp.status,
         location: `${emp.block || ''}, ${emp.district || ''}`,
+        profileImage: emp.profileImage,
         children: []
       };
       nodeMap[id] = node;

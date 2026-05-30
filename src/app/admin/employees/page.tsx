@@ -16,6 +16,7 @@ import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartne
 import DocumentReviewCard from "@/components/features/dashboard/DocumentReviewCard";
 import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary, getRequiredDocsForUser, getDocumentViewUrl } from "@/utils/documents";
 import { toast } from 'sonner';
+import { getProxiedImageUrl } from '@/utils/imageUrl';
 
 export default function EmployeeManagement() {
   const [employees, setEmployees] = useState<any[]>([]);
@@ -233,8 +234,12 @@ export default function EmployeeManagement() {
                       <tr key={emp._id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer group">
                         <td className="p-5" onClick={() => setSelectedEmp(emp)}>
                           <div className="flex gap-4 items-center">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-black text-xl shadow-lg">
-                              {emp.fullName[0]}
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-black text-xl shadow-lg overflow-hidden">
+                              {emp.profileImage ? (
+                                <img src={getProxiedImageUrl(emp.profileImage)} alt={emp.fullName} className="w-full h-full object-cover" />
+                              ) : (
+                                emp.fullName[0]
+                              )}
                             </div>
                             <div>
                               <p className="font-black text-secondary leading-tight">{emp.fullName}</p>
@@ -329,8 +334,12 @@ export default function EmployeeManagement() {
                   ><X size={24} /></button>
                   
                   <div className="flex gap-8 items-center">
-                    <div className="w-24 h-24 rounded-[32px] bg-white text-secondary-dark flex items-center justify-center text-4xl font-black shadow-2xl shadow-black/20">
-                      {selectedEmp.fullName[0]}
+                    <div className="w-24 h-24 rounded-[32px] bg-white text-secondary-dark flex items-center justify-center text-4xl font-black shadow-2xl shadow-black/20 overflow-hidden">
+                      {selectedEmp.profileImage ? (
+                        <img src={getProxiedImageUrl(selectedEmp.profileImage)} alt={selectedEmp.fullName} className="w-full h-full object-cover" />
+                      ) : (
+                        selectedEmp.fullName[0]
+                      )}
                     </div>
                     <div>
                       <h2 className="text-4xl font-black mb-2">{selectedEmp.fullName}</h2>

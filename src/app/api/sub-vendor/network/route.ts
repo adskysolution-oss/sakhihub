@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     const subVendor = await User.findOne({ 
       _id: subVendorId,
       status: { $in: operationalStatuses } 
-    }).select('fullName subVendorCode role mobile status district block');
+    }).select('fullName subVendorCode role mobile status district block profileImage');
 
     if (!subVendor) return errorResponse('Active sub-vendor record not found', 404);
 
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
       role: 'employee',
       status: { $in: operationalStatuses },
       parentVendorId: subVendorId
-    }).select('fullName employeeId role mobile status district block parentVendorId');
+    }).select('fullName employeeId role mobile status district block parentVendorId profileImage');
 
     const employeeIds = employees.map(emp => emp._id);
 
@@ -66,6 +66,7 @@ export async function GET(req: NextRequest) {
         mobile: emp.mobile,
         status: emp.status,
         location: `${emp.block || ''}, ${emp.district || ''}`,
+        profileImage: emp.profileImage,
         children: []
       };
       nodeMap[id] = node;

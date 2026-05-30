@@ -1,5 +1,6 @@
 'use client';
 
+import { getProxiedImageUrl } from "@/utils/imageUrl";
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import { 

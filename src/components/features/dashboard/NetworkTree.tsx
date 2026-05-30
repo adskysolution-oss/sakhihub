@@ -7,6 +7,7 @@ import {
   Sparkles, ExternalLink, Filter, Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getProxiedImageUrl } from '@/utils/imageUrl';
 
 interface Node {
   id: string;
@@ -16,6 +17,7 @@ interface Node {
   mobile?: string;
   location?: string;
   status?: string;
+  profileImage?: string;
   children: Node[];
 }
 
@@ -79,13 +81,17 @@ const TreeNode = ({ node, level, searchTerm, expandedNodes, toggleNode, viewerRo
           )}
         </div>
 
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm overflow-hidden ${
           node.role === 'vendor' ? 'bg-secondary text-white' :
           node.role === 'sub_vendor' ? 'bg-primary text-white' :
           node.role === 'employee' ? 'bg-blue-50 text-blue-500' :
           'bg-amber-50 text-amber-500'
         }`}>
-          <RoleIcon role={node.role} size={20} />
+          {node.profileImage ? (
+            <img src={getProxiedImageUrl(node.profileImage)} alt={node.name} className="w-full h-full object-cover" />
+          ) : (
+            <RoleIcon role={node.role} size={20} />
+          )}
         </div>
 
         <div className="flex-1 min-w-0">

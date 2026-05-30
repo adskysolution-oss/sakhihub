@@ -22,6 +22,7 @@ import {
 import DocumentReviewCard from '@/components/features/dashboard/DocumentReviewCard';
 import { toast } from 'sonner';
 import StatCard from '@/components/shared/StatCard';
+import { getProxiedImageUrl } from '@/utils/imageUrl';
 
 interface HierarchyDetailViewProps {
   data: {
@@ -173,8 +174,12 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
         ><X size={20} /></button>
 
         <div className="flex flex-col md:flex-row gap-8 items-center md:items-start relative z-10">
-          <div className="w-24 h-24 md:w-32 md:h-32 rounded-[40px] bg-white text-secondary flex items-center justify-center text-4xl md:text-6xl font-black shadow-2xl border-4 border-white/20">
-            {user.fullName?.[0] || 'U'}
+          <div className="w-24 h-24 md:w-32 md:h-32 rounded-[40px] bg-white text-secondary flex items-center justify-center text-4xl md:text-6xl font-black shadow-2xl border-4 border-white/20 overflow-hidden">
+            {user.profileImage ? (
+              <img src={getProxiedImageUrl(user.profileImage)} alt={user.fullName} className="w-full h-full object-cover" />
+            ) : (
+              user.fullName?.[0] || 'U'
+            )}
           </div>
           <div className="text-center md:text-left flex-1">
             <div className="flex flex-col md:flex-row md:items-center gap-3 mb-2">
@@ -334,7 +339,13 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                    {hierarchy.subVendors.length > 0 ? hierarchy.subVendors.map(sv => (
                      <div key={sv._id} className="p-5 bg-white border border-gray-100 rounded-[32px] shadow-sm flex items-center justify-between group hover:border-primary transition-all">
                        <div className="flex items-center gap-4">
-                         <div className="w-12 h-12 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center font-black text-lg">S</div>
+                         <div className="w-12 h-12 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center font-black text-lg overflow-hidden">
+                           {sv.profileImage ? (
+                             <img src={getProxiedImageUrl(sv.profileImage)} alt={sv.fullName} className="w-full h-full object-cover" />
+                           ) : (
+                             'S'
+                           )}
+                         </div>
                          <div>
                            <p className="font-black text-secondary leading-tight">{sv.fullName}</p>
                            <p className="text-[10px] text-primary font-black mt-0.5 uppercase tracking-widest">{sv.subVendorCode}</p>

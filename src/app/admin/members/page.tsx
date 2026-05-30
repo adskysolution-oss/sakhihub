@@ -9,6 +9,7 @@ import {
 import axios from "axios";
 import AssignEmployeeModal from "@/components/features/dashboard/AssignEmployeeModal";
 import { toast } from 'sonner';
+import { getProxiedImageUrl } from '@/utils/imageUrl';
 
 export default function MemberManagement() {
   const [members, setMembers] = useState<any[]>([]);
