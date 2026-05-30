@@ -84,6 +84,9 @@ export async function POST(req: NextRequest) {
       return errorResponse('Payment amount is not configured. Please contact admin.', 400);
     }
 
+    // Create Order using the resolved provider
+    const provider = await PaymentResolver.resolveActiveProvider();
+
     // Check for existing pending order for same type (prevent duplicate orders)
     let existingPending = await PaymentTransaction.findOne({
       userId: user._id,
@@ -91,7 +94,15 @@ export async function POST(req: NextRequest) {
       status: { $in: ['created', 'pending'] }
     });
 
-    if (existingPending && existingPending.paymentSessionId.startsWith('mock_session_')) {
+    if (existingPending && existingPending.paymentSessionId && existingPending.paymentSessionId.startsWith('mock_session_')) {
+      await PaymentTransaction.deleteOne({ _id: existingPending._id });
+      existingPending = null;
+    }
+
+    // PhonePe does not use paymentSessionId on client side and requires a new redirect URL.
+    // If the active provider is PhonePe, or if the provider of the existing transaction is different,
+    // we should delete the existing transaction and create a new order.
+    if (existingPending && (provider.name === 'phonepe' || existingPending.provider !== provider.name)) {
       await PaymentTransaction.deleteOne({ _id: existingPending._id });
       existingPending = null;
     }
@@ -110,22 +121,19 @@ export async function POST(req: NextRequest) {
     // Generate unique order ID
     const orderId = generateOrderId(user._id.toString(), type);
 
-    // Cashfree Production requires HTTPS URLs
+    // Cashfree/PhonePe Production requires HTTPS URLs
     let returnUrl = user.role === 'member'
       ? `${BASE_URL}/member/receipt?order_id=${orderId}&type=${type}`
       : `${BASE_URL}/payment-pending?order_id=${orderId}&type=${type}`;
     let notifyUrl = `${BASE_URL}/api/payment/webhook`;
     
-    // Cashfree Production requires HTTPS URLs for return and notify endpoints
+    // Production requires HTTPS URLs for return and notify endpoints
     if (!returnUrl.includes('localhost')) {
       returnUrl = returnUrl.replace('http://', 'https://');
     }
     if (!notifyUrl.includes('localhost')) {
       notifyUrl = notifyUrl.replace('http://', 'https://');
     }
-
-    // Create Order using the resolved provider
-    const provider = await PaymentResolver.resolveActiveProvider();
     
     const orderResult = await provider.createOrder({
       orderId,
