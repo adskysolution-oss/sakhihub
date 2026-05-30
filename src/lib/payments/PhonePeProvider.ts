@@ -44,17 +44,17 @@ export class PhonePeProvider implements IPaymentProvider {
   private async getOAuthToken(): Promise<string> {
     if (this.oauthToken) return this.oauthToken;
     
-    const body = new URLSearchParams({
-      client_id: this.clientId,
-      client_secret: this.clientSecret,
-      client_version: this.clientVersion,
-      grant_type: 'client_credentials',
-    });
-
     const response = await fetch(this.oauthUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body.toString()
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        client_id: this.clientId,
+        client_secret: this.clientSecret,
+        client_version: this.clientVersion,
+        grant_type: 'client_credentials'
+      }).toString()
     });
 
     const data = await response.json();
