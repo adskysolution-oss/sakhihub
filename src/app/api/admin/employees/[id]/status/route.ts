@@ -129,7 +129,7 @@ export async function PATCH(
       // Strict Activation for Employees
       if (user.role === 'employee') {
          if (user.documentsVerified) {
-            user.status = 'active';
+            user.status = 'approved';
             user.isVerified = true;
          } else {
             user.status = 'pending';

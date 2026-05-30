@@ -17,6 +17,9 @@ export class PhonePeProvider implements IPaymentProvider {
   private webhookSecret: string = '';
   private environment: 'sandbox' | 'production' = 'production';
   private baseUrl: string = '';
+  private v2BaseUrl: string = '';
+  private oauthUrl: string = '';
+  private oauthToken: string | null = null;
 
   initialize(credentials: Record<string, any>, environment: 'sandbox' | 'production'): void {
     this.merchantId = credentials.merchantId || '';
@@ -28,9 +31,85 @@ export class PhonePeProvider implements IPaymentProvider {
     this.baseUrl = this.environment === 'production' 
       ? 'https://api.phonepe.com/apis/hermes' 
       : 'https://api-preprod.phonepe.com/apis/pg-sandbox';
+      
+    this.v2BaseUrl = this.environment === 'production'
+      ? 'https://api.phonepe.com/apis/pg/checkout'
+      : 'https://api-preprod.phonepe.com/apis/pg-sandbox/checkout';
+      
+    this.oauthUrl = this.environment === 'production'
+      ? 'https://api.phonepe.com/apis/identity-manager/v1/oauth/token'
+      : 'https://api-preprod.phonepe.com/apis/pg-sandbox/v1/oauth/token';
+  }
+
+  private async getOAuthToken(): Promise<string> {
+    if (this.oauthToken) return this.oauthToken;
+    
+    const body = new URLSearchParams({
+      client_id: this.clientId,
+      client_secret: this.clientSecret,
+      client_version: this.clientVersion,
+      grant_type: 'client_credentials',
+    });
+
+    const response = await fetch(this.oauthUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString()
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.access_token) {
+      console.error('PhonePe OAuth Error:', data);
+      throw new Error('Failed to generate PhonePe OAuth token');
+    }
+
+    this.oauthToken = data.access_token;
+    return this.oauthToken;
   }
 
   async createOrder(params: CreateOrderParams): Promise<CreateOrderResult> {
+    if (this.clientId) {
+      return this.createOrderV2(params);
+    }
+    return this.createOrderV1(params);
+  }
+
+  private async createOrderV2(params: CreateOrderParams): Promise<CreateOrderResult> {
+    const token = await this.getOAuthToken();
+    const payload = {
+      merchantOrderId: params.orderId,
+      amount: params.orderAmount * 100, // paise
+      paymentFlow: {
+        type: 'PG_CHECKOUT',
+        merchantUrls: {
+          redirectUrl: params.returnUrl
+        }
+      }
+    };
+
+    const response = await fetch(`${this.v2BaseUrl}/v2/pay`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `O-Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.redirectUrl) {
+      console.error('PhonePe V2 Create Order Error:', data);
+      throw new Error(data?.message || 'PhonePe order creation failed');
+    }
+
+    return {
+      gatewayOrderId: params.orderId,
+      paymentSessionId: '',
+      paymentUrl: data.redirectUrl, 
+    };
+  }
+
+  private async createOrderV1(params: CreateOrderParams): Promise<CreateOrderResult> {
     const payload = {
       merchantId: this.merchantId,
       merchantTransactionId: params.orderId,
@@ -49,7 +128,6 @@ export class PhonePeProvider implements IPaymentProvider {
     const endpoint = '/pg/v1/pay';
     
     // Checksum = sha256(base64Payload + apiEndpoint + saltKey) + ### + saltIndex
-    // Here we assume clientSecret is the saltKey and clientVersion is the saltIndex
     const checksum = crypto
       .createHash('sha256')
       .update(base64Payload + endpoint + this.clientSecret)
@@ -60,7 +138,6 @@ export class PhonePeProvider implements IPaymentProvider {
       headers: {
         'Content-Type': 'application/json',
         'X-VERIFY': checksum,
-        'X-CLIENT-ID': this.clientId, // Some PhonePe integrations need this
       },
       body: JSON.stringify({ request: base64Payload }),
     });
@@ -73,13 +150,49 @@ export class PhonePeProvider implements IPaymentProvider {
     }
 
     return {
-      gatewayOrderId: params.orderId, // PhonePe uses the merchantTransactionId
+      gatewayOrderId: params.orderId,
       paymentSessionId: data.data?.instrumentResponse?.intentUrl || '',
-      paymentUrl: data.data?.instrumentResponse?.redirectInfo?.url, // Standard checkout URL
+      paymentUrl: data.data?.instrumentResponse?.redirectInfo?.url,
     };
   }
 
   async verifyPayment(params: VerifyPaymentParams): Promise<VerifyPaymentResult> {
+    if (this.clientId) {
+      return this.verifyPaymentV2(params);
+    }
+    return this.verifyPaymentV1(params);
+  }
+
+  private async verifyPaymentV2(params: VerifyPaymentParams): Promise<VerifyPaymentResult> {
+    const token = await this.getOAuthToken();
+    const endpoint = `/v2/order/${params.gatewayOrderId}/status`;
+
+    const response = await fetch(`${this.v2BaseUrl}${endpoint}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `O-Bearer ${token}`
+      },
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.state === 'COMPLETED') {
+      return {
+        success: true,
+        gatewayPaymentId: data.transactionId || params.gatewayOrderId,
+        amount: (data.amount || 0) / 100,
+        status: data.state,
+      };
+    }
+
+    return {
+      success: false,
+      status: data.state || 'PENDING',
+      amount: 0,
+    };
+  }
+
+  private async verifyPaymentV1(params: VerifyPaymentParams): Promise<VerifyPaymentResult> {
     const endpoint = `/pg/v1/status/${this.merchantId}/${params.gatewayOrderId}`;
     
     const checksum = crypto
@@ -93,7 +206,6 @@ export class PhonePeProvider implements IPaymentProvider {
         'Content-Type': 'application/json',
         'X-VERIFY': checksum,
         'X-MERCHANT-ID': this.merchantId,
-        'X-CLIENT-ID': this.clientId,
       },
     });
 

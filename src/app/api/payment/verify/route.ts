@@ -47,13 +47,13 @@ async function checkAndUpdatePaymentCompletion(userId: string): Promise<boolean>
       if (user.role === 'vendor') {
         user.dashboardAccess = true;
         user.onboardingCompleted = true;
-        user.status = 'active';
+        user.status = 'approved';
       }
       // For sub_vendor and employee, dashboardAccess also depends on assignmentStatus
       if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
         user.dashboardAccess = true;
         user.onboardingCompleted = true;
-        user.status = 'active';
+        user.status = 'approved';
       }
     }
 

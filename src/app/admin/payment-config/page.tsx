@@ -21,6 +21,8 @@ export default function PaymentConfigPage() {
     },
     subscriptionAmount: { vendor: 0, sub_vendor: 0, employee: 0 },
     depositAmount: { vendor: 0, sub_vendor: 0, employee: 0 },
+    subscriptionRequired: { vendor: true, sub_vendor: true, employee: true },
+    depositRequired: { vendor: true, sub_vendor: true, employee: true },
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -41,7 +43,6 @@ export default function PaymentConfigPage() {
 
   useEffect(() => {
     fetchConfig();
-    fetchManualRequests('pending');
   }, []);
 
   const fetchConfig = async () => {
@@ -86,23 +87,6 @@ export default function PaymentConfigPage() {
     }
   };
 
-  const fetchManualRequests = async (statusFilter: 'pending' | 'approved' | 'rejected') => {
-    setRequestsLoading(true);
-    try {
-      const res = await axios.get(`/api/admin/manual-payment-requests?status=${statusFilter}`);
-      if (res.data.success) setManualRequests(res.data.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setRequestsLoading(false);
-    }
-  };
-
-  const handleRequestsTabChange = (tab: 'pending' | 'approved' | 'rejected') => {
-    setActiveRequestsTab(tab);
-    fetchManualRequests(tab);
-  };
-
   const refreshPending = async () => {
     try {
       const pendingRes = await axios.get('/api/admin/users?status=pending_payment');
@@ -130,63 +114,7 @@ export default function PaymentConfigPage() {
     }
   };
 
-  const handleSearchUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchPhone) return;
-    setSearchLoading(true);
-    setFoundUser(null);
-    try {
-      const res = await axios.get(`/api/admin/users?search=${searchPhone}`);
-      if (res.data.success && res.data.data.length > 0) {
-        setFoundUser(res.data.data[0]);
-      } else {
-        toast.error('User not found');
-      }
-    } catch (error) {
-      toast.error('Search failed');
-    } finally {
-      setSearchLoading(false);
-    }
-  };
 
-  const handleOverride = async (type: string) => {
-    if (!foundUser || !confirm(`Are you sure you want to mark ${type} as paid?`)) return;
-    setOverrideLoading(true);
-    try {
-      const res = await axios.post('/api/admin/payment-override', {
-        userId: foundUser._id,
-        type: type !== 'all' ? type : undefined,
-        action: type === 'all' ? 'complete_all' : undefined
-      });
-      if (res.data.success) {
-        toast.success('Payment override successful');
-        setFoundUser(null);
-        setSearchPhone('');
-        refreshPending();
-      }
-    } catch (error: any) {
-      toast.error('Override failed');
-    } finally {
-      setOverrideLoading(false);
-    }
-  };
-
-  const handleReviewRequest = async (requestId: string, action: 'approve' | 'reject') => {
-    if (!confirm(`Are you sure you want to ${action} this payment request?`)) return;
-    setReviewLoading(requestId);
-    try {
-      const res = await axios.patch('/api/admin/manual-payment-requests', { requestId, action });
-      if (res.data.success) {
-        toast.success(action === 'approve' ? 'Payment approved!' : 'Request rejected.');
-        fetchManualRequests(activeRequestsTab);
-        refreshPending();
-      }
-    } catch (error: any) {
-      toast.error(`Failed to ${action} request`);
-    } finally {
-      setReviewLoading(null);
-    }
-  };
 
   if (loading) {
     return (
@@ -210,9 +138,8 @@ export default function PaymentConfigPage() {
         <p className="text-gray-500 mt-2 font-medium">Configure global payment architecture, gateway routing, and pricing.</p>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        {/* Left Col: Config Form */}
-        <div className="xl:col-span-2 space-y-6">
+      <div className="max-w-5xl">
+        <div className="space-y-6">
           <form onSubmit={handleSave} className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 lg:p-8">
             {message && (
               <div className={`p-4 rounded-xl mb-6 font-bold flex items-center gap-2 ${message.includes('success') ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
@@ -354,27 +281,57 @@ export default function PaymentConfigPage() {
                   <h4 className="text-md font-black text-secondary capitalize mb-4">{role.replace('_', ' ')}</h4>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                    <div>
-                      <label className="text-xs font-bold text-gray-700 flex items-center gap-2 mb-2">
-                        <IndianRupee size={14} className="text-primary" /> Subscription Amount (₹)
-                      </label>
-                      <input
-                        type="number"
-                        value={config.subscriptionAmount?.[role] || 0}
-                        onChange={(e) => setConfig({...config, subscriptionAmount: { ...config.subscriptionAmount, [role]: Number(e.target.value) }})}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-200"
-                      />
+                    <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                      <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+                        <label className="text-xs font-bold text-gray-700 flex items-center gap-2">
+                          <IndianRupee size={16} className="text-primary" /> Require Subscription
+                        </label>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            className="sr-only peer" 
+                            checked={config.subscriptionRequired?.[role] ?? true}
+                            onChange={(e) => setConfig({...config, subscriptionRequired: { ...config.subscriptionRequired, [role]: e.target.checked }})}
+                          />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Amount (₹)</label>
+                        <input
+                          type="number"
+                          value={config.subscriptionAmount?.[role] || 0}
+                          onChange={(e) => setConfig({...config, subscriptionAmount: { ...config.subscriptionAmount, [role]: Number(e.target.value) }})}
+                          disabled={!(config.subscriptionRequired?.[role] ?? true)}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-200 disabled:opacity-50 disabled:bg-gray-50 font-bold"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="text-xs font-bold text-gray-700 flex items-center gap-2 mb-2">
-                        <ShieldCheck size={14} className="text-secondary" /> Deposit Amount (₹)
-                      </label>
-                      <input
-                        type="number"
-                        value={config.depositAmount?.[role] || 0}
-                        onChange={(e) => setConfig({...config, depositAmount: { ...config.depositAmount, [role]: Number(e.target.value) }})}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-200"
-                      />
+                    <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                      <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+                        <label className="text-xs font-bold text-gray-700 flex items-center gap-2">
+                          <ShieldCheck size={16} className="text-secondary" /> Require Deposit
+                        </label>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            className="sr-only peer" 
+                            checked={config.depositRequired?.[role] ?? true}
+                            onChange={(e) => setConfig({...config, depositRequired: { ...config.depositRequired, [role]: e.target.checked }})}
+                          />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
+                        </label>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Amount (₹)</label>
+                        <input
+                          type="number"
+                          value={config.depositAmount?.[role] || 0}
+                          onChange={(e) => setConfig({...config, depositAmount: { ...config.depositAmount, [role]: Number(e.target.value) }})}
+                          disabled={!(config.depositRequired?.[role] ?? true)}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-200 disabled:opacity-50 disabled:bg-gray-50 font-bold"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -428,76 +385,6 @@ export default function PaymentConfigPage() {
               </button>
             </div>
           </form>
-        </div>
-
-        {/* Right Col: Manual Processing & Requests */}
-        <div className="space-y-6">
-          {/* Manual Admin Override */}
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-            <h3 className="text-lg font-black text-secondary mb-2">Manual Approval</h3>
-            <p className="text-sm text-gray-500 mb-6 font-medium">Bypass gateway and mark offline payments.</p>
-
-            <form onSubmit={handleSearchUser} className="flex gap-2 mb-6">
-              <input
-                type="text"
-                placeholder="Search by Mobile..."
-                value={searchPhone}
-                onChange={(e) => setSearchPhone(e.target.value)}
-                className="flex-1 px-4 py-2 rounded-xl border border-gray-200 outline-none text-sm"
-              />
-              <button type="submit" disabled={searchLoading} className="px-4 py-2 bg-secondary text-white rounded-xl">
-                <Search size={18} />
-              </button>
-            </form>
-
-            {foundUser && (
-              <div className="p-4 rounded-2xl border-2 border-primary/20 bg-primary/5 space-y-4">
-                <p className="font-bold text-secondary">{foundUser.fullName}</p>
-                <div className="pt-4 border-t border-primary/10 grid gap-2">
-                  {!foundUser.subscriptionPaid && (
-                    <button onClick={() => handleOverride('subscription')} className="w-full py-2 bg-white border text-xs rounded-lg">Mark Sub Paid</button>
-                  )}
-                  {!foundUser.depositPaid && (
-                    <button onClick={() => handleOverride('deposit')} className="w-full py-2 bg-white border text-xs rounded-lg">Mark Dep Paid</button>
-                  )}
-                  {(!foundUser.subscriptionPaid || !foundUser.depositPaid) && (
-                    <button onClick={() => handleOverride('all')} className="w-full py-3 bg-primary text-white text-xs rounded-xl shadow-lg">Confirm Payment</button>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Verification Requests */}
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-            <h3 className="text-lg font-black text-secondary mb-4 flex items-center gap-2"><ClipboardList size={20}/> Verification Requests</h3>
-            
-            <div className="flex gap-1 p-1 bg-gray-50 rounded-xl mb-4">
-              {(['pending', 'approved', 'rejected'] as const).map(tab => (
-                <button key={tab} onClick={() => handleRequestsTabChange(tab)} className={`flex-1 py-1.5 rounded-lg text-[10px] font-black uppercase ${activeRequestsTab === tab ? 'bg-white shadow' : 'text-gray-400'}`}>
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            <div className="space-y-3 max-h-[400px] overflow-y-auto">
-              {manualRequests.map(req => (
-                <div key={req._id} className="p-4 border rounded-xl">
-                  <p className="font-bold text-sm">{req.userId?.fullName || req.name}</p>
-                  <p className="text-xs text-gray-500 mb-2">₹{req.amount} - {req.type}</p>
-                  <p className="text-[10px] bg-gray-100 p-1.5 rounded font-mono break-all">{req.transactionId}</p>
-                  
-                  {req.status === 'pending' && (
-                    <div className="flex gap-2 mt-3">
-                      <button onClick={() => handleReviewRequest(req._id, 'approve')} className="flex-1 py-2 bg-green-500 text-white rounded text-[10px] uppercase font-bold">Approve</button>
-                      <button onClick={() => handleReviewRequest(req._id, 'reject')} className="flex-1 py-2 border text-red-500 rounded text-[10px] uppercase font-bold">Reject</button>
-                    </div>
-                  )}
-                </div>
-              ))}
-              {manualRequests.length === 0 && <p className="text-xs text-center text-gray-400 py-4">No {activeRequestsTab} requests</p>}
-            </div>
-          </div>
         </div>
       </div>
     </DashboardLayout>

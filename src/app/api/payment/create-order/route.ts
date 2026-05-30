@@ -144,7 +144,7 @@ export async function POST(req: NextRequest) {
       role: user.role,
       amount,
       status: 'created',
-      provider: provider.getProviderName(), // NEW FIELD
+      provider: provider.name, // NEW FIELD
       cashfreeOrderId: orderId, // Still saving for backward compatibility, though it acts as a generic orderId now
       gatewayOrderId: orderResult.gatewayOrderId, // NEW FIELD
       paymentSessionId: orderResult.paymentSessionId || '',
@@ -156,7 +156,7 @@ export async function POST(req: NextRequest) {
       paymentUrl: orderResult.paymentUrl, // PhonePe returns paymentUrl
       amount,
       type,
-      provider: provider.getProviderName(),
+      provider: provider.name,
     }, 'Payment order created successfully');
   } catch (error: any) {
     console.error('Create Payment Order Error:', error);

@@ -36,26 +36,36 @@ export const EMPLOYEE_DASHBOARD_LINKS = [
 ];
 
 export const ADMIN_DASHBOARD_LINKS = [
-  { name: 'Overview', icon: LayoutDashboard, href: '/admin/dashboard' },
-  { name: 'Network Tree', icon: MapPin, href: '/admin/network' },
-  { name: 'Vendors', icon: ShieldCheck, href: '/admin/vendors' },
-  { name: 'Sub-Vendors', icon: Layout, href: '/admin/sub-vendors' },
-  { name: 'Employees', icon: ClipboardList, href: '/admin/employees' },
-  { name: 'Vacancies', icon: Briefcase, href: '/admin/careers/vacancies' },
-  { name: 'Applications', icon: Users, href: '/admin/careers/applications' },
-  { name: 'All Groups', icon: Layout, href: '/admin/groups' },
-  { name: 'All Members', icon: Users, href: '/admin/members' },
-  { name: 'Memberships', icon: IndianRupee, href: '/admin/memberships' },
-  { name: 'Campaigns', icon: Target, href: '/admin/campaigns' },
-  { name: 'Activity Reports', icon: FileText, href: '/admin/reports' },
-  { name: 'Support Queries', icon: Mail, href: '/admin/support-requests' },
-  { name: 'Manage Projects', icon: Sparkles, href: '/admin/projects' },
-  { name: 'Manage Products', icon: ShoppingBag, href: '/admin/products' },
-  { name: 'My Profile', icon: User, href: '/admin/profile' },
-  { name: 'Payment Config', icon: IndianRupee, href: '/admin/payment-config' },
-  { name: 'Finance Control', icon: Wallet, href: '/admin/finance' },
-  { name: 'Dynamic Forms', icon: ClipboardList, href: '/admin/forms' },
-  { name: 'CMS Manage', icon: Settings, href: '/admin/cms' },
+  // CORE
+  { section: 'Core', name: 'Overview', icon: LayoutDashboard, href: '/admin/dashboard' },
+  { section: 'Core', name: 'Network Tree', icon: MapPin, href: '/admin/network' },
+  { section: 'Core', name: 'Activity Reports', icon: FileText, href: '/admin/reports' },
+
+  // USERS
+  { section: 'Users', name: 'Vendors', icon: ShieldCheck, href: '/admin/vendors' },
+  { section: 'Users', name: 'Sub-Vendors', icon: Layout, href: '/admin/sub-vendors' },
+  { section: 'Users', name: 'Employees', icon: ClipboardList, href: '/admin/employees' },
+  { section: 'Users', name: 'All Groups', icon: Layout, href: '/admin/groups' },
+  { section: 'Users', name: 'All Members', icon: Users, href: '/admin/members' },
+
+  // HR & RECRUITMENT
+  { section: 'Recruitment', name: 'Vacancies', icon: Briefcase, href: '/admin/careers/vacancies' },
+  { section: 'Recruitment', name: 'Applications', icon: Users, href: '/admin/careers/applications' },
+
+  // OPERATIONS
+  { section: 'Operations', name: 'Memberships', icon: IndianRupee, href: '/admin/memberships' },
+  { section: 'Operations', name: 'Campaigns', icon: Target, href: '/admin/campaigns' },
+  { section: 'Operations', name: 'Manage Projects', icon: Sparkles, href: '/admin/projects' },
+  { section: 'Operations', name: 'Manage Products', icon: ShoppingBag, href: '/admin/products' },
+  { section: 'Operations', name: 'Support Queries', icon: Mail, href: '/admin/support-requests' },
+
+  // SYSTEM & FINANCE
+  { section: 'System & Finance', name: 'Payment Config', icon: IndianRupee, href: '/admin/payment-config' },
+  { section: 'System & Finance', name: 'Offline Payments', icon: ClipboardList, href: '/admin/offline-payments' },
+  { section: 'System & Finance', name: 'Finance Control', icon: Wallet, href: '/admin/finance' },
+  { section: 'System & Finance', name: 'Dynamic Forms', icon: ClipboardList, href: '/admin/forms' },
+  { section: 'System & Finance', name: 'CMS Manage', icon: Settings, href: '/admin/cms' },
+  { section: 'System & Finance', name: 'My Profile', icon: User, href: '/admin/profile' },
 ];
 
 export const VENDOR_DASHBOARD_LINKS = [

@@ -144,12 +144,12 @@ export async function POST(req: NextRequest) {
                 if (user.role === 'vendor') {
                   user.dashboardAccess = true;
                   user.onboardingCompleted = true;
-                  user.status = 'active';
+                  user.status = 'approved';
                 }
                 if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
                   user.dashboardAccess = true;
                   user.onboardingCompleted = true;
-                  user.status = 'active';
+                  user.status = 'approved';
                 }
               }
               await user.save();
@@ -165,12 +165,12 @@ export async function POST(req: NextRequest) {
                   if (user.role === 'vendor') {
                     user.dashboardAccess = true;
                     user.onboardingCompleted = true;
-                    user.status = 'active';
+                    user.status = 'approved';
                   }
                   if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
                     user.dashboardAccess = true;
                     user.onboardingCompleted = true;
-                    user.status = 'active';
+                    user.status = 'approved';
                   }
                 }
                 await user.save();

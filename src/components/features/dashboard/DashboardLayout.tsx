@@ -159,40 +159,46 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
             <nav className="flex-1 p-5 overflow-y-auto">
               <div className="grid gap-2">
-                {menuItems.map((item: any) => {
+                {menuItems.map((item: any, index: number) => {
                   const isActive = pathname === item.href ||
                     (item.href.includes('/profile') && pathname.includes('/profile'));
 
-                  if (item.locked) {
-                    return (
-                      <button
-                        key={item.name}
-                        onClick={() => {
-                          import('sonner').then((mod) => {
-                            mod.toast.error(`${t('dashboardCommon.premiumLocked', 'Premium Feature: Please upgrade or verify your membership to access')} ${item.name}`);
-                          });
-                        }}
-                        className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 w-full text-left bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-100`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <item.icon size={20} />
-                          <span>{item.name}</span>
-                        </div>
-                        <AlertCircle size={14} className="text-gray-300" />
-                      </button>
-                    )
-                  }
+                  const showSection = item.section && (index === 0 || menuItems[index - 1].section !== item.section);
 
                   return (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      onClick={() => window.innerWidth < 1024 && setSidebarOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 no-underline ${isActive ? 'text-primary bg-[#FFF5F8] font-semibold shadow-sm' : 'text-gray-500 font-medium hover:bg-gray-50'}`}
-                    >
-                      <item.icon size={20} />
-                      <span>{item.name}</span>
-                    </Link>
+                    <React.Fragment key={item.name}>
+                      {showSection && (
+                        <div className="mt-4 mb-1 px-2">
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{item.section}</span>
+                        </div>
+                      )}
+                      
+                      {item.locked ? (
+                        <button
+                          onClick={() => {
+                            import('sonner').then((mod) => {
+                              mod.toast.error(`${t('dashboardCommon.premiumLocked', 'Premium Feature: Please upgrade or verify your membership to access')} ${item.name}`);
+                            });
+                          }}
+                          className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 w-full text-left bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-100`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <item.icon size={20} />
+                            <span>{item.name}</span>
+                          </div>
+                          <AlertCircle size={14} className="text-gray-300" />
+                        </button>
+                      ) : (
+                        <Link
+                          href={item.href}
+                          onClick={() => window.innerWidth < 1024 && setSidebarOpen(false)}
+                          className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 no-underline ${isActive ? 'text-primary bg-[#FFF5F8] font-semibold shadow-sm' : 'text-gray-500 font-medium hover:bg-gray-50 hover:text-secondary'}`}
+                        >
+                          <item.icon size={20} />
+                          <span>{item.name}</span>
+                        </Link>
+                      )}
+                    </React.Fragment>
                   );
                 })}
               </div>
