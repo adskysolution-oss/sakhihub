@@ -283,19 +283,6 @@ export const generateAgreementHtml = (data: any) => {
           </div>
         </div>
 
-        <div style="margin-top: 40px;">
-          <strong>Digital Acceptance Metadata:</strong><br/>
-          <div style="font-family: monospace; font-size: 11px; margin-top: 5px;">
-            Status: ${data.status === 'approved' ? 'Digitally Accepted' : 'Pending Acceptance'}<br/>
-            Timestamp: ${data.acceptanceTimestamp || 'Pending'}<br/>
-            IP Address: ${data.ipAddress || 'Pending'}<br/>
-            Verification ID: ${data.qrVerificationCode}
-          </div>
-        </div>
-        
-        <div class="qr-placeholder">
-          QR CODE<br/>VERIFICATION
-        </div>
       </div>
 
     </body>
