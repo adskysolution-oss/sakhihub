@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
       gatewayOrderId: transaction.gatewayOrderId || transaction.cashfreeOrderId,
     });
     
-    if (verification.success && verification.status === 'PAYMENT_SUCCESS') {
+    if (verification.success && ['PAYMENT_SUCCESS', 'SUCCESS', 'COMPLETED'].includes(verification.status)) {
       // Update transaction
       transaction.status = 'paid';
       transaction.paidAt = new Date();

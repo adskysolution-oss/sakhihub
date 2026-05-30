@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, message: 'Already processed' });
     }
 
-    if (verification.status === 'SUCCESS' || verification.status === 'PAYMENT_SUCCESS') {
+    if (verification.status && ['SUCCESS', 'PAYMENT_SUCCESS', 'COMPLETED'].includes(verification.status)) {
       transaction.status = 'paid';
       transaction.paidAt = new Date();
       transaction.webhookReceived = true;
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
                   paymentMode: 'Online',
                   paymentStatus: 'Paid',
                   paymentDate: new Date(),
-                  cashfreeOrderId: orderId
+                  cashfreeOrderId: verification.gatewayOrderId
                 });
 
                 try {
@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
             }
           }
         }
-      } else if (['FAILED', 'CANCELLED', 'VOID'].includes(verification.status)) {
+      } else if (verification.status && ['FAILED', 'CANCELLED', 'VOID'].includes(verification.status)) {
         transaction.status = 'failed';
         transaction.failureReason = verification.status;
         transaction.webhookReceived = true;
