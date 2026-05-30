@@ -35,6 +35,9 @@ export default function SubVendorManagement() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [customDate, setCustomDate] = useState("");
+  const [paymentFilter, setPaymentFilter] = useState("all");
   const [selectedSV, setSelectedSV] = useState<any>(null);
   const [hierarchyData, setHierarchyData] = useState<any>(null);
   const [loadingHierarchy, setLoadingHierarchy] = useState(false);
@@ -59,7 +62,7 @@ export default function SubVendorManagement() {
   const fetchSubVendors = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/admin/sub-vendors?status=${status}&search=${search}`);
+      const res = await axios.get(`/api/admin/sub-vendors?status=${status}&search=${search}&dateRange=${dateFilter}&paymentStatus=${paymentFilter}&customDate=${customDate}`);
       if (res.data.success) setSubVendors(res.data.data);
     } catch (err) {
       console.error(err);
@@ -73,7 +76,7 @@ export default function SubVendorManagement() {
       fetchSubVendors();
     }, 500);
     return () => clearTimeout(timer);
-  }, [search, status]);
+  }, [search, status, dateFilter, paymentFilter, customDate]);
 
   // Body Scroll Lock
   useEffect(() => {
@@ -174,6 +177,37 @@ export default function SubVendorManagement() {
                 placeholder="Search by sub-vendor name, code, or parent vendor..." 
                 className="w-full pl-14 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
               />
+            </div>
+            <div className="flex gap-2">
+              <select
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              >
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="custom">Custom Date</option>
+              </select>
+              
+              {dateFilter === 'custom' && (
+                <input 
+                  type="date"
+                  value={customDate}
+                  onChange={(e) => setCustomDate(e.target.value)}
+                  className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                />
+              )}
+              
+              <select
+                value={paymentFilter}
+                onChange={(e) => setPaymentFilter(e.target.value)}
+                className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              >
+                <option value="all">All Payments</option>
+                <option value="paid">Paid</option>
+                <option value="unpaid">Unpaid</option>
+              </select>
             </div>
              <div className="flex gap-2 bg-gray-50 p-1.5 rounded-2xl overflow-x-auto no-scrollbar">
                {['all', 'pending', 'documents_uploaded', 'under_review', 'reupload_required', 'active', 'rejected'].map((s) => (

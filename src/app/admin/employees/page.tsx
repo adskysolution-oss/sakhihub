@@ -23,6 +23,9 @@ export default function EmployeeManagement() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [customDate, setCustomDate] = useState("");
+  const [paymentFilter, setPaymentFilter] = useState("all");
   const [selectedEmp, setSelectedEmp] = useState<any>(null);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   
@@ -42,7 +45,7 @@ export default function EmployeeManagement() {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/admin/employees?status=${status}&search=${search}`);
+      const res = await axios.get(`/api/admin/employees?status=${status}&search=${search}&dateRange=${dateFilter}&paymentStatus=${paymentFilter}&customDate=${customDate}`);
       if (res.data.success) setEmployees(res.data.data);
     } catch (err) {
       console.error(err);
@@ -69,7 +72,7 @@ export default function EmployeeManagement() {
       fetchEmployees();
     }, 500);
     return () => clearTimeout(timer);
-  }, [search, status]);
+  }, [search, status, dateFilter, paymentFilter, customDate]);
 
   const handleStatusUpdate = async (id: string, newStatus: string, remarks?: string) => {
     try {
@@ -196,6 +199,37 @@ export default function EmployeeManagement() {
                 placeholder="Search by name, ID, mobile..." 
                 className="w-full pl-14 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
               />
+            </div>
+            <div className="flex gap-2">
+              <select
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              >
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="custom">Custom Date</option>
+              </select>
+              
+              {dateFilter === 'custom' && (
+                <input 
+                  type="date"
+                  value={customDate}
+                  onChange={(e) => setCustomDate(e.target.value)}
+                  className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                />
+              )}
+              
+              <select
+                value={paymentFilter}
+                onChange={(e) => setPaymentFilter(e.target.value)}
+                className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              >
+                <option value="all">All Payments</option>
+                <option value="paid">Paid</option>
+                <option value="unpaid">Unpaid</option>
+              </select>
             </div>
             <div className="flex gap-2 bg-gray-50 p-1.5 rounded-2xl">
                {['all', 'pending', 'active', 'rejected'].map((s) => (

@@ -19,7 +19,7 @@ type Language = 'en' | 'hi' | 'mr' | 'bn' | 'ta' | 'te' | 'gu' | 'kn' | 'ml' | '
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string, replacements?: Record<string, string | number>) => any;
+  t: (key: string, arg2?: string | Record<string, string | number>, arg3?: Record<string, string | number>) => any;
 }
 
 const allTranslations: Record<Language, any> = {
@@ -83,7 +83,17 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   // Reusable translation system with nested key support and fallback to English
-  const t = (key: string, replacements?: Record<string, string | number>) => {
+  const t = (key: string, arg2?: string | Record<string, string | number>, arg3?: Record<string, string | number>) => {
+    let defaultValue = key;
+    let replacements: Record<string, string | number> | undefined = undefined;
+
+    if (typeof arg2 === 'string') {
+      defaultValue = arg2;
+      replacements = arg3;
+    } else if (typeof arg2 === 'object') {
+      replacements = arg2 as Record<string, string | number>;
+    }
+
     const resolvedKey = oldKeysMap[key] || key;
     const keys = resolvedKey.split('.');
     
@@ -102,7 +112,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             break;
           }
         }
-        value = fallbackVal || key;
+        value = fallbackVal || defaultValue;
         break;
       }
     }
@@ -110,7 +120,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (typeof value === 'string' && replacements) {
       let result = value;
       Object.entries(replacements).forEach(([k, v]) => {
-        result = result.replace(`{${k}}`, String(v));
+        result = result.replace(new RegExp(`\\{\\{?${k}\\}\\}?`, 'g'), String(v));
       });
       return result;
     }

@@ -19,12 +19,44 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get('search');
     const vendorCode = searchParams.get('vendorCode');
     const subVendorCode = searchParams.get('subVendorCode');
+    const dateRange = searchParams.get('dateRange'); // 'all', 'today', 'yesterday', 'custom'
+    const customDate = searchParams.get('customDate'); // 'YYYY-MM-DD'
+    const paymentStatus = searchParams.get('paymentStatus'); // 'all', 'paid', 'unpaid'
     
     const query: any = {
       accountStatus: { $ne: 'inactive' }
     };
     if (vendorCode) query.vendorCode = vendorCode;
     if (subVendorCode) query.subVendorCode = subVendorCode;
+
+    // Date Filtering
+    if (dateRange && dateRange !== 'all') {
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const startOfYesterday = new Date(startOfToday);
+      startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+      
+      if (dateRange === 'today') {
+        query.createdAt = { $gte: startOfToday };
+      } else if (dateRange === 'yesterday') {
+        query.createdAt = { $gte: startOfYesterday, $lt: startOfToday };
+      } else if (dateRange === 'custom' && customDate) {
+        const customStart = new Date(customDate);
+        customStart.setHours(0, 0, 0, 0);
+        const customEnd = new Date(customDate);
+        customEnd.setHours(23, 59, 59, 999);
+        query.createdAt = { $gte: customStart, $lte: customEnd };
+      }
+    }
+    
+    // Payment Filtering
+    if (paymentStatus && paymentStatus !== 'all') {
+      if (paymentStatus === 'paid') {
+        query.membershipStatus = 'paid';
+      } else if (paymentStatus === 'unpaid') {
+        query.membershipStatus = { $ne: 'paid' };
+      }
+    }
     
     if (search) {
       // Combine query for safe search

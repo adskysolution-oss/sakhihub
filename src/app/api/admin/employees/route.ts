@@ -19,12 +19,48 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get('search');
     const vendorCode = searchParams.get('vendorCode');
     const subVendorCode = searchParams.get('subVendorCode');
+    const dateRange = searchParams.get('dateRange'); // 'all', 'today', 'yesterday', 'custom'
+    const customDate = searchParams.get('customDate'); // 'YYYY-MM-DD'
+    const paymentStatus = searchParams.get('paymentStatus'); // 'all', 'paid', 'unpaid'
 
     const query: any = { role: 'employee' };
     if (status && status !== 'all') query.status = status;
     if (district && district !== 'all') query.district = district;
     if (vendorCode) query.vendorCode = vendorCode;
     if (subVendorCode) query.subVendorCode = subVendorCode;
+    
+    // Date Filtering
+    if (dateRange && dateRange !== 'all') {
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const startOfYesterday = new Date(startOfToday);
+      startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+      
+      if (dateRange === 'today') {
+        query.createdAt = { $gte: startOfToday };
+      } else if (dateRange === 'yesterday') {
+        query.createdAt = { $gte: startOfYesterday, $lt: startOfToday };
+      } else if (dateRange === 'custom' && customDate) {
+        const customStart = new Date(customDate);
+        customStart.setHours(0, 0, 0, 0);
+        const customEnd = new Date(customDate);
+        customEnd.setHours(23, 59, 59, 999);
+        query.createdAt = { $gte: customStart, $lte: customEnd };
+      }
+    }
+    
+    // Payment Filtering
+    if (paymentStatus && paymentStatus !== 'all') {
+      if (paymentStatus === 'paid') {
+        query.$or = [{ paymentCompleted: true }, { subscriptionPaid: true }];
+      } else if (paymentStatus === 'unpaid') {
+        query.$and = [
+          { paymentCompleted: { $ne: true } },
+          { subscriptionPaid: { $ne: true } }
+        ];
+      }
+    }
+
     if (search) {
       query.$or = [
         { fullName: { $regex: search, $options: 'i' } },
