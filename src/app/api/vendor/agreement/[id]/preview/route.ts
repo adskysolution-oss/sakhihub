@@ -5,6 +5,8 @@ import User from '@/models/User';
 import { getAuthSession } from '@/lib/auth';
 import { generateAgreementHtml, generatePdfBuffer } from '@/utils/pdfGenerator';
 
+export const maxDuration = 60;
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

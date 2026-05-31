@@ -294,13 +294,15 @@ export const generatePdfBuffer = async (htmlContent: string) => {
   const isServerless = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
 
   if (isServerless) {
-    const chromium = (await import('@sparticuz/chromium')).default;
+    const chromium = (await import('@sparticuz/chromium-min')).default;
     const puppeteerCore = (await import('puppeteer-core')).default;
     
     browser = await puppeteerCore.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
+      executablePath: await chromium.executablePath(
+        'https://github.com/Sparticuz/chromium/releases/download/v148.0.0/chromium-v148.0.0-pack.x64.tar'
+      ),
       headless: chromium.headless,
     });
   } else {

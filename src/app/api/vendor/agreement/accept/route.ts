@@ -6,6 +6,8 @@ import { getAuthSession } from '@/lib/auth';
 import { generateAgreementHtml, generatePdfBuffer } from '@/utils/pdfGenerator';
 import { uploadBuffer } from '@/lib/storage';
 
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getAuthSession() as any;
