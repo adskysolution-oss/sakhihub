@@ -40,36 +40,31 @@ export async function GET(
     }
 
     // If templateData is not available, construct it from the generated agreement snapshot
-    let templateData = agreement.templateData;
+    let templateData = agreement.templateData || {};
     
-    if (!templateData) {
-        const user = await User.findById(agreement.vendorId);
-        if (!user) {
-            return NextResponse.json({ success: false, message: 'Vendor details not found for preview' }, { status: 404 });
-        }
-
-        templateData = {
-          agreementId: agreement.agreementId,
-          vendorName: user.fullName,
-          vendorCode: agreement.vendorCode || user.vendorCode || user.subVendorCode || 'PENDING',
-          address: user.address || '',
-          district: user.district || '',
-          state: user.state || '',
-          joiningDate: new Date(agreement.joiningDate).toLocaleDateString('en-IN'),
-          assignedTerritory: agreement.assignedTerritory,
-          incentiveStructure: agreement.incentiveStructure,
-          salaryStructure: agreement.salaryStructure,
-          monthlyTargets: agreement.monthlyTargets,
-          operationalRole: agreement.operationalRole,
-          membershipCommission: agreement.membershipCommission,
-          partnerType: agreement.partnerType,
-          qrVerificationCode: agreement.qrVerificationCode,
-          status: agreement.status
-        };
+    // Always fetch latest vendor details to populate mobile and email dynamically
+    const user = await User.findById(agreement.vendorId);
+    if (!user) {
+        return NextResponse.json({ success: false, message: 'Vendor details not found for preview' }, { status: 404 });
     }
 
+    templateData = {
+      ...templateData,
+      mobile: user.mobile || templateData.mobile || '',
+      email: user.email || templateData.email || '',
+      address: user.address || templateData.address || '',
+      district: user.district || templateData.district || '',
+      state: user.state || templateData.state || '',
+      vendorName: user.fullName || templateData.vendorName || '',
+      vendorCode: agreement.vendorCode || user.vendorCode || user.subVendorCode || templateData.vendorCode || 'PENDING',
+      joiningDate: templateData.joiningDate || new Date(agreement.joiningDate).toLocaleDateString('en-IN'),
+      agreementId: agreement.agreementId,
+      qrVerificationCode: agreement.qrVerificationCode,
+      status: agreement.status
+    };
+
     const htmlContent = generateAgreementHtml(templateData);
-    const pdfBuffer = await generatePdfBuffer(htmlContent);
+    const pdfBuffer = await generatePdfBuffer(htmlContent, templateData.agreementId);
 
     // Return the PDF directly
     return new NextResponse(pdfBuffer as any, {

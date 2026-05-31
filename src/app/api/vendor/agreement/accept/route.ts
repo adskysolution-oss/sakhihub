@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import VendorAgreement from '@/models/VendorAgreement';
+import User from '@/models/User';
 import AgreementAcceptanceLog from '@/models/AgreementAcceptanceLog';
 import { getAuthSession } from '@/lib/auth';
 import { generateAgreementHtml, generatePdfBuffer } from '@/utils/pdfGenerator';
@@ -54,9 +55,22 @@ export async function POST(request: NextRequest) {
       digitalSignature: `ACCEPTED-${currentUserId}-${Date.now()}`
     });
 
+    // Fetch latest user details to get mobile/email/address
+    const user = await User.findById(currentUserId);
+    if (!user) {
+      return NextResponse.json({ success: false, message: 'User details not found' }, { status: 404 });
+    }
+
     // Update templateData with acceptance signature details
     const updatedTemplateData = {
       ...(agreement.templateData || {}),
+      mobile: user.mobile || agreement.templateData?.mobile || '',
+      email: user.email || agreement.templateData?.email || '',
+      address: user.address || agreement.templateData?.address || '',
+      district: user.district || agreement.templateData?.district || '',
+      state: user.state || agreement.templateData?.state || '',
+      vendorName: user.fullName || agreement.templateData?.vendorName || '',
+      vendorCode: agreement.vendorCode || user.vendorCode || user.subVendorCode || agreement.templateData?.vendorCode || 'PENDING',
       status: 'approved',
       acceptanceTimestamp: acceptanceTimestamp.toLocaleString('en-IN'),
       ipAddress,
@@ -64,7 +78,7 @@ export async function POST(request: NextRequest) {
 
     // Generate Final HTML and PDF
     const htmlContent = generateAgreementHtml(updatedTemplateData);
-    const pdfBuffer = await generatePdfBuffer(htmlContent);
+    const pdfBuffer = await generatePdfBuffer(htmlContent, agreementId);
 
     // Upload Final Signed PDF to unified storage
     const uploadResult = await uploadBuffer(

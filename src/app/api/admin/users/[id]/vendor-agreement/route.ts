@@ -57,6 +57,8 @@ export async function POST(
       address: user.address || '',
       district: user.district || '',
       state: user.state || '',
+      mobile: user.mobile || '',
+      email: user.email || '',
       joiningDate: new Date(joiningDate).toLocaleDateString('en-IN'),
       assignedTerritory,
       incentiveStructure,
