@@ -1,4 +1,3 @@
-import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
 
@@ -291,10 +290,27 @@ export const generateAgreementHtml = (data: any) => {
 };
 
 export const generatePdfBuffer = async (htmlContent: string) => {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+  let browser;
+  const isServerless = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+
+  if (isServerless) {
+    const chromium = (await import('@sparticuz/chromium')).default;
+    const puppeteerCore = (await import('puppeteer-core')).default;
+    
+    browser = await puppeteerCore.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
+  } else {
+    const puppeteerLocal = (await import('puppeteer')).default;
+    browser = await puppeteerLocal.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+  }
+  
   const page = await browser.newPage();
   
   await page.setContent(htmlContent, { waitUntil: 'load' });

@@ -16,6 +16,7 @@ const nextConfig: any = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
+  serverExternalPackages: ["puppeteer-core", "@sparticuz/chromium"],
 };
 
 export default nextConfig;

@@ -80,6 +80,11 @@ export async function GET(
 
   } catch (error: any) {
     console.error('Preview Agreement Error:', error);
-    return NextResponse.json({ success: false, message: 'Failed to generate preview' }, { status: 500 });
+    return NextResponse.json({ 
+      success: false, 
+      message: 'Failed to generate preview', 
+      error: error.message || String(error),
+      stack: error.stack
+    }, { status: 500 });
   }
 }
