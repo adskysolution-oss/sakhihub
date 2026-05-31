@@ -34,8 +34,10 @@ export async function GET(
         return NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
     }
 
+    const regenerate = request.nextUrl.searchParams.get('regenerate') === 'true';
+
     // If it's already approved and has a real fileUrl (from Cloudinary), redirect to it
-    if (agreement.status === 'approved' && agreement.fileUrl && agreement.fileUrl.startsWith('http')) {
+    if (!regenerate && agreement.status === 'approved' && agreement.fileUrl && agreement.fileUrl.startsWith('http')) {
         return NextResponse.redirect(agreement.fileUrl);
     }
 
@@ -57,6 +59,7 @@ export async function GET(
       state: user.state || templateData.state || '',
       vendorName: user.fullName || templateData.vendorName || '',
       vendorCode: agreement.vendorCode || user.vendorCode || user.subVendorCode || templateData.vendorCode || 'PENDING',
+      role: user.role || templateData.role || 'vendor',
       joiningDate: templateData.joiningDate || new Date(agreement.joiningDate).toLocaleDateString('en-IN'),
       agreementId: agreement.agreementId,
       qrVerificationCode: agreement.qrVerificationCode,
@@ -65,6 +68,28 @@ export async function GET(
 
     const htmlContent = generateAgreementHtml(templateData);
     const pdfBuffer = await generatePdfBuffer(htmlContent, templateData.agreementId);
+
+    // If we are regenerating an approved agreement, upload it back to Cloudinary
+    if (regenerate && agreement.status === 'approved') {
+        try {
+            const { uploadBuffer } = await import('@/lib/storage');
+            const uploadResult = await uploadBuffer(
+                Buffer.from(pdfBuffer),
+                'application/pdf',
+                'vendor_agreements',
+                {
+                    uploadedBy: currentUserId,
+                    uploadedFor: 'vendorAgreement',
+                    originalName: `${agreementId}_signed.pdf`
+                }
+            );
+            agreement.fileUrl = uploadResult.url;
+            agreement.templateData = templateData;
+            await agreement.save();
+        } catch (uploadError) {
+            console.error('Failed to upload regenerated agreement to Cloudinary:', uploadError);
+        }
+    }
 
     // Return the PDF directly
     return new NextResponse(pdfBuffer as any, {

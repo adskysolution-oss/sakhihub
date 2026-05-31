@@ -12,6 +12,8 @@ export interface IVendorAgreement extends Document {
   monthlyTargets?: string;
   operationalRole?: string;
   membershipCommission?: string;
+  coordinatorType?: string;
+  assignedRegions?: string;
   generatedDate: Date;
   status: 'generated' | 'uploaded' | 'under_review' | 'approved' | 'rejected' | 'reupload_required';
   fileUrl?: string; // final signed PDF in Cloudinary or draft endpoint
@@ -38,6 +40,8 @@ const VendorAgreementSchema: Schema = new Schema(
     monthlyTargets: { type: String },
     operationalRole: { type: String },
     membershipCommission: { type: String },
+    coordinatorType: { type: String },
+    assignedRegions: { type: String },
     generatedDate: { type: Date, default: Date.now },
     status: { type: String, enum: ['generated', 'uploaded', 'under_review', 'approved', 'rejected', 'reupload_required'], default: 'generated' },
     fileUrl: { type: String },

@@ -5,6 +5,8 @@ export const generateAgreementHtml = (data: any) => {
   const currentDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
   const companyName = "SakhiHub";
   const companyAddress = "PU-4, Behind C21 Mall, Scheme No. 54, Indore, Madhya Pradesh – 452010";
+  const headingTitle = data.partnerType || "VENDOR / NGO PARTNERSHIP AGREEMENT";
+  const isSubVendor = data.role === 'sub_vendor' || (data.partnerType && data.partnerType.toUpperCase().includes('SUB VENDOR'));
 
   let signatureBase64 = '';
   try {
@@ -70,13 +72,13 @@ export const generateAgreementHtml = (data: any) => {
       title: "6. VENDOR RESPONSIBILITIES",
       content: `Vendor shall:
       <div class="bullet-list">
-        ✔ Support recruitment<br/>
-        ✔ Monitor employee activities<br/>
-        ✔ Support awareness campaigns<br/>
-        ✔ Promote membership awareness<br/>
-        ✔ Submit reports<br/>
-        ✔ Coordinate field activities<br/>
-        ✔ Follow Company Guidelines
+        • Support recruitment<br/>
+        • Monitor employee activities<br/>
+        • Support awareness campaigns<br/>
+        • Promote membership awareness<br/>
+        • Submit reports<br/>
+        • Coordinate field activities<br/>
+        • Follow Company Guidelines
       </div>`
     },
     {
@@ -97,23 +99,23 @@ export const generateAgreementHtml = (data: any) => {
       content: `Vendor shall receive: <strong>₹500 Per Active Employee Per Month</strong><br/>
       Conditions:
       <div class="bullet-list">
-        - Employee must be active<br/>
-        - Employee must be verified<br/>
-        - Reporting must be completed<br/>
-        - Performance must be satisfactory
+        • Employee must be active<br/>
+        • Employee must be verified<br/>
+        • Reporting must be completed<br/>
+        • Performance must be satisfactory
       </div>
       Company decision shall be final.`
     },
     {
       id: 9,
       title: "9. MEMBERSHIP INCENTIVE",
-      content: `Vendor shall receive: <strong>₹10 Per Successful Paid Membership</strong><br/>
+      content: `Vendor shall receive: <strong>₹${isSubVendor ? '5' : '10'} Per Successful Paid Membership</strong><br/>
       Conditions:
       <div class="bullet-list">
-        - Valid Membership<br/>
-        - Successful Payment<br/>
-        - Company Verification<br/>
-        - No Refund/Fraud
+        • Valid Membership<br/>
+        • Successful Payment<br/>
+        • Company Verification<br/>
+        • No Refund/Fraud
       </div>`
     },
     {
@@ -122,7 +124,7 @@ export const generateAgreementHtml = (data: any) => {
       content: `All incentives shall be subject to Company verification.<br/>
       Company may:
       <div class="bullet-list">
-        - Hold Payments | - Adjust Payments | - Suspend Payments | - Recover Excess Payments
+        • Hold Payments | • Adjust Payments | • Suspend Payments | • Recover Excess Payments
       </div>
       where discrepancies are identified.`
     },
@@ -131,9 +133,9 @@ export const generateAgreementHtml = (data: any) => {
       title: "11. NO TERRITORY OWNERSHIP",
       content: `Vendor acknowledges that:
       <div class="bullet-list">
-        - No District Ownership is granted.<br/>
-        - No State Ownership is granted.<br/>
-        - No Exclusive Territory Rights are granted.
+        • No District Ownership is granted.<br/>
+        • No State Ownership is granted.<br/>
+        • No Exclusive Territory Rights are granted.
       </div>
       Company may appoint additional Vendors in the same territory.`
     },
@@ -147,7 +149,7 @@ export const generateAgreementHtml = (data: any) => {
       title: "13. CONFIDENTIALITY",
       content: `Vendor shall maintain confidentiality of:
       <div class="bullet-list">
-        - Employee Data | - Member Data | - Reports | - Training Materials | - Internal Systems | - Operational Information
+        • Employee Data | • Member Data | • Reports | • Training Materials | • Internal Systems | • Operational Information
       </div>
       This obligation survives termination.`
     },
@@ -156,7 +158,7 @@ export const generateAgreementHtml = (data: any) => {
       title: "14. DATA PROTECTION",
       content: `Vendor shall not:
       <div class="bullet-list">
-        - Copy Data | - Export Data | - Sell Data | - Share Data | - Download Data without authorization
+        • Copy Data | • Export Data | • Sell Data | • Share Data | • Download Data without authorization
       </div>
       All data belongs exclusively to SakhiHub.`
     },
@@ -165,7 +167,7 @@ export const generateAgreementHtml = (data: any) => {
       title: "15. FRAUD PREVENTION",
       content: `The following are strictly prohibited:
       <div class="bullet-list">
-        - Fake Memberships | - Duplicate Memberships | - Fake Attendance | - Fake Reporting | - Identity Fraud | - Forged Documents
+        • Fake Memberships | • Duplicate Memberships | • Fake Attendance | • Fake Reporting | • Identity Fraud | • Forged Documents
       </div>
       Any such activity may result in immediate termination.`
     },
@@ -174,7 +176,7 @@ export const generateAgreementHtml = (data: any) => {
       title: "16. RECOVERY RIGHTS",
       content: `Company may recover losses arising from:
       <div class="bullet-list">
-        - Fraud | - Misrepresentation | - Fake Memberships | - Data Theft | - Financial Loss
+        • Fraud | • Misrepresentation | • Fake Memberships | • Data Theft | • Financial Loss
       </div>
       Recovery may be adjusted from future payments.`
     },
@@ -188,7 +190,7 @@ export const generateAgreementHtml = (data: any) => {
       title: "18. BRAND PROTECTION",
       content: `Vendor shall not misuse:
       <div class="bullet-list">
-        - SakhiHub Name | - Logo | - Website | - Training Material | - Marketing Content
+        • SakhiHub Name | • Logo | • Website | • Training Material | • Marketing Content
       </div>
       without written approval.`
     },
@@ -202,7 +204,7 @@ export const generateAgreementHtml = (data: any) => {
       title: "20. AUDIT RIGHTS",
       content: `Company may conduct:
       <div class="bullet-list">
-        - Physical Audits | - Digital Audits | - Membership Verification | - Employee Verification
+        • Physical Audits | • Digital Audits | • Membership Verification | • Employee Verification
       </div>
       at any time. Vendor shall cooperate fully.`
     },
@@ -211,7 +213,7 @@ export const generateAgreementHtml = (data: any) => {
       title: "21. SUSPENSION RIGHTS",
       content: `Company may suspend Vendor immediately for:
       <div class="bullet-list">
-        - Fraud | - Policy Violation | - Brand Misuse | - Data Misuse | - Poor Performance
+        • Fraud | • Policy Violation | • Brand Misuse | • Data Misuse | • Poor Performance
       </div>`
     },
     {
@@ -219,7 +221,7 @@ export const generateAgreementHtml = (data: any) => {
       title: "22. TERMINATION",
       content: `Company may terminate this Agreement immediately without notice for:
       <div class="bullet-list">
-        - Fraud | - Fake Reporting | - Criminal Activity | - Brand Damage | - Policy Violation
+        • Fraud | • Fake Reporting | • Criminal Activity | • Brand Damage | • Policy Violation
       </div>`
     },
     {
@@ -247,7 +249,7 @@ export const generateAgreementHtml = (data: any) => {
       title: "27. FINAL AUTHORITY",
       content: `Company decisions relating to:
       <div class="bullet-list">
-        - Membership Verification | - Incentive Approval | - Employee Verification | - Operational Matters | - Policy Interpretation
+        • Membership Verification | • Incentive Approval | • Employee Verification | • Operational Matters | • Policy Interpretation
       </div>
       shall be final and binding.`
     },
@@ -316,7 +318,7 @@ export const generateAgreementHtml = (data: any) => {
       title: "40. COMPANY FINAL DECISION CLAUSE",
       content: `For matters relating to:
       <div class="bullet-list">
-        - Vendor Approval | - Membership Validation | - Incentive Calculation | - Employee Status | - Territory Allocation | - Operational Policies | - Compliance Review
+        • Vendor Approval | • Membership Validation | • Incentive Calculation | • Employee Status | • Territory Allocation | • Operational Policies | • Compliance Review
       </div>
       The decision of SakhiHub shall be final for operational purposes and binding under this Agreement.`
     },
@@ -402,7 +404,7 @@ export const generateAgreementHtml = (data: any) => {
     <html lang="en">
     <head>
       <meta charset="UTF-8">
-      <title>Vendor / NGO Partnership Agreement</title>
+      <title>${headingTitle}</title>
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Times+New+Roman:wght@400;700&display=swap');
         
@@ -556,24 +558,31 @@ export const generateAgreementHtml = (data: any) => {
       <div class="watermark">SakhiHub Official</div>
 
       <!-- TITLE -->
-      <h1>VENDOR / NGO PARTNERSHIP AGREEMENT</h1>
+      <h1>${headingTitle}</h1>
 
       <!-- INTRO -->
       <div class="intro-statement">
-        THIS VENDOR / NGO PARTNERSHIP AGREEMENT (the "Agreement") is executed and made effective as of the Date of Execution specified below, by and between the following parties:
+        THIS ${headingTitle} (the "Agreement") is executed and made effective as of the Date of Execution specified below, by and between the following parties:
       </div>
 
       <!-- PARTIES -->
-      <div class="parties-section">
-        <div class="party-block">
-          <strong>FIRST PARTY (THE COMPANY):</strong> <strong>SakhiHub</strong>, having its principal place of business at PU-4, Behind C21 Mall, Scheme No. 54, Indore, Madhya Pradesh – 452010 (hereinafter referred to as the <strong>"Company"</strong>).
-        </div>
-        <div class="party-block">
-          <strong>SECOND PARTY (THE VENDOR / NGO):</strong> <strong>${data.vendorName}</strong>, having its address at ${data.address}${data.district ? ', ' + data.district : ''}${data.state ? ', ' + data.state : ''} (Authorized Representative: ${data.vendorName}, Mobile: ${data.mobile || 'N/A'}, Email: ${data.email || 'N/A'}) (hereinafter referred to as the <strong>"Vendor"</strong>).
-        </div>
-      </div>
+      <div class="section-title">PARTIES TO THE AGREEMENT</div>
+      <table class="details-table">
+        <tr>
+          <td class="bold" style="width: 25%;">First Party (The Company)</td>
+          <td>
+            <strong>SakhiHub</strong>, having its principal place of business at PU-4, Behind C21 Mall, Scheme No. 54, Indore, Madhya Pradesh – 452010 (hereinafter referred to as the <strong>"Company"</strong>).
+          </td>
+        </tr>
+        <tr>
+          <td class="bold">Second Party (The Vendor / Partner)</td>
+          <td>
+            <strong>${data.vendorName}</strong>, having its address at ${data.address}${data.district ? ', ' + data.district : ''}${data.state ? ', ' + data.state : ''} (Authorized Representative: ${data.vendorName}, Mobile: ${data.mobile || 'N/A'}, Email: ${data.email || 'N/A'}) (hereinafter referred to as the <strong>"Vendor"</strong>).
+          </td>
+        </tr>
+      </table>
 
-      <div class="intro-statement">
+      <div class="intro-statement" style="margin-top: 10px;">
         The Company and the Vendor shall collectively be referred to as the <strong>"Parties"</strong> and individually as a <strong>"Party"</strong>.
       </div>
 
@@ -591,6 +600,12 @@ export const generateAgreementHtml = (data: any) => {
           <td>${data.joiningDate}</td>
           <td class="bold">Agreement Validity</td>
           <td>3 Years</td>
+        </tr>
+        <tr>
+          <td class="bold">Coordinator Assignment</td>
+          <td>${data.coordinatorType || 'N/A'}</td>
+          <td class="bold">Assigned Region(s)</td>
+          <td>${data.assignedRegions || 'N/A'}</td>
         </tr>
         <tr>
           <td class="bold">QR Verification Code</td>
@@ -612,7 +627,7 @@ export const generateAgreementHtml = (data: any) => {
       <div class="signatures-grid">
         <div class="section-title">EXECUTION & SIGNATURES</div>
         <div class="intro-statement" style="text-align: center; font-style: italic; margin-top: 10px; margin-bottom: 40px;">
-          IN WITNESS WHEREOF, the Parties hereto have executed this Partnership Agreement on the day, month, and year first above written.
+          IN WITNESS WHEREOF, the Parties hereto have executed this ${headingTitle} on the day, month, and year first above written.
         </div>
 
         <div class="sig-row">
@@ -621,13 +636,13 @@ export const generateAgreementHtml = (data: any) => {
             <div class="line"></div>
             <strong>For SakhiHub</strong><br/>
             Authorized Signatory<br/>
-            Date: ${currentDate}
+            Date: ${data.acceptanceTimestamp ? data.acceptanceTimestamp.split(',')[0] : currentDate}
           </div>
           <div class="signature-box">
             <div class="line"></div>
             <strong>For Vendor</strong><br/>
             Authorized Representative: ${data.vendorName}<br/>
-            Date: ${currentDate}
+            Date: ${data.acceptanceTimestamp ? data.acceptanceTimestamp.split(',')[0] : currentDate}
           </div>
         </div>
 

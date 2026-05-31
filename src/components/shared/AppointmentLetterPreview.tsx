@@ -20,7 +20,7 @@ export interface AppointmentLetterData {
 }
 
 const AppointmentLetterPreview: React.FC<{ data: AppointmentLetterData }> = ({ data }) => {
-  const companyName = data.companyName || "SakhiHub Foundation";
+  const companyName = data.companyName || "SakhiHub";
   const programName = data.programName || "Women Empowerment & Digital Inclusion Initiative";
   const petrolAllowance = data.petrolAllowance || "As per SakhiHub travel & operational policy";
   const membershipIncentive = data.membershipIncentive || "Performance-based as per active incentive slabs";

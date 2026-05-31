@@ -64,6 +64,8 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
   const [monthlyTargets, setMonthlyTargets] = React.useState('');
   const [operationalRole, setOperationalRole] = React.useState('');
   const [membershipCommission, setMembershipCommission] = React.useState('');
+  const [coordinatorType, setCoordinatorType] = React.useState('');
+  const [assignedRegions, setAssignedRegions] = React.useState('');
 
   const [isGeneratingAppt, setIsGeneratingAppt] = React.useState(false);
   // Keep local user state to update appointment details immediately
@@ -93,6 +95,8 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
       setMonthlyTargets(agreement.monthlyTargets || '');
       setOperationalRole(agreement.operationalRole || '');
       setMembershipCommission(agreement.membershipCommission || '');
+      setCoordinatorType(agreement.coordinatorType || agreement.templateData?.coordinatorType || '');
+      setAssignedRegions(agreement.assignedRegions || agreement.templateData?.assignedRegions || '');
     }
 
     const offerLetter = localUser?.offerLetterDetails;
@@ -673,12 +677,45 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Partner Type</label>
-                          <input type="text" value={partnerType} onChange={(e) => setPartnerType(e.target.value)} placeholder="e.g. Authorized Distributor" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Partner Type Heading</label>
+                          <select 
+                            value={partnerType} 
+                            onChange={(e) => setPartnerType(e.target.value)} 
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary cursor-pointer"
+                          >
+                            <option value="">Select Heading...</option>
+                            <option value="COMPANY PARTNERSHIP AGREEMENT">COMPANY PARTNERSHIP AGREEMENT</option>
+                            <option value="VENDOR PARTNERSHIP AGREEMENT">VENDOR PARTNERSHIP AGREEMENT</option>
+                            <option value="SUB VENDOR PARTNERSHIP AGREEMENT">SUB VENDOR PARTNERSHIP AGREEMENT</option>
+                            <option value="INDIVIDUAL PARTNERSHIP AGREEMENT">INDIVIDUAL PARTNERSHIP AGREEMENT</option>
+                            <option value="NGO PARTNERSHIP AGREEMENT">NGO PARTNERSHIP AGREEMENT</option>
+                          </select>
                         </div>
                         <div>
                           <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assigned Territory</label>
                           <input type="text" value={assignedTerritory} onChange={(e) => setAssignedTerritory(e.target.value)} placeholder="e.g. North District" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Coordinator Assignment</label>
+                          <select 
+                            value={coordinatorType} 
+                            onChange={(e) => setCoordinatorType(e.target.value)} 
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary cursor-pointer"
+                          >
+                            <option value="">Select Type...</option>
+                            <option value="District Coordinator">District Coordinator</option>
+                            <option value="State Coordinator">State Coordinator</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assigned State(s) / District(s)</label>
+                          <input 
+                            type="text" 
+                            value={assignedRegions} 
+                            onChange={(e) => setAssignedRegions(e.target.value)} 
+                            placeholder="e.g. Indore, Dewas, Dhar (comma-separated)" 
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" 
+                          />
                         </div>
                         <div>
                           <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Salary Structure</label>
@@ -724,7 +761,8 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                             : { 
                                 joiningDate, partnerType, assignedTerritory, 
                                 salaryStructure, incentiveStructure, membershipCommission, 
-                                monthlyTargets, operationalRole 
+                                monthlyTargets, operationalRole,
+                                coordinatorType, assignedRegions
                               };
 
                           const res = await axios.post(endpoint, payload);

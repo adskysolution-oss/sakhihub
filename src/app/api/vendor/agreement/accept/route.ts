@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
       state: user.state || agreement.templateData?.state || '',
       vendorName: user.fullName || agreement.templateData?.vendorName || '',
       vendorCode: agreement.vendorCode || user.vendorCode || user.subVendorCode || agreement.templateData?.vendorCode || 'PENDING',
+      role: user.role || agreement.templateData?.role || 'vendor',
       status: 'approved',
       acceptanceTimestamp: acceptanceTimestamp.toLocaleString('en-IN'),
       ipAddress,

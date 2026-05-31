@@ -18,144 +18,415 @@ export interface EmployeeOfferLetterData {
 }
 
 const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = ({ data }) => {
-  const companyName = data.companyName || "SakhiHub Foundation";
+  const companyName = "SakhiHub";
   const programName = data.programName || "Women Health & Awareness Campaign";
 
   const formatDate = (d: string | Date) => {
-    return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+    return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
   };
 
   const displayRole = data.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
 
+  // Determine dynamic position description based on candidate designation
+  const getDynamicPositionText = (role: string) => {
+    const roleUpper = role.toUpperCase();
+    if (roleUpper.includes('DISTRICT') || roleUpper.includes('COORD')) {
+      return "District Level Women Coordinator";
+    }
+    return "Block Level Women Employee / Coordinator";
+  };
+
   return (
     <div className="bg-white w-[210mm] min-h-[297mm] mx-auto shadow-2xl p-[15mm] text-gray-800 font-serif print:shadow-none print:p-0 print:w-full print:h-auto">
-      {/* Header */}
-      <div className="flex justify-between items-start border-b-2 border-[#D91656] pb-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-black text-[#D91656] tracking-tight">{companyName}</h1>
-          <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mt-1">{programName}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-gray-500 font-bold">Document Status: <span className="text-[#D91656] uppercase">{data.documentStatus || 'GENERATED'}</span></p>
-          <p className="text-xs text-gray-500 font-bold">Date: {formatDate(data.generatedDate)}</p>
-          <p className="text-xs text-gray-500 font-bold">Offer Letter ID: <span className="font-mono text-gray-800">{data.offerLetterId}</span></p>
-        </div>
-      </div>
-
-      <div className="text-center mb-10">
-        <h2 className="text-xl font-black text-gray-900 uppercase underline underline-offset-4">Official Offer Letter</h2>
-      </div>
-
-      {/* Basic Details */}
-      <div className="mb-8">
-        <p className="mb-4 text-sm font-bold">To,</p>
-        <p className="font-bold text-lg">{data.employeeName}</p>
-        <p className="text-sm text-gray-700">Mobile: {data.mobile}</p>
-        <p className="text-sm text-gray-700">Employee ID: <span className="font-mono font-bold">{data.employeeId}</span></p>
-        <p className="text-sm text-gray-700">Role: <span className="font-bold">{displayRole}</span></p>
-      </div>
-
-      <div className="mb-6">
-        <h3 className="text-sm font-black uppercase text-gray-800 mb-2">Dear Candidate,</h3>
-        <p className="text-justify leading-relaxed text-sm">
-          We are pleased to offer you the position of <span className="font-bold">{displayRole}</span> (Employee/Coordinator) at <span className="font-bold">{companyName}</span> for the <span className="font-bold">{programName}</span>. Your skills align perfectly with our mission. This letter serves as your formal joining and acceptance confirmation.
-        </p>
-      </div>
-
-      {/* Position Details */}
-      <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">1. Position Details</h3>
-      <table className="w-full text-sm border-collapse mb-6">
+      <style>{`
+        @media print {
+          @page {
+            size: A4;
+            margin: 0;
+          }
+          body {
+            margin: 0;
+            padding: 0;
+            background: #fff;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          h2, h3, h4 {
+            break-after: avoid;
+            page-break-after: avoid;
+          }
+          tr, li, tbody, table {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          .signatures-container {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+        }
+      `}</style>
+      
+      <table className="w-full border-none border-collapse p-0 m-0">
+        <thead className="hidden print:table-header-group">
+          <tr>
+            <td>
+              <div className="h-[12mm]" />
+            </td>
+          </tr>
+        </thead>
         <tbody>
-          <tr className="border-b border-gray-100">
-            <td className="py-2 font-bold w-1/3">Assigned State</td>
-            <td className="py-2">{data.assignedState}</td>
-          </tr>
-          <tr className="border-b border-gray-100">
-            <td className="py-2 font-bold">Assigned District</td>
-            <td className="py-2">{data.assignedDistrict}</td>
-          </tr>
-          <tr className="border-b border-gray-100">
-            <td className="py-2 font-bold">Working Area</td>
-            <td className="py-2">{data.workingArea || data.assignedDistrict}</td>
-          </tr>
-          <tr className="border-b border-gray-100">
-            <td className="py-2 font-bold">Date of Joining</td>
-            <td className="py-2 font-bold">{formatDate(data.joiningDate)}</td>
+          <tr>
+            <td className="p-0 print:px-[12mm]">
+              {/* Header */}
+              <div className="flex flex-col items-center border-b-2 border-[#D91656] pb-4 mb-6 text-center">
+                <img src="/logo.png" alt="SakhiHub Logo" className="h-20 w-auto object-contain mb-3" />
+                <p className="text-sm font-bold text-gray-500 uppercase tracking-widest">{programName}</p>
+                <p className="text-xs text-gray-400 italic mt-1">"Empowering Women Through Awareness, Support & Community Action"</p>
+                
+                {/* Status and metadata */}
+                <div className="w-full flex justify-between items-center mt-4 text-[11px] text-gray-500 font-bold border-t border-gray-100 pt-2.5">
+                  <p>Status: <span className="text-[#D91656] uppercase font-black">{data.documentStatus || 'GENERATED'}</span></p>
+                  <p>Offer Letter ID: <span className="font-mono text-gray-800 font-bold">{data.offerLetterId}</span></p>
+                  <p>Date: {formatDate(data.generatedDate)}</p>
+                </div>
+              </div>
+
+              <div className="text-center mb-8">
+                <h2 className="text-xl font-black text-gray-900 uppercase tracking-wide">OFFER LETTER</h2>
+              </div>
+
+              {/* Salutation & Intro */}
+              <div className="text-sm space-y-4 mb-6 leading-relaxed text-justify">
+                <p className="font-bold">Dear Candidate,</p>
+                <p>
+                  We are pleased to offer you the position under the <strong>SakhiHub Women Health & Awareness Campaign Program</strong>.
+                </p>
+                <p>
+                  SakhiHub is a women-focused awareness and empowerment initiative working towards health awareness, hygiene education, women support systems, community engagement, and empowerment activities across India.
+                </p>
+                <p>
+                  Your selection has been made based on your application, communication ability, interest in social awareness activities, and organizational requirements.
+                </p>
+                <p>
+                  This Offer Letter is being issued digitally through the SakhiHub Employee Portal and shall be considered valid after digital acceptance, declaration confirmation and online signature completion by the candidate.
+                </p>
+              </div>
+
+              {/* 1. POSITION DETAILS */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">1. POSITION DETAILS</h3>
+              <table className="w-full text-xs border-collapse mb-6">
+                <tbody>
+                  <tr className="border-b border-gray-100">
+                    <td className="py-2 font-bold w-1/3">Organization</td>
+                    <td className="py-2">{companyName}</td>
+                  </tr>
+                  <tr className="border-b border-gray-100">
+                    <td className="py-2 font-bold">Department</td>
+                    <td className="py-2">{programName}</td>
+                  </tr>
+                  <tr className="border-b border-gray-100">
+                    <td className="py-2 font-bold">Position</td>
+                    <td className="py-2 font-bold text-gray-900">{getDynamicPositionText(data.role)}</td>
+                  </tr>
+                  <tr className="border-b border-gray-100">
+                    <td className="py-2 font-bold">Work Type</td>
+                    <td className="py-2">Field & Awareness Based Activities</td>
+                  </tr>
+                  <tr className="border-b border-gray-100">
+                    <td className="py-2 font-bold">Location</td>
+                    <td className="py-2">{data.workingArea || data.assignedDistrict}, {data.assignedState}</td>
+                  </tr>
+                  <tr className="border-b border-gray-100">
+                    <td className="py-2 font-bold">Campaign Type</td>
+                    <td className="py-2">PAN India Women Awareness Campaign</td>
+                  </tr>
+                  <tr className="border-b border-gray-100">
+                    <td className="py-2 font-bold">Date of Joining</td>
+                    <td className="py-2 font-bold">{formatDate(data.joiningDate)}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              {/* 2. PRIMARY RESPONSIBILITIES */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">2. PRIMARY RESPONSIBILITIES</h3>
+              <div className="text-xs mb-6 text-justify leading-relaxed">
+                <p className="mb-2 font-bold">The candidate will be responsible for:</p>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5 list-none pl-1 mb-3">
+                  <li className="flex items-start gap-1.5">• <span className="text-gray-700">Women Health Awareness</span></li>
+                  <li className="flex items-start gap-1.5">• <span className="text-gray-700">Period Hygiene Awareness</span></li>
+                  <li className="flex items-start gap-1.5">• <span className="text-gray-700">Community Group Activities</span></li>
+                  <li className="flex items-start gap-1.5">• <span className="text-gray-700">Women Empowerment Programs</span></li>
+                  <li className="flex items-start gap-1.5">• <span className="text-gray-700">Membership Awareness</span></li>
+                  <li className="flex items-start gap-1.5">• <span className="text-gray-700">Ground Level Campaign Activities</span></li>
+                  <li className="flex items-start gap-1.5">• <span className="text-gray-700">Field Visits & Reporting</span></li>
+                  <li className="flex items-start gap-1.5">• <span className="text-gray-700">Team Coordination (if applicable)</span></li>
+                  <li className="flex items-start gap-1.5">• <span className="text-gray-700">Awareness Meetings & Training Sessions</span></li>
+                  <li className="flex items-start gap-1.5">• <span className="text-gray-700">Campaign Monitoring & Community Support</span></li>
+                </ul>
+                <p className="italic text-gray-500">The organization may modify or assign additional responsibilities based on operational requirements.</p>
+              </div>
+
+              {/* 3. SALARY & BENEFITS */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">3. SALARY & BENEFITS</h3>
+              <div className="text-xs mb-6 text-justify leading-relaxed">
+                <ul className="space-y-1.5 list-none pl-1 mb-3 font-bold text-gray-900">
+                  <li className="flex items-center gap-1.5">• Fixed Monthly Salary: <span className="text-green-700 font-extrabold">₹{data.salary} / Month</span></li>
+                  <li className="flex items-center gap-1.5 text-gray-700 font-normal">• Petrol / Travel Allowance</li>
+                  <li className="flex items-center gap-1.5 text-gray-700 font-normal">• Performance Incentives</li>
+                  <li className="flex items-center gap-1.5 text-gray-700 font-normal">• Membership Incentives (if applicable)</li>
+                  <li className="flex items-center gap-1.5 text-gray-700 font-normal">• Training & Guidance Support</li>
+                  <li className="flex items-center gap-1.5 text-gray-700 font-normal">• Official ID Card</li>
+                  <li className="flex items-center gap-1.5 text-gray-700 font-normal">• Campaign Materials & Operational Support</li>
+                </ul>
+                <p className="text-gray-500">Salary release timelines and incentive structures shall be governed as per company policy.</p>
+              </div>
+
+              {/* 4. NATURE OF WORK */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">4. NATURE OF WORK</h3>
+              <ul className="text-xs space-y-1.5 mb-6 list-none pl-1">
+                <li className="flex items-center gap-1.5 text-gray-700">• Field visits and awareness activities</li>
+                <li className="flex items-center gap-1.5 text-gray-700">• Community interaction and meetings</li>
+                <li className="flex items-center gap-1.5 text-gray-700">• Reporting and campaign participation</li>
+                <li className="flex items-center gap-1.5 text-gray-700">• Assigned awareness programs</li>
+                <li className="flex items-center gap-1.5 text-gray-700">• Work allocation as determined by SakhiHub</li>
+              </ul>
+
+              {/* 5. CODE OF CONDUCT */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">5. CODE OF CONDUCT</h3>
+              <div className="text-xs mb-6 text-justify leading-relaxed">
+                <p className="mb-2 font-bold">Employee agrees to:</p>
+                <ul className="space-y-1.5 mb-3 list-none pl-1 text-gray-700">
+                  <li className="flex items-center gap-1.5">• Maintain professionalism and discipline</li>
+                  <li className="flex items-center gap-1.5">• Respect organizational policies</li>
+                  <li className="flex items-center gap-1.5">• Avoid misleading commitments</li>
+                  <li className="flex items-center gap-1.5">• Maintain respectful behaviour</li>
+                  <li className="flex items-center gap-1.5">• Protect confidential information</li>
+                  <li className="flex items-center gap-1.5">• Avoid misuse of organizational resources</li>
+                </ul>
+                <p className="italic text-red-600 font-bold">Any misconduct, fraud, misrepresentation or activity damaging the reputation of SakhiHub may result in immediate termination.</p>
+              </div>
+
+              {/* 6. CONFIDENTIALITY CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">6. CONFIDENTIALITY CLAUSE</h3>
+              <p className="text-xs mb-6 text-justify leading-relaxed">
+                Employee Data, Campaign Data, Membership Information, Vendor Information, Training Materials, Operational Systems, and Internal Reports shall remain confidential and shall not be disclosed without written approval.
+              </p>
+
+              {/* 7. DIGITAL ACCEPTANCE & PORTAL AGREEMENT */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">7. DIGITAL ACCEPTANCE & PORTAL AGREEMENT</h3>
+              <ul className="text-xs space-y-1.5 mb-6 list-none pl-1 text-gray-700">
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Digital acceptance through Portal, OTP, Checkbox or E-Sign shall constitute valid acceptance.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Digitally submitted information shall be treated as valid organizational records.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Employee confirms that all information submitted is genuine and correct.</span></li>
+              </ul>
+
+              {/* 8. VERIFICATION & TERMINATION POLICY */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">8. VERIFICATION & TERMINATION POLICY</h3>
+              <ul className="text-xs space-y-1.5 mb-6 list-none pl-1 text-gray-700">
+                <li className="flex items-start gap-1.5">• <span className="flex-1">SakhiHub reserves the right to verify documents and background information.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">False information or fake documents may result in immediate termination.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Company reserves the right to modify or discontinue operational activities.</span></li>
+              </ul>
+
+              {/* 9. INDEPENDENT OPERATIONAL CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">9. INDEPENDENT OPERATIONAL CLAUSE</h3>
+              <ul className="text-xs space-y-1.5 mb-6 list-none pl-1 text-gray-700">
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Campaign activities are awareness-based.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Structures may vary state-wise and district-wise.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Incentives depend upon organizational policies and performance.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Operational decisions remain under SakhiHub authority.</span></li>
+              </ul>
+
+              {/* 10. DECLARATION BY CANDIDATE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">10. DECLARATION BY CANDIDATE</h3>
+              <div className="text-xs mb-6 text-justify leading-relaxed">
+                <p className="mb-2 font-bold">I confirm that:</p>
+                <ul className="space-y-1.5 list-none pl-1 text-gray-700">
+                  <li className="flex items-center gap-1.5">• I have read and understood this Offer Letter.</li>
+                  <li className="flex items-center gap-1.5">• I agree to comply with SakhiHub policies.</li>
+                  <li className="flex items-center gap-1.5">• Information submitted by me is true and correct.</li>
+                  <li className="flex items-center gap-1.5">• Violation of company policies may result in termination.</li>
+                  <li className="flex items-center gap-1.5">• I voluntarily accept this opportunity.</li>
+                </ul>
+              </div>
+
+              {/* 11. EMPLOYMENT NATURE & PROBATION CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">11. EMPLOYMENT NATURE & PROBATION CLAUSE</h3>
+              <ul className="text-xs space-y-1.5 mb-6 list-none pl-1 text-gray-700">
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Initial Probation Period: 3 Months</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Performance shall be evaluated continuously.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">SakhiHub may confirm, extend, suspend or discontinue engagement.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Employment remains subject to satisfactory performance.</span></li>
+              </ul>
+
+              {/* 12. TRANSFER & ASSIGNMENT CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">12. TRANSFER & ASSIGNMENT CLAUSE</h3>
+              <ul className="text-xs space-y-1.5 mb-6 list-none pl-1 text-gray-700">
+                <li className="flex items-start gap-1.5">• <span className="flex-1">SakhiHub may transfer employee to any district, block, tehsil, state, project or department.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Employee agrees to cooperate with such assignments.</span></li>
+              </ul>
+
+              {/* 13. MEMBERSHIP & GROUP OWNERSHIP CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">13. MEMBERSHIP & GROUP OWNERSHIP CLAUSE</h3>
+              <ul className="text-xs space-y-1.5 mb-6 list-none pl-1 text-gray-700">
+                <li className="flex items-start gap-1.5">• <span className="flex-1">All groups, members and awareness networks shall remain exclusive property of SakhiHub.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Employee shall have no ownership rights over organizational databases.</span></li>
+              </ul>
+
+              {/* 14. DATA PROTECTION & PORTAL ACCESS CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">14. DATA PROTECTION & PORTAL ACCESS CLAUSE</h3>
+              <ul className="text-xs space-y-1.5 mb-6 list-none pl-1 text-gray-700">
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Login credentials and operational data shall remain confidential.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Unauthorized sharing or misuse shall be treated as misconduct.</span></li>
+              </ul>
+
+              {/* 15. RESIGNATION & EXIT POLICY */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">15. RESIGNATION & EXIT POLICY</h3>
+              <ul className="text-xs space-y-1.5 mb-6 list-none pl-1 text-gray-700">
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Employee may resign as per company policy.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Exit formalities must be completed before settlement.</span></li>
+              </ul>
+
+              {/* 16. NON-SOLICITATION CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">16. NON-SOLICITATION CLAUSE</h3>
+              <ul className="text-xs space-y-1.5 mb-6 list-none pl-1 text-gray-700">
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Employee shall not induce members, employees, vendors or partners to leave SakhiHub.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Restriction shall remain applicable during employment and for 12 months after separation.</span></li>
+              </ul>
+
+              {/* 17. INTELLECTUAL PROPERTY CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">17. INTELLECTUAL PROPERTY CLAUSE</h3>
+              <p className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
+                All content, reports, documents, presentations, photographs, videos and training materials created during employment shall remain property of SakhiHub.
+              </p>
+
+              {/* 18. RECOVERY CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">18. RECOVERY CLAUSE</h3>
+              <ul className="text-xs space-y-1.5 mb-6 list-none pl-1 text-gray-700">
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Financial loss, fraud, unauthorized collection or policy violations may result in recovery proceedings.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Incentives may be withheld pending investigation.</span></li>
+              </ul>
+
+              {/* 19. JURISDICTION CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">19. JURISDICTION CLAUSE</h3>
+              <p className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
+                All disputes shall be subject exclusively to the jurisdiction of competent courts located at <strong>Indore, Madhya Pradesh</strong>.
+              </p>
+
+              {/* 20. FINAL AUTHORITY CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">20. FINAL AUTHORITY CLAUSE</h3>
+              <p className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
+                SakhiHub shall have final authority regarding verification, performance evaluation, incentive approval, membership validation and operational decisions.
+              </p>
+
+              {/* 21. ATTENDANCE & REPORTING CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">21. ATTENDANCE & REPORTING CLAUSE</h3>
+              <ul className="text-xs space-y-1.5 mb-6 list-none pl-1 text-gray-700">
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Daily attendance and reporting are mandatory.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">Salary, petrol allowance and incentives may be linked to reporting compliance.</span></li>
+              </ul>
+
+              {/* 22. COMPANY PROPERTY CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">22. COMPANY PROPERTY CLAUSE</h3>
+              <p className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
+                All ID Cards, Documents, Training Material, Portal Access and Company Assets remain property of SakhiHub.
+              </p>
+
+              {/* 23. NO UNAUTHORIZED COLLECTION CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">23. NO UNAUTHORIZED COLLECTION CLAUSE</h3>
+              <p className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
+                Employee shall not collect money in the name of SakhiHub without written authorization.
+              </p>
+
+              {/* 24. LEGAL COMPLIANCE CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">24. LEGAL COMPLIANCE CLAUSE</h3>
+              <p className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
+                Employee shall comply with all applicable laws and organizational policies.
+              </p>
+
+              {/* 25. ENTIRE AGREEMENT CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">25. ENTIRE AGREEMENT CLAUSE</h3>
+              <ul className="text-xs space-y-1.5 mb-6 list-none pl-1 text-gray-700">
+                <li className="flex items-start gap-1.5">• <span className="flex-1">This Offer Letter, Portal Acceptance, Policies and future updates shall collectively form the employment understanding between employee and SakhiHub.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1">SakhiHub may revise policies from time to time.</span></li>
+              </ul>
+
+              {/* 26. BACKGROUND VERIFICATION CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">26. BACKGROUND VERIFICATION CLAUSE</h3>
+              <p className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
+                SakhiHub may verify educational, identity, address, experience and criminal background information.
+              </p>
+
+              {/* 27. MEDICAL & FITNESS DECLARATION CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">27. MEDICAL & FITNESS DECLARATION CLAUSE</h3>
+              <p className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
+                Employee confirms physical and mental fitness to perform assigned duties.
+              </p>
+
+              {/* 28. SURVIVAL CLAUSE */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">28. SURVIVAL CLAUSE</h3>
+              <p className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
+                Confidentiality, Data Protection, Intellectual Property, Recovery Rights, Jurisdiction and Group Ownership Clauses shall survive resignation, suspension or termination.
+              </p>
+
+              {/* IMPORTANT NOTICE */}
+              <div className="mb-8 p-4 bg-gray-50 border border-gray-200 rounded-2xl">
+                <h4 className="text-xs font-black uppercase text-gray-800 mb-1">IMPORTANT NOTICE</h4>
+                <p className="text-[11px] text-justify leading-relaxed text-gray-600">
+                  This Offer Letter is issued for organizational engagement under SakhiHub Awareness Programs and shall not be construed as a guarantee of permanent employment, fixed tenure employment or lifetime engagement.
+                </p>
+              </div>
+
+              {/* Signatures & Acceptance */}
+              <div className="grid grid-cols-2 gap-8 pt-8 mt-16 border-t border-gray-200 signatures-container">
+                {/* Candidate Acceptance */}
+                <div className="space-y-4 flex flex-col justify-end min-h-[180px]">
+                  <div className="mb-auto">
+                    <h4 className="text-xs font-black uppercase text-gray-800 tracking-wider">CANDIDATE DIGITAL ACCEPTANCE</h4>
+                    <div className="flex items-center gap-2 mb-2 mt-3">
+                      <input type="checkbox" checked={data.documentStatus === 'accepted' || data.documentStatus === 'approved'} readOnly className="h-4.5 w-4.5 text-[#D91656] rounded border-gray-300 focus:ring-[#D91656]" />
+                      <span className="text-xs font-bold text-gray-700">I Agree to the Terms & Conditions</span>
+                    </div>
+                  </div>
+                  <div className="text-xs space-y-1.5 text-gray-600">
+                    <p>Candidate Name: <span className="font-bold text-gray-900">{data.employeeName}</span></p>
+                    <p>Mobile Number: <span className="font-bold text-gray-900">{data.mobile}</span></p>
+                    <p>Date: <span className="font-bold text-gray-900">{data.documentStatus === 'accepted' || data.documentStatus === 'approved' ? formatDate(new Date()) : '____________________'}</span></p>
+                    <p className="text-[10px] text-gray-400 mt-2 font-mono">
+                      {data.documentStatus === 'accepted' || data.documentStatus === 'approved' ? `Signed Digitally via OTP verification` : 'Digital Signature Pending'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Authorized By */}
+                <div className="text-center flex flex-col justify-between items-center relative min-h-[180px] pl-6 border-l border-gray-100">
+                  <div className="w-full h-20 flex items-center justify-center mb-2">
+                    <img src="/manager-signature.png" alt="Manager Signature" className="h-16 w-auto object-contain opacity-85" />
+                  </div>
+                  <div className="w-full text-center">
+                    <h4 className="text-xs font-black uppercase text-gray-900 tracking-wider border-t border-gray-400 pt-2">AUTHORIZED BY</h4>
+                    <p className="text-[11px] font-bold text-[#D91656] uppercase tracking-wide mt-1">SakhiHub</p>
+                    <p className="text-[9px] text-gray-400 uppercase mt-0.5">Women Health & Awareness Campaign</p>
+                    <p className="text-[8px] text-gray-400 uppercase tracking-widest mt-0.5">Official Digital Employment & Awareness Portal</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer System Notice */}
+              <div className="mt-12 pt-4 border-t border-gray-100 text-center text-[9px] text-gray-400 uppercase tracking-widest leading-normal">
+                This is a system generated digital offer letter. Digital acceptance via the SakhiHub portal is legally binding.
+              </div>
+            </td>
           </tr>
         </tbody>
+        <tfoot className="hidden print:table-footer-group">
+          <tr>
+            <td>
+              <div className="h-[12mm]" />
+            </td>
+          </tr>
+        </tfoot>
       </table>
-
-      {/* Primary Responsibilities */}
-      <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">2. Primary Responsibilities</h3>
-      <ul className="list-disc pl-5 text-[13px] space-y-1.5 mb-6 text-justify">
-        <li>Actively coordinate and manage duties for the campaign in your designated area.</li>
-        <li>Onboard and support members, ensuring active participation and maintaining compliance with organization standards.</li>
-        <li>Participate in necessary training, workshops, and community outreach programs as directed by the organization.</li>
-      </ul>
-
-      {/* Salary & Benefits */}
-      <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">3. Salary & Benefits</h3>
-      <p className="text-[13px] text-justify mb-6 leading-relaxed">
-        Your fixed salary is <span className="font-bold text-green-700">₹{data.salary} / month</span>. You may also be eligible for standard employee benefits and allowances as per the prevailing HR policies.
-      </p>
-
-      {/* Nature of Work */}
-      <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">4. Nature of Work & Independent Operational Clause</h3>
-      <p className="text-[13px] text-justify mb-6 leading-relaxed">
-        Your role requires significant field work and direct community engagement. You are expected to operate independently in your assigned block/district while strictly adhering to SakhiHub’s operational protocols.
-      </p>
-
-      {/* Code of Conduct */}
-      <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">5. Code of Conduct</h3>
-      <p className="text-[13px] text-justify mb-6 leading-relaxed">
-        Professional behavior, ethical conduct, and respect for community members are mandatory. Any violation of the code of conduct will result in disciplinary action.
-      </p>
-
-      {/* Confidentiality Clause */}
-      <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">6. Confidentiality Clause</h3>
-      <p className="text-[13px] text-justify mb-6 leading-relaxed">
-        You are required to maintain strict confidentiality regarding all organizational data, member information, and internal processes.
-      </p>
-
-      {/* Portal Agreement */}
-      <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">7. Digital Acceptance & Portal Agreement</h3>
-      <p className="text-[13px] text-justify mb-6 leading-relaxed">
-        All operational activities must be logged via the SakhiHub dashboard. By accessing and operating your employee dashboard, you digitally accept the terms of this offer.
-      </p>
-
-      {/* Verification & Termination */}
-      <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">8. Verification & Termination Policy</h3>
-      <p className="text-[13px] text-justify mb-8 leading-relaxed">
-        This offer is subject to successful background verification and document compliance. SakhiHub reserves the right to terminate your employment with immediate effect in case of document falsification or severe misconduct.
-      </p>
-
-      {/* Declaration */}
-      <div className="mb-12 bg-gray-50 p-4 border border-gray-200 rounded-xl">
-        <h3 className="text-sm font-black uppercase text-gray-800 mb-2">Declaration by Candidate</h3>
-        <p className="text-[12px] text-justify leading-relaxed text-gray-700 italic">
-          "I hereby accept the position and the terms and conditions outlined in this Offer Letter. I agree to dedicate my full professional efforts to SakhiHub Foundation and abide by all organizational policies."
-        </p>
-      </div>
-
-      {/* Signatures */}
-      <div className="flex justify-between items-end mt-4 pt-8">
-        <div className="text-center relative">
-          <img src="/manager-signature.png" alt="Manager Signature" className="h-16 w-auto mx-auto object-contain opacity-80" />
-          <p className="font-bold border-t border-gray-400 pt-2 px-8 uppercase text-xs">Authorized By</p>
-          <p className="text-[10px] text-gray-500 mt-1">For {companyName}</p>
-        </div>
-        
-        <div className="text-center">
-          <p className="font-bold border-t border-gray-400 pt-2 px-8 uppercase text-xs">Candidate Digital Acceptance</p>
-          <p className="text-[10px] text-gray-500 mt-1">Signed by {data.employeeName}</p>
-        </div>
-      </div>
-      
-      {/* Footer */}
-      <div className="mt-12 pt-4 border-t border-gray-200 text-center text-[10px] text-gray-400 uppercase tracking-widest">
-        This is a system generated digital offer letter. Digital acceptance via the SakhiHub portal is legally binding.
-      </div>
-
     </div>
   );
 };

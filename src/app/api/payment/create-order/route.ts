@@ -101,9 +101,8 @@ export async function POST(req: NextRequest) {
 
     // PhonePe does not use paymentSessionId on client side and requires a new redirect URL.
     // If the active provider is PhonePe, or if the provider of the existing transaction is different,
-    // we should delete the existing transaction and create a new order.
+    // we should create a new order (but we leave the old transaction in the DB in case a webhook is received).
     if (existingPending && (provider.name === 'phonepe' || existingPending.provider !== provider.name)) {
-      await PaymentTransaction.deleteOne({ _id: existingPending._id });
       existingPending = null;
     }
 

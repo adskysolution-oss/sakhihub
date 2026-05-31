@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     const providerName = isPhonePe ? 'phonepe' : 'cashfree';
 
     const provider = await PaymentResolver.resolveProviderByName(providerName);
-    
+
     // Abstract webhook verification
     const verification = provider.verifyWebhook(rawBody, headersObj);
 
@@ -64,82 +64,111 @@ export async function POST(req: NextRequest) {
       transaction.gatewayResponse = JSON.parse(rawBody); // Store raw webhook data
       await transaction.save();
 
-        // Trigger upline commission distribution
-        try {
-          await distributeCommission(
-            transaction.userId,
-            transaction.type as 'subscription' | 'deposit',
-            transaction.amount,
-            transaction.cashfreeOrderId
-          );
-        } catch (err) {
-          console.error('[Commission Error] Failed to distribute commission in webhook:', err);
-        }
+      // Trigger upline commission distribution
+      try {
+        await distributeCommission(
+          transaction.userId,
+          transaction.type as 'subscription' | 'deposit',
+          transaction.amount,
+          transaction.cashfreeOrderId
+        );
+      } catch (err) {
+        console.error('[Commission Error] Failed to distribute commission in webhook:', err);
+      }
 
-        // Update user flags
-        const user = await User.findById(transaction.userId);
-        if (user) {
-          if (user.role === 'member') {
-            user.subscriptionPaid = true;
+      // Update user flags
+      const user = await User.findById(transaction.userId);
+      if (user) {
+        if (user.role === 'member') {
+          user.subscriptionPaid = true;
+          user.paymentCompleted = true;
+          user.status = 'active';
+          user.dashboardAccess = true;
+          user.onboardingCompleted = true;
+          await user.save();
+
+          const member = await WomenMember.findOne({ userId: user._id });
+          if (member) {
+            member.membershipStatus = 'paid';
+            member.accountStatus = 'active';
+            await member.save();
+
+            const existing = await Membership.findOne({ memberId: member._id });
+            if (!existing) {
+              const count = await Membership.countDocuments();
+              const year = new Date().getFullYear();
+              const ts = Date.now().toString().slice(-4);
+              const membershipId = `SH-${year}-${1000 + count + 1}-${ts}`;
+              const receiptNumber = `REC-${year}-${2000 + count + 1}-${ts}`;
+
+              const membership = await Membership.create({
+                membershipId,
+                receiptNumber,
+                memberId: member._id,
+                groupId: member.groupId || null,
+                employeeId: member.assignedEmployeeId || null,
+                amount: transaction.amount,
+                paymentMode: 'Online',
+                paymentStatus: 'Paid',
+                paymentDate: new Date(),
+                cashfreeOrderId: verification.gatewayOrderId
+              });
+
+              try {
+                await distributeCommission(member._id.toString(), 'membership', transaction.amount, membership.membershipId);
+              } catch (err) {
+                console.error('[Commission Error] Failed to distribute membership registration commission:', err);
+              }
+
+              try {
+                notifyMembershipPayment(membership._id.toString());
+              } catch (err) {
+                console.error('Failed to notify membership payment', err);
+              }
+            }
+          }
+        } else {
+          if (transaction.type === 'subscription') user.subscriptionPaid = true;
+          if (transaction.type === 'deposit') user.depositPaid = true;
+          await user.save();
+
+          // Check full payment completion (robust fallback if config not found)
+          const roleKey = user.role as 'vendor' | 'sub_vendor' | 'employee';
+          let config = await PaymentConfig.findOne({ key: 'default' });
+
+          if (!config) {
             user.paymentCompleted = true;
-            user.status = 'active';
-            user.dashboardAccess = true;
-            user.onboardingCompleted = true;
-            await user.save();
-
-            const member = await WomenMember.findOne({ userId: user._id });
-            if (member) {
-              member.membershipStatus = 'paid';
-              member.accountStatus = 'active';
-              await member.save();
-
-              const existing = await Membership.findOne({ memberId: member._id });
-              if (!existing) {
-                const count = await Membership.countDocuments();
-                const year = new Date().getFullYear();
-                const ts = Date.now().toString().slice(-4);
-                const membershipId = `SH-${year}-${1000 + count + 1}-${ts}`;
-                const receiptNumber = `REC-${year}-${2000 + count + 1}-${ts}`;
-
-                const membership = await Membership.create({
-                  membershipId,
-                  receiptNumber,
-                  memberId: member._id,
-                  groupId: member.groupId || null,
-                  employeeId: member.assignedEmployeeId || null,
-                  amount: transaction.amount,
-                  paymentMode: 'Online',
-                  paymentStatus: 'Paid',
-                  paymentDate: new Date(),
-                  cashfreeOrderId: verification.gatewayOrderId
-                });
-
-                try {
-                  await distributeCommission(member._id.toString(), 'membership', transaction.amount, membership.membershipId);
-                } catch (err) {
-                  console.error('[Commission Error] Failed to distribute membership registration commission:', err);
-                }
-
-                try {
-                  notifyMembershipPayment(membership._id.toString());
-                } catch (err) {
-                  console.error('Failed to notify membership payment', err);
+            user.subscriptionPaid = true;
+            user.depositPaid = true;
+            if (user.role === 'employee') {
+              user.status = 'active';
+            }
+            if (user.documentsVerified) {
+              if (user.role === 'vendor') {
+                user.dashboardAccess = true;
+                user.onboardingCompleted = true;
+                user.status = 'approved';
+              }
+              if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
+                user.dashboardAccess = true;
+                user.onboardingCompleted = true;
+                if (user.role !== 'employee') {
+                  user.status = 'approved';
                 }
               }
             }
-          } else {
-            if (transaction.type === 'subscription') user.subscriptionPaid = true;
-            if (transaction.type === 'deposit') user.depositPaid = true;
             await user.save();
+          } else {
+            const subRequired = config.subscriptionRequired[roleKey];
+            const depRequired = config.depositRequired[roleKey];
+            const subPaid = user.subscriptionPaid || !subRequired;
+            const depPaid = user.depositPaid || !depRequired;
 
-            // Check full payment completion (robust fallback if config not found)
-            const roleKey = user.role as 'vendor' | 'sub_vendor' | 'employee';
-            let config = await PaymentConfig.findOne({ key: 'default' });
-
-            if (!config) {
+            if (subPaid && depPaid) {
               user.paymentCompleted = true;
-              user.subscriptionPaid = true;
-              user.depositPaid = true;
+              if (user.role === 'employee') {
+                user.status = 'active';
+              }
               if (user.documentsVerified) {
                 if (user.role === 'vendor') {
                   user.dashboardAccess = true;
@@ -149,45 +178,26 @@ export async function POST(req: NextRequest) {
                 if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
                   user.dashboardAccess = true;
                   user.onboardingCompleted = true;
-                  user.status = 'approved';
+                  if (user.role !== 'employee') {
+                    user.status = 'approved';
+                  }
                 }
               }
               await user.save();
-            } else {
-              const subRequired = config.subscriptionRequired[roleKey];
-              const depRequired = config.depositRequired[roleKey];
-              const subPaid = user.subscriptionPaid || !subRequired;
-              const depPaid = user.depositPaid || !depRequired;
-
-              if (subPaid && depPaid) {
-                user.paymentCompleted = true;
-                if (user.documentsVerified) {
-                  if (user.role === 'vendor') {
-                    user.dashboardAccess = true;
-                    user.onboardingCompleted = true;
-                    user.status = 'approved';
-                  }
-                  if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
-                    user.dashboardAccess = true;
-                    user.onboardingCompleted = true;
-                    user.status = 'approved';
-                  }
-                }
-                await user.save();
-              }
             }
           }
         }
-      } else if (verification.status && ['FAILED', 'CANCELLED', 'VOID'].includes(verification.status)) {
-        transaction.status = 'failed';
-        transaction.failureReason = verification.status;
-        transaction.webhookReceived = true;
-        transaction.gatewayResponse = JSON.parse(rawBody);
-        await transaction.save();
       }
+    } else if (verification.status && ['FAILED', 'CANCELLED', 'VOID'].includes(verification.status)) {
+      transaction.status = 'failed';
+      transaction.failureReason = verification.status;
+      transaction.webhookReceived = true;
+      transaction.gatewayResponse = JSON.parse(rawBody);
+      await transaction.save();
+    }
 
-      return NextResponse.json({ success: true, message: 'Webhook processed' });
-    } catch (error: any) {
+    return NextResponse.json({ success: true, message: 'Webhook processed' });
+  } catch (error: any) {
     console.error('Cashfree Webhook Error:', error);
     return NextResponse.json({ success: false, message: 'Webhook processing failed' }, { status: 500 });
   }

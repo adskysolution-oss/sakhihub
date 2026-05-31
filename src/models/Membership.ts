@@ -24,7 +24,7 @@ const MembershipSchema: Schema = new Schema(
     receiptNumber: { type: String, unique: true, required: true },
     memberId: { type: Schema.Types.ObjectId, ref: 'WomenMember', required: true },
     groupId: { type: Schema.Types.ObjectId, ref: 'Group', required: false },
-    employeeId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    employeeId: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     amount: { type: Number, default: 100 },
     paymentMode: { type: String, enum: ['Cash', 'UPI', 'Online'], required: true },
     paymentStatus: { type: String, enum: ['Pending', 'Paid', 'Failed'], default: 'Paid' },

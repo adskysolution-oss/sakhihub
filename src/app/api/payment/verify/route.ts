@@ -28,6 +28,9 @@ async function checkAndUpdatePaymentCompletion(userId: string): Promise<boolean>
     user.paymentCompleted = true;
     user.subscriptionPaid = true;
     user.depositPaid = true;
+    if (user.role === 'employee') {
+      user.status = 'active';
+    }
     await user.save();
     return true;
   }
@@ -41,6 +44,9 @@ async function checkAndUpdatePaymentCompletion(userId: string): Promise<boolean>
 
   if (subPaid && depPaid) {
     user.paymentCompleted = true;
+    if (user.role === 'employee') {
+      user.status = 'active';
+    }
 
     // If docs verified + payment done + (for vendor, or assignment completed for others) => grant dashboard access
     if (user.documentsVerified) {
@@ -53,7 +59,9 @@ async function checkAndUpdatePaymentCompletion(userId: string): Promise<boolean>
       if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
         user.dashboardAccess = true;
         user.onboardingCompleted = true;
-        user.status = 'approved';
+        if (user.role !== 'employee') {
+          user.status = 'approved';
+        }
       }
     }
 
@@ -100,7 +108,7 @@ export async function POST(req: NextRequest) {
     const verification = await provider.verifyPayment({
       gatewayOrderId: transaction.gatewayOrderId || transaction.cashfreeOrderId,
     });
-    
+
     if (verification.success && ['PAYMENT_SUCCESS', 'SUCCESS', 'COMPLETED'].includes(verification.status)) {
       // Update transaction
       transaction.status = 'paid';

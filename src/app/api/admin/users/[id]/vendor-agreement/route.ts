@@ -3,6 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import VendorAgreement from '@/models/VendorAgreement';
 import AgreementVersion from '@/models/AgreementVersion';
+import Campaign from '@/models/Campaign'; // Import Campaign model to prevent MissingSchemaError on .populate()
 import { getAuthSession } from '@/lib/auth';
 // Removed PDF generation and Cloudinary upload imports
 
@@ -26,7 +27,9 @@ export async function POST(
       monthlyTargets,
       operationalRole,
       membershipCommission,
-      partnerType
+      partnerType,
+      coordinatorType,
+      assignedRegions
     } = body;
 
     if (!joiningDate) {
@@ -54,6 +57,7 @@ export async function POST(
       agreementId,
       vendorName: user.fullName,
       vendorCode: user.vendorCode || user.subVendorCode || 'PENDING',
+      role: user.role,
       address: user.address || '',
       district: user.district || '',
       state: user.state || '',
@@ -67,6 +71,8 @@ export async function POST(
       operationalRole,
       membershipCommission,
       partnerType,
+      coordinatorType,
+      assignedRegions,
       qrVerificationCode,
       status: 'generated'
     };
@@ -86,6 +92,8 @@ export async function POST(
       monthlyTargets,
       operationalRole,
       membershipCommission,
+      coordinatorType,
+      assignedRegions,
       generatedDate: new Date(),
       agreementId,
       status: 'generated',
