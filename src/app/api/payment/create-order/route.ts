@@ -138,11 +138,13 @@ export async function POST(req: NextRequest) {
     // Generate unique order ID
     const orderId = generateOrderId(user._id.toString(), type);
 
+    const origin = req.nextUrl.origin;
+
     // Cashfree/PhonePe Production requires HTTPS URLs
     let returnUrl = user.role === 'member'
-      ? `${BASE_URL}/member/receipt?order_id=${orderId}&type=${type}`
-      : `${BASE_URL}/payment-pending?order_id=${orderId}&type=${type}`;
-    let notifyUrl = `${BASE_URL}/api/payment/webhook`;
+      ? `${origin}/member/receipt?order_id=${orderId}&type=${type}`
+      : `${origin}/payment-pending?order_id=${orderId}&type=${type}`;
+    let notifyUrl = `${origin}/api/payment/webhook`;
     
     // Production requires HTTPS URLs for return and notify endpoints
     if (!returnUrl.includes('localhost')) {
