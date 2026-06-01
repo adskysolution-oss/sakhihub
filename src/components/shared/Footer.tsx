@@ -160,9 +160,6 @@ const Footer = () => {
               <Heart size={12} className="text-primary" />
               <p className="text-white/20">{t('footer.empowering')}</p>
             </div>
-            <p className="opacity-40 mt-2 leading-relaxed">
-              {t('footer.proprietorship')}
-            </p>
           </div>
         </div>
       </div>

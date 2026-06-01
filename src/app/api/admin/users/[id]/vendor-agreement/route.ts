@@ -4,6 +4,8 @@ import User from '@/models/User';
 import VendorAgreement from '@/models/VendorAgreement';
 import AgreementVersion from '@/models/AgreementVersion';
 import Campaign from '@/models/Campaign'; // Import Campaign model to prevent MissingSchemaError on .populate()
+// Prevent tree shaking
+if (!Campaign) console.log('Loading Campaign Model');
 import { getAuthSession } from '@/lib/auth';
 // Removed PDF generation and Cloudinary upload imports
 
