@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
     const paymentMethod = config.paymentMethod || 'payment_link';
     const activeProvider = config.activeProvider || 'cashfree';
     
-    let roleUrls = {};
+    let roleUrls: any = {};
     if (paymentMethod === 'payment_link') {
       if (config.providers && config.providers[activeProvider] && config.providers[activeProvider].linkUrls) {
         roleUrls = config.providers[activeProvider].linkUrls[roleKey] || {};

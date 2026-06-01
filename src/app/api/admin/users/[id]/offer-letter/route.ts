@@ -16,7 +16,7 @@ export async function POST(
 
     const { id } = await params;
     const body = await request.json();
-    const { joiningDate, salary } = body;
+    const { joiningDate, salary, travelAllowance, performanceIncentives, membershipIncentives, coordinatorType, assignedRegions } = body;
 
     if (!joiningDate || !salary) {
       return NextResponse.json({ success: false, message: 'Joining date and salary are required' }, { status: 400 });
@@ -37,6 +37,11 @@ export async function POST(
       employeeId: user._id,
       joiningDate: new Date(joiningDate),
       salary,
+      travelAllowance,
+      performanceIncentives,
+      membershipIncentives,
+      coordinatorType,
+      assignedRegions,
       generatedDate: new Date(),
       offerLetterId,
       status: 'generated',
@@ -47,7 +52,7 @@ export async function POST(
     const updatedOfferLetter = await EmployeeOfferLetter.findOneAndUpdate(
       { employeeId: user._id },
       offerLetterDetails,
-      { upsert: true, returnDocument: 'after' }
+      { upsert: true, new: true, runValidators: true }
     );
 
     const updatedUser = await User.findById(id).lean();
@@ -64,6 +69,6 @@ export async function POST(
 
   } catch (error: any) {
     console.error('Generate Offer Letter Error:', error);
-    return NextResponse.json({ success: false, message: 'Failed to generate employee offer letter' }, { status: 500 });
+    return NextResponse.json({ success: false, message: `Failed to generate employee offer letter: ${error.message || error}` }, { status: 500 });
   }
 }

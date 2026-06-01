@@ -55,6 +55,9 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
   // Appointment / Agreement Letter State
   const [joiningDate, setJoiningDate] = React.useState('');
   const [salary, setSalary] = React.useState('');
+  const [travelAllowance, setTravelAllowance] = React.useState('');
+  const [performanceIncentives, setPerformanceIncentives] = React.useState('');
+  const [membershipIncentives, setMembershipIncentives] = React.useState('');
   
   // Vendor Specific Agreement State
   const [partnerType, setPartnerType] = React.useState('');
@@ -110,6 +113,9 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
         } catch (e) {}
       }
       setSalary(offerLetter.salary ? offerLetter.salary.toString() : '');
+      setTravelAllowance(offerLetter.travelAllowance || '');
+      setPerformanceIncentives(offerLetter.performanceIncentives || '');
+      setMembershipIncentives(offerLetter.membershipIncentives || '');
     }
   }, [localUser]);
 
@@ -661,16 +667,48 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                     </div>
 
                     {localUser.role === 'employee' ? (
-                      <div>
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Fixed Salary / Remuneration (₹)</label>
-                        <div className="relative">
-                          <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-gray-400">₹</span>
+                      <div className="space-y-6">
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Fixed Salary / Remuneration (₹)</label>
+                          <div className="relative">
+                            <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-gray-400">₹</span>
+                            <input 
+                              type="number" 
+                              placeholder="e.g. 15000"
+                              value={salary}
+                              onChange={(e) => setSalary(e.target.value)}
+                              className="w-full pl-10 pr-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Petrol / Travel Allowance</label>
                           <input 
-                            type="number" 
-                            placeholder="e.g. 15000"
-                            value={salary}
-                            onChange={(e) => setSalary(e.target.value)}
-                            className="w-full pl-10 pr-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                            type="text" 
+                            placeholder="e.g. ₹2000/month or N/A"
+                            value={travelAllowance}
+                            onChange={(e) => setTravelAllowance(e.target.value)}
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Performance Incentives</label>
+                          <input 
+                            type="text" 
+                            placeholder="e.g. Up to ₹5000 based on targets"
+                            value={performanceIncentives}
+                            onChange={(e) => setPerformanceIncentives(e.target.value)}
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Membership Incentives</label>
+                          <input 
+                            type="text" 
+                            placeholder="e.g. ₹50 per successful membership"
+                            value={membershipIncentives}
+                            onChange={(e) => setMembershipIncentives(e.target.value)}
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
                           />
                         </div>
                       </div>
@@ -691,52 +729,52 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                             <option value="NGO PARTNERSHIP AGREEMENT">NGO PARTNERSHIP AGREEMENT</option>
                           </select>
                         </div>
-                        <div>
-                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assigned Territory</label>
-                          <input type="text" value={assignedTerritory} onChange={(e) => setAssignedTerritory(e.target.value)} placeholder="e.g. North District" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Coordinator Assignment</label>
-                          <select 
-                            value={coordinatorType} 
-                            onChange={(e) => setCoordinatorType(e.target.value)} 
-                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary cursor-pointer"
-                          >
-                            <option value="">Select Type...</option>
-                            <option value="District Coordinator">District Coordinator</option>
-                            <option value="State Coordinator">State Coordinator</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assigned State(s) / District(s)</label>
-                          <input 
-                            type="text" 
-                            value={assignedRegions} 
-                            onChange={(e) => setAssignedRegions(e.target.value)} 
-                            placeholder="e.g. Indore, Dewas, Dhar (comma-separated)" 
-                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" 
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Salary Structure</label>
-                          <input type="text" value={salaryStructure} onChange={(e) => setSalaryStructure(e.target.value)} placeholder="e.g. ₹20,000/mo Fixed" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Incentive Structure</label>
-                          <input type="text" value={incentiveStructure} onChange={(e) => setIncentiveStructure(e.target.value)} placeholder="e.g. 5% on Sales" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Membership Commission</label>
-                          <input type="text" value={membershipCommission} onChange={(e) => setMembershipCommission(e.target.value)} placeholder="e.g. ₹100 per member" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Monthly Targets</label>
-                          <input type="text" value={monthlyTargets} onChange={(e) => setMonthlyTargets(e.target.value)} placeholder="e.g. 50 Members/mo" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
-                        </div>
-                        <div className="md:col-span-2">
-                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Operational Role</label>
-                          <input type="text" value={operationalRole} onChange={(e) => setOperationalRole(e.target.value)} placeholder="e.g. Manage field agents and onboarding" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
-                        </div>
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assigned Territory</label>
+                              <input type="text" value={assignedTerritory} onChange={(e) => setAssignedTerritory(e.target.value)} placeholder="e.g. North District" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Partner Assignment</label>
+                              <select 
+                                value={coordinatorType} 
+                                onChange={(e) => setCoordinatorType(e.target.value)} 
+                                className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary cursor-pointer"
+                              >
+                                <option value="">Select Type...</option>
+                                <option value="District Partner">District Partner</option>
+                                <option value="State Partner">State Partner</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assigned State(s) / District(s)</label>
+                              <input 
+                                type="text" 
+                                value={assignedRegions} 
+                                onChange={(e) => setAssignedRegions(e.target.value)} 
+                                placeholder="e.g. Indore, Dewas, Dhar (comma-separated)" 
+                                className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" 
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Salary Structure (Locked)</label>
+                              <input type="text" value={salaryStructure} disabled placeholder="e.g. ₹20,000/mo Fixed" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Incentive Structure (Locked)</label>
+                              <input type="text" value={incentiveStructure} disabled placeholder="e.g. 5% on Sales" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Membership Commission (Locked)</label>
+                              <input type="text" value={membershipCommission} disabled placeholder="e.g. ₹100 per member" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Monthly Targets (Locked)</label>
+                              <input type="text" value={monthlyTargets} disabled placeholder="e.g. 50 Members/mo" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
+                            </div>
+                            <div className="md:col-span-2">
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Operational Role (Locked)</label>
+                              <input type="text" value={operationalRole} disabled placeholder="e.g. Manage field agents and onboarding" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
+                            </div>
                       </div>
                     )}
 
@@ -757,7 +795,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                             : `/api/admin/users/${localUser._id}/vendor-agreement`;
                           
                           const payload = localUser.role === 'employee' 
-                            ? { joiningDate, salary }
+                            ? { joiningDate, salary, travelAllowance, performanceIncentives, membershipIncentives }
                             : { 
                                 joiningDate, partnerType, assignedTerritory, 
                                 salaryStructure, incentiveStructure, membershipCommission, 

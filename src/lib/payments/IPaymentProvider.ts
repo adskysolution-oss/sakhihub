@@ -13,6 +13,7 @@ export interface CreateOrderResult {
   paymentSessionId: string;
   orderToken?: string;
   paymentUrl?: string; // Some providers return a direct URL
+  razorpayKeyId?: string;
 }
 
 export interface VerifyPaymentParams {

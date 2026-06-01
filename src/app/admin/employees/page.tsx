@@ -37,6 +37,11 @@ export default function EmployeeManagement() {
   // Appointment Letter State
   const [joiningDate, setJoiningDate] = useState('');
   const [salary, setSalary] = useState('');
+  const [travelAllowance, setTravelAllowance] = useState('');
+  const [performanceIncentives, setPerformanceIncentives] = useState('');
+  const [membershipIncentives, setMembershipIncentives] = useState('');
+  const [coordinatorType, setCoordinatorType] = useState('');
+  const [assignedRegions, setAssignedRegions] = useState('');
   const [isGeneratingAppt, setIsGeneratingAppt] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [signedDocRemarks, setSignedDocRemarks] = useState('');
@@ -73,6 +78,27 @@ export default function EmployeeManagement() {
     }, 500);
     return () => clearTimeout(timer);
   }, [search, status, dateFilter, paymentFilter, customDate]);
+
+  useEffect(() => {
+    if (selectedEmp?.offerLetterDetails) {
+      const ol = selectedEmp.offerLetterDetails;
+      setJoiningDate(ol.joiningDate ? new Date(ol.joiningDate).toISOString().split('T')[0] : '');
+      setSalary(ol.salary || '');
+      setTravelAllowance(ol.travelAllowance || '');
+      setPerformanceIncentives(ol.performanceIncentives || '');
+      setMembershipIncentives(ol.membershipIncentives || '');
+      setCoordinatorType(ol.coordinatorType || '');
+      setAssignedRegions(ol.assignedRegions || '');
+    } else {
+      setJoiningDate('');
+      setSalary('');
+      setTravelAllowance('');
+      setPerformanceIncentives('');
+      setMembershipIncentives('');
+      setCoordinatorType('');
+      setAssignedRegions('');
+    }
+  }, [selectedEmp?._id]);
 
   const handleStatusUpdate = async (id: string, newStatus: string, remarks?: string) => {
     try {
@@ -128,7 +154,12 @@ export default function EmployeeManagement() {
     try {
       const res = await axios.post(`/api/admin/users/${selectedEmp._id}/offer-letter`, {
         joiningDate,
-        salary
+        salary,
+        travelAllowance,
+        performanceIncentives,
+        membershipIncentives,
+        coordinatorType,
+        assignedRegions
       });
       if (res.data.success) {
         setSelectedEmp(res.data.data);
@@ -585,9 +616,9 @@ export default function EmployeeManagement() {
                         </p>
                       </div>
 
-                      {selectedEmp.offerLetterDetails ? (
+                      {selectedEmp.offerLetterDetails && (
                         <>
-                        <div className="bg-green-50 border border-green-200 rounded-[32px] p-8 text-center relative overflow-hidden">
+                        <div className="bg-green-50 border border-green-200 rounded-[32px] p-8 text-center relative overflow-hidden mb-8">
                           <div className="absolute top-0 right-0 w-32 h-32 bg-green-200/50 rounded-full blur-2xl -mr-16 -mt-16" />
                           <div className="relative z-10">
                             <CheckCircle2 size={48} className="text-green-500 mx-auto mb-4" />
@@ -781,7 +812,8 @@ export default function EmployeeManagement() {
                           );
                         })()}
                         </>
-                      ) : (
+                      )}
+                      
                         <div className="bg-gray-50 p-8 rounded-[32px] border border-gray-100">
                           <div className="space-y-6">
                             <div>
@@ -806,13 +838,66 @@ export default function EmployeeManagement() {
                                 />
                               </div>
                             </div>
-                            <div className="flex gap-4">
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Coordinator Assignment</label>
+                              <select 
+                                value={coordinatorType} 
+                                onChange={(e) => setCoordinatorType(e.target.value)} 
+                                className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary cursor-pointer"
+                              >
+                                <option value="">Select Coordinator Type...</option>
+                                <option value="Block Coordinator">Block Coordinator</option>
+                                <option value="District Coordinator">District Coordinator</option>
+                                <option value="State Coordinator">State Coordinator</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assigned Block(s) / District(s)</label>
+                              <input 
+                                type="text" 
+                                value={assignedRegions} 
+                                onChange={(e) => setAssignedRegions(e.target.value)} 
+                                placeholder="e.g. Block A, Block B, District X (comma-separated)" 
+                                className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" 
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Petrol / Travel Allowance</label>
+                              <input 
+                                type="text" 
+                                value={travelAllowance}
+                                onChange={(e) => setTravelAllowance(e.target.value)}
+                                placeholder="e.g. ₹2000/month or N/A"
+                                className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Performance Incentives</label>
+                              <input 
+                                type="text" 
+                                value={performanceIncentives}
+                                onChange={(e) => setPerformanceIncentives(e.target.value)}
+                                placeholder="e.g. Up to ₹5000 based on targets"
+                                className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Membership Incentives</label>
+                              <input 
+                                type="text" 
+                                value={membershipIncentives}
+                                onChange={(e) => setMembershipIncentives(e.target.value)}
+                                placeholder="e.g. ₹50 per successful membership"
+                                className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                              />
+                            </div>
+                                <div className="flex gap-4">
                                   <button
                                     onClick={generateOfferLetter}
                                     disabled={isGeneratingAppt}
                                     className="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary/90 transition-colors disabled:opacity-50"
                                   >
-                                    {isGeneratingAppt ? 'Generating...' : 'Generate Offer Letter'}
+                                    {isGeneratingAppt ? 'Saving...' : (selectedEmp.offerLetterDetails ? 'Update Offer Letter' : 'Generate Offer Letter')}
                                   </button>
                                 </div>
                             <p className="text-[10px] text-gray-400 font-bold text-center uppercase tracking-widest">
@@ -820,7 +905,6 @@ export default function EmployeeManagement() {
                             </p>
                           </div>
                         </div>
-                      )}
                     </div>
                   )}
                 </div>

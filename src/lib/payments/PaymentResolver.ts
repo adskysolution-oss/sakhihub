@@ -1,6 +1,7 @@
 import { IPaymentProvider } from './IPaymentProvider';
 import { CashfreeProvider } from './CashfreeProvider';
 import { PhonePeProvider } from './PhonePeProvider';
+import { RazorpayProvider } from './RazorpayProvider';
 import PaymentConfig from '@/models/PaymentConfig';
 import { decrypt } from '@/lib/encryption';
 
@@ -11,6 +12,8 @@ export class PaymentResolver {
         return new CashfreeProvider();
       case 'phonepe':
         return new PhonePeProvider();
+      case 'razorpay':
+        return new RazorpayProvider();
       default:
         throw new Error(`Unsupported payment provider: ${providerName}`);
     }
@@ -47,6 +50,12 @@ export class PaymentResolver {
         clientSecret: credentials.clientSecret ? decrypt(credentials.clientSecret) : undefined,
         webhookSecret: credentials.webhookSecret ? decrypt(credentials.webhookSecret) : undefined,
       };
+    } else if (providerName === 'razorpay') {
+      credentials = {
+        ...credentials,
+        keySecret: credentials.keySecret ? decrypt(credentials.keySecret) : undefined,
+        webhookSecret: credentials.webhookSecret ? decrypt(credentials.webhookSecret) : undefined,
+      };
     }
     
     const provider = this.getProviderInstance(providerName);
@@ -70,6 +79,12 @@ export class PaymentResolver {
       credentials = {
         ...credentials,
         clientSecret: credentials.clientSecret ? decrypt(credentials.clientSecret) : undefined,
+        webhookSecret: credentials.webhookSecret ? decrypt(credentials.webhookSecret) : undefined,
+      };
+    } else if (providerName === 'razorpay') {
+      credentials = {
+        ...credentials,
+        keySecret: credentials.keySecret ? decrypt(credentials.keySecret) : undefined,
         webhookSecret: credentials.webhookSecret ? decrypt(credentials.webhookSecret) : undefined,
       };
     }

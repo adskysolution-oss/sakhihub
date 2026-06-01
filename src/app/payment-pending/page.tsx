@@ -246,6 +246,7 @@ function PaymentPendingContent() {
   const [profile, setProfile] = useState<any>(null);
   const [cashfree, setCashfree] = useState<any>(null);
   const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [provider, setProvider] = useState<string>('cashfree');
 
   // Manual flow state
   const [verificationFormType, setVerificationFormType] = useState<'subscription' | 'deposit' | null>(null);
@@ -260,24 +261,41 @@ function PaymentPendingContent() {
   }, [processing]);
 
   useEffect(() => {
-    // Load Cashfree SDK
+    if (!provider) return;
+    
+    let scriptSrc = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+    if (provider === 'razorpay') {
+      scriptSrc = 'https://checkout.razorpay.com/v1/checkout.js';
+    }
+    
+    // Check if script is already present
+    const existingScript = document.querySelector(`script[src="${scriptSrc}"]`);
+    if (existingScript) {
+      setScriptLoaded(true);
+      return;
+    }
+
+    setScriptLoaded(false);
     const script = document.createElement('script');
-    script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+    script.src = scriptSrc;
     script.async = true;
     script.onload = () => setScriptLoaded(true);
     document.body.appendChild(script);
 
     return () => {
-      document.body.removeChild(script);
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+      setScriptLoaded(false);
     };
-  }, []);
+  }, [provider]);
 
   useEffect(() => {
-    if (scriptLoaded && data && window.Cashfree && !cashfree) {
+    if (provider === 'cashfree' && scriptLoaded && data && window.Cashfree && !cashfree) {
       const mode = 'production';
       setCashfree(window.Cashfree({ mode }));
     }
-  }, [scriptLoaded, data, cashfree]);
+  }, [scriptLoaded, data, cashfree, provider]);
 
   // Fetch existing manual request submissions to pre-fill submitted state
   const fetchManualRequestStatus = async () => {
@@ -307,6 +325,7 @@ function PaymentPendingContent() {
 
         setData(paymentData);
         setProfile(user);
+        setProvider(paymentData.provider || 'cashfree');
 
         if (paymentData.paymentCompleted || user.paymentCompleted) {
           if (user.role === 'vendor') {
@@ -371,20 +390,66 @@ function PaymentPendingContent() {
     }
   };
 
-  // Cashfree gateway payment (unchanged)
+  // Gateway payment
   const initiatePayment = async (type: 'subscription' | 'deposit') => {
     setProcessing(true);
     try {
       const res = await axios.post('/api/payment/create-order', { type });
       if (res.data.success) {
-        if (res.data.data.paymentUrl) {
+        const orderData = res.data.data;
+        if (orderData.paymentUrl) {
           // PhonePe or other redirect-based gateways
-          window.location.href = res.data.data.paymentUrl;
-        } else if (res.data.data.paymentSessionId) {
+          window.location.href = orderData.paymentUrl;
+        } else if (orderData.provider === 'razorpay') {
+          // Razorpay inline modal checkout
+          if (window.Razorpay) {
+            const options = {
+              key: orderData.razorpayKeyId,
+              amount: Math.round(orderData.amount * 100), // in paise
+              currency: "INR",
+              name: "SakhiHub",
+              description: `${type === 'subscription' ? 'Platform Access Subscription' : 'Security Deposit'} Payment`,
+              order_id: orderData.paymentSessionId,
+              handler: async function (response: any) {
+                setProcessing(true);
+                try {
+                  await axios.post('/api/payment/verify', { 
+                    orderId: orderData.orderId 
+                  });
+                  toast.success('Payment completed successfully!');
+                  fetchStatus();
+                } catch (verifyError: any) {
+                  console.error('Razorpay verification error:', verifyError);
+                  toast.error('Payment verification failed. Please refresh status.');
+                } finally {
+                  setProcessing(false);
+                }
+              },
+              prefill: {
+                name: profile?.fullName || '',
+                email: profile?.email || '',
+                contact: profile?.mobile || '',
+              },
+              theme: {
+                color: "#EC4899", // Match primary theme color
+              },
+              modal: {
+                ondismiss: function () {
+                  setProcessing(false);
+                }
+              }
+            };
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+          } else {
+            toast.error('Razorpay SDK is still loading. Please wait.');
+            setProcessing(false);
+          }
+        } else if (orderData.paymentSessionId) {
           // Cashfree inline checkout
           if (cashfree) {
             cashfree.checkout({
-              paymentSessionId: res.data.data.paymentSessionId,
+              paymentSessionId: orderData.paymentSessionId,
               redirectTarget: "_self"
             });
           } else {
@@ -677,5 +742,6 @@ export default function PaymentPendingPage() {
 declare global {
   interface Window {
     Cashfree: any;
+    Razorpay: any;
   }
 }

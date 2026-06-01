@@ -44,7 +44,7 @@ export interface IPaymentConfig extends Document {
   
   // NEW V2 PROVIDER FIELDS (Backward Compatible)
   paymentMethod?: 'payment_link' | 'gateway_api' | 'manual';
-  activeProvider?: 'cashfree' | 'phonepe';
+  activeProvider?: 'cashfree' | 'phonepe' | 'razorpay';
   environment?: 'sandbox' | 'production';
   providers?: {
     cashfree?: {
@@ -57,6 +57,12 @@ export interface IPaymentConfig extends Document {
       clientId?: string;
       clientSecret?: string;
       clientVersion?: string;
+      webhookSecret?: string;
+      linkUrls?: IPaymentRequestUrls;
+    };
+    razorpay?: {
+      keyId?: string;
+      keySecret?: string;
       webhookSecret?: string;
       linkUrls?: IPaymentRequestUrls;
     };
@@ -101,7 +107,7 @@ const PaymentConfigSchema: Schema = new Schema(
     
     // NEW V2 PROVIDER FIELDS
     paymentMethod: { type: String, enum: ['payment_link', 'gateway_api', 'manual'], default: 'payment_link' },
-    activeProvider: { type: String, enum: ['cashfree', 'phonepe'], default: 'cashfree' },
+    activeProvider: { type: String, enum: ['cashfree', 'phonepe', 'razorpay'], default: 'cashfree' },
     environment: { type: String, enum: ['sandbox', 'production'], default: 'production' },
     providers: {
       cashfree: {
@@ -118,6 +124,16 @@ const PaymentConfigSchema: Schema = new Schema(
         clientId: { type: String },
         clientSecret: { type: String },
         clientVersion: { type: String, default: '1' },
+        webhookSecret: { type: String },
+        linkUrls: {
+          vendor: RoleUrlPairSchema,
+          sub_vendor: RoleUrlPairSchema,
+          employee: RoleUrlPairSchema,
+        }
+      },
+      razorpay: {
+        keyId: { type: String },
+        keySecret: { type: String },
         webhookSecret: { type: String },
         linkUrls: {
           vendor: RoleUrlPairSchema,

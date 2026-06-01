@@ -27,6 +27,11 @@ export default async function EmployeeOfferLetterPage({ params }: { params: Prom
     mobile: user.mobile as string,
     joiningDate: offerLetter.joiningDate as Date,
     salary: offerLetter.salary as string,
+    travelAllowance: offerLetter.travelAllowance as string,
+    performanceIncentives: offerLetter.performanceIncentives as string,
+    membershipIncentives: offerLetter.membershipIncentives as string,
+    coordinatorType: offerLetter.coordinatorType as string,
+    assignedRegions: offerLetter.assignedRegions as string,
     generatedDate: offerLetter.generatedDate as Date,
     offerLetterId: offerLetter.offerLetterId as string,
     documentStatus: offerLetter.status as any

@@ -17,7 +17,8 @@ export default function PaymentConfigPage() {
     environment: 'production',
     providers: {
       cashfree: { appId: '', secretKey: '', linkUrls: {} },
-      phonepe: { merchantId: '', clientId: '', clientSecret: '', clientVersion: '1', webhookSecret: '', linkUrls: {} }
+      phonepe: { merchantId: '', clientId: '', clientSecret: '', clientVersion: '1', webhookSecret: '', linkUrls: {} },
+      razorpay: { keyId: '', keySecret: '', webhookSecret: '', linkUrls: {} }
     },
     subscriptionAmount: { vendor: 0, sub_vendor: 0, employee: 0 },
     depositAmount: { vendor: 0, sub_vendor: 0, employee: 0 },
@@ -72,6 +73,12 @@ export default function PaymentConfigPage() {
               clientVersion: res.data.data.providers?.phonepe?.clientVersion || '1',
               webhookSecret: res.data.data.providers?.phonepe?.webhookSecret || '',
               linkUrls: res.data.data.providers?.phonepe?.linkUrls || {},
+            },
+            razorpay: {
+              keyId: res.data.data.providers?.razorpay?.keyId || '',
+              keySecret: res.data.data.providers?.razorpay?.keySecret || '',
+              webhookSecret: res.data.data.providers?.razorpay?.webhookSecret || '',
+              linkUrls: res.data.data.providers?.razorpay?.linkUrls || {},
             }
           }
         });
@@ -126,7 +133,7 @@ export default function PaymentConfigPage() {
     );
   }
 
-  const activeProviderStr = config.activeProvider as 'cashfree' | 'phonepe';
+  const activeProviderStr = config.activeProvider as 'cashfree' | 'phonepe' | 'razorpay';
 
   return (
     <DashboardLayout>
@@ -177,7 +184,7 @@ export default function PaymentConfigPage() {
                   >
                     <option value="cashfree">Cashfree</option>
                     <option value="phonepe">PhonePe</option>
-                    <option value="razorpay" disabled>Razorpay (Coming Soon)</option>
+                    <option value="razorpay">Razorpay</option>
                   </select>
                 </div>
 
@@ -266,6 +273,38 @@ export default function PaymentConfigPage() {
                       type="password" 
                       value={config.providers.phonepe.webhookSecret}
                       onChange={(e) => setConfig({...config, providers: {...config.providers, phonepe: {...config.providers.phonepe, webhookSecret: e.target.value}}})}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200"
+                    />
+                  </div>
+                </div>
+              )}
+              
+              {config.activeProvider === 'razorpay' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1">Key ID</label>
+                    <input 
+                      type="text" 
+                      value={config.providers.razorpay.keyId}
+                      onChange={(e) => setConfig({...config, providers: {...config.providers, razorpay: {...config.providers.razorpay, keyId: e.target.value}}})}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1">Key Secret</label>
+                    <input 
+                      type="password" 
+                      value={config.providers.razorpay.keySecret}
+                      onChange={(e) => setConfig({...config, providers: {...config.providers, razorpay: {...config.providers.razorpay, keySecret: e.target.value}}})}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-bold text-gray-600 mb-1">Webhook Secret</label>
+                    <input 
+                      type="password" 
+                      value={config.providers.razorpay.webhookSecret}
+                      onChange={(e) => setConfig({...config, providers: {...config.providers, razorpay: {...config.providers.razorpay, webhookSecret: e.target.value}}})}
                       className="w-full px-4 py-2 rounded-lg border border-gray-200"
                     />
                   </div>

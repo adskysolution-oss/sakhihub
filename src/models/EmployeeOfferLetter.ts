@@ -5,6 +5,11 @@ export interface IEmployeeOfferLetter extends Document {
   offerLetterId: string;
   joiningDate: Date;
   salary: string;
+  travelAllowance?: string;
+  performanceIncentives?: string;
+  membershipIncentives?: string;
+  coordinatorType?: string;
+  assignedRegions?: string;
   generatedDate: Date;
   status: 'generated' | 'accepted' | 'uploaded' | 'under_review' | 'approved' | 'rejected' | 'reupload_required';
   digitalAcceptanceStatus: boolean;
@@ -22,6 +27,11 @@ const EmployeeOfferLetterSchema: Schema = new Schema(
     offerLetterId: { type: String, required: true, unique: true },
     joiningDate: { type: Date, required: true },
     salary: { type: String, required: true },
+    travelAllowance: { type: String },
+    performanceIncentives: { type: String },
+    membershipIncentives: { type: String },
+    coordinatorType: { type: String },
+    assignedRegions: { type: String },
     generatedDate: { type: Date, default: Date.now },
     status: { type: String, enum: ['generated', 'accepted', 'uploaded', 'under_review', 'approved', 'rejected', 'reupload_required'], default: 'generated' },
     digitalAcceptanceStatus: { type: Boolean, default: false },

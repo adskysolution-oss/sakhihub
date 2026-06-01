@@ -11,6 +11,11 @@ export interface EmployeeOfferLetterData {
   role: string;
   joiningDate: string | Date;
   salary: string;
+  travelAllowance?: string;
+  performanceIncentives?: string;
+  membershipIncentives?: string;
+  coordinatorType?: string;
+  assignedRegions?: string;
   mobile: string;
   offerLetterId: string;
   generatedDate: string | Date;
@@ -125,16 +130,16 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
                     <td className="py-2">{programName}</td>
                   </tr>
                   <tr className="border-b border-gray-100">
-                    <td className="py-2 font-bold">Position</td>
-                    <td className="py-2 font-bold text-gray-900">{getDynamicPositionText(data.role)}</td>
+                    <td className="py-2 font-bold">Coordinator Assignment</td>
+                    <td className="py-2 font-bold text-gray-900">{data.coordinatorType || getDynamicPositionText(data.role)}</td>
                   </tr>
                   <tr className="border-b border-gray-100">
                     <td className="py-2 font-bold">Work Type</td>
                     <td className="py-2">Field & Awareness Based Activities</td>
                   </tr>
                   <tr className="border-b border-gray-100">
-                    <td className="py-2 font-bold">Location</td>
-                    <td className="py-2">{data.workingArea || data.assignedDistrict}, {data.assignedState}</td>
+                    <td className="py-2 font-bold">Assigned Block(s) / District(s)</td>
+                    <td className="py-2">{data.assignedRegions || `${data.workingArea || data.assignedDistrict}, ${data.assignedState}`}</td>
                   </tr>
                   <tr className="border-b border-gray-100">
                     <td className="py-2 font-bold">Campaign Type</td>
@@ -171,9 +176,9 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
               <div className="text-xs mb-6 text-justify leading-relaxed">
                 <ul className="space-y-1.5 list-none pl-1 mb-3 font-bold text-gray-900">
                   <li className="flex items-center gap-1.5">• Fixed Monthly Salary: <span className="text-green-700 font-extrabold">₹{data.salary} / Month</span></li>
-                  <li className="flex items-center gap-1.5 text-gray-700 font-normal">• Petrol / Travel Allowance</li>
-                  <li className="flex items-center gap-1.5 text-gray-700 font-normal">• Performance Incentives</li>
-                  <li className="flex items-center gap-1.5 text-gray-700 font-normal">• Membership Incentives (if applicable)</li>
+                  <li className="flex items-center gap-1.5">• Petrol / Travel Allowance: <span className="text-green-700 font-extrabold">{data.travelAllowance || 'N/A'}</span></li>
+                  <li className="flex items-center gap-1.5">• Performance Incentives: <span className="text-green-700 font-extrabold">{data.performanceIncentives || 'N/A'}</span></li>
+                  <li className="flex items-center gap-1.5">• Membership Incentives (if applicable): <span className="text-green-700 font-extrabold">{data.membershipIncentives || 'N/A'}</span></li>
                   <li className="flex items-center gap-1.5 text-gray-700 font-normal">• Training & Guidance Support</li>
                   <li className="flex items-center gap-1.5 text-gray-700 font-normal">• Official ID Card</li>
                   <li className="flex items-center gap-1.5 text-gray-700 font-normal">• Campaign Materials & Operational Support</li>

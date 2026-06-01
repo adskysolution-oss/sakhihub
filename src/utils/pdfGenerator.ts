@@ -602,7 +602,7 @@ export const generateAgreementHtml = (data: any) => {
           <td>3 Years</td>
         </tr>
         <tr>
-          <td class="bold">Coordinator Assignment</td>
+          <td class="bold">Partner Assignment</td>
           <td>${data.coordinatorType || 'N/A'}</td>
           <td class="bold">Assigned Region(s)</td>
           <td>${data.assignedRegions || 'N/A'}</td>
@@ -674,7 +674,7 @@ export const generatePdfBuffer = async (htmlContent: string, agreementId?: strin
   if (isServerless) {
     const chromium = (await import('@sparticuz/chromium-min')).default;
     const puppeteerCore = (await import('puppeteer-core')).default;
-    
+
     browser = await puppeteerCore.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
@@ -690,11 +690,11 @@ export const generatePdfBuffer = async (htmlContent: string, agreementId?: strin
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
   }
-  
+
   const page = await browser.newPage();
-  
+
   await page.setContent(htmlContent, { waitUntil: 'load' });
-  
+
   const headerTemplate = '<div></div>';
 
   const footerTemplate = `
@@ -713,8 +713,8 @@ export const generatePdfBuffer = async (htmlContent: string, agreementId?: strin
     footerTemplate,
     margin: { top: '22mm', right: '20mm', bottom: '22mm', left: '20mm' },
   });
-  
+
   await browser.close();
-  
+
   return pdfBuffer;
 };

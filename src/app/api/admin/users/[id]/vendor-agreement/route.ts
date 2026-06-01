@@ -106,7 +106,7 @@ export async function POST(
     const updatedAgreement = await VendorAgreement.findOneAndUpdate(
       { vendorId: user._id },
       vendorAgreementDetails,
-      { upsert: true, returnDocument: 'after' }
+      { upsert: true, new: true, runValidators: true }
     );
 
     // Create AgreementVersion Record
@@ -136,6 +136,6 @@ export async function POST(
 
   } catch (error: any) {
     console.error('Generate Vendor Agreement Error:', error);
-    return NextResponse.json({ success: false, message: 'Failed to generate vendor agreement' }, { status: 500 });
+    return NextResponse.json({ success: false, message: `Failed to generate vendor agreement: ${error.message || error}` }, { status: 500 });
   }
 }

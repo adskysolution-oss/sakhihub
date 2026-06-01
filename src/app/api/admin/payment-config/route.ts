@@ -44,6 +44,12 @@ export async function GET() {
           clientVersion: config.providers?.phonepe?.clientVersion,
           webhookSecret: decrypt(config.providers?.phonepe?.webhookSecret || ''),
           linkUrls: config.providers?.phonepe?.linkUrls,
+        },
+        razorpay: {
+          keyId: config.providers?.razorpay?.keyId,
+          keySecret: decrypt(config.providers?.razorpay?.keySecret || ''),
+          webhookSecret: decrypt(config.providers?.razorpay?.webhookSecret || ''),
+          linkUrls: config.providers?.razorpay?.linkUrls,
         }
       },
       isConfigured: isCashfreeConfigured()
@@ -130,6 +136,12 @@ export async function PUT(req: NextRequest) {
       }
       if (updateData.providers.phonepe?.webhookSecret) {
         updateData.providers.phonepe.webhookSecret = encrypt(updateData.providers.phonepe.webhookSecret);
+      }
+      if (updateData.providers.razorpay?.keySecret) {
+        updateData.providers.razorpay.keySecret = encrypt(updateData.providers.razorpay.keySecret);
+      }
+      if (updateData.providers.razorpay?.webhookSecret) {
+        updateData.providers.razorpay.webhookSecret = encrypt(updateData.providers.razorpay.webhookSecret);
       }
     }
 
