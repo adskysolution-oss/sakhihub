@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 
       // Create admin override transaction records
       for (const t of ['subscription', 'deposit']) {
-        const existing = await PaymentTransaction.findOne({ userId: user._id, type: t, status: 'paid' });
+        const existing = await PaymentTransaction.findOne({ userId: user._id, type: t, status: { $in: ['paid', 'completed', 'success'] } });
         if (!existing) {
           await PaymentTransaction.create({
             userId: user._id,
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
     await user.save();
 
     // Create admin override transaction record
-    const existing = await PaymentTransaction.findOne({ userId: user._id, type, status: 'paid' });
+    const existing = await PaymentTransaction.findOne({ userId: user._id, type, status: { $in: ['paid', 'completed', 'success'] } });
     if (!existing) {
       await PaymentTransaction.create({
         userId: user._id,

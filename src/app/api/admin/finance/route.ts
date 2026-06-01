@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 
     // 1. Calculate General System Statistics
     // Platform Revenue (PaymentTransaction paid)
-    const paidTransactions = await PaymentTransaction.find({ status: 'paid' });
+    const paidTransactions = await PaymentTransaction.find({ status: { $in: ['paid', 'completed', 'success'] } });
     let subscriptionRevenue = 0;
     let depositRevenue = 0;
     paidTransactions.forEach(t => {
@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
 
     // 3. Compile audit logs & transaction records with filters
     // Build query objects
-    let ptQuery: any = { status: 'paid' };
+    let ptQuery: any = { status: { $in: ['paid', 'completed', 'success'] } };
     let msQuery: any = { paymentStatus: 'Paid' };
     let wtQuery: any = {};
 

@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export type PaymentType = 'subscription' | 'deposit';
-export type PaymentStatus = 'created' | 'pending' | 'paid' | 'failed' | 'refunded';
+export type PaymentStatus = 'created' | 'pending' | 'paid' | 'completed' | 'success' | 'failed' | 'refunded';
 
 export interface IPaymentTransaction extends Document {
   userId: mongoose.Types.ObjectId;
@@ -13,6 +13,7 @@ export interface IPaymentTransaction extends Document {
   cashfreeOrderId?: string;
   cashfreePaymentId?: string;
   paymentSessionId?: string;
+  paymentUrl?: string;
   paymentMethod?: string;
   provider?: string;
   gatewayOrderId?: string;
@@ -36,14 +37,15 @@ const PaymentTransactionSchema: Schema = new Schema(
     currency: { type: String, default: 'INR' },
     status: {
       type: String,
-      enum: ['created', 'pending', 'paid', 'failed', 'refunded'],
+      enum: ['created', 'pending', 'paid', 'completed', 'success', 'failed', 'refunded'],
       default: 'created',
     },
     cashfreeOrderId: { type: String, unique: true, sparse: true },
     cashfreePaymentId: { type: String },
     paymentSessionId: { type: String },
+    paymentUrl: { type: String },
     paymentMethod: { type: String },
-    provider: { type: String, enum: ['cashfree', 'phonepe'] },
+    provider: { type: String, enum: ['cashfree', 'phonepe', 'razorpay'] },
     gatewayOrderId: { type: String },
     gatewayPaymentId: { type: String },
     gatewayReferenceId: { type: String },

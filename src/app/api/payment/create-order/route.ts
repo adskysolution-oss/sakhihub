@@ -87,33 +87,51 @@ export async function POST(req: NextRequest) {
     // Create Order using the resolved provider
     const provider = await PaymentResolver.resolveActiveProvider();
 
-    // Check for existing pending order for same type (prevent duplicate orders)
+    // Check for existing pending order for same type and amount (prevent duplicate orders)
     let existingPending = await PaymentTransaction.findOne({
       userId: user._id,
       type,
+      amount,
       status: { $in: ['created', 'pending'] }
     });
 
     if (existingPending && existingPending.paymentSessionId && existingPending.paymentSessionId.startsWith('mock_session_')) {
+      console.log(`[Transaction Clean] Deleting mock session transaction: ${existingPending._id}`);
       await PaymentTransaction.deleteOne({ _id: existingPending._id });
       existingPending = null;
     }
 
-    // PhonePe does not use paymentSessionId on client side and requires a new redirect URL.
-    // If the active provider is PhonePe, or if the provider of the existing transaction is different,
-    // we should create a new order (but we leave the old transaction in the DB in case a webhook is received).
-    if (existingPending && (provider.name === 'phonepe' || existingPending.provider !== provider.name)) {
-      existingPending = null;
+    // If the provider of the existing transaction is different from the currently active provider,
+    // or if it's PhonePe but doesn't have a saved paymentUrl, we discard it to generate a new order.
+    if (existingPending) {
+      if (existingPending.provider !== provider.name) {
+        console.log(`[Provider Mismatch] Active provider changed from ${existingPending.provider} to ${provider.name}. Discarding old transaction ${existingPending._id}.`);
+        await PaymentTransaction.deleteOne({ _id: existingPending._id });
+        existingPending = null;
+      } else if (provider.name === 'phonepe' && !(existingPending as any).paymentUrl) {
+        console.log(`[Missing PaymentUrl] PhonePe transaction ${existingPending._id} is missing paymentUrl. Discarding to regenerate.`);
+        await PaymentTransaction.deleteOne({ _id: existingPending._id });
+        existingPending = null;
+      }
     }
 
     if (existingPending) {
-      // Return the existing order's payment session
+      console.log(`[Duplicate Prevention] Reusing existing pending transaction: ${existingPending._id} for user ${user._id}, provider: ${existingPending.provider}, amount: ${existingPending.amount}`);
+      let rzpKeyId: string | undefined;
+      if (existingPending.provider === 'razorpay') {
+        const config = await PaymentConfig.findOne({ key: 'default' }).lean();
+        rzpKeyId = config?.providers?.razorpay?.keyId || '';
+      }
+      // Return the existing order's payment session / payment URL
       return successResponse({
         orderId: existingPending.cashfreeOrderId,
         paymentSessionId: existingPending.paymentSessionId,
+        paymentUrl: (existingPending as any).paymentUrl || '',
         amount: existingPending.amount,
         type,
         existing: true,
+        provider: existingPending.provider || 'cashfree',
+        razorpayKeyId: rzpKeyId,
       }, 'Existing payment order found');
     }
 
@@ -134,6 +152,8 @@ export async function POST(req: NextRequest) {
       notifyUrl = notifyUrl.replace('http://', 'https://');
     }
     
+    console.log(`[Transaction Creation] Creating new order with provider: ${provider.name}, orderId: ${orderId}, amount: ${amount}`);
+
     const orderResult = await provider.createOrder({
       orderId,
       orderAmount: amount,
@@ -144,18 +164,23 @@ export async function POST(req: NextRequest) {
       notifyUrl,
     });
 
+    console.log(`[Transaction Creation] Order created at gateway. gatewayOrderId: ${orderResult.gatewayOrderId}, paymentUrl: ${orderResult.paymentUrl}`);
+
     // Save transaction record with provider info
-    await PaymentTransaction.create({
+    const newTxn = await PaymentTransaction.create({
       userId: user._id,
       type,
       role: user.role,
       amount,
       status: 'created',
-      provider: provider.name, // NEW FIELD
+      provider: provider.name,
       cashfreeOrderId: orderId, // Still saving for backward compatibility, though it acts as a generic orderId now
-      gatewayOrderId: orderResult.gatewayOrderId, // NEW FIELD
+      gatewayOrderId: orderResult.gatewayOrderId,
       paymentSessionId: orderResult.paymentSessionId || '',
+      paymentUrl: orderResult.paymentUrl || '',
     });
+
+    console.log(`[Transaction Creation Result] Created database transaction ID: ${newTxn._id}`);
 
     return successResponse({
       orderId,
@@ -164,6 +189,7 @@ export async function POST(req: NextRequest) {
       amount,
       type,
       provider: provider.name,
+      razorpayKeyId: orderResult.razorpayKeyId,
     }, 'Payment order created successfully');
   } catch (error: any) {
     console.error('Create Payment Order Error:', error);

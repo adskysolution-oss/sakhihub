@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     // Fetch all successful transactions for this user
     const transactions = await PaymentTransaction.find({ 
       userId: (session as any).id,
-      status: 'paid'
+      status: { $in: ['paid', 'completed', 'success'] }
     })
       .populate('userId', 'fullName mobile')
       .sort({ paidAt: -1 })

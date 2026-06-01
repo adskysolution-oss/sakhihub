@@ -134,7 +134,7 @@ export async function PATCH(req: NextRequest) {
     // Create a PaymentTransaction record for audit trail
     // Uses the same pattern as ADMIN_OVERRIDE but tags it as manual_payment_request
     const refId = `MANUAL_REQ_${user._id}_${type}_${Date.now()}`;
-    const existingTxn = await PaymentTransaction.findOne({ userId: user._id, type, status: 'paid' });
+    const existingTxn = await PaymentTransaction.findOne({ userId: user._id, type, status: { $in: ['paid', 'completed', 'success'] } });
     if (!existingTxn) {
       const txn = await PaymentTransaction.create({
         userId: user._id,

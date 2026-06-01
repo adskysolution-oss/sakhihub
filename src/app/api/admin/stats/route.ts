@@ -45,13 +45,13 @@ export async function GET(req: NextRequest) {
     const PaymentTransaction = (await import('@/models/PaymentTransaction')).default;
 
     const partnerSubscriptionsAgg = await PaymentTransaction.aggregate([
-      { $match: { type: 'subscription', status: 'paid' } },
+      { $match: { type: 'subscription', status: { $in: ['paid', 'completed', 'success'] } } },
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ]);
     const totalPartnerSubscriptions = partnerSubscriptionsAgg[0]?.total || 0;
 
     const partnerDepositsAgg = await PaymentTransaction.aggregate([
-      { $match: { type: 'deposit', status: 'paid' } },
+      { $match: { type: 'deposit', status: { $in: ['paid', 'completed', 'success'] } } },
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ]);
     const totalPartnerDeposits = partnerDepositsAgg[0]?.total || 0;

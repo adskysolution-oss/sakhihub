@@ -30,6 +30,9 @@ async function checkAndUpdatePaymentCompletion(userId: string): Promise<boolean>
     user.depositPaid = true;
     if (user.role === 'employee') {
       user.status = 'active';
+      user.accessStatus = 'unlocked';
+      user.paymentStatus = 'completed';
+      user.dashboardAccess = true;
     }
     await user.save();
     return true;
@@ -46,6 +49,9 @@ async function checkAndUpdatePaymentCompletion(userId: string): Promise<boolean>
     user.paymentCompleted = true;
     if (user.role === 'employee') {
       user.status = 'active';
+      user.accessStatus = 'unlocked';
+      user.paymentStatus = 'completed';
+      user.dashboardAccess = true;
     }
 
     // If docs verified + payment done + (for vendor, or assignment completed for others) => grant dashboard access
@@ -95,9 +101,11 @@ export async function POST(req: NextRequest) {
 
     if (!transaction) return errorResponse('Transaction not found', 404);
 
+    console.log(`[Verify POST Hit] Order ID: ${orderId}, matched transaction ID: ${transaction._id}, current status: ${transaction.status}`);
+
     // If already paid, just return success
-    if (transaction.status === 'paid') {
-      return successResponse({ status: 'paid', type: transaction.type }, 'Payment already verified');
+    if (['paid', 'completed', 'success'].includes(transaction.status)) {
+      return successResponse({ status: transaction.status, type: transaction.type }, 'Payment already verified');
     }
 
     // Resolve the appropriate provider
@@ -109,13 +117,17 @@ export async function POST(req: NextRequest) {
       gatewayOrderId: transaction.gatewayOrderId || transaction.cashfreeOrderId,
     });
 
+    console.log(`[Verify POST Result] Provider verify response status: ${verification.status}, success: ${verification.success}`);
+
     if (verification.success && ['PAYMENT_SUCCESS', 'SUCCESS', 'COMPLETED'].includes(verification.status)) {
       // Update transaction
-      transaction.status = 'paid';
+      transaction.status = 'completed';
       transaction.paidAt = new Date();
       transaction.gatewayResponse = verification;
       transaction.gatewayPaymentId = verification.gatewayPaymentId;
       await transaction.save();
+
+      console.log(`[Verify DB Update Result] Transaction ${transaction._id} status updated to completed`);
 
       // Trigger upline commission distribution
       try {
@@ -183,6 +195,17 @@ export async function POST(req: NextRequest) {
               }
             }
           }
+        } else if (user.role === 'employee' && transaction.type === 'deposit') {
+          // Direct update for employee deposit payment (idempotency, no other locks)
+          user.depositPaid = true;
+          user.paymentCompleted = true;
+          user.paymentStatus = 'completed';
+          user.dashboardAccess = true;
+          user.accessStatus = 'unlocked';
+          user.status = 'active';
+          await user.save();
+          completed = true;
+          console.log(`[Verify DB Update Result] User (employee) updated: ID: ${user._id}, depositPaid=true, paymentCompleted=true, paymentStatus=completed, dashboardAccess=true, accessStatus=unlocked, status=active`);
         } else {
           if (transaction.type === 'subscription') user.subscriptionPaid = true;
           if (transaction.type === 'deposit') user.depositPaid = true;
@@ -190,6 +213,7 @@ export async function POST(req: NextRequest) {
 
           // Check if all payments are now complete
           completed = await checkAndUpdatePaymentCompletion(sessionUser.id);
+          console.log(`[Verify DB Update Result] User (non-employee) updated: ID: ${user._id}, role: ${user.role}, paymentCompleted: ${user.paymentCompleted}`);
         }
 
         // Refresh JWT token with updated payment status
@@ -212,7 +236,7 @@ export async function POST(req: NextRequest) {
         }
 
         return successResponse({
-          status: 'paid',
+          status: transaction.status,
           type: transaction.type,
           paymentCompleted: completed,
           dashboardAccess: updatedUser?.dashboardAccess || false,
@@ -223,6 +247,7 @@ export async function POST(req: NextRequest) {
       transaction.failureReason = verification.status;
       transaction.gatewayResponse = verification;
       await transaction.save();
+      console.log(`[Verify DB Update Result] Transaction ${transaction._id} status updated to failed`);
 
       return successResponse({
         status: 'failed',
@@ -234,6 +259,7 @@ export async function POST(req: NextRequest) {
       transaction.status = 'pending';
       transaction.gatewayResponse = verification;
       await transaction.save();
+      console.log(`[Verify DB Update Result] Transaction ${transaction._id} status updated to pending`);
 
       return successResponse({
         status: 'pending',

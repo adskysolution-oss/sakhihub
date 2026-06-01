@@ -63,8 +63,8 @@ export class PhonePeProvider implements IPaymentProvider {
       throw new Error('Failed to generate PhonePe OAuth token');
     }
 
-    this.oauthToken = data.access_token;
-    return this.oauthToken;
+    this.oauthToken = data.access_token as string;
+    return this.oauthToken as string;
   }
 
   async createOrder(params: CreateOrderParams): Promise<CreateOrderResult> {
@@ -116,7 +116,7 @@ export class PhonePeProvider implements IPaymentProvider {
       merchantUserId: params.orderId.split('_')[1] || params.orderId,
       amount: params.orderAmount * 100, // PhonePe expects amount in paise
       redirectUrl: params.returnUrl,
-      redirectMode: 'POST',
+      redirectMode: 'REDIRECT',
       callbackUrl: params.notifyUrl,
       mobileNumber: params.customerPhone,
       paymentInstrument: {
@@ -229,30 +229,40 @@ export class PhonePeProvider implements IPaymentProvider {
 
   verifyWebhook(rawBody: string, headers: Record<string, string>): WebhookVerificationResult {
     // PhonePe sends X-VERIFY header: sha256(base64Payload + webhookSecret) + ### + saltIndex
-    const signature = headers['x-verify'] || headers['X-VERIFY'];
+    const signature = headers['x-verify'] || headers['X-VERIFY'] || headers['x-verify-signature'];
     
+    console.log(`[PhonePe Webhook] Received webhook call. Headers signature: ${signature}`);
+
     if (!signature || !this.clientSecret) { // Fallback to clientSecret if webhookSecret not set
+      console.warn(`[PhonePe Webhook] Missing signature (${signature}) or clientSecret (${this.clientSecret ? 'present' : 'missing'}).`);
       return { isValid: false, gatewayOrderId: '' };
     }
 
+    const signatureParts = signature.split('###');
+    const saltIndex = signatureParts[1] || this.clientVersion;
     const secretToUse = this.webhookSecret || this.clientSecret;
     
     let parsedBody;
     try {
       parsedBody = JSON.parse(rawBody);
     } catch (e) {
+      console.error(`[PhonePe Webhook] Failed to parse raw body as JSON. Raw body:`, rawBody);
       return { isValid: false, gatewayOrderId: '' };
     }
 
     const base64Payload = parsedBody.response; // PhonePe webhook sends { response: "base64..." }
-    if (!base64Payload) return { isValid: false, gatewayOrderId: '' };
+    if (!base64Payload) {
+      console.warn(`[PhonePe Webhook] Missing base64 response payload in body.`);
+      return { isValid: false, gatewayOrderId: '' };
+    }
 
     const expectedChecksum = crypto
       .createHash('sha256')
       .update(base64Payload + secretToUse)
-      .digest('hex') + '###' + this.clientVersion;
+      .digest('hex') + '###' + saltIndex;
 
     const isValid = expectedChecksum === signature;
+    console.log(`[PhonePe Webhook] Expected checksum: ${expectedChecksum}, signature match: ${isValid}`);
     
     let gatewayOrderId = '';
     let amount = 0;
@@ -265,6 +275,7 @@ export class PhonePeProvider implements IPaymentProvider {
         gatewayOrderId = decoded.data?.merchantTransactionId || '';
         amount = (decoded.data?.amount || 0) / 100;
         status = decoded.code || '';
+        console.log(`[PhonePe Webhook] Decoded payload successfully. merchantTransactionId: ${gatewayOrderId}, amount: ${amount}, status: ${status}`);
       } catch (e) {
         console.error('PhonePe Webhook Decode Error', e);
       }

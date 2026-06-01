@@ -10,6 +10,7 @@ import { distributeCommission } from '@/lib/commission';
 import { notifyMembershipPayment } from '@/lib/notifications';
 
 export async function POST(req: NextRequest) {
+  let providerName = 'unknown';
   try {
     await dbConnect();
 
@@ -20,8 +21,14 @@ export async function POST(req: NextRequest) {
     });
 
     // Detect provider based on headers
-    const isPhonePe = !!headersObj['x-verify'];
-    const providerName = isPhonePe ? 'phonepe' : 'cashfree';
+    providerName = 'cashfree';
+    if (headersObj['x-verify']) {
+      providerName = 'phonepe';
+    } else if (headersObj['x-razorpay-signature']) {
+      providerName = 'razorpay';
+    }
+
+    console.log(`[Webhook Hit] Received webhook from provider: ${providerName}. Headers:`, JSON.stringify(headersObj));
 
     const provider = await PaymentResolver.resolveProviderByName(providerName);
 
@@ -29,16 +36,16 @@ export async function POST(req: NextRequest) {
     const verification = provider.verifyWebhook(rawBody, headersObj);
 
     if (!verification.isValid) {
-      console.error(`${providerName} Webhook: Invalid signature`);
-      // We don't block strictly for cashfree if not configured in legacy, but provider abstraction handles it
-      // For now, if invalid, we return 401
+      console.error(`[Webhook Verification Error] ${providerName} Webhook: Invalid signature`);
       return NextResponse.json({ success: false, message: 'Invalid signature' }, { status: 401 });
     }
 
     if (!verification.gatewayOrderId) {
-      // Valid signature but unhandled event type
+      console.log(`[Webhook Event Handled] ${providerName} Webhook: Valid signature but no gatewayOrderId (unhandled event)`);
       return NextResponse.json({ success: true, message: 'Event type not handled' });
     }
+
+    console.log(`[Webhook Hit] Verification success. Order/Reference ID matched: ${verification.gatewayOrderId}, status: ${verification.status}, amount: ${verification.amount}`);
 
     const transaction = await PaymentTransaction.findOne({
       $or: [
@@ -48,21 +55,26 @@ export async function POST(req: NextRequest) {
     });
 
     if (!transaction) {
-      console.error(`${providerName} Webhook: Transaction not found for order`, verification.gatewayOrderId);
+      console.error(`[Webhook Error] ${providerName} Webhook: Transaction not found in DB for order: ${verification.gatewayOrderId}`);
       return NextResponse.json({ success: false, message: 'Transaction not found' }, { status: 404 });
     }
 
+    console.log(`[Webhook Hit] Database transaction record matched. ID: ${transaction._id}, status: ${transaction.status}, amount: ${transaction.amount}`);
+
     // Already processed
-    if (transaction.status === 'paid') {
+    if (['paid', 'completed', 'success'].includes(transaction.status)) {
+      console.log(`[Webhook Skip] Transaction ${transaction._id} is already processed with status: ${transaction.status}`);
       return NextResponse.json({ success: true, message: 'Already processed' });
     }
 
     if (verification.status && ['SUCCESS', 'PAYMENT_SUCCESS', 'COMPLETED'].includes(verification.status)) {
-      transaction.status = 'paid';
+      transaction.status = 'completed';
       transaction.paidAt = new Date();
       transaction.webhookReceived = true;
       transaction.gatewayResponse = JSON.parse(rawBody); // Store raw webhook data
       await transaction.save();
+
+      console.log(`[Webhook DB Update Result] PaymentTransaction updated successfully. ID: ${transaction._id}, status: completed, webhookReceived: true`);
 
       // Trigger upline commission distribution
       try {
@@ -127,6 +139,16 @@ export async function POST(req: NextRequest) {
               }
             }
           }
+        } else if (user.role === 'employee' && transaction.type === 'deposit') {
+          // Direct update for employee deposit payment (idempotency, no other locks)
+          user.depositPaid = true;
+          user.paymentCompleted = true;
+          user.paymentStatus = 'completed';
+          user.dashboardAccess = true;
+          user.accessStatus = 'unlocked';
+          user.status = 'active';
+          await user.save();
+          console.log(`[Webhook DB Update Result] User (employee) updated: ID: ${user._id}, depositPaid=true, paymentCompleted=true, paymentStatus=completed, dashboardAccess=true, accessStatus=unlocked, status=active`);
         } else {
           if (transaction.type === 'subscription') user.subscriptionPaid = true;
           if (transaction.type === 'deposit') user.depositPaid = true;
@@ -142,6 +164,9 @@ export async function POST(req: NextRequest) {
             user.depositPaid = true;
             if (user.role === 'employee') {
               user.status = 'active';
+              user.accessStatus = 'unlocked';
+              user.paymentStatus = 'completed';
+              user.dashboardAccess = true;
             }
             if (user.documentsVerified) {
               if (user.role === 'vendor') {
@@ -168,6 +193,9 @@ export async function POST(req: NextRequest) {
               user.paymentCompleted = true;
               if (user.role === 'employee') {
                 user.status = 'active';
+                user.accessStatus = 'unlocked';
+                user.paymentStatus = 'completed';
+                user.dashboardAccess = true;
               }
               if (user.documentsVerified) {
                 if (user.role === 'vendor') {
@@ -186,6 +214,7 @@ export async function POST(req: NextRequest) {
               await user.save();
             }
           }
+          console.log(`[Webhook DB Update Result] User (non-employee) updated: ID: ${user._id}, role: ${user.role}, paymentCompleted: ${user.paymentCompleted}`);
         }
       }
     } else if (verification.status && ['FAILED', 'CANCELLED', 'VOID'].includes(verification.status)) {
@@ -194,11 +223,12 @@ export async function POST(req: NextRequest) {
       transaction.webhookReceived = true;
       transaction.gatewayResponse = JSON.parse(rawBody);
       await transaction.save();
+      console.log(`[Webhook DB Update Result] PaymentTransaction marked failed: ID: ${transaction._id}, status: failed`);
     }
 
     return NextResponse.json({ success: true, message: 'Webhook processed' });
   } catch (error: any) {
-    console.error('Cashfree Webhook Error:', error);
+    console.error(`[Webhook Error] ${providerName} Webhook Processing Failed:`, error);
     return NextResponse.json({ success: false, message: 'Webhook processing failed' }, { status: 500 });
   }
 }
