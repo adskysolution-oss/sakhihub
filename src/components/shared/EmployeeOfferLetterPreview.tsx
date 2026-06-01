@@ -102,7 +102,7 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
 
               {/* Salutation & Intro */}
               <div className="text-sm space-y-4 mb-6 leading-relaxed text-justify">
-                <p className="font-bold">Dear Candidate,</p>
+                <p className="font-bold">Dear {data.employeeName},</p>
                 <p>
                   We are pleased to offer you the position under the <strong>SakhiHub Women Health & Awareness Campaign Program</strong>.
                 </p>

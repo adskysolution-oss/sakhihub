@@ -443,6 +443,7 @@ export const generateAgreementHtml = (data: any) => {
           margin-bottom: 6px;
           border-bottom: 1px solid #111;
           padding-bottom: 2px;
+          page-break-after: avoid;
         }
 
         .details-table {
@@ -514,17 +515,19 @@ export const generateAgreementHtml = (data: any) => {
         .intro-statement {
           margin-bottom: 10px;
           line-height: 1.4;
+          page-break-after: avoid;
         }
 
         .signatures-grid {
+          margin-top: 20px;
           page-break-inside: avoid;
-          margin-top: 35px;
         }
 
         .sig-row {
           display: flex;
           justify-content: space-between;
           margin-bottom: 30px;
+          page-break-inside: avoid;
         }
 
         .signature-box {
@@ -626,7 +629,7 @@ export const generateAgreementHtml = (data: any) => {
       <!-- SIGNATURES -->
       <div class="signatures-grid">
         <div class="section-title">EXECUTION & SIGNATURES</div>
-        <div class="intro-statement" style="text-align: center; font-style: italic; margin-top: 10px; margin-bottom: 40px;">
+        <div class="intro-statement" style="text-align: center; font-style: italic; margin-top: 10px; margin-bottom: 25px;">
           IN WITNESS WHEREOF, the Parties hereto have executed this ${headingTitle} on the day, month, and year first above written.
         </div>
 
@@ -646,7 +649,7 @@ export const generateAgreementHtml = (data: any) => {
           </div>
         </div>
 
-        <div class="sig-row" style="margin-top: 40px;">
+        <div class="sig-row" style="margin-top: 20px;">
           <div class="signature-box">
             <div class="line"></div>
             <strong>Witness 1</strong><br/>
