@@ -62,6 +62,18 @@ export async function PATCH(
       { new: true, runValidators: true }
     );
 
+    // Trigger Centralized Notifications
+    const { NotificationService, NotificationEvent } = await import('@/lib/notifications');
+    if ('parentVendorId' in body && parentVendorId) {
+      await NotificationService.trigger(NotificationEvent.PARENT_ASSIGNED, { userId: user._id });
+    }
+    if (('campaignId' in body && campaignId) || ('assignedCampaigns' in body)) {
+      await NotificationService.trigger(NotificationEvent.CAMPAIGN_ASSIGNED, { userId: user._id });
+    }
+    if (user && user.status === 'active') {
+      await NotificationService.trigger(NotificationEvent.ACCOUNT_ACTIVATED, { userId: user._id });
+    }
+
     return successResponse(user, 'User hierarchy assignment completed successfully');
   } catch (error: any) {
     console.error('Assignment Error:', error);

@@ -6,8 +6,6 @@ import WomenMember from '@/models/WomenMember';
 import MemberRequest from '@/models/MemberRequest';
 import { verifyOTP } from '@/lib/otp';
 import { successResponse, errorResponse } from '@/utils/response';
-import { sendEmail } from '@/lib/email';
-import { getWelcomeTemplate } from '@/lib/emailTemplates';
 import EmailLog from '@/models/EmailLog';
 
 export async function POST(req: NextRequest) {
@@ -140,17 +138,8 @@ export async function POST(req: NextRequest) {
       await PendingUser.deleteOne({ _id: pendingUser._id });
 
       // Welcome Email
-      const welcomeHtml = getWelcomeTemplate(newUser.fullName, newUser.role, newUser.status === 'pending');
-      sendEmail(newUser.email!, 'Welcome to SakhiHub!', welcomeHtml).then(async (res) => {
-        await EmailLog.create({
-          recipient: newUser.email!,
-          subject: 'Welcome to SakhiHub!',
-          type: 'welcome_email',
-          status: res.success ? 'success' : 'failed',
-          error: res.success ? undefined : (res.error as any)?.message,
-          relatedId: newUser._id
-        });
-      });
+      const { NotificationService, NotificationEvent } = await import('@/lib/notifications');
+      NotificationService.trigger(NotificationEvent.WELCOME_ONBOARDING, { userId: newUser._id });
 
       return successResponse(
         { id: newUser._id, role: newUser.role, status: newUser.status },

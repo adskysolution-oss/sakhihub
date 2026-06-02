@@ -110,3 +110,108 @@ export const getMemberRequestTemplate = (data: any) => getBaseTemplate(`
     </div>
     <p>Please log in to your dashboard to review and approve the request.</p>
 `, { text: 'Review Request', url: 'https://sakhihub.com/employee/requests' });
+
+export const getAccountActivatedTemplate = (data: { name: string; role: string; userId: string; loginUrl: string }) => getBaseTemplate(`
+    <p>Hello <span class="highlight">${data.name}</span>,</p>
+    <p>Congratulations! Your SakhiHub account has been officially <strong>Activated</strong> by our administration team.</p>
+    <div style="background: #f8f9fa; border: 1px solid #eee; border-radius: 15px; padding: 25px; margin: 25px 0;">
+        <h3 style="margin-top: 0; color: #e91e63;">Account Details</h3>
+        <table style="width: 100%; font-size: 14px;">
+            <tr><td style="color: #777; padding: 5px 0;">Role:</td><td style="font-weight: 700; text-align: right; text-transform: uppercase;">${data.role}</td></tr>
+            <tr><td style="color: #777; padding: 5px 0;">User ID / Code:</td><td style="font-weight: 700; text-align: right; font-family: monospace;">${data.userId}</td></tr>
+            <tr><td style="color: #777; padding: 5px 0;">Dashboard Link:</td><td style="font-weight: 700; text-align: right;"><a href="${data.loginUrl}" style="color: #e91e63;">Click here to Login</a></td></tr>
+        </table>
+    </div>
+    <p>You now have full access to your SakhiHub Dashboard. Please use your registered mobile number and password to log in.</p>
+    <p>Welcome to our movement!</p>
+`, { text: 'Access Dashboard', url: data.loginUrl });
+
+export const getDocumentVerifiedTemplate = (data: { name: string; role: string }) => getBaseTemplate(`
+    <p>Hello <span class="highlight">${data.name}</span>,</p>
+    <p>We are pleased to inform you that all your mandatory onboarding documents have been reviewed and <strong>Verified Successfully</strong> by our verification team.</p>
+    <div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 20px; border-radius: 8px; margin: 20px 0; color: #065f46;">
+        <p style="margin: 0; font-weight: 700;">Documents Status: Verified</p>
+        <p style="margin: 5px 0 0; font-size: 13px;">Your profile status is updated, and you are fully compliant with SakhiHub guidelines.</p>
+    </div>
+    <p>You can view your verified documents list inside the profile section on your dashboard.</p>
+`, { text: 'View Profile', url: 'https://sakhihub.com/dashboard/profile' });
+
+export const getDocumentRejectedTemplate = (data: { name: string; documentName: string; reason: string; instructions: string }) => getBaseTemplate(`
+    <p>Hello <span class="highlight">${data.name}</span>,</p>
+    <p>During our routine verification process, a document submitted by you has been marked as <strong>Rejected / Requires Re-upload</strong>.</p>
+    <div style="background: #fef2f2; border: 1px solid #fca5a5; border-radius: 15px; padding: 25px; margin: 25px 0;">
+        <h3 style="margin-top: 0; color: #dc2626;">Rejection Details</h3>
+        <table style="width: 100%; font-size: 14px;">
+            <tr><td style="color: #777; padding: 5px 0; width: 120px;">Document:</td><td style="font-weight: 700; color: #1f2937;">${data.documentName}</td></tr>
+            <tr><td style="color: #777; padding: 5px 0;">Reason:</td><td style="font-weight: 700; color: #dc2626;">${data.reason}</td></tr>
+        </table>
+    </div>
+    <p><strong>Instructions:</strong></p>
+    <p>${data.instructions}</p>
+    <p>Please log in to your dashboard as soon as possible to re-upload a clear and valid copy of the document to avoid onboarding delays.</p>
+`, { text: 'Re-upload Document', url: 'https://sakhihub.com/dashboard/profile' });
+
+export const getPaymentReceiptEmailTemplate = (data: { name: string; amount: number; transactionId: string; date: string; type: string }) => getBaseTemplate(`
+    <p>Hello <span class="highlight">${data.name}</span>,</p>
+    <p>Your payment for the <strong>${data.type}</strong> of ₹${data.amount} has been successfully verified.</p>
+    <div style="background: #f8f9fa; border: 1px solid #eee; border-radius: 15px; padding: 25px; margin: 25px 0;">
+        <h3 style="margin-top: 0; color: #e91e63;">Receipt Summary</h3>
+        <table style="width: 100%; font-size: 14px;">
+            <tr><td style="color: #777; padding: 5px 0;">Transaction ID:</td><td style="font-weight: 700; text-align: right;">${data.transactionId}</td></tr>
+            <tr><td style="color: #777; padding: 5px 0;">Amount Paid:</td><td style="font-weight: 700; text-align: right; color: #16a34a;">₹${data.amount}.00</td></tr>
+            <tr><td style="color: #777; padding: 5px 0;">Date:</td><td style="font-weight: 700; text-align: right;">${data.date}</td></tr>
+            <tr><td style="color: #777; padding: 5px 0;">Payment Type:</td><td style="font-weight: 700; text-align: right; text-transform: uppercase;">${data.type}</td></tr>
+        </table>
+    </div>
+    <p>A copy of your official, digitally-sealed PDF receipt has been generated and is attached to this email for your records.</p>
+`, { text: 'Go to Dashboard', url: 'https://sakhihub.com/dashboard' });
+
+export const getParentAssignedTemplate = (data: { name: string; parentName: string; parentRole: string; parentContact: string }) => getBaseTemplate(`
+    <p>Hello <span class="highlight">${data.name}</span>,</p>
+    <p>You have been assigned a new coordinator/parent partner in your hierarchy network. This partner will support and manage your activities on SakhiHub.</p>
+    <div style="background: #f8f9fa; border: 1px solid #eee; border-radius: 15px; padding: 25px; margin: 25px 0;">
+        <h3 style="margin-top: 0; color: #e91e63;">Assigned Partner Details</h3>
+        <table style="width: 100%; font-size: 14px;">
+            <tr><td style="color: #777; padding: 5px 0;">Name:</td><td style="font-weight: 700; text-align: right;">${data.parentName}</td></tr>
+            <tr><td style="color: #777; padding: 5px 0;">Role:</td><td style="font-weight: 700; text-align: right; text-transform: uppercase;">${data.parentRole.replace('_', ' ')}</td></tr>
+            <tr><td style="color: #777; padding: 5px 0;">Contact Number:</td><td style="font-weight: 700; text-align: right;">${data.parentContact}</td></tr>
+        </table>
+    </div>
+    <p>Please feel free to connect with them for any field query or campaign-related guidance.</p>
+`, { text: 'View Hierarchy Network', url: 'https://sakhihub.com/dashboard' });
+
+export const getCampaignAssignedTemplate = (data: { name: string; campaignName: string; description: string; duration?: string }) => getBaseTemplate(`
+    <p>Hello <span class="highlight">${data.name}</span>,</p>
+    <p>We are excited to inform you that a <strong>New Campaign</strong> has been assigned to you. You are authorized to carry out awareness activities for this campaign in your region.</p>
+    <div style="background: #f8f9fa; border: 1px solid #eee; border-radius: 15px; padding: 25px; margin: 25px 0;">
+        <h3 style="margin-top: 0; color: #e91e63;">Campaign Details</h3>
+        <table style="width: 100%; font-size: 14px;">
+            <tr><td style="color: #777; padding: 5px 0;">Campaign Name:</td><td style="font-weight: 700; text-align: right;">${data.campaignName}</td></tr>
+            ${data.duration ? `<tr><td style="color: #777; padding: 5px 0;">Duration / Timelines:</td><td style="font-weight: 700; text-align: right;">${data.duration}</td></tr>` : ''}
+        </table>
+        <p style="margin-top: 15px; font-size: 13px; color: #555;"><strong>Description:</strong><br/>${data.description}</p>
+    </div>
+    <p>You can find training materials, campaign documents, and report templates inside the campaigns page of your dashboard.</p>
+`, { text: 'View Campaign Details', url: 'https://sakhihub.com/dashboard/campaigns' });
+
+export const getOfferLetterGeneratedTemplate = (data: { name: string; position: string; joiningDate: string }) => getBaseTemplate(`
+    <p>Hello <span class="highlight">${data.name}</span>,</p>
+    <p>Congratulations! We are pleased to issue your official <strong>Offer Letter</strong> for the position of <strong>${data.position}</strong> at SakhiHub.</p>
+    <p>Your joining date is scheduled for <strong>${data.joiningDate}</strong>.</p>
+    <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <p style="margin: 0; color: #92400e; font-weight: 600;">Next Steps: Digital Acceptance Required</p>
+        <p style="margin: 10px 0 0; color: #b45309; font-size: 13px;">Please log in to the SakhiHub Employee Portal, review the terms, and complete the digital acceptance declaration signature process.</p>
+    </div>
+    <p>A copy of your generated Offer Letter PDF is attached to this email.</p>
+`, { text: 'Review & Sign Offer Letter', url: 'https://sakhihub.com/dashboard' });
+
+export const getAgreementGeneratedTemplate = (data: { name: string; agreementId: string; role: string }) => getBaseTemplate(`
+    <p>Hello <span class="highlight">${data.name}</span>,</p>
+    <p>Your official <strong>Vendor Partnership Agreement</strong> (Agreement ID: <strong>${data.agreementId}</strong>) has been generated successfully.</p>
+    <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <p style="margin: 0; color: #92400e; font-weight: 600;">Action Required: Upload Signed Copy</p>
+        <p style="margin: 10px 0 0; color: #b45309; font-size: 13px;">Please log in to your dashboard, download the agreement copy, print & sign it, and upload the signed copy under the documents section to finalize onboarding.</p>
+    </div>
+    <p>A copy of the generated Partnership Agreement PDF is attached to this email for your reference.</p>
+`, { text: 'View Agreement Page', url: 'https://sakhihub.com/dashboard' });
+

@@ -89,6 +89,12 @@ export interface IUser extends Document {
   otpAttempts?: number;
   emailVerified: boolean;
   welcomeEmailSent: boolean;
+  activationEmailSent: boolean;
+  documentsVerifiedEmailSent: boolean;
+  offerLetterEmailSent: boolean;
+  agreementEmailSent: boolean;
+  notifiedParentId?: mongoose.Types.ObjectId;
+  notifiedCampaignIds?: mongoose.Types.ObjectId[];
   isVerified: boolean;
   onboardingCompleted: boolean;
   documentsVerified: boolean;
@@ -212,6 +218,12 @@ const UserSchema: Schema = new Schema(
     otpAttempts: { type: Number, default: 0 },
     emailVerified: { type: Boolean, default: false },
     welcomeEmailSent: { type: Boolean, default: false },
+    activationEmailSent: { type: Boolean, default: false },
+    documentsVerifiedEmailSent: { type: Boolean, default: false },
+    offerLetterEmailSent: { type: Boolean, default: false },
+    agreementEmailSent: { type: Boolean, default: false },
+    notifiedParentId: { type: Schema.Types.ObjectId, ref: 'User' },
+    notifiedCampaignIds: [{ type: Schema.Types.ObjectId, ref: 'Campaign' }],
     joiningDate: { type: Date },
     isVerified: { type: Boolean, default: false },
     onboardingCompleted: { type: Boolean, default: false },

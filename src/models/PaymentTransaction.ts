@@ -24,6 +24,7 @@ export interface IPaymentTransaction extends Document {
   gatewayResponse?: any;
   failureReason?: string;
   paidAt?: Date;
+  emailSent?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -54,6 +55,7 @@ const PaymentTransactionSchema: Schema = new Schema(
     gatewayResponse: { type: Schema.Types.Mixed },
     failureReason: { type: String },
     paidAt: { type: Date },
+    emailSent: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

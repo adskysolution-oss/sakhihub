@@ -55,6 +55,13 @@ export async function POST(
       { upsert: true, new: true, runValidators: true }
     );
 
+    // Reset email sent flag on user and trigger notification
+    user.offerLetterEmailSent = false;
+    await user.save();
+
+    const { NotificationService, NotificationEvent } = await import('@/lib/notifications');
+    await NotificationService.trigger(NotificationEvent.OFFER_LETTER_GENERATED, { userId: user._id });
+
     const updatedUser = await User.findById(id).lean();
     const userToReturn = {
       ...updatedUser,

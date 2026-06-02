@@ -129,6 +129,12 @@ export async function POST(req: NextRequest) {
 
       console.log(`[Verify DB Update Result] Transaction ${transaction._id} status updated to completed`);
 
+      // Trigger PAYMENT_SUCCESS notification for deposit payments
+      if (transaction.type === 'deposit') {
+        const { NotificationService, NotificationEvent } = await import('@/lib/notifications');
+        await NotificationService.trigger(NotificationEvent.PAYMENT_SUCCESS, { transactionId: transaction._id });
+      }
+
       // Trigger upline commission distribution
       try {
         await distributeCommission(

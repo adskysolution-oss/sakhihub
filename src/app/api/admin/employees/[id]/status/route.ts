@@ -74,6 +74,11 @@ export async function PATCH(
         updateData,
         { new: true }
       ).select('-password');
+
+      if (updatedUser && updatedUser.status === 'active') {
+        const { NotificationService, NotificationEvent } = await import('@/lib/notifications');
+        await NotificationService.trigger(NotificationEvent.ACCOUNT_ACTIVATED, { userId: updatedUser._id });
+      }
       
       return successResponse(updatedUser, `User status updated to ${status}`);
     }
@@ -145,6 +150,26 @@ export async function PATCH(
       
       user.markModified('documents');
       await user.save();
+
+      // Trigger Centralized Notifications
+      const { NotificationService, NotificationEvent } = await import('@/lib/notifications');
+      if (['rejected', 'reupload_required'].includes(docStatus)) {
+        await NotificationService.trigger(NotificationEvent.DOCUMENT_REJECTED, {
+          userId: user._id,
+          documentName: docType,
+          reason: remarks
+        });
+      }
+      if (user.documentsVerified) {
+        await NotificationService.trigger(NotificationEvent.DOCUMENTS_VERIFIED, {
+          userId: user._id
+        });
+      }
+      if (user.status === 'active') {
+        await NotificationService.trigger(NotificationEvent.ACCOUNT_ACTIVATED, {
+          userId: user._id
+        });
+      }
 
       // Sync to Document collection in MongoDB
       await Document.findOneAndUpdate(

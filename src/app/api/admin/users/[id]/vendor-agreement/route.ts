@@ -31,7 +31,8 @@ export async function POST(
       membershipCommission,
       partnerType,
       coordinatorType,
-      assignedRegions
+      assignedRegions,
+      agreementValidity
     } = body;
 
     if (!joiningDate) {
@@ -75,6 +76,7 @@ export async function POST(
       partnerType,
       coordinatorType,
       assignedRegions,
+      agreementValidity: agreementValidity || '3 Years',
       qrVerificationCode,
       status: 'generated'
     };
@@ -96,6 +98,7 @@ export async function POST(
       membershipCommission,
       coordinatorType,
       assignedRegions,
+      agreementValidity: templateData.agreementValidity,
       generatedDate: new Date(),
       agreementId,
       status: 'generated',
@@ -119,6 +122,13 @@ export async function POST(
       fileUrl: dynamicPreviewUrl,
       metadata: templateData
     });
+
+    // Reset agreement email sent flag and trigger notification
+    user.agreementEmailSent = false;
+    await user.save();
+
+    const { NotificationService, NotificationEvent } = await import('@/lib/notifications');
+    await NotificationService.trigger(NotificationEvent.AGREEMENT_GENERATED, { userId: user._id });
 
     // We also might want to update the User document to have reference to this agreement if needed, 
     // but the DB schema keeps it separated. We return the updated user payload to refresh frontend.

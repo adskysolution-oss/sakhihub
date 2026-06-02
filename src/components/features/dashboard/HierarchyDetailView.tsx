@@ -69,6 +69,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
   const [membershipCommission, setMembershipCommission] = React.useState('');
   const [coordinatorType, setCoordinatorType] = React.useState('');
   const [assignedRegions, setAssignedRegions] = React.useState('');
+  const [agreementValidity, setAgreementValidity] = React.useState('3 Years');
 
   const [isGeneratingAppt, setIsGeneratingAppt] = React.useState(false);
   // Keep local user state to update appointment details immediately
@@ -100,6 +101,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
       setMembershipCommission(agreement.membershipCommission || '');
       setCoordinatorType(agreement.coordinatorType || agreement.templateData?.coordinatorType || '');
       setAssignedRegions(agreement.assignedRegions || agreement.templateData?.assignedRegions || '');
+      setAgreementValidity(agreement.agreementValidity || agreement.templateData?.agreementValidity || '3 Years');
     }
 
     const offerLetter = localUser?.offerLetterDetails;
@@ -756,6 +758,16 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                               />
                             </div>
                             <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Agreement Validity</label>
+                              <input 
+                                type="text" 
+                                value={agreementValidity} 
+                                onChange={(e) => setAgreementValidity(e.target.value)} 
+                                placeholder="e.g. 3 Years, 1 Year, 6 Months" 
+                                className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" 
+                              />
+                            </div>
+                            <div>
                               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Salary Structure (Locked)</label>
                               <input type="text" value={salaryStructure} disabled placeholder="e.g. ₹20,000/mo Fixed" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
                             </div>
@@ -800,7 +812,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                                 joiningDate, partnerType, assignedTerritory, 
                                 salaryStructure, incentiveStructure, membershipCommission, 
                                 monthlyTargets, operationalRole,
-                                coordinatorType, assignedRegions
+                                coordinatorType, assignedRegions, agreementValidity
                               };
 
                           const res = await axios.post(endpoint, payload);

@@ -78,6 +78,41 @@ export async function POST(
 
     await doc.save();
 
+    // Trigger Centralized Notifications
+    const { NotificationService, NotificationEvent } = await import('@/lib/notifications');
+    if (['rejected', 'reupload_required'].includes(doc.status)) {
+      const docName = doc.documentType || doc.title || doc.type || (collection === 'VendorAgreement' ? 'Vendor Agreement' : collection === 'VendorMOU' ? 'Vendor MOU' : collection === 'EmployeeOfferLetter' ? 'Employee Offer Letter' : 'Document');
+      await NotificationService.trigger(NotificationEvent.DOCUMENT_REJECTED, {
+        userId: user._id,
+        documentName: docName,
+        reason: doc.adminRemarks || 'Document did not meet verification criteria.'
+      });
+    }
+
+    // Check if overall user documents are verified
+    const { areAllDocsApproved } = await import('@/lib/docs/service');
+    const updatedUser = await User.findById(id);
+    if (updatedUser) {
+      if (collection === 'Document' && doc.documentType) {
+        if (!updatedUser.documents) updatedUser.documents = {};
+        const userDoc = (updatedUser.documents as any)[doc.documentType];
+        if (userDoc) {
+          userDoc.status = doc.status;
+          userDoc.reviewedAt = new Date();
+          userDoc.adminRemarks = doc.adminRemarks || '';
+          updatedUser.markModified('documents');
+          await updatedUser.save();
+        }
+      }
+      
+      const allDocsOk = areAllDocsApproved(updatedUser);
+      if (allDocsOk && !updatedUser.documentsVerified) {
+        updatedUser.documentsVerified = true;
+        await updatedUser.save();
+        await NotificationService.trigger(NotificationEvent.DOCUMENTS_VERIFIED, { userId: updatedUser._id });
+      }
+    }
+
     return successResponse({
       message: `Document ${isLocked ? 'locked' : 'unlocked'} successfully`,
       document: doc

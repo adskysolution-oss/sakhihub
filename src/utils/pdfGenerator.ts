@@ -602,7 +602,7 @@ export const generateAgreementHtml = (data: any) => {
           <td class="bold">Date of Execution</td>
           <td>${data.joiningDate}</td>
           <td class="bold">Agreement Validity</td>
-          <td>3 Years</td>
+          <td>${data.agreementValidity || '3 Years'}</td>
         </tr>
         <tr>
           <td class="bold">Partner Assignment</td>
@@ -670,7 +670,935 @@ export const generateAgreementHtml = (data: any) => {
   `;
 };
 
-export const generatePdfBuffer = async (htmlContent: string, agreementId?: string) => {
+export const generateOfferLetterHtml = (data: any) => {
+  const formatDate = (d: string | Date) => {
+    return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  const getDynamicPositionText = (role: string) => {
+    const roleUpper = (role || '').toUpperCase();
+    if (roleUpper.includes('DISTRICT') || roleUpper.includes('COORD')) {
+      return "District Level Women Coordinator";
+    }
+    return "Block Level Women Employee / Coordinator";
+  };
+
+  let logoBase64 = '';
+  let sigBase64 = '';
+  try {
+    const logoPath = path.join(process.cwd(), 'public', 'logo.png');
+    const logoData = fs.readFileSync(logoPath);
+    logoBase64 = `data:image/png;base64,${logoData.toString('base64')}`;
+  } catch (e) {
+    console.error('Logo image not found:', e);
+  }
+  try {
+    const sigPath = path.join(process.cwd(), 'public', 'manager-signature.png');
+    const sigData = fs.readFileSync(sigPath);
+    sigBase64 = `data:image/png;base64,${sigData.toString('base64')}`;
+  } catch (e) {
+    console.error('Signature image not found:', e);
+  }
+
+  const programName = data.programName || "Women Health & Awareness Campaign";
+
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <title>Employee Offer Letter</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #ffffff;
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+        color: #1f2937;
+        line-height: 1.5;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      
+      h2, h3, h4 {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+      
+      tr, li, tbody, table {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      
+      .signatures-container {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      
+      .print-header {
+        display: table-header-group;
+      }
+      
+      .print-footer {
+        display: table-footer-group;
+      }
+      
+      .container {
+        width: 100%;
+        margin: 0 auto;
+        box-sizing: border-box;
+      }
+      
+      .offer-table {
+        width: 100%;
+        border: none;
+        border-collapse: collapse;
+        padding: 0;
+        margin: 0;
+      }
+      
+      .print-header-space {
+        height: 12mm;
+      }
+      
+      .print-footer-space {
+        height: 12mm;
+      }
+      
+      .content-cell {
+        padding-left: 12mm;
+        padding-right: 12mm;
+      }
+      
+      @media print {
+        @page {
+          size: A4;
+          margin: 0;
+        }
+        body {
+          margin: 0;
+          padding: 0;
+          background: #fff;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        h2, h3, h4 {
+          break-after: avoid;
+          page-break-after: avoid;
+        }
+        tr, li, tbody, table {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        .signatures-container {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        .print-header {
+          display: table-header-group;
+        }
+        .print-footer {
+          display: table-footer-group;
+        }
+        .content-cell {
+          padding-left: 12mm;
+          padding-right: 12mm;
+        }
+      }
+      
+      /* Header styles */
+      .header-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border-bottom: 2px solid #D91656;
+        padding-bottom: 16px;
+        margin-bottom: 24px;
+        text-align: center;
+      }
+      .logo-img {
+        height: 80px;
+        width: auto;
+        object-fit: contain;
+        margin-bottom: 12px;
+      }
+      .program-name {
+        font-size: 14px;
+        font-weight: bold;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin: 0;
+      }
+      .program-tagline {
+        font-size: 12px;
+        color: #9ca3af;
+        font-style: italic;
+        margin-top: 4px;
+        margin-bottom: 0;
+      }
+      .meta-row {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 16px;
+        font-size: 11px;
+        color: #6b7280;
+        font-weight: bold;
+        border-top: 1px solid #f3f4f6;
+        padding-top: 10px;
+      }
+      .meta-row p {
+        margin: 0;
+      }
+      .status-badge {
+        color: #D91656;
+        text-transform: uppercase;
+        font-weight: 900;
+      }
+      .meta-id {
+        font-family: monospace;
+        color: #1f2937;
+        font-weight: bold;
+      }
+      
+      /* Title */
+      .title-container {
+        text-align: center;
+        margin-bottom: 32px;
+      }
+      .title-text {
+        font-size: 20px;
+        font-weight: 900;
+        color: #111827;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+        margin: 0;
+      }
+      
+      /* Salutation & Intro */
+      .intro-container {
+        font-size: 14px;
+        margin-bottom: 24px;
+        line-height: 1.625;
+        text-align: justify;
+      }
+      .intro-container p {
+        margin-top: 0;
+        margin-bottom: 16px;
+      }
+      .intro-container p:last-child {
+        margin-bottom: 0;
+      }
+      .font-bold {
+        font-weight: bold;
+      }
+      
+      /* Section Titles */
+      .section-title {
+        font-size: 14px;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: #D91656;
+        margin-top: 24px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 4px;
+        page-break-after: avoid;
+        break-after: avoid;
+      }
+      
+      /* Tables */
+      .details-table {
+        width: 100%;
+        font-size: 12px;
+        border-collapse: collapse;
+        margin-bottom: 24px;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .details-table tr {
+        border-bottom: 1px solid #f3f4f6;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .details-table td {
+        padding-top: 8px;
+        padding-bottom: 8px;
+      }
+      .details-table td.label {
+        font-weight: bold;
+        width: 33.3333%;
+      }
+      
+      /* Bullet list for Responsibilities */
+      .bullet-list-responsibilities {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        list-style: none;
+        padding-left: 4px;
+        margin-top: 0;
+        margin-bottom: 12px;
+      }
+      .bullet-list-responsibilities li {
+        display: flex;
+        align-items: start;
+        gap: 6px;
+        color: #374151;
+      }
+      .italic-gray-text {
+        font-style: italic;
+        color: #6b7280;
+        margin-top: 4px;
+        margin-bottom: 0;
+      }
+      
+      /* Salary list */
+      .salary-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        list-style: none;
+        padding-left: 4px;
+        margin-top: 0;
+        margin-bottom: 12px;
+        font-weight: bold;
+        color: #111827;
+      }
+      .salary-list li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .salary-list li.normal-benefit {
+        font-weight: normal;
+        color: #374151;
+      }
+      .text-green-700 {
+        color: #15803d;
+        font-weight: 800;
+      }
+      .text-gray-500 {
+        color: #6b7280;
+        margin-top: 4px;
+        margin-bottom: 0;
+      }
+      
+      /* Nature of work list */
+      .nature-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        list-style: none;
+        padding-left: 4px;
+        margin-top: 0;
+        margin-bottom: 24px;
+        font-size: 12px;
+      }
+      .nature-list li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #374151;
+      }
+      
+      /* Code of Conduct */
+      .conduct-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        list-style: none;
+        padding-left: 4px;
+        margin-top: 0;
+        margin-bottom: 12px;
+        color: #374151;
+      }
+      .conduct-list li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .text-red-600 {
+        color: #dc2626;
+        font-weight: bold;
+        font-style: italic;
+        margin-top: 4px;
+        margin-bottom: 0;
+      }
+      
+      /* Paragraph clause text */
+      .clause-text {
+        font-size: 12px;
+        margin-bottom: 24px;
+        text-align: justify;
+        line-height: 1.625;
+        color: #374151;
+      }
+      
+      /* Bullet lists in clauses */
+      .clause-bullet-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        list-style: none;
+        padding-left: 4px;
+        margin-top: 0;
+        margin-bottom: 24px;
+        font-size: 12px;
+        color: #374151;
+      }
+      .clause-bullet-list li {
+        display: flex;
+        align-items: start;
+        gap: 6px;
+      }
+      .clause-bullet-list li span {
+        flex: 1;
+      }
+      
+      /* Important notice box */
+      .important-notice-box {
+        margin-bottom: 32px;
+        padding: 16px;
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .important-notice-title {
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: #1f2937;
+        margin-top: 0;
+        margin-bottom: 4px;
+      }
+      .important-notice-text {
+        font-size: 11px;
+        text-align: justify;
+        line-height: 1.625;
+        color: #4b5563;
+        margin: 0;
+      }
+      
+      /* Signatures section */
+      .signatures-container {
+        display: flex;
+        justify-content: space-between;
+        padding-top: 32px;
+        margin-top: 64px;
+        border-top: 1px solid #e5e7eb;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .signature-col {
+        width: 48%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        min-height: 180px;
+      }
+      .signature-col-right {
+        width: 48%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        min-height: 180px;
+        padding-left: 24px;
+        border-left: 1px solid #f3f4f6;
+        text-align: center;
+        box-sizing: border-box;
+      }
+      .sig-title {
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: #1f2937;
+        letter-spacing: 0.05em;
+        margin: 0;
+      }
+      .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        margin-top: 12px;
+      }
+      .checkbox-box {
+        width: 16px;
+        height: 16px;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        display: inline-block;
+        vertical-align: middle;
+        text-align: center;
+        line-height: 14px;
+        font-size: 12px;
+        font-weight: bold;
+        color: #D91656;
+      }
+      .checkbox-label {
+        font-size: 12px;
+        font-weight: bold;
+        color: #374151;
+      }
+      .sig-details {
+        font-size: 12px;
+        color: #4b5563;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .sig-details p {
+        margin: 0;
+      }
+      .sig-status-text {
+        font-size: 10px;
+        color: #9ca3af;
+        margin-top: 8px;
+        font-family: monospace;
+      }
+      .sig-img-container {
+        width: 100%;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 8px;
+      }
+      .sig-img {
+        height: 64px;
+        width: auto;
+        object-fit: contain;
+        opacity: 0.85;
+      }
+      .auth-title {
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: #111827;
+        border-top: 1px solid #9ca3af;
+        padding-top: 8px;
+        width: 100%;
+        margin: 0;
+      }
+      .auth-brand {
+        font-size: 11px;
+        font-weight: bold;
+        color: #D91656;
+        text-transform: uppercase;
+        margin-top: 4px;
+        margin-bottom: 0;
+      }
+      .auth-dept {
+        font-size: 9px;
+        color: #9ca3af;
+        text-transform: uppercase;
+        margin-top: 2px;
+        margin-bottom: 0;
+      }
+      .auth-portal {
+        font-size: 8px;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-top: 2px;
+        margin-bottom: 0;
+      }
+      
+      /* Footer notice */
+      .footer-system-notice {
+        margin-top: 48px;
+        padding-top: 16px;
+        border-top: 1px solid #f3f4f6;
+        text-align: center;
+        font-size: 9px;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <table class="offer-table">
+        <thead class="print-header">
+          <tr>
+            <td>
+              <div class="print-header-space"></div>
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="content-cell">
+              
+              <!-- Header -->
+              <div class="header-container">
+                ${logoBase64 ? `<img src="${logoBase64}" class="logo-img" alt="SakhiHub Logo" />` : ''}
+                <p class="program-name">${programName}</p>
+                <p class="program-tagline">"Empowering Women Through Awareness, Support & Community Action"</p>
+                
+                <div class="meta-row">
+                  <p>Status: <span class="status-badge">${(data.documentStatus || 'GENERATED').toUpperCase()}</span></p>
+                  <p>Offer Letter ID: <span class="meta-id">${data.offerLetterId}</span></p>
+                  <p>Date: ${formatDate(data.generatedDate)}</p>
+                </div>
+              </div>
+
+              <div class="title-container">
+                <h2 class="title-text">OFFER LETTER</h2>
+              </div>
+
+              <!-- Salutation & Intro -->
+              <div class="intro-container">
+                <p class="font-bold">Dear ${data.employeeName},</p>
+                <p>We are pleased to offer you the position under the <strong>SakhiHub Women Health & Awareness Campaign Program</strong>.</p>
+                <p>SakhiHub is a women-focused awareness and empowerment initiative working towards health awareness, hygiene education, women support systems, community engagement, and empowerment activities across India.</p>
+                <p>Your selection has been made based on your application, communication ability, interest in social awareness activities, and organizational requirements.</p>
+                <p>This Offer Letter is being issued digitally through the SakhiHub Employee Portal and shall be considered valid after digital acceptance, declaration confirmation and online signature completion by the candidate.</p>
+              </div>
+
+              <!-- 1. POSITION DETAILS -->
+              <h3 class="section-title">1. POSITION DETAILS</h3>
+              <table class="details-table">
+                <tbody>
+                  <tr>
+                    <td class="label">Organization</td>
+                    <td>SakhiHub</td>
+                  </tr>
+                  <tr>
+                    <td class="label">Department</td>
+                    <td>${programName}</td>
+                  </tr>
+                  <tr>
+                    <td class="label">Coordinator Assignment</td>
+                    <td class="font-bold">${data.coordinatorType || getDynamicPositionText(data.role)}</td>
+                  </tr>
+                  <tr>
+                    <td class="label">Work Type</td>
+                    <td>Field & Awareness Based Activities</td>
+                  </tr>
+                  <tr>
+                    <td class="label">Assigned Block(s) / District(s)</td>
+                    <td>${data.assignedRegions || `${data.workingArea || data.assignedDistrict}, ${data.assignedState}`}</td>
+                  </tr>
+                  <tr>
+                    <td class="label">Campaign Type</td>
+                    <td>PAN India Women Awareness Campaign</td>
+                  </tr>
+                  <tr>
+                    <td class="label">Date of Joining</td>
+                    <td class="font-bold">${formatDate(data.joiningDate)}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- 2. PRIMARY RESPONSIBILITIES -->
+              <h3 class="section-title">2. PRIMARY RESPONSIBILITIES</h3>
+              <div class="clause-text">
+                <p class="font-bold" style="margin-bottom: 8px;">The candidate will be responsible for:</p>
+                <ul class="bullet-list-responsibilities">
+                  <li>• <span>Women Health Awareness</span></li>
+                  <li>• <span>Period Hygiene Awareness</span></li>
+                  <li>• <span>Community Group Activities</span></li>
+                  <li>• <span>Women Empowerment Programs</span></li>
+                  <li>• <span>Membership Awareness</span></li>
+                  <li>• <span>Ground Level Campaign Activities</span></li>
+                  <li>• <span>Field Visits & Reporting</span></li>
+                  <li>• <span>Team Coordination (if applicable)</span></li>
+                  <li>• <span>Awareness Meetings & Training Sessions</span></li>
+                  <li>• <span>Campaign Monitoring & Community Support</span></li>
+                </ul>
+                <p class="italic-gray-text">The organization may modify or assign additional responsibilities based on operational requirements.</p>
+              </div>
+
+              <!-- 3. SALARY & BENEFITS -->
+              <h3 class="section-title">3. SALARY & BENEFITS</h3>
+              <div class="clause-text">
+                <ul class="salary-list">
+                  <li>• <span>Fixed Monthly Salary: <span class="text-green-700">₹${data.salary} / Month</span></span></li>
+                  <li>• <span>Petrol / Travel Allowance: <span class="text-green-700">${data.travelAllowance || 'N/A'}</span></span></li>
+                  <li>• <span>Performance Incentives: <span class="text-green-700">${data.performanceIncentives || 'N/A'}</span></span></li>
+                  <li>• <span>Membership Incentives (if applicable): <span class="text-green-700">${data.membershipIncentives || 'N/A'}</span></span></li>
+                  <li class="normal-benefit">• <span>Training & Guidance Support</span></li>
+                  <li class="normal-benefit">• <span>Official ID Card</span></li>
+                  <li class="normal-benefit">• <span>Campaign Materials & Operational Support</span></li>
+                </ul>
+                <p class="text-gray-500">Salary release timelines and incentive structures shall be governed as per company policy.</p>
+              </div>
+
+              <!-- 4. NATURE OF WORK -->
+              <h3 class="section-title">4. NATURE OF WORK</h3>
+              <ul class="nature-list">
+                <li>• <span>Field visits and awareness activities</span></li>
+                <li>• <span>Community interaction and meetings</span></li>
+                <li>• <span>Reporting and campaign participation</span></li>
+                <li>• <span>Assigned awareness programs</span></li>
+                <li>• <span>Work allocation as determined by SakhiHub</span></li>
+              </ul>
+
+              <!-- 5. CODE OF CONDUCT -->
+              <h3 class="section-title">5. CODE OF CONDUCT</h3>
+              <div class="clause-text">
+                <p class="font-bold" style="margin-bottom: 8px;">Employee agrees to:</p>
+                <ul class="conduct-list">
+                  <li>• <span>Maintain professionalism and discipline</span></li>
+                  <li>• <span>Respect organizational policies</span></li>
+                  <li>• <span>Avoid misleading commitments</span></li>
+                  <li>• <span>Maintain respectful behaviour</span></li>
+                  <li>• <span>Protect confidential information</span></li>
+                  <li>• <span>Avoid misuse of organizational resources</span></li>
+                </ul>
+                <p class="text-red-600">Any misconduct, fraud, misrepresentation or activity damaging the reputation of SakhiHub may result in immediate termination.</p>
+              </div>
+
+              <!-- 6. CONFIDENTIALITY CLAUSE -->
+              <h3 class="section-title">6. CONFIDENTIALITY CLAUSE</h3>
+              <p class="clause-text">
+                Employee Data, Campaign Data, Membership Information, Vendor Information, Training Materials, Operational Systems, and Internal Reports shall remain confidential and shall not be disclosed without written approval.
+              </p>
+
+              <!-- 7. DIGITAL ACCEPTANCE & PORTAL AGREEMENT -->
+              <h3 class="section-title">7. DIGITAL ACCEPTANCE & PORTAL AGREEMENT</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>Digital acceptance through Portal, OTP, Checkbox or E-Sign shall constitute valid acceptance.</span></li>
+                <li>• <span>Digitally submitted information shall be treated as valid organizational records.</span></li>
+                <li>• <span>Employee confirms that all information submitted is genuine and correct.</span></li>
+              </ul>
+
+              <!-- 8. VERIFICATION & TERMINATION POLICY -->
+              <h3 class="section-title">8. VERIFICATION & TERMINATION POLICY</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>SakhiHub reserves the right to verify documents and background information.</span></li>
+                <li>• <span>False information or fake documents may result in immediate termination.</span></li>
+                <li>• <span>Company reserves the right to modify or discontinue operational activities.</span></li>
+              </ul>
+
+              <!-- 9. INDEPENDENT OPERATIONAL CLAUSE -->
+              <h3 class="section-title">9. INDEPENDENT OPERATIONAL CLAUSE</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>Campaign activities are awareness-based.</span></li>
+                <li>• <span>Structures may vary state-wise and district-wise.</span></li>
+                <li>• <span>Incentives depend upon organizational policies and performance.</span></li>
+                <li>• <span>Operational decisions remain under SakhiHub authority.</span></li>
+              </ul>
+
+              <!-- 10. DECLARATION BY CANDIDATE -->
+              <h3 class="section-title">10. DECLARATION BY CANDIDATE</h3>
+              <div class="clause-text">
+                <p class="font-bold" style="margin-bottom: 8px;">I confirm that:</p>
+                <ul class="conduct-list">
+                  <li>• <span>I have read and understood this Offer Letter.</span></li>
+                  <li>• <span>I agree to comply with SakhiHub policies.</span></li>
+                  <li>• <span>Information submitted by me is true and correct.</span></li>
+                  <li>• <span>Violation of company policies may result in termination.</span></li>
+                  <li>• <span>I voluntarily accept this opportunity.</span></li>
+                </ul>
+              </div>
+
+              <!-- 11. EMPLOYMENT NATURE & PROBATION CLAUSE -->
+              <h3 class="section-title">11. EMPLOYMENT NATURE & PROBATION CLAUSE</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>Initial Probation Period: 3 Months</span></li>
+                <li>• <span>Performance shall be evaluated continuously.</span></li>
+                <li>• <span>SakhiHub may confirm, extend, suspend or discontinue engagement.</span></li>
+                <li>• <span>Employment remains subject to satisfactory performance.</span></li>
+              </ul>
+
+              <!-- 12. TRANSFER & ASSIGNMENT CLAUSE -->
+              <h3 class="section-title">12. TRANSFER & ASSIGNMENT CLAUSE</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>SakhiHub may transfer employee to any district, block, tehsil, state, project or department.</span></li>
+                <li>• <span>Employee agrees to cooperate with such assignments.</span></li>
+              </ul>
+
+              <!-- 13. MEMBERSHIP & GROUP OWNERSHIP CLAUSE -->
+              <h3 class="section-title">13. MEMBERSHIP & GROUP OWNERSHIP CLAUSE</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>All groups, members and awareness networks shall remain exclusive property of SakhiHub.</span></li>
+                <li>• <span>Employee shall have no ownership rights over organizational databases.</span></li>
+              </ul>
+
+              <!-- 14. DATA PROTECTION & PORTAL ACCESS CLAUSE -->
+              <h3 class="section-title">14. DATA PROTECTION & PORTAL ACCESS CLAUSE</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>Login credentials and operational data shall remain confidential.</span></li>
+                <li>• <span>Unauthorized sharing or misuse shall be treated as misconduct.</span></li>
+              </ul>
+
+              <!-- 15. RESIGNATION & EXIT POLICY -->
+              <h3 class="section-title">15. RESIGNATION & EXIT POLICY</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>Employee may resign as per company policy.</span></li>
+                <li>• <span>Exit formalities must be completed before settlement.</span></li>
+              </ul>
+
+              <!-- 16. NON-SOLICITATION CLAUSE -->
+              <h3 class="section-title">16. NON-SOLICITATION CLAUSE</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>Employee shall not induce members, employees, vendors or partners to leave SakhiHub.</span></li>
+                <li>• <span>Restriction shall remain applicable during employment and for 12 months after separation.</span></li>
+              </ul>
+
+              <!-- 17. INTELLECTUAL PROPERTY CLAUSE -->
+              <h3 class="section-title">17. INTELLECTUAL PROPERTY CLAUSE</h3>
+              <p class="clause-text">
+                All content, reports, documents, presentations, photographs, videos and training materials created during employment shall remain property of SakhiHub.
+              </p>
+
+              <!-- 18. RECOVERY CLAUSE -->
+              <h3 class="section-title">18. RECOVERY CLAUSE</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>Financial loss, fraud, unauthorized collection or policy violations may result in recovery proceedings.</span></li>
+                <li>• <span>Incentives may be withheld pending investigation.</span></li>
+              </ul>
+
+              <!-- 19. JURISDICTION CLAUSE -->
+              <h3 class="section-title">19. JURISDICTION CLAUSE</h3>
+              <p class="clause-text">
+                All disputes shall be subject exclusively to the jurisdiction of competent courts located at <strong>Indore, Madhya Pradesh</strong>.
+              </p>
+
+              <!-- 20. FINAL AUTHORITY CLAUSE -->
+              <h3 class="section-title">20. FINAL AUTHORITY CLAUSE</h3>
+              <p class="clause-text">
+                SakhiHub shall have final authority regarding verification, performance evaluation, incentive approval, membership validation and operational decisions.
+              </p>
+
+              <!-- 21. ATTENDANCE & REPORTING CLAUSE -->
+              <h3 class="section-title">21. ATTENDANCE & REPORTING CLAUSE</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>Daily attendance and reporting are mandatory.</span></li>
+                <li>• <span>Salary, petrol allowance and incentives may be linked to reporting compliance.</span></li>
+              </ul>
+
+              <!-- 22. COMPANY PROPERTY CLAUSE -->
+              <h3 class="section-title">22. COMPANY PROPERTY CLAUSE</h3>
+              <p class="clause-text">
+                All ID Cards, Documents, Training Material, Portal Access and Company Assets remain property of SakhiHub.
+              </p>
+
+              <!-- 23. NO UNAUTHORIZED COLLECTION CLAUSE -->
+              <h3 class="section-title">23. NO UNAUTHORIZED COLLECTION CLAUSE</h3>
+              <p class="clause-text">
+                Employee shall not collect money in the name of SakhiHub without written authorization.
+              </p>
+
+              <!-- 24. LEGAL COMPLIANCE CLAUSE -->
+              <h3 class="section-title">24. LEGAL COMPLIANCE CLAUSE</h3>
+              <p class="clause-text">
+                Employee shall comply with all applicable laws and organizational policies.
+              </p>
+
+              <!-- 25. ENTIRE AGREEMENT CLAUSE -->
+              <h3 class="section-title">25. ENTIRE AGREEMENT CLAUSE</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>This Offer Letter, Portal Acceptance, Policies and future updates shall collectively form the employment understanding between employee and SakhiHub.</span></li>
+                <li>• <span>SakhiHub may revise policies from time to time.</span></li>
+              </ul>
+
+              <!-- 26. BACKGROUND VERIFICATION CLAUSE -->
+              <h3 class="section-title">26. BACKGROUND VERIFICATION CLAUSE</h3>
+              <p class="clause-text">
+                SakhiHub may verify educational, identity, address, experience and criminal background information.
+              </p>
+
+              <!-- 27. MEDICAL & FITNESS DECLARATION CLAUSE -->
+              <h3 class="section-title">27. MEDICAL & FITNESS DECLARATION CLAUSE</h3>
+              <p class="clause-text">
+                Employee confirms physical and mental fitness to perform assigned duties.
+              </p>
+
+              <!-- 28. SURVIVAL CLAUSE -->
+              <h3 class="section-title">28. SURVIVAL CLAUSE</h3>
+              <p class="clause-text">
+                Confidentiality, Data Protection, Intellectual Property, Recovery Rights, Jurisdiction and Group Ownership Clauses shall survive resignation, suspension or termination.
+              </p>
+
+              <!-- IMPORTANT NOTICE -->
+              <div class="important-notice-box">
+                <h4 class="important-notice-title">IMPORTANT NOTICE</h4>
+                <p class="important-notice-text">
+                  This Offer Letter is issued for organizational engagement under SakhiHub Awareness Programs and shall not be construed as a guarantee of permanent employment, fixed tenure employment or lifetime engagement.
+                </p>
+              </div>
+
+              <!-- Signatures & Acceptance -->
+              <div class="signatures-container">
+                <!-- Candidate Acceptance -->
+                <div class="signature-col">
+                  <div style="margin-bottom: auto;">
+                    <h4 class="sig-title">CANDIDATE DIGITAL ACCEPTANCE</h4>
+                    <div class="checkbox-row">
+                      <span class="checkbox-box">${data.documentStatus === 'accepted' || data.documentStatus === 'approved' ? '✓' : ''}</span>
+                      <span class="checkbox-label">I Agree to the Terms & Conditions</span>
+                    </div>
+                  </div>
+                  <div class="sig-details">
+                    <p>Candidate Name: <span class="font-bold" style="color: #111827;">${data.employeeName}</span></p>
+                    <p>Mobile Number: <span class="font-bold" style="color: #111827;">${data.mobile}</span></p>
+                    <p>Date: <span class="font-bold" style="color: #111827;">${data.documentStatus === 'accepted' || data.documentStatus === 'approved' ? formatDate(new Date()) : '____________________'}</span></p>
+                    <p class="sig-status-text">
+                      ${data.documentStatus === 'accepted' || data.documentStatus === 'approved' ? 'Signed Digitally via OTP verification' : 'Digital Signature Pending'}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Authorized By -->
+                <div class="signature-col-right">
+                  <div class="sig-img-container">
+                    ${sigBase64 ? `<img src="${sigBase64}" class="sig-img" alt="Manager Signature" />` : ''}
+                  </div>
+                  <div style="width: 100%;">
+                    <h4 class="auth-title">AUTHORIZED BY</h4>
+                    <p class="auth-brand">SakhiHub</p>
+                    <p class="auth-dept">Women Health & Awareness Campaign</p>
+                    <p class="auth-portal">Official Digital Employment & Awareness Portal</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer System Notice -->
+              <div class="footer-system-notice">
+                This is a system generated digital offer letter. Digital acceptance via the SakhiHub portal is legally binding.
+              </div>
+
+            </td>
+          </tr>
+        </tbody>
+        <tfoot class="print-footer">
+          <tr>
+            <td>
+              <div class="print-footer-space"></div>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </body>
+  </html>
+  `;
+};
+
+export const generatePdfBuffer = async (
+  htmlContent: string,
+  agreementId?: string,
+  options?: {
+    margin?: { top?: string; right?: string; bottom?: string; left?: string };
+    displayHeaderFooter?: boolean;
+  }
+) => {
   let browser;
   const isServerless = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
 
@@ -695,6 +1623,7 @@ export const generatePdfBuffer = async (htmlContent: string, agreementId?: strin
   }
 
   const page = await browser.newPage();
+  await page.emulateMediaType('print');
 
   await page.setContent(htmlContent, { waitUntil: 'load' });
 
@@ -711,10 +1640,11 @@ export const generatePdfBuffer = async (htmlContent: string, agreementId?: strin
   const pdfBuffer = await page.pdf({
     format: 'A4',
     printBackground: true,
-    displayHeaderFooter: true,
+    displayHeaderFooter: options?.displayHeaderFooter !== undefined ? options.displayHeaderFooter : true,
     headerTemplate,
     footerTemplate,
-    margin: { top: '22mm', right: '20mm', bottom: '22mm', left: '20mm' },
+    margin: options?.margin || { top: '22mm', right: '20mm', bottom: '22mm', left: '20mm' },
+    preferCSSPageSize: true,
   });
 
   await browser.close();

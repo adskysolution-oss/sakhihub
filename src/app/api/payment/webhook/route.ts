@@ -76,6 +76,12 @@ export async function POST(req: NextRequest) {
 
       console.log(`[Webhook DB Update Result] PaymentTransaction updated successfully. ID: ${transaction._id}, status: completed, webhookReceived: true`);
 
+      // Trigger PAYMENT_SUCCESS notification for deposit payments
+      if (transaction.type === 'deposit') {
+        const { NotificationService, NotificationEvent } = await import('@/lib/notifications');
+        await NotificationService.trigger(NotificationEvent.PAYMENT_SUCCESS, { transactionId: transaction._id });
+      }
+
       // Trigger upline commission distribution
       try {
         await distributeCommission(
