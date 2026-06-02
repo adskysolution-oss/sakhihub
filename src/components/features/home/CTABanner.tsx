@@ -28,11 +28,15 @@ const CTABanner = () => {
             transition={{ delay: 0.2 }}
             className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 relative z-10"
           >
-            {t('ctaBanner.title').split('&').map((part: string, idx: number) => (
-              <React.Fragment key={idx}>
-                {idx === 0 ? part : <span className="text-primary">& {part}</span>}
-              </React.Fragment>
-            ))}
+            {t('ctaBanner.title').includes('<') ? (
+              <span dangerouslySetInnerHTML={{ __html: t('ctaBanner.title') }} />
+            ) : (
+              t('ctaBanner.title').split('&').map((part: string, idx: number) => (
+                <React.Fragment key={idx}>
+                  {idx === 0 ? part : <span className="text-primary">& {part}</span>}
+                </React.Fragment>
+              ))
+            )}
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
