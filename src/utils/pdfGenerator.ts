@@ -817,15 +817,15 @@ export const generateOfferLetterHtml = (data: any) => {
         flex-direction: column;
         align-items: center;
         border-bottom: 2px solid #D91656;
-        padding-bottom: 16px;
-        margin-bottom: 24px;
+        padding-bottom: 12px;
+        margin-bottom: 20px;
         text-align: center;
       }
       .logo-img {
-        height: 80px;
+        height: 70px;
         width: auto;
         object-fit: contain;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
       }
       .program-name {
         font-size: 14px;
@@ -847,12 +847,12 @@ export const generateOfferLetterHtml = (data: any) => {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 16px;
+        margin-top: 12px;
         font-size: 11px;
         color: #6b7280;
         font-weight: bold;
         border-top: 1px solid #f3f4f6;
-        padding-top: 10px;
+        padding-top: 8px;
       }
       .meta-row p {
         margin: 0;
@@ -871,7 +871,7 @@ export const generateOfferLetterHtml = (data: any) => {
       /* Title */
       .title-container {
         text-align: center;
-        margin-bottom: 32px;
+        margin-bottom: 24px;
       }
       .title-text {
         font-size: 20px;
@@ -885,13 +885,13 @@ export const generateOfferLetterHtml = (data: any) => {
       /* Salutation & Intro */
       .intro-container {
         font-size: 14px;
-        margin-bottom: 24px;
+        margin-bottom: 18px;
         line-height: 1.625;
         text-align: justify;
       }
       .intro-container p {
         margin-top: 0;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
       }
       .intro-container p:last-child {
         margin-bottom: 0;
@@ -906,8 +906,8 @@ export const generateOfferLetterHtml = (data: any) => {
         font-weight: 900;
         text-transform: uppercase;
         color: #D91656;
-        margin-top: 24px;
-        margin-bottom: 12px;
+        margin-top: 18px;
+        margin-bottom: 10px;
         border-bottom: 1px solid #e5e7eb;
         padding-bottom: 4px;
         page-break-after: avoid;
@@ -919,7 +919,7 @@ export const generateOfferLetterHtml = (data: any) => {
         width: 100%;
         font-size: 12px;
         border-collapse: collapse;
-        margin-bottom: 24px;
+        margin-bottom: 18px;
         page-break-inside: avoid;
         break-inside: avoid;
       }
@@ -929,8 +929,8 @@ export const generateOfferLetterHtml = (data: any) => {
         break-inside: avoid;
       }
       .details-table td {
-        padding-top: 8px;
-        padding-bottom: 8px;
+        padding-top: 6px;
+        padding-bottom: 6px;
       }
       .details-table td.label {
         font-weight: bold;
@@ -941,7 +941,7 @@ export const generateOfferLetterHtml = (data: any) => {
       .bullet-list-responsibilities {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 5px;
         list-style: none;
         padding-left: 4px;
         margin-top: 0;
@@ -964,7 +964,7 @@ export const generateOfferLetterHtml = (data: any) => {
       .salary-list {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 5px;
         list-style: none;
         padding-left: 4px;
         margin-top: 0;
@@ -995,11 +995,11 @@ export const generateOfferLetterHtml = (data: any) => {
       .nature-list {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 5px;
         list-style: none;
         padding-left: 4px;
         margin-top: 0;
-        margin-bottom: 24px;
+        margin-bottom: 18px;
         font-size: 12px;
       }
       .nature-list li {
@@ -1013,7 +1013,7 @@ export const generateOfferLetterHtml = (data: any) => {
       .conduct-list {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 5px;
         list-style: none;
         padding-left: 4px;
         margin-top: 0;
@@ -1036,7 +1036,7 @@ export const generateOfferLetterHtml = (data: any) => {
       /* Paragraph clause text */
       .clause-text {
         font-size: 12px;
-        margin-bottom: 24px;
+        margin-bottom: 18px;
         text-align: justify;
         line-height: 1.625;
         color: #374151;
@@ -1046,11 +1046,11 @@ export const generateOfferLetterHtml = (data: any) => {
       .clause-bullet-list {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 5px;
         list-style: none;
         padding-left: 4px;
         margin-top: 0;
-        margin-bottom: 24px;
+        margin-bottom: 18px;
         font-size: 12px;
         color: #374151;
       }
@@ -1065,8 +1065,8 @@ export const generateOfferLetterHtml = (data: any) => {
       
       /* Important notice box */
       .important-notice-box {
-        margin-bottom: 32px;
-        padding: 16px;
+        margin-bottom: 24px;
+        padding: 12px;
         background-color: #f9fafb;
         border: 1px solid #e5e7eb;
         border-radius: 16px;
@@ -1093,8 +1093,8 @@ export const generateOfferLetterHtml = (data: any) => {
       .signatures-container {
         display: flex;
         justify-content: space-between;
-        padding-top: 32px;
-        margin-top: 64px;
+        padding-top: 24px;
+        margin-top: 36px;
         border-top: 1px solid #e5e7eb;
         page-break-inside: avoid;
         break-inside: avoid;
@@ -1217,8 +1217,8 @@ export const generateOfferLetterHtml = (data: any) => {
       
       /* Footer notice */
       .footer-system-notice {
-        margin-top: 48px;
-        padding-top: 16px;
+        margin-top: 24px;
+        padding-top: 12px;
         border-top: 1px solid #f3f4f6;
         text-align: center;
         font-size: 9px;
@@ -1226,6 +1226,19 @@ export const generateOfferLetterHtml = (data: any) => {
         text-transform: uppercase;
         letter-spacing: 0.1em;
         line-height: 1.5;
+      }
+      
+      .keep-together {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      
+      .print-footer-content, .print-footer-content a, .print-footer-content span {
+        color: #2563eb !important;
+      }
+      
+      .print-footer-content a {
+        text-decoration: underline !important;
       }
     </style>
   </head>
@@ -1526,52 +1539,55 @@ export const generateOfferLetterHtml = (data: any) => {
                 Confidentiality, Data Protection, Intellectual Property, Recovery Rights, Jurisdiction and Group Ownership Clauses shall survive resignation, suspension or termination.
               </p>
 
-              <!-- IMPORTANT NOTICE -->
-              <div class="important-notice-box">
-                <h4 class="important-notice-title">IMPORTANT NOTICE</h4>
-                <p class="important-notice-text">
-                  This Offer Letter is issued for organizational engagement under SakhiHub Awareness Programs and shall not be construed as a guarantee of permanent employment, fixed tenure employment or lifetime engagement.
-                </p>
-              </div>
+              <!-- Keep notice and signatures together in print -->
+              <div class="keep-together">
+                <!-- IMPORTANT NOTICE -->
+                <div class="important-notice-box">
+                  <h4 class="important-notice-title">IMPORTANT NOTICE</h4>
+                  <p class="important-notice-text">
+                    This Offer Letter is issued for organizational engagement under SakhiHub Awareness Programs and shall not be construed as a guarantee of permanent employment, fixed tenure employment or lifetime engagement.
+                  </p>
+                </div>
 
-              <!-- Signatures & Acceptance -->
-              <div class="signatures-container">
-                <!-- Candidate Acceptance -->
-                <div class="signature-col">
-                  <div style="margin-bottom: auto;">
-                    <h4 class="sig-title">CANDIDATE DIGITAL ACCEPTANCE</h4>
-                    <div class="checkbox-row">
-                      <span class="checkbox-box">${data.documentStatus === 'accepted' || data.documentStatus === 'approved' ? '✓' : ''}</span>
-                      <span class="checkbox-label">I Agree to the Terms & Conditions</span>
+                <!-- Signatures & Acceptance -->
+                <div class="signatures-container">
+                  <!-- Candidate Acceptance -->
+                  <div class="signature-col">
+                    <div style="margin-bottom: auto;">
+                      <h4 class="sig-title">CANDIDATE DIGITAL ACCEPTANCE</h4>
+                      <div class="checkbox-row">
+                        <span class="checkbox-box">${data.documentStatus === 'accepted' || data.documentStatus === 'approved' ? '✓' : ''}</span>
+                        <span class="checkbox-label">I Agree to the Terms & Conditions</span>
+                      </div>
+                    </div>
+                    <div class="sig-details">
+                      <p>Candidate Name: <span class="font-bold" style="color: #111827;">${data.employeeName}</span></p>
+                      <p>Mobile Number: <span class="font-bold" style="color: #111827;">${data.mobile}</span></p>
+                      <p>Date: <span class="font-bold" style="color: #111827;">${data.documentStatus === 'accepted' || data.documentStatus === 'approved' ? formatDate(new Date()) : '____________________'}</span></p>
+                      <p class="sig-status-text">
+                        ${data.documentStatus === 'accepted' || data.documentStatus === 'approved' ? 'Signed Digitally via OTP verification' : 'Digital Signature Pending'}
+                      </p>
                     </div>
                   </div>
-                  <div class="sig-details">
-                    <p>Candidate Name: <span class="font-bold" style="color: #111827;">${data.employeeName}</span></p>
-                    <p>Mobile Number: <span class="font-bold" style="color: #111827;">${data.mobile}</span></p>
-                    <p>Date: <span class="font-bold" style="color: #111827;">${data.documentStatus === 'accepted' || data.documentStatus === 'approved' ? formatDate(new Date()) : '____________________'}</span></p>
-                    <p class="sig-status-text">
-                      ${data.documentStatus === 'accepted' || data.documentStatus === 'approved' ? 'Signed Digitally via OTP verification' : 'Digital Signature Pending'}
-                    </p>
+
+                  <!-- Authorized By -->
+                  <div class="signature-col-right">
+                    <div class="sig-img-container">
+                      ${sigBase64 ? `<img src="${sigBase64}" class="sig-img" alt="Manager Signature" />` : ''}
+                    </div>
+                    <div style="width: 100%;">
+                      <h4 class="auth-title">AUTHORIZED BY</h4>
+                      <p class="auth-brand">SakhiHub</p>
+                      <p class="auth-dept">Women Health & Awareness Campaign</p>
+                      <p class="auth-portal">Official Digital Employment & Awareness Portal</p>
+                    </div>
                   </div>
                 </div>
 
-                <!-- Authorized By -->
-                <div class="signature-col-right">
-                  <div class="sig-img-container">
-                    ${sigBase64 ? `<img src="${sigBase64}" class="sig-img" alt="Manager Signature" />` : ''}
-                  </div>
-                  <div style="width: 100%;">
-                    <h4 class="auth-title">AUTHORIZED BY</h4>
-                    <p class="auth-brand">SakhiHub</p>
-                    <p class="auth-dept">Women Health & Awareness Campaign</p>
-                    <p class="auth-portal">Official Digital Employment & Awareness Portal</p>
-                  </div>
+                <!-- Footer System Notice -->
+                <div class="footer-system-notice">
+                  This is a system generated digital offer letter. Digital acceptance via the SakhiHub portal is legally binding.
                 </div>
-              </div>
-
-              <!-- Footer System Notice -->
-              <div class="footer-system-notice">
-                This is a system generated digital offer letter. Digital acceptance via the SakhiHub portal is legally binding.
               </div>
 
             </td>
@@ -1580,7 +1596,14 @@ export const generateOfferLetterHtml = (data: any) => {
         <tfoot class="print-footer">
           <tr>
             <td>
-              <div class="print-footer-space"></div>
+              <!-- Running Print Footer: email | sakhihub | address -->
+              <div class="print-footer-content" style="height: 12mm; border-top: 1px solid #e5e7eb; display: flex; align-items: center; font-size: 10px; font-family: sans-serif; padding-left: 12mm; padding-right: 12mm; box-sizing: border-box; margin-top: 8px; gap: 8px;">
+                <a href="mailto:support@sakhihub.com">support@sakhihub.com</a>
+                <span style="color: #d1d5db;">|</span>
+                <a href="https://www.sakhihub.com" style="font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">SakhiHub</a>
+                <span style="color: #d1d5db;">|</span>
+                <span>Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010</span>
+              </div>
             </td>
           </tr>
         </tfoot>

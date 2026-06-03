@@ -68,6 +68,52 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
             break-inside: avoid;
             page-break-inside: avoid;
           }
+          .keep-together {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+          /* Distribute space on page 1 and page 2 */
+          h2 {
+            margin-bottom: 16px !important;
+          }
+          h3 {
+            margin-top: 20px !important;
+            margin-bottom: 10px !important;
+            padding-bottom: 4px !important;
+          }
+          .mb-6 {
+            margin-bottom: 16px !important;
+          }
+          .mb-8 {
+            margin-bottom: 20px !important;
+          }
+          .mt-16 {
+            margin-top: 32px !important;
+          }
+          .mt-12 {
+            margin-top: 24px !important;
+          }
+          .pt-8 {
+            padding-top: 24px !important;
+          }
+          .pb-4 {
+            padding-bottom: 12px !important;
+          }
+          .pb-1 {
+            padding-bottom: 4px !important;
+          }
+          .mb-3 {
+            margin-bottom: 8px !important;
+          }
+          .space-y-1\\.5 > :not([hidden]) ~ :not([hidden]) {
+            margin-top: 4px !important;
+          }
+          .print-footer-content, .print-footer-content a, .print-footer-content span {
+            color: #2563eb !important;
+          }
+          .print-footer-content a {
+            text-decoration: underline !important;
+          }
         }
       `}</style>
       
@@ -374,52 +420,55 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
                 Confidentiality, Data Protection, Intellectual Property, Recovery Rights, Jurisdiction and Group Ownership Clauses shall survive resignation, suspension or termination.
               </p>
 
-              {/* IMPORTANT NOTICE */}
-              <div className="mb-8 p-4 bg-gray-50 border border-gray-200 rounded-2xl">
-                <h4 className="text-xs font-black uppercase text-gray-800 mb-1">IMPORTANT NOTICE</h4>
-                <p className="text-[11px] text-justify leading-relaxed text-gray-600">
-                  This Offer Letter is issued for organizational engagement under SakhiHub Awareness Programs and shall not be construed as a guarantee of permanent employment, fixed tenure employment or lifetime engagement.
-                </p>
-              </div>
+              {/* Keep notice and signatures together in print */}
+              <div className="keep-together">
+                {/* IMPORTANT NOTICE */}
+                <div className="mb-8 p-4 bg-gray-50 border border-gray-200 rounded-2xl">
+                  <h4 className="text-xs font-black uppercase text-gray-800 mb-1">IMPORTANT NOTICE</h4>
+                  <p className="text-[11px] text-justify leading-relaxed text-gray-600">
+                    This Offer Letter is issued for organizational engagement under SakhiHub Awareness Programs and shall not be construed as a guarantee of permanent employment, fixed tenure employment or lifetime engagement.
+                  </p>
+                </div>
 
-              {/* Signatures & Acceptance */}
-              <div className="grid grid-cols-2 gap-8 pt-8 mt-16 border-t border-gray-200 signatures-container">
-                {/* Candidate Acceptance */}
-                <div className="space-y-4 flex flex-col justify-end min-h-[180px]">
-                  <div className="mb-auto">
-                    <h4 className="text-xs font-black uppercase text-gray-800 tracking-wider">CANDIDATE DIGITAL ACCEPTANCE</h4>
-                    <div className="flex items-center gap-2 mb-2 mt-3">
-                      <input type="checkbox" checked={data.documentStatus === 'accepted' || data.documentStatus === 'approved'} readOnly className="h-4.5 w-4.5 text-[#D91656] rounded border-gray-300 focus:ring-[#D91656]" />
-                      <span className="text-xs font-bold text-gray-700">I Agree to the Terms & Conditions</span>
+                {/* Signatures & Acceptance */}
+                <div className="grid grid-cols-2 gap-8 pt-8 mt-16 border-t border-gray-200 signatures-container">
+                  {/* Candidate Acceptance */}
+                  <div className="space-y-4 flex flex-col justify-end min-h-[180px]">
+                    <div className="mb-auto">
+                      <h4 className="text-xs font-black uppercase text-gray-800 tracking-wider">CANDIDATE DIGITAL ACCEPTANCE</h4>
+                      <div className="flex items-center gap-2 mb-2 mt-3">
+                        <input type="checkbox" checked={data.documentStatus === 'accepted' || data.documentStatus === 'approved'} readOnly className="h-4.5 w-4.5 text-[#D91656] rounded border-gray-300 focus:ring-[#D91656]" />
+                        <span className="text-xs font-bold text-gray-700">I Agree to the Terms & Conditions</span>
+                      </div>
+                    </div>
+                    <div className="text-xs space-y-1.5 text-gray-600">
+                      <p>Candidate Name: <span className="font-bold text-gray-900">{data.employeeName}</span></p>
+                      <p>Mobile Number: <span className="font-bold text-gray-900">{data.mobile}</span></p>
+                      <p>Date: <span className="font-bold text-gray-900">{data.documentStatus === 'accepted' || data.documentStatus === 'approved' ? formatDate(new Date()) : '____________________'}</span></p>
+                      <p className="text-[10px] text-gray-400 mt-2 font-mono">
+                        {data.documentStatus === 'accepted' || data.documentStatus === 'approved' ? `Signed Digitally via OTP verification` : 'Digital Signature Pending'}
+                      </p>
                     </div>
                   </div>
-                  <div className="text-xs space-y-1.5 text-gray-600">
-                    <p>Candidate Name: <span className="font-bold text-gray-900">{data.employeeName}</span></p>
-                    <p>Mobile Number: <span className="font-bold text-gray-900">{data.mobile}</span></p>
-                    <p>Date: <span className="font-bold text-gray-900">{data.documentStatus === 'accepted' || data.documentStatus === 'approved' ? formatDate(new Date()) : '____________________'}</span></p>
-                    <p className="text-[10px] text-gray-400 mt-2 font-mono">
-                      {data.documentStatus === 'accepted' || data.documentStatus === 'approved' ? `Signed Digitally via OTP verification` : 'Digital Signature Pending'}
-                    </p>
+
+                  {/* Authorized By */}
+                  <div className="text-center flex flex-col justify-between items-center relative min-h-[180px] pl-6 border-l border-gray-100">
+                    <div className="w-full h-20 flex items-center justify-center mb-2">
+                      <img src="/manager-signature.png" alt="Manager Signature" className="h-16 w-auto object-contain opacity-85" />
+                    </div>
+                    <div className="w-full text-center">
+                      <h4 className="text-xs font-black uppercase text-gray-900 tracking-wider border-t border-gray-400 pt-2">AUTHORIZED BY</h4>
+                      <p className="text-[11px] font-bold text-[#D91656] uppercase tracking-wide mt-1">SakhiHub</p>
+                      <p className="text-[9px] text-gray-400 uppercase mt-0.5">Women Health & Awareness Campaign</p>
+                      <p className="text-[8px] text-gray-400 uppercase tracking-widest mt-0.5">Official Digital Employment & Awareness Portal</p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Authorized By */}
-                <div className="text-center flex flex-col justify-between items-center relative min-h-[180px] pl-6 border-l border-gray-100">
-                  <div className="w-full h-20 flex items-center justify-center mb-2">
-                    <img src="/manager-signature.png" alt="Manager Signature" className="h-16 w-auto object-contain opacity-85" />
-                  </div>
-                  <div className="w-full text-center">
-                    <h4 className="text-xs font-black uppercase text-gray-900 tracking-wider border-t border-gray-400 pt-2">AUTHORIZED BY</h4>
-                    <p className="text-[11px] font-bold text-[#D91656] uppercase tracking-wide mt-1">SakhiHub</p>
-                    <p className="text-[9px] text-gray-400 uppercase mt-0.5">Women Health & Awareness Campaign</p>
-                    <p className="text-[8px] text-gray-400 uppercase tracking-widest mt-0.5">Official Digital Employment & Awareness Portal</p>
-                  </div>
+                {/* Footer System Notice */}
+                <div className="mt-12 pt-4 border-t border-gray-100 text-center text-[9px] text-gray-400 uppercase tracking-widest leading-normal">
+                  This is a system generated digital offer letter. Digital acceptance via the SakhiHub portal is legally binding.
                 </div>
-              </div>
-
-              {/* Footer System Notice */}
-              <div className="mt-12 pt-4 border-t border-gray-100 text-center text-[9px] text-gray-400 uppercase tracking-widest leading-normal">
-                This is a system generated digital offer letter. Digital acceptance via the SakhiHub portal is legally binding.
               </div>
             </td>
           </tr>
@@ -427,7 +476,14 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
         <tfoot className="hidden print:table-footer-group">
           <tr>
             <td>
-              <div className="h-[12mm]" />
+              {/* Running Print Footer: email | sakhihub | address */}
+              <div className="h-[12mm] border-t border-gray-200 flex items-center text-[10px] font-sans px-[12mm] mt-2 gap-2 print-footer-content">
+                <a href="mailto:support@sakhihub.com">support@sakhihub.com</a>
+                <span className="text-gray-300">|</span>
+                <a href="https://www.sakhihub.com" target="_blank" rel="noopener noreferrer" className="font-bold uppercase tracking-wider">SakhiHub</a>
+                <span className="text-gray-300">|</span>
+                <span>Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010</span>
+              </div>
             </td>
           </tr>
         </tfoot>
