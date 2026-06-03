@@ -9,29 +9,29 @@ const HowItWorks = () => {
   const { t } = useLanguage();
 
   const steps = [
-    { 
-      title: t('howItWorks.steps.1.title'), 
-      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=600", 
+    {
+      title: t('howItWorks.steps.1.title'),
+      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=600",
       desc: t('howItWorks.steps.1.desc')
     },
-    { 
-      title: t('howItWorks.steps.2.title'), 
-      image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=600", 
+    {
+      title: t('howItWorks.steps.2.title'),
+      image: "images/OurNationalMission.png",
       desc: t('howItWorks.steps.2.desc')
     },
-    { 
-      title: t('howItWorks.steps.3.title'), 
-      image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=600", 
+    {
+      title: t('howItWorks.steps.3.title'),
+      image: "/images/Training-Women.png",
       desc: t('howItWorks.steps.3.desc')
     },
-    { 
-      title: t('howItWorks.steps.4.title'), 
-      image: "https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=600", 
+    {
+      title: t('howItWorks.steps.4.title'),
+      image: "/images/Programs-Employee.png",
       desc: t('howItWorks.steps.4.desc')
     },
-    { 
-      title: t('howItWorks.steps.5.title'), 
-      image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=600", 
+    {
+      title: t('howItWorks.steps.5.title'),
+      image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=600",
       desc: t('howItWorks.steps.5.desc')
     }
   ];
@@ -55,7 +55,7 @@ const HowItWorks = () => {
         <div className="flex flex-col lg:flex-row items-stretch justify-between gap-8 lg:gap-4">
           {steps.map((step, i) => (
             <React.Fragment key={i}>
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -66,11 +66,11 @@ const HowItWorks = () => {
                   <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary to-secondary text-white rounded-2xl flex items-center justify-center font-bold text-sm md:text-base shadow-lg shadow-primary/30 z-10 rotate-12 group-hover:rotate-0 transition-transform">
                     {i + 1}
                   </div>
-                  
+
                   <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden mx-auto mb-8 border-4 border-white shadow-xl shadow-black/10 group-hover:scale-110 transition-transform duration-500">
                     <img src={step.image} className="w-full h-full object-cover" alt={step.title} />
                   </div>
-                  
+
                   <h3 className="text-xl md:text-2xl font-bold text-secondary mb-4">
                     {step.title}
                   </h3>
@@ -79,7 +79,7 @@ const HowItWorks = () => {
                   </p>
                 </div>
               </motion.div>
-              
+
               {i < steps.length - 1 && (
                 <div className="hidden lg:flex items-center justify-center text-primary/20">
                   <ArrowRight size={24} className="animate-pulse" />

@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Heart, ShieldCheck, Zap, Globe, 
-  ArrowRight, Star, 
-  Award, MessageSquareHeart 
+import {
+  Heart, ShieldCheck, Zap, Globe,
+  ArrowRight, Star,
+  Award, MessageSquareHeart
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -26,7 +26,7 @@ const LiveImpactMap = () => {
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-center">
-          
+
           {/* ── Left Side: Mission & Trust ── */}
           <div className="lg:w-[45%] space-y-10">
             <motion.div
@@ -39,7 +39,7 @@ const LiveImpactMap = () => {
                 <Globe size={14} className="text-primary animate-spin-slow" />
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary/60">{t('liveImpact.tag')}</span>
               </div>
-              
+
               <h2 className="text-4xl md:text-6xl font-black text-secondary leading-[1.1] tracking-tight">
                 {t('liveImpact.title').split(' ').map((word: string, i: number, arr: string[]) => (
                   <span key={i}>
@@ -47,7 +47,7 @@ const LiveImpactMap = () => {
                   </span>
                 ))}
               </h2>
-              
+
               <p className="text-gray-500 text-lg md:text-xl font-medium leading-relaxed">
                 {t('liveImpact.desc')}
               </p>
@@ -75,9 +75,9 @@ const LiveImpactMap = () => {
             </div>
 
             <div className="flex justify-center lg:justify-start pt-4">
-               <button className="px-8 py-4 bg-secondary text-white rounded-2xl font-bold flex items-center gap-3 shadow-xl shadow-secondary/20 hover:-translate-y-1 transition-all">
-                 {t('liveImpact.cta')} <ArrowRight size={20} />
-               </button>
+              <button className="px-8 py-4 bg-secondary text-white rounded-2xl font-bold flex items-center gap-3 shadow-xl shadow-secondary/20 hover:-translate-y-1 transition-all">
+                {t('liveImpact.cta')} <ArrowRight size={20} />
+              </button>
             </div>
           </div>
 
@@ -91,7 +91,7 @@ const LiveImpactMap = () => {
             >
               {/* Decorative Accent */}
               <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2" />
-              
+
               <div className="relative z-10 space-y-10">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
@@ -106,18 +106,18 @@ const LiveImpactMap = () => {
 
                 {/* Featured Story Card */}
                 <div className="relative rounded-[40px] overflow-hidden aspect-[16/10] group">
-                    <img 
-                      src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1200" 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                      alt="Empowered Woman" 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-secondary/20 to-transparent" />
-                    <div className="absolute bottom-8 left-8 right-8">
-                      <p className="text-white/80 text-xs font-medium mb-2">{t('liveImpact.featuredAuthor') || "Priya Sharma • Patna Hub"}</p>
-                      <h4 className="text-xl md:text-2xl font-bold text-white leading-tight">
-                        {t('liveImpact.featuredStory')}
-                      </h4>
-                    </div>
+                  <img
+                    src="images/OurNationalMission.png"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    alt="Empowered Woman"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-secondary/20 to-transparent" />
+                  <div className="absolute bottom-8 left-8 right-8">
+                    <p className="text-white/80 text-xs font-medium mb-2">{t('liveImpact.featuredAuthor') || "Priya Sharma • Patna Hub"}</p>
+                    <h4 className="text-xl md:text-2xl font-bold text-white leading-tight">
+                      {t('liveImpact.featuredStory')}
+                    </h4>
+                  </div>
                 </div>
 
                 {/* Trust Indicators */}
@@ -126,7 +126,7 @@ const LiveImpactMap = () => {
                     <MessageSquareHeart size={28} className="text-primary" />
                     <p className="text-xs font-black text-secondary uppercase tracking-widest">{t('liveImpact.communityApproved')}</p>
                     <div className="flex gap-1">
-                      {[1,2,3,4,5].map(i => <Star key={i} size={10} className="fill-yellow-400 text-yellow-400" />)}
+                      {[1, 2, 3, 4, 5].map(i => <Star key={i} size={10} className="fill-yellow-400 text-yellow-400" />)}
                     </div>
                   </div>
                   <div className="p-6 bg-gray-50 rounded-[32px] border border-gray-100 flex flex-col items-center text-center space-y-3">
@@ -138,21 +138,21 @@ const LiveImpactMap = () => {
 
                 {/* Live Activity Ticker (Minimal) */}
                 <div className="pt-8 border-t border-gray-50 flex items-center justify-between">
-                   <div className="flex items-center gap-3">
-                     <div className="relative flex h-2 w-2">
-                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                       <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                     </div>
-                     <span className="text-[10px] font-black text-secondary uppercase tracking-widest">{t('liveImpact.liveUpdates')}</span>
-                   </div>
-                   <div className="flex -space-x-3">
-                     {[1,2,3,4].map(i => (
-                       <div key={i} className="w-8 h-8 rounded-full border-2 border-white overflow-hidden bg-gray-100">
-                         <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="user" />
-                       </div>
-                     ))}
-                     <div className="w-8 h-8 rounded-full border-2 border-white bg-secondary flex items-center justify-center text-[8px] font-black text-white">+12</div>
-                   </div>
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </div>
+                    <span className="text-[10px] font-black text-secondary uppercase tracking-widest">{t('liveImpact.liveUpdates')}</span>
+                  </div>
+                  <div className="flex -space-x-3">
+                    {[1, 2, 3, 4].map(i => (
+                      <div key={i} className="w-8 h-8 rounded-full border-2 border-white overflow-hidden bg-gray-100">
+                        <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="user" />
+                      </div>
+                    ))}
+                    <div className="w-8 h-8 rounded-full border-2 border-white bg-secondary flex items-center justify-center text-[8px] font-black text-white">+12</div>
+                  </div>
                 </div>
               </div>
             </motion.div>

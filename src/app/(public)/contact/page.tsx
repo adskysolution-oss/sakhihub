@@ -57,12 +57,12 @@ export default function ContactPage() {
 
   return (
     <main className="overflow-x-hidden bg-white">
-      <PageBanner 
-        title={t('contactPage.title')} 
+      <PageBanner
+        title={t('contactPage.title')}
         subtitle={t('contactPage.subtitle')}
-        image="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1500"
+        image="/images/Contact-Us.png"
       />
-      
+
       <section className="section-padding">
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-[0.8fr,1.2fr] gap-12 lg:gap-20">
@@ -71,7 +71,7 @@ export default function ContactPage() {
               <p className="text-base sm:text-lg lg:text-xl text-gray-500 mb-10 lg:mb-12 font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0">
                 {t('contactPage.reachDesc')}
               </p>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6 sm:gap-8">
                 {[
                   { title: t('contactPage.supportEmail'), val: "support@sakhihub.com", icon: Mail, bg: "bg-primary/5", color: "text-primary" },
@@ -93,7 +93,7 @@ export default function ContactPage() {
 
             <div className="bg-white rounded-[40px] p-8 sm:p-12 lg:p-16 shadow-2xl shadow-black/5 border border-gray-100">
               <h3 className="text-2xl sm:text-3xl font-bold text-secondary mb-8 sm:mb-10 text-center lg:text-left">{t('contactPage.sendMessage')}</h3>
-              
+
               {status && (
                 <div className={`mb-8 p-4 rounded-2xl text-sm font-bold text-center ${status.type === 'success' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-red-50 text-red-600 border border-red-100'}`}>
                   {status.msg}
@@ -104,33 +104,33 @@ export default function ContactPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
                   <div className="flex flex-col gap-2">
                     <label className="text-xs sm:text-sm font-bold text-secondary uppercase tracking-widest ml-1">{t('contactPage.nameLabel')}</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      placeholder={t('contactPage.namePlaceholder')} 
-                      className="w-full px-5 sm:px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 focus:bg-white focus:border-primary transition-all outline-none text-secondary font-medium" 
+                      placeholder={t('contactPage.namePlaceholder')}
+                      className="w-full px-5 sm:px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 focus:bg-white focus:border-primary transition-all outline-none text-secondary font-medium"
                       required
                     />
                   </div>
                   <div className="flex flex-col gap-2">
                     <label className="text-xs sm:text-sm font-bold text-secondary uppercase tracking-widest ml-1">{t('contactPage.emailLabel')}</label>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      placeholder={t('contactPage.emailPlaceholder')} 
-                      className="w-full px-5 sm:px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 focus:bg-white focus:border-primary transition-all outline-none text-secondary font-medium" 
+                      placeholder={t('contactPage.emailPlaceholder')}
+                      className="w-full px-5 sm:px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 focus:bg-white focus:border-primary transition-all outline-none text-secondary font-medium"
                       required
                     />
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col gap-2">
                   <label className="text-xs sm:text-sm font-bold text-secondary uppercase tracking-widest ml-1">{t('contactPage.subjectLabel')}</label>
-                  <select 
+                  <select
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
@@ -148,19 +148,19 @@ export default function ContactPage() {
 
                 <div className="flex flex-col gap-2">
                   <label className="text-xs sm:text-sm font-bold text-secondary uppercase tracking-widest ml-1">{t('contactPage.msgLabel')}</label>
-                  <textarea 
+                  <textarea
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder={t('contactPage.msgPlaceholder')} 
-                    rows={5} 
+                    placeholder={t('contactPage.msgPlaceholder')}
+                    rows={5}
                     className="w-full px-5 sm:px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 focus:bg-white focus:border-primary transition-all outline-none text-secondary font-medium resize-none"
                     required
                   ></textarea>
                 </div>
 
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={loading}
                   className="btn-primary py-5 px-10 text-base sm:text-lg rounded-2xl shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all font-bold mt-4 flex items-center justify-center gap-3 disabled:opacity-70 disabled:hover:scale-100"
                 >

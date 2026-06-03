@@ -18,13 +18,13 @@ const ProgramsPreview = () => {
     },
     {
       title: t('programs.list.employment'),
-      image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=800',
+      image: '/images/Programs-Employee.png',
       color: '#6A1B9A',
       href: '/programs/employment'
     },
     {
       title: t('programs.list.education'),
-      image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800',
+      image: '/images/Programs-Education.png',
       color: '#4CAF50',
       href: '/programs/education'
     },
