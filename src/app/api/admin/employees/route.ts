@@ -70,7 +70,11 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const employees = await User.find(query).sort({ createdAt: -1 }).select('-password').lean();
+    const employees = await User.find(query)
+      .populate('parentVendorId', 'fullName')
+      .sort({ createdAt: -1 })
+      .select('-password')
+      .lean();
 
     const EmployeeOfferLetter = (await import('@/models/EmployeeOfferLetter')).default;
     const employeeIds = employees.map((emp: any) => emp._id);

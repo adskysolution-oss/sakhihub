@@ -8,7 +8,7 @@ import {
   Phone, Mail, Calendar, Filter, X,
   Briefcase, Network, Link2, ExternalLink,
   CheckCircle2, Clock, AlertCircle, FileText,
-  Landmark, UserCheck, FileCheck, RefreshCw, Upload, FileX
+  Landmark, UserCheck, FileCheck, RefreshCw, Upload, FileX, ChevronRight
 } from "lucide-react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
@@ -313,16 +313,19 @@ export default function EmployeeManagement() {
                           </div>
                         </td>
                          <td className="p-5">
-                           {emp.parentVendorId ? (
-                             <div className="flex flex-col gap-1 group/link">
-                               <span className="font-black text-secondary text-xs">Assigned</span>
-                               <button 
+                            {emp.parentVendorId ? (
+                              <div className="flex items-center gap-2 group/link">
+                                <span className="font-black text-secondary text-xs">
+                                  {typeof emp.parentVendorId === 'object' ? emp.parentVendorId.fullName : 'Assigned'}
+                                </span>
+                                <button 
                                  onClick={(e) => { e.stopPropagation(); setAssignTarget(emp); }}
-                                 className="text-[10px] text-primary font-bold uppercase tracking-widest flex items-center gap-1 hover:underline"
+                                 className="text-gray-300 hover:text-primary transition-colors mt-0.5"
+                                 title="Change Parent"
                                >
-                                 <Network size={10} /> Network Active <Edit2 size={10} className="ml-1 opacity-0 group-hover/link:opacity-100 transition-opacity" />
+                                 <Edit2 size={12} />
                                </button>
-                             </div>
+                              </div>
                            ) : (
                              <button 
                                onClick={(e) => { e.stopPropagation(); setAssignTarget(emp); }}
@@ -383,9 +386,12 @@ export default function EmployeeManagement() {
                         </td>
                         <td className="p-5">
                           <button 
-                            onClick={() => setSelectedEmp(emp)}
-                            className="px-5 py-2.5 rounded-xl border border-gray-100 bg-white text-secondary font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 transition-all"
-                          >Review & Manage</button>
+                            onClick={(e) => { e.stopPropagation(); setSelectedEmp(emp); }}
+                            className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-100 bg-white text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm"
+                            title="Review & Manage"
+                          >
+                            <ChevronRight size={18} />
+                          </button>
                         </td>
                       </tr>
                     );
@@ -473,7 +479,9 @@ export default function EmployeeManagement() {
                             </div>
                             <div>
                                <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Assigned Vendor</p>
-                               <p className="font-black text-primary text-sm">{selectedEmp.parentVendorId ? 'Network Linked' : 'Unassigned'}</p>
+                               <p className="font-black text-primary text-sm">
+                                 {selectedEmp.parentVendorId ? (typeof selectedEmp.parentVendorId === 'object' ? selectedEmp.parentVendorId.fullName : 'Network Linked') : 'Unassigned'}
+                               </p>
                             </div>
                             <div>
                                <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Joined Date</p>
@@ -988,7 +996,8 @@ export default function EmployeeManagement() {
                          <div className="relative z-10">
                             <p className="text-[10px] text-primary font-black uppercase tracking-widest mb-1 flex items-center gap-1"><CheckCircle2 size={12} /> Currently Assigned Parent</p>
                             {(() => {
-                               const currentParent = allPartners.find(p => p._id === assignTarget.parentVendorId);
+                               const parentVendorIdStr = typeof assignTarget.parentVendorId === 'object' ? assignTarget.parentVendorId._id : assignTarget.parentVendorId;
+                               const currentParent = allPartners.find(p => p._id === parentVendorIdStr);
                                if (currentParent) {
                                  return (
                                    <>
@@ -999,7 +1008,7 @@ export default function EmployeeManagement() {
                                    </>
                                  );
                                }
-                               return <p className="text-sm font-bold text-gray-500 mt-1">ID: {assignTarget.parentVendorId}</p>;
+                               return <p className="text-sm font-bold text-gray-500 mt-1">ID: {parentVendorIdStr}</p>;
                             })()}
                          </div>
                       </div>
