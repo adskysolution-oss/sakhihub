@@ -37,7 +37,15 @@ export default function SubVendorManagement() {
   const [status, setStatus] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
   const [customDate, setCustomDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [counts, setCounts] = useState<any>({
+    status: { all: 0, pending: 0, documents_uploaded: 0, under_review: 0, reupload_required: 0, active: 0, rejected: 0 },
+    payment: { all: 0, paid: 0, unpaid: 0 }
+  });
   const [paymentFilter, setPaymentFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const limit = 50;
   const [selectedSV, setSelectedSV] = useState<any>(null);
   const [hierarchyData, setHierarchyData] = useState<any>(null);
   const [loadingHierarchy, setLoadingHierarchy] = useState(false);
@@ -62,8 +70,13 @@ export default function SubVendorManagement() {
   const fetchSubVendors = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/admin/sub-vendors?status=${status}&search=${search}&dateRange=${dateFilter}&paymentStatus=${paymentFilter}&customDate=${customDate}`);
-      if (res.data.success) setSubVendors(res.data.data);
+      const res = await axios.get(`/api/admin/sub-vendors?status=${status}&search=${search}&dateRange=${dateFilter}&paymentStatus=${paymentFilter}&customDate=${customDate}&startDate=${startDate}&endDate=${endDate}&page=${page}&limit=${limit}`);
+      if (res.data.success) {
+        setSubVendors(res.data.data);
+        if (res.data.counts) {
+          setCounts(res.data.counts);
+        }
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -71,12 +84,17 @@ export default function SubVendorManagement() {
     }
   };
 
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [search, status, dateFilter, paymentFilter, customDate, startDate, endDate]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchSubVendors();
     }, 500);
     return () => clearTimeout(timer);
-  }, [search, status, dateFilter, paymentFilter, customDate]);
+  }, [search, status, dateFilter, paymentFilter, customDate, startDate, endDate, page]);
 
   // Body Scroll Lock
   useEffect(() => {
@@ -191,34 +209,66 @@ export default function SubVendorManagement() {
               </select>
               
               {dateFilter === 'custom' && (
-                <input 
-                  type="date"
-                  value={customDate}
-                  onChange={(e) => setCustomDate(e.target.value)}
-                  className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                />
+                <div className="flex gap-2 items-center">
+                  <input 
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                  <span className="text-gray-400 font-bold text-xs">→</span>
+                  <input 
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </div>
               )}
               
-              <select
-                value={paymentFilter}
-                onChange={(e) => setPaymentFilter(e.target.value)}
-                className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-              >
-                <option value="all">All Payments</option>
-                <option value="paid">Paid</option>
-                <option value="unpaid">Unpaid</option>
-              </select>
             </div>
              <div className="flex gap-2 bg-gray-50 p-1.5 rounded-2xl overflow-x-auto no-scrollbar">
-               {['all', 'pending', 'documents_uploaded', 'under_review', 'reupload_required', 'active', 'rejected'].map((s) => (
-                 <button 
-                  key={s}
-                  onClick={() => setStatus(s)}
-                  className={`px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${status === s ? 'bg-white text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                 >
-                   {s === 'documents_uploaded' ? 'Docs Submitted' : s === 'reupload_required' ? 'Re-upload' : s === 'under_review' ? 'Review' : s}
-                 </button>
-               ))}
+               {['all', 'pending', 'documents_uploaded', 'under_review', 'reupload_required', 'active', 'rejected', 'paid', 'unpaid'].map((s) => {
+                 const labelMap: Record<string, string> = {
+                   all: 'All',
+                   pending: 'Pending',
+                   documents_uploaded: 'Docs Submitted',
+                   under_review: 'Review',
+                   reupload_required: 'Re-upload',
+                   active: 'Active',
+                   rejected: 'Rejected',
+                   paid: 'Paid',
+                   unpaid: 'Unpaid'
+                 };
+                 const countColorMap: Record<string, string> = {
+                   all: 'text-primary',
+                   pending: 'text-amber-500',
+                   documents_uploaded: 'text-blue-500',
+                   under_review: 'text-purple-500',
+                   reupload_required: 'text-orange-500',
+                   active: 'text-green-600',
+                   rejected: 'text-red-500',
+                   paid: 'text-emerald-500',
+                   unpaid: 'text-red-400'
+                 };
+                 let count = 0;
+                 if (s === 'paid') {
+                   count = counts.payment.paid;
+                 } else if (s === 'unpaid') {
+                   count = counts.payment.unpaid;
+                 } else {
+                   count = counts.status[s as keyof typeof counts.status] || 0;
+                 }
+                 return (
+                   <button 
+                    key={s}
+                    onClick={() => setStatus(s)}
+                    className={`px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${status === s ? 'bg-white text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                   >
+                     {labelMap[s] || s} <span className={`ml-1 font-bold ${countColorMap[s] || 'text-gray-400'}`}>({count})</span>
+                   </button>
+                 );
+               })}
             </div>
           </div>
 
@@ -226,7 +276,8 @@ export default function SubVendorManagement() {
             <table className="w-full border-collapse min-w-[1000px]">
               <thead>
                 <tr className="text-left border-b-2 border-gray-50">
-                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Sub-Vendor</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[60px]">S.No.</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Sub-Vendor</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Parent Vendor</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Document Compliance</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Payment Status</th>
@@ -236,12 +287,15 @@ export default function SubVendorManagement() {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">Loading partner network...</td></tr>
+                  <tr><td colSpan={7} className="p-20 text-center text-gray-400 font-bold italic">Loading partner network...</td></tr>
                 ) : subVendors.length === 0 ? (
-                  <tr><td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">No sub-vendors found.</td></tr>
+                  <tr><td colSpan={7} className="p-20 text-center text-gray-400 font-bold italic">No sub-vendors found.</td></tr>
                 ) : (
-                  subVendors.map((sv) => (
+                  subVendors.map((sv, index) => (
                      <tr key={sv._id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer group" onClick={() => fetchHierarchyDetails(sv)}>
+                      <td className="p-5 text-xs font-bold text-gray-400">
+                        {(page - 1) * limit + index + 1}
+                      </td>
                       <td className="p-5">
                         <div className="flex gap-4 items-center">
                           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-secondary to-primary flex items-center justify-center text-white font-black text-xl shadow-lg">
@@ -337,7 +391,7 @@ export default function SubVendorManagement() {
                         })()}
                       </td>
                       <td className="p-5">
-                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex gap-2">
                           {sv.assignmentStatus === 'pending' ? (
                             <button 
                               onClick={() => setAssignTarget(sv)}
@@ -379,6 +433,40 @@ export default function SubVendorManagement() {
               </tbody>
             </table>
           </div>
+          
+          {/* Pagination Controls */}
+          {(() => {
+            const totalCount = status === 'paid' ? counts.payment.paid : status === 'unpaid' ? counts.payment.unpaid : (counts.status[status] || 0);
+            const startEntry = totalCount === 0 ? 0 : (page - 1) * limit + 1;
+            const endEntry = Math.min(page * limit, totalCount);
+            const totalPages = Math.ceil(totalCount / limit);
+            
+            if (totalCount === 0) return null;
+            
+            return (
+              <div className="flex justify-between items-center mt-6 pt-6 border-t border-gray-100 flex-wrap gap-4">
+                <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">
+                  Showing {startEntry} to {endEntry} of {totalCount} entries
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                    disabled={page === 1}
+                    className="px-4 py-2 border border-gray-100 rounded-xl text-xs font-black uppercase tracking-wider text-secondary disabled:opacity-50 hover:bg-gray-50 transition-all"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={page === totalPages || totalPages === 0}
+                    className="px-4 py-2 border border-gray-100 rounded-xl text-xs font-black uppercase tracking-wider text-secondary disabled:opacity-50 hover:bg-gray-50 transition-all"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         <AnimatePresence>

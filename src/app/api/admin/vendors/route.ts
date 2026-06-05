@@ -17,26 +17,16 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get('status');
     const dateRange = searchParams.get('dateRange'); // 'all', 'today', 'yesterday', 'custom'
     const customDate = searchParams.get('customDate'); // 'YYYY-MM-DD'
+    const startDate = searchParams.get('startDate'); // 'YYYY-MM-DD'
+    const endDate = searchParams.get('endDate'); // 'YYYY-MM-DD'
     const paymentStatus = searchParams.get('paymentStatus'); // 'all', 'paid', 'unpaid'
+    
+    let page = parseInt(searchParams.get('page') || '1', 10);
+    let limit = parseInt(searchParams.get('limit') || '50', 10);
+    if (isNaN(page) || page < 1) page = 1;
+    if (isNaN(limit) || limit < 1) limit = 50;
 
-    const query: any = { role: 'vendor' };
-    if (status && status !== 'all') {
-      // 'pending' filter shows all pre-approval statuses
-      if (status === 'pending') {
-        query.status = { $in: ['pending', 'documents_uploaded', 'under_review', 'reupload_required'] };
-      } else {
-        query.status = status;
-      }
-    }
-    if (search) {
-      query.$or = [
-        { fullName: { $regex: search, $options: 'i' } },
-        { vendorCode: { $regex: search, $options: 'i' } },
-        { mobile: { $regex: search, $options: 'i' } }
-      ];
-    }
-
-    // Date Filtering
+    const dateQuery: any = {};
     if (dateRange && dateRange !== 'all') {
       const now = new Date();
       const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -44,32 +34,161 @@ export async function GET(req: NextRequest) {
       startOfYesterday.setDate(startOfYesterday.getDate() - 1);
       
       if (dateRange === 'today') {
-        query.createdAt = { $gte: startOfToday };
+        dateQuery.createdAt = { $gte: startOfToday };
       } else if (dateRange === 'yesterday') {
-        query.createdAt = { $gte: startOfYesterday, $lt: startOfToday };
-      } else if (dateRange === 'custom' && customDate) {
-        const customStart = new Date(customDate);
-        customStart.setHours(0, 0, 0, 0);
-        const customEnd = new Date(customDate);
-        customEnd.setHours(23, 59, 59, 999);
-        query.createdAt = { $gte: customStart, $lte: customEnd };
-      }
-    }
-    
-    // Payment Filtering
-    if (paymentStatus && paymentStatus !== 'all') {
-      if (paymentStatus === 'paid') {
-        query.$or = [{ paymentCompleted: true }, { subscriptionPaid: true }];
-      } else if (paymentStatus === 'unpaid') {
-        query.$and = [
-          { paymentCompleted: { $ne: true } },
-          { subscriptionPaid: { $ne: true } }
-        ];
+        dateQuery.createdAt = { $gte: startOfYesterday, $lt: startOfToday };
+      } else if (dateRange === 'custom') {
+        const queryDate: any = {};
+        if (startDate) {
+          const start = new Date(startDate);
+          start.setHours(0, 0, 0, 0);
+          queryDate.$gte = start;
+        } else if (customDate) {
+          const start = new Date(customDate);
+          start.setHours(0, 0, 0, 0);
+          queryDate.$gte = start;
+        }
+        if (endDate) {
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999);
+          queryDate.$lte = end;
+        } else if (customDate) {
+          const end = new Date(customDate);
+          end.setHours(23, 59, 59, 999);
+          queryDate.$lte = end;
+        }
+        if (Object.keys(queryDate).length > 0) {
+          dateQuery.createdAt = queryDate;
+        }
       }
     }
 
-    const vendors = await User.find(query).sort({ createdAt: -1 }).select('-password');
-    return successResponse(vendors);
+    let activePaymentStatus = paymentStatus;
+    let activeStatus = status;
+
+    if (status === 'paid' || status === 'unpaid') {
+      activePaymentStatus = status;
+      activeStatus = 'all';
+    }
+
+    const baseMatch: any = { role: 'vendor', ...dateQuery };
+    if (search) {
+      baseMatch.$or = [
+        { fullName: { $regex: search, $options: 'i' } },
+        { vendorCode: { $regex: search, $options: 'i' } },
+        { mobile: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Status Filter Query
+    let statusFilterQuery: any = {};
+    if (activeStatus && activeStatus !== 'all') {
+      if (activeStatus === 'pending') {
+        statusFilterQuery = { status: { $in: ['pending', 'documents_uploaded', 'under_review', 'reupload_required'] } };
+      } else {
+        statusFilterQuery = { status: activeStatus };
+      }
+    }
+
+    // Payment Filter Query
+    let paymentFilterQuery: any = {};
+    if (activePaymentStatus && activePaymentStatus !== 'all') {
+      if (activePaymentStatus === 'paid') {
+        paymentFilterQuery = { $or: [{ paymentCompleted: true }, { subscriptionPaid: true }] };
+      } else if (activePaymentStatus === 'unpaid') {
+        paymentFilterQuery = {
+          $and: [
+            { paymentCompleted: { $ne: true } },
+            { subscriptionPaid: { $ne: true } }
+          ]
+        };
+      }
+    }
+
+    const aggregationResult = await User.aggregate([
+      { $match: baseMatch },
+      {
+        $facet: {
+          statusCounts: [
+            { $match: paymentFilterQuery },
+            { $group: { _id: "$status", count: { $sum: 1 } } }
+          ],
+          paymentCounts: [
+            { $match: statusFilterQuery },
+            {
+              $group: {
+                _id: {
+                  $cond: [
+                    { $or: [{ $eq: ["$paymentCompleted", true] }, { $eq: ["$subscriptionPaid", true] }] },
+                    "paid",
+                    "unpaid"
+                  ]
+                },
+                count: { $sum: 1 }
+              }
+            }
+          ],
+          data: [
+            { $match: { ...statusFilterQuery, ...paymentFilterQuery } },
+            { $sort: { createdAt: -1 } },
+            { $skip: (page - 1) * limit },
+            { $limit: limit }
+          ]
+        }
+      }
+    ]);
+
+    const facet = aggregationResult[0] || { statusCounts: [], paymentCounts: [], data: [] };
+    
+    const rawStatusCounts: Record<string, number> = {
+      pending: 0,
+      documents_uploaded: 0,
+      under_review: 0,
+      reupload_required: 0,
+      active: 0,
+      rejected: 0
+    };
+    
+    let totalStatusCount = 0;
+    facet.statusCounts.forEach((item: any) => {
+      totalStatusCount += item.count;
+      if (item._id in rawStatusCounts) {
+        rawStatusCounts[item._id] = item.count;
+      }
+    });
+
+    const pendingSum = rawStatusCounts.pending + rawStatusCounts.documents_uploaded + rawStatusCounts.under_review + rawStatusCounts.reupload_required;
+
+    const counts = {
+      status: {
+        all: totalStatusCount,
+        pending: pendingSum,
+        documents_uploaded: rawStatusCounts.documents_uploaded,
+        under_review: rawStatusCounts.under_review,
+        reupload_required: rawStatusCounts.reupload_required,
+        active: rawStatusCounts.active,
+        rejected: rawStatusCounts.rejected
+      },
+      payment: {
+        all: 0,
+        paid: 0,
+        unpaid: 0
+      }
+    };
+
+    let totalPaymentCount = 0;
+    facet.paymentCounts.forEach((item: any) => {
+      totalPaymentCount += item.count;
+      if (item._id === 'paid') counts.payment.paid = item.count;
+      if (item._id === 'unpaid') counts.payment.unpaid = item.count;
+    });
+    counts.payment.all = totalPaymentCount;
+
+    return Response.json({
+      success: true,
+      data: facet.data,
+      counts
+    });
   } catch (error: any) {
     return errorResponse(error.message, 500);
   }

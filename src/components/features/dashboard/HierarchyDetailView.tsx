@@ -268,23 +268,59 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                     <FileText size={14} /> Profile Information
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {[
-                      { label: 'Mobile', value: user.mobile, icon: Phone },
-                      { label: 'Email', value: user.email || 'N/A', icon: Mail },
-                      { label: 'Joined', value: new Date(user.createdAt).toLocaleDateString(), icon: Calendar },
-                      { label: 'Area', value: `${user.block || 'All Blocks'}, ${user.district}`, icon: MapPin },
-                      { label: 'Pincode', value: user.pincode || 'N/A', icon: MapPin },
-                    ].map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl border border-gray-100">
-                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-gray-400 shadow-sm">
-                          <item.icon size={18} />
+                    {(() => {
+                      const items = [
+                        { label: 'Mobile', value: user.mobile, icon: Phone },
+                        { label: 'Email', value: user.email || 'N/A', icon: Mail },
+                        { label: 'Joined', value: new Date(user.createdAt).toLocaleDateString(), icon: Calendar },
+                      ];
+
+                      if (user.role === 'vendor' || user.role === 'sub_vendor') {
+                        if (user.businessName) {
+                          items.push({ label: 'Business Name', value: user.businessName, icon: Briefcase });
+                        }
+                      }
+
+                      if (user.role === 'employee') {
+                        if (user.designation) {
+                          items.push({ label: 'Designation', value: user.designation, icon: Briefcase });
+                        }
+                        if (user.qualification) {
+                          items.push({ label: 'Qualification', value: user.qualification, icon: FileText });
+                        }
+                        if (user.experience) {
+                          items.push({ label: 'Experience', value: user.experience, icon: Clock });
+                        }
+                      }
+
+                      if (user.address) {
+                        items.push({ label: 'Street Address', value: user.address, icon: MapPin });
+                      }
+                      if (user.block) {
+                        items.push({ label: 'Block', value: user.block, icon: MapPin });
+                      }
+                      if (user.district) {
+                        items.push({ label: 'District', value: user.district, icon: MapPin });
+                      }
+                      if (user.state) {
+                        items.push({ label: 'State', value: user.state, icon: MapPin });
+                      }
+                      if (user.pincode) {
+                        items.push({ label: 'Pincode', value: user.pincode, icon: MapPin });
+                      }
+
+                      return items.map((item, idx) => (
+                        <div key={idx} className="flex items-start gap-4 p-5 bg-gray-50 rounded-3xl border border-gray-100 min-w-0">
+                          <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-gray-400 shadow-sm shrink-0 mt-0.5">
+                            <item.icon size={18} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{item.label}</p>
+                            <p className="font-bold text-secondary text-sm mt-0.5 whitespace-pre-wrap break-words">{item.value}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{item.label}</p>
-                          <p className="font-bold text-secondary text-sm">{item.value}</p>
-                        </div>
-                      </div>
-                    ))}
+                      ));
+                    })()}
                   </div>
                 </div>
 

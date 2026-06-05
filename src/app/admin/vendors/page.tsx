@@ -3,8 +3,8 @@
 import { getProxiedImageUrl } from "@/utils/imageUrl";
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
-import { 
-  ShieldCheck, MapPin, Search, Plus, 
+import {
+  ShieldCheck, MapPin, Search, Plus,
   ShieldAlert, FileCheck, FileX,
   Phone, Mail, Calendar, ExternalLink, Clock,
   FileText, Upload, AlertCircle
@@ -15,7 +15,7 @@ import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartne
 import HierarchyDetailView from "@/components/features/dashboard/HierarchyDetailView";
 import { getRequiredDocs } from "@/utils/documents";
 
-const statusFilters = ['all', 'pending', 'documents_uploaded', 'under_review', 'reupload_required', 'active', 'rejected'];
+const statusFilters = ['all', 'pending', 'documents_uploaded', 'under_review', 'reupload_required', 'active', 'rejected', 'paid', 'unpaid'];
 
 const getStatusBadge = (status: string) => {
   const map: Record<string, { label: string; className: string }> = {
@@ -50,7 +50,15 @@ export default function VendorManagement() {
   const [status, setStatus] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
   const [customDate, setCustomDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [counts, setCounts] = useState<any>({
+    status: { all: 0, pending: 0, documents_uploaded: 0, under_review: 0, reupload_required: 0, active: 0, rejected: 0 },
+    payment: { all: 0, paid: 0, unpaid: 0 }
+  });
   const [paymentFilter, setPaymentFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const limit = 50;
   const [selectedVendor, setSelectedVendor] = useState<any>(null);
   const [hierarchyData, setHierarchyData] = useState<any>(null);
   const [loadingHierarchy, setLoadingHierarchy] = useState(false);
@@ -59,8 +67,13 @@ export default function VendorManagement() {
   const fetchVendors = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/admin/vendors?status=${status}&search=${search}&dateRange=${dateFilter}&paymentStatus=${paymentFilter}&customDate=${customDate}`);
-      if (res.data.success) setVendors(res.data.data);
+      const res = await axios.get(`/api/admin/vendors?status=${status}&search=${search}&dateRange=${dateFilter}&paymentStatus=${paymentFilter}&customDate=${customDate}&startDate=${startDate}&endDate=${endDate}&page=${page}&limit=${limit}`);
+      if (res.data.success) {
+        setVendors(res.data.data);
+        if (res.data.counts) {
+          setCounts(res.data.counts);
+        }
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -68,12 +81,17 @@ export default function VendorManagement() {
     }
   };
 
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [search, status, dateFilter, paymentFilter, customDate, startDate, endDate]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchVendors();
     }, 500);
     return () => clearTimeout(timer);
-  }, [search, status, dateFilter, paymentFilter, customDate]);
+  }, [search, status, dateFilter, paymentFilter, customDate, startDate, endDate, page]);
 
   // Body Scroll Lock
   useEffect(() => {
@@ -104,9 +122,9 @@ export default function VendorManagement() {
 
   const handleStatusUpdate = async (id: string, newStatus: string, remarks?: string) => {
     try {
-      const res = await axios.patch(`/api/admin/employees/${id}/status`, { 
+      const res = await axios.patch(`/api/admin/employees/${id}/status`, {
         status: newStatus,
-        remarks 
+        remarks
       });
       if (res.data.success) {
         if (newStatus.startsWith('doc:')) {
@@ -137,7 +155,7 @@ export default function VendorManagement() {
             <h1 className="text-3xl md:text-4xl font-black text-secondary">Vendor Network</h1>
             <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Manage your primary field partners and legal entities.</p>
           </div>
-          <button 
+          <button
             onClick={() => setShowRegisterModal(true)}
             className="btn-primary py-4 px-8"
           >
@@ -149,11 +167,11 @@ export default function VendorManagement() {
           <div className="flex gap-4 mb-8 flex-wrap">
             <div className="relative flex-1 min-w-[300px]">
               <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by vendor name, code, or mobile..." 
+                placeholder="Search by vendor name, code, or mobile..."
                 className="w-full pl-14 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
               />
             </div>
@@ -168,36 +186,68 @@ export default function VendorManagement() {
                 <option value="yesterday">Yesterday</option>
                 <option value="custom">Custom Date</option>
               </select>
-              
+
               {dateFilter === 'custom' && (
-                <input 
-                  type="date"
-                  value={customDate}
-                  onChange={(e) => setCustomDate(e.target.value)}
-                  className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                />
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                  <span className="text-gray-400 font-bold text-xs">→</span>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </div>
               )}
-              
-              <select
-                value={paymentFilter}
-                onChange={(e) => setPaymentFilter(e.target.value)}
-                className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-              >
-                <option value="all">All Payments</option>
-                <option value="paid">Paid</option>
-                <option value="unpaid">Unpaid</option>
-              </select>
+
             </div>
             <div className="flex gap-1.5 bg-gray-50 p-1.5 rounded-2xl overflow-x-auto no-scrollbar">
-               {statusFilters.map((s) => (
-                 <button 
-                  key={s}
-                  onClick={() => setStatus(s)}
-                  className={`px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${status === s ? 'bg-white text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                 >
-                   {s === 'documents_uploaded' ? 'Docs Submitted' : s === 'reupload_required' ? 'Re-upload' : s === 'under_review' ? 'Review' : s}
-                 </button>
-               ))}
+              {statusFilters.map((s) => {
+                const labelMap: Record<string, string> = {
+                  all: 'All',
+                  pending: 'Pending',
+                  documents_uploaded: 'Docs Submitted',
+                  under_review: 'Review',
+                  reupload_required: 'Re-upload',
+                  active: 'Active',
+                  rejected: 'Rejected',
+                  paid: 'Paid',
+                  unpaid: 'Unpaid'
+                };
+                const countColorMap: Record<string, string> = {
+                  all: 'text-primary',
+                  pending: 'text-amber-500',
+                  documents_uploaded: 'text-blue-500',
+                  under_review: 'text-purple-500',
+                  reupload_required: 'text-orange-500',
+                  active: 'text-green-600',
+                  rejected: 'text-red-500',
+                  paid: 'text-emerald-500',
+                  unpaid: 'text-red-400'
+                };
+                let count = 0;
+                if (s === 'paid') {
+                  count = counts.payment.paid;
+                } else if (s === 'unpaid') {
+                  count = counts.payment.unpaid;
+                } else {
+                  count = counts.status[s as keyof typeof counts.status] || 0;
+                }
+                return (
+                  <button
+                    key={s}
+                    onClick={() => setStatus(s)}
+                    className={`px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${status === s ? 'bg-white text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                  >
+                    {labelMap[s] || s} <span className={`ml-1 font-bold ${countColorMap[s] || 'text-gray-400'}`}>({count})</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -205,6 +255,7 @@ export default function VendorManagement() {
             <table className="w-full border-collapse min-w-[900px]">
               <thead>
                 <tr className="text-left border-b-2 border-gray-50">
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[60px]">S.No.</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Vendor Profile</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Code & Region</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Document Compliance</th>
@@ -215,16 +266,19 @@ export default function VendorManagement() {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">Syncing with vendor registry...</td></tr>
+                  <tr><td colSpan={7} className="p-20 text-center text-gray-400 font-bold italic">Syncing with vendor registry...</td></tr>
                 ) : vendors.length === 0 ? (
-                  <tr><td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">No vendors found matching your search.</td></tr>
+                  <tr><td colSpan={7} className="p-20 text-center text-gray-400 font-bold italic">No vendors found matching your search.</td></tr>
                 ) : (
-                  vendors.map((vendor) => {
+                  vendors.map((vendor, index) => {
                     const compliance = getDocComplianceSummary(vendor.documents, vendor.vendorType);
                     const badge = getStatusBadge(vendor.status);
-                    
+
                     return (
                       <tr key={vendor._id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer group" onClick={() => fetchHierarchyDetails(vendor)}>
+                        <td className="p-5 text-xs font-bold text-gray-400">
+                          {(page - 1) * limit + index + 1}
+                        </td>
                         <td className="p-5">
                           <div className="flex gap-4 items-center">
                             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-black text-xl shadow-lg overflow-hidden">
@@ -239,11 +293,10 @@ export default function VendorManagement() {
                               <div className="flex items-center gap-2 mt-1">
                                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Joined {new Date(vendor.createdAt).toLocaleDateString()}</p>
                                 {vendor.vendorType && (
-                                  <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${
-                                    vendor.vendorType === 'company' ? 'bg-blue-100 text-blue-600' :
-                                    vendor.vendorType === 'ngo_trust' ? 'bg-purple-100 text-purple-600' :
-                                    'bg-gray-100 text-gray-500'
-                                  }`}>
+                                  <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${vendor.vendorType === 'company' ? 'bg-blue-100 text-blue-600' :
+                                      vendor.vendorType === 'ngo_trust' ? 'bg-purple-100 text-purple-600' :
+                                        'bg-gray-100 text-gray-500'
+                                    }`}>
                                     {vendor.vendorType === 'ngo_trust' ? 'NGO/Trust' : vendor.vendorType === 'company' ? 'Company' : 'Individual'}
                                   </span>
                                 )}
@@ -264,11 +317,10 @@ export default function VendorManagement() {
                             <div className="flex items-center gap-2">
                               <div className="flex gap-1">
                                 {Array.from({ length: compliance.total }).map((_, i) => (
-                                  <div key={i} className={`w-6 h-1.5 rounded-full ${
-                                    i < compliance.approved ? 'bg-green-500' :
-                                    i < compliance.uploaded ? 'bg-primary' :
-                                    'bg-gray-200'
-                                  }`} />
+                                  <div key={i} className={`w-6 h-1.5 rounded-full ${i < compliance.approved ? 'bg-green-500' :
+                                      i < compliance.uploaded ? 'bg-primary' :
+                                        'bg-gray-200'
+                                    }`} />
                                 ))}
                               </div>
                             </div>
@@ -314,13 +366,13 @@ export default function VendorManagement() {
                           </span>
                         </td>
                         <td className="p-5">
-                          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button 
+                          <div className="flex gap-2">
+                            <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 fetchHierarchyDetails(vendor);
                               }}
-                              className="p-2.5 bg-secondary text-white rounded-xl shadow-lg hover:scale-110 transition-transform"
+                              className="p-2.5 bg-secondary text-white rounded-xl shadow-lg hover:scale-110 "
                               title="View Details & Review Documents"
                             >
                               <ExternalLink size={16} />
@@ -334,20 +386,54 @@ export default function VendorManagement() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {(() => {
+            const totalCount = status === 'paid' ? counts.payment.paid : status === 'unpaid' ? counts.payment.unpaid : (counts.status[status] || 0);
+            const startEntry = totalCount === 0 ? 0 : (page - 1) * limit + 1;
+            const endEntry = Math.min(page * limit, totalCount);
+            const totalPages = Math.ceil(totalCount / limit);
+
+            if (totalCount === 0) return null;
+
+            return (
+              <div className="flex justify-between items-center mt-6 pt-6 border-t border-gray-100 flex-wrap gap-4">
+                <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">
+                  Showing {startEntry} to {endEntry} of {totalCount} entries
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                    disabled={page === 1}
+                    className="px-4 py-2 border border-gray-100 rounded-xl text-xs font-black uppercase tracking-wider text-secondary disabled:opacity-50 hover:bg-gray-50 transition-all"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={page === totalPages || totalPages === 0}
+                    className="px-4 py-2 border border-gray-100 rounded-xl text-xs font-black uppercase tracking-wider text-secondary disabled:opacity-50 hover:bg-gray-50 transition-all"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         <AnimatePresence>
           {selectedVendor && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-8 overflow-hidden">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 onClick={() => {
                   setSelectedVendor(null);
                   setHierarchyData(null);
                 }}
-                className="absolute inset-0 bg-secondary/60 backdrop-blur-md" 
+                className="absolute inset-0 bg-secondary/60 backdrop-blur-md"
               />
-              <motion.div 
+              <motion.div
                 initial={{ scale: 0.9, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 20, opacity: 0 }}
                 className="relative bg-white w-full max-w-6xl md:max-h-[90vh] rounded-t-[40px] md:rounded-[40px] overflow-y-auto custom-scrollbar shadow-2xl z-10"
               >
@@ -357,8 +443,8 @@ export default function VendorManagement() {
                     <p className="text-gray-400 font-bold animate-pulse">Assembling Network Hierarchy...</p>
                   </div>
                 ) : hierarchyData ? (
-                  <HierarchyDetailView 
-                    data={hierarchyData} 
+                  <HierarchyDetailView
+                    data={hierarchyData}
                     onClose={() => {
                       setSelectedVendor(null);
                       setHierarchyData(null);
@@ -376,7 +462,7 @@ export default function VendorManagement() {
           )}
         </AnimatePresence>
 
-        <RegisterPartnerModal 
+        <RegisterPartnerModal
           isOpen={showRegisterModal}
           onClose={() => setShowRegisterModal(false)}
           onSuccess={() => fetchVendors()}
