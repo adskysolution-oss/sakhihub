@@ -96,7 +96,7 @@ export const generateAgreementHtml = (data: any) => {
     {
       id: 8,
       title: "8. COMMISSION STRUCTURE",
-      content: `Vendor shall receive: <strong>₹500 Per Active Employee Per Month</strong><br/>
+      content: `Vendor shall receive: <strong>₹${data.employeeCommissionAmount || '500'} Per Active Employee Per Month</strong><br/>
       Conditions:
       <div class="bullet-list">
         • Employee must be active<br/>
@@ -109,7 +109,7 @@ export const generateAgreementHtml = (data: any) => {
     {
       id: 9,
       title: "9. MEMBERSHIP INCENTIVE",
-      content: `Vendor shall receive: <strong>₹${isSubVendor ? '5' : '10'} Per Successful Paid Membership</strong><br/>
+      content: `Vendor shall receive: <strong>₹${data.membershipIncentiveAmount || (isSubVendor ? '5' : '10')} Per Successful Paid Membership</strong><br/>
       Conditions:
       <div class="bullet-list">
         • Valid Membership<br/>
@@ -1598,11 +1598,11 @@ export const generateOfferLetterHtml = (data: any) => {
             <td>
               <!-- Running Print Footer: email | sakhihub | address -->
               <div class="print-footer-content" style="height: 12mm; border-top: 1px solid #e5e7eb; display: flex; align-items: center; font-size: 10px; font-family: sans-serif; padding-left: 12mm; padding-right: 12mm; box-sizing: border-box; margin-top: 8px; gap: 8px;">
-                <a href="mailto:support@sakhihub.com">support@sakhihub.com</a>
+                <span>Address: Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010</span>
                 <span style="color: #d1d5db;">|</span>
-                <a href="https://www.sakhihub.com" style="font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">SakhiHub</a>
+                <span>Email: <a href="mailto:support@sakhihub.com">support@sakhihub.com</a></span>
                 <span style="color: #d1d5db;">|</span>
-                <span>Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010</span>
+                <span>Website: <a href="https://www.sakhihub.com" style="font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">www.sakhihub.com</a></span>
               </div>
             </td>
           </tr>

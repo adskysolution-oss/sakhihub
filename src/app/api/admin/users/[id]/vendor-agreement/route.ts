@@ -32,7 +32,9 @@ export async function POST(
       partnerType,
       coordinatorType,
       assignedRegions,
-      agreementValidity
+      agreementValidity,
+      employeeCommissionAmount,
+      membershipIncentiveAmount
     } = body;
 
     if (!joiningDate) {
@@ -77,6 +79,8 @@ export async function POST(
       coordinatorType,
       assignedRegions,
       agreementValidity: agreementValidity || '3 Years',
+      employeeCommissionAmount,
+      membershipIncentiveAmount,
       qrVerificationCode,
       status: 'generated'
     };
@@ -99,6 +103,8 @@ export async function POST(
       coordinatorType,
       assignedRegions,
       agreementValidity: templateData.agreementValidity,
+      employeeCommissionAmount,
+      membershipIncentiveAmount,
       generatedDate: new Date(),
       agreementId,
       status: 'generated',

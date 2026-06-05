@@ -70,6 +70,8 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
   const [coordinatorType, setCoordinatorType] = React.useState('');
   const [assignedRegions, setAssignedRegions] = React.useState('');
   const [agreementValidity, setAgreementValidity] = React.useState('3 Years');
+  const [employeeCommissionAmount, setEmployeeCommissionAmount] = React.useState('');
+  const [membershipIncentiveAmount, setMembershipIncentiveAmount] = React.useState('');
 
   const [isGeneratingAppt, setIsGeneratingAppt] = React.useState(false);
   // Keep local user state to update appointment details immediately
@@ -102,6 +104,8 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
       setCoordinatorType(agreement.coordinatorType || agreement.templateData?.coordinatorType || '');
       setAssignedRegions(agreement.assignedRegions || agreement.templateData?.assignedRegions || '');
       setAgreementValidity(agreement.agreementValidity || agreement.templateData?.agreementValidity || '3 Years');
+      setEmployeeCommissionAmount(agreement.employeeCommissionAmount || agreement.templateData?.employeeCommissionAmount || '');
+      setMembershipIncentiveAmount(agreement.membershipIncentiveAmount || agreement.templateData?.membershipIncentiveAmount || '');
     }
 
     const offerLetter = localUser?.offerLetterDetails;
@@ -787,6 +791,14 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Operational Role (Locked)</label>
                               <input type="text" value={operationalRole} disabled placeholder="e.g. Manage field agents and onboarding" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
                             </div>
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Employee Commission (₹)</label>
+                              <input type="text" value={employeeCommissionAmount} onChange={(e) => setEmployeeCommissionAmount(e.target.value)} placeholder="e.g. 500" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Membership Incentive (₹)</label>
+                              <input type="text" value={membershipIncentiveAmount} onChange={(e) => setMembershipIncentiveAmount(e.target.value)} placeholder="e.g. 10" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
+                            </div>
                       </div>
                     )}
 
@@ -812,7 +824,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                                 joiningDate, partnerType, assignedTerritory, 
                                 salaryStructure, incentiveStructure, membershipCommission, 
                                 monthlyTargets, operationalRole,
-                                coordinatorType, assignedRegions, agreementValidity
+                                coordinatorType, assignedRegions, agreementValidity, employeeCommissionAmount, membershipIncentiveAmount
                               };
 
                           const res = await axios.post(endpoint, payload);

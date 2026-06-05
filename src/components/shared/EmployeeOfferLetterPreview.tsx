@@ -478,11 +478,11 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
             <td>
               {/* Running Print Footer: email | sakhihub | address */}
               <div className="h-[12mm] border-t border-gray-200 flex items-center text-[10px] font-sans px-[12mm] mt-2 gap-2 print-footer-content">
-                <a href="mailto:support@sakhihub.com">support@sakhihub.com</a>
+                <span>Address: Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010</span>
                 <span className="text-gray-300">|</span>
-                <a href="https://www.sakhihub.com" target="_blank" rel="noopener noreferrer" className="font-bold uppercase tracking-wider">SakhiHub</a>
+                <span>Email: <a href="mailto:support@sakhihub.com">support@sakhihub.com</a></span>
                 <span className="text-gray-300">|</span>
-                <span>Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010</span>
+                <span>Website: <a href="https://www.sakhihub.com" target="_blank" rel="noopener noreferrer" className="font-bold uppercase tracking-wider">www.sakhihub.com</a></span>
               </div>
             </td>
           </tr>
