@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import { Briefcase, Search, Plus, MapPin, ExternalLink, ClipboardList } from "lucide-react";
 import axios from "axios";
@@ -11,20 +11,36 @@ export default function SubVendorEmployees() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const isFirstMount = useRef(true);
+
+  const fetchEmployees = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`/api/sub-vendor/employees?search=${search}`);
+      if (res.data.success) setEmployees(res.data.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const res = await axios.get('/api/sub-vendor/employees');
-        if (res.data.success) setEmployees(res.data.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEmployees();
-  }, []);
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      fetchEmployees();
+      return;
+    }
+    if (search === "") {
+      fetchEmployees();
+      return;
+    }
+    const delayDebounce = setTimeout(() => {
+      fetchEmployees();
+    }, 500);
+    return () => clearTimeout(delayDebounce);
+  }, [search]);
 
   return (
     <DashboardLayout>
@@ -45,6 +61,8 @@ export default function SubVendorEmployees() {
               <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
                 type="text" 
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name, ID or mobile..." 
                 className="w-full pl-14 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
               />

@@ -26,13 +26,31 @@ export async function GET(req: NextRequest) {
     const subVendorIds = subVendors.map(sv => sv._id);
 
     // 2. Fetch all employees under this vendor directly OR under their sub-vendors
-    const employees = await User.find({ 
+    const { searchParams } = new URL(req.url);
+    const search = searchParams.get('search');
+
+    const query: any = { 
       role: 'employee',
       $or: [
         { parentVendorId: vendor._id },
         { parentVendorId: { $in: subVendorIds } }
       ]
-    })
+    };
+
+    if (search) {
+      query.$and = [
+        {
+          $or: [
+            { fullName: { $regex: search, $options: 'i' } },
+            { mobile: { $regex: search, $options: 'i' } },
+            { employeeId: { $regex: search, $options: 'i' } },
+            { email: { $regex: search, $options: 'i' } }
+          ]
+        }
+      ];
+    }
+
+    const employees = await User.find(query)
     .select('-password')
     .sort({ createdAt: -1 });
 

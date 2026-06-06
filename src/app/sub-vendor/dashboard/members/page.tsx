@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import { User, Search, MapPin, Phone } from "lucide-react";
 import axios from "axios";
@@ -12,20 +12,36 @@ export default function SubVendorMembers() {
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const isFirstMount = useRef(true);
+
+  const fetchMembers = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`/api/sub-vendor/members?search=${search}`);
+      if (res.data.success) setMembers(res.data.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchMembers = async () => {
-      try {
-        const res = await axios.get('/api/sub-vendor/members');
-        if (res.data.success) setMembers(res.data.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMembers();
-  }, []);
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      fetchMembers();
+      return;
+    }
+    if (search === "") {
+      fetchMembers();
+      return;
+    }
+    const delayDebounce = setTimeout(() => {
+      fetchMembers();
+    }, 500);
+    return () => clearTimeout(delayDebounce);
+  }, [search]);
 
   return (
     <DashboardLayout>
@@ -41,6 +57,8 @@ export default function SubVendorMembers() {
               <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
                 type="text" 
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name or mobile..." 
                 className="w-full pl-14 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
               />

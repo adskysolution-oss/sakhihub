@@ -46,10 +46,29 @@ export async function GET(req: NextRequest) {
     // Fallback: If nothing else, at least catch those directly created by the vendor
     queryOr.push({ createdBy: vendor._id });
 
-    // Fetch details from WomenMember collection
-    const members = await WomenMember.find({ 
+    const { searchParams } = new URL(req.url);
+    const search = searchParams.get('search');
+
+    const query: any = { 
       $or: queryOr
-    })
+    };
+
+    if (search) {
+      query.$and = [
+        {
+          $or: [
+            { name: { $regex: search, $options: 'i' } },
+            { mobile: { $regex: search, $options: 'i' } },
+            { village: { $regex: search, $options: 'i' } },
+            { pincode: { $regex: search, $options: 'i' } },
+            { email: { $regex: search, $options: 'i' } }
+          ]
+        }
+      ];
+    }
+
+    // Fetch details from WomenMember collection
+    const members = await WomenMember.find(query)
     .populate('assignedEmployeeId', 'fullName employeeId')
     .sort({ createdAt: -1 });
 

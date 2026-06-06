@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import { Sparkles, Search, Plus, MapPin, Phone, Mail, ExternalLink, ShieldCheck, Map } from "lucide-react";
 import Link from "next/link";
@@ -15,13 +15,18 @@ export default function VendorSubVendors() {
   const [loading, setLoading] = useState(true);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const isFirstMount = useRef(true);
 
   const fetchSubVendors = async () => {
+    setLoading(true);
     try {
-      const res = await axios.get('/api/vendor/sub-vendors');
+      const res = await axios.get(`/api/vendor/sub-vendors?search=${search}`);
       if (res.data.success) setSubVendors(res.data.data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,13 +40,24 @@ export default function VendorSubVendors() {
   };
 
   useEffect(() => {
-    const init = async () => {
-      setLoading(true);
-      await Promise.all([fetchSubVendors(), fetchProfile()]);
-      setLoading(false);
-    };
-    init();
+    fetchProfile();
   }, []);
+
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      fetchSubVendors();
+      return;
+    }
+    if (search === "") {
+      fetchSubVendors();
+      return;
+    }
+    const delayDebounce = setTimeout(() => {
+      fetchSubVendors();
+    }, 500);
+    return () => clearTimeout(delayDebounce);
+  }, [search]);
 
   return (
     <DashboardLayout>
@@ -73,6 +89,8 @@ export default function VendorSubVendors() {
               <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
                 type="text" 
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name, code or region..." 
                 className="w-full pl-14 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
               />

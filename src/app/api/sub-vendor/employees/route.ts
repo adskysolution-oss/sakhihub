@@ -17,11 +17,25 @@ export async function GET(req: NextRequest) {
     const subVendor = await User.findById((session as any).id);
     if (!subVendor) return errorResponse('Sub-Vendor not found', 404);
 
-    // Find all employees where parentVendorId matches
-    const employees = await User.find({ 
+    const { searchParams } = new URL(req.url);
+    const search = searchParams.get('search');
+
+    const query: any = { 
       parentVendorId: subVendor._id,
       role: 'employee'
-    }).select('-password');
+    };
+
+    if (search) {
+      query.$or = [
+        { fullName: { $regex: search, $options: 'i' } },
+        { mobile: { $regex: search, $options: 'i' } },
+        { employeeId: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Find all employees where parentVendorId matches
+    const employees = await User.find(query).select('-password');
 
     return successResponse(employees);
   } catch (error: any) {

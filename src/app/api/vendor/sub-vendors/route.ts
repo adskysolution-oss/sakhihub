@@ -13,10 +13,24 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
 
-    const subVendors = await User.find({ 
+    const { searchParams } = new URL(req.url);
+    const search = searchParams.get('search');
+
+    const query: any = { 
       parentVendorId: (session as any).id,
       role: 'sub_vendor'
-    }).select('-password');
+    };
+
+    if (search) {
+      query.$or = [
+        { fullName: { $regex: search, $options: 'i' } },
+        { mobile: { $regex: search, $options: 'i' } },
+        { subVendorCode: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const subVendors = await User.find(query).select('-password');
 
     return successResponse(subVendors);
   } catch (error: any) {
