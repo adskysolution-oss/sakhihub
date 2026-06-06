@@ -106,7 +106,7 @@ export async function proxy(request: NextRequest) {
           if (payload.documentsVerified && !payload.paymentCompleted && pathname !== '/vendor/onboarding') {
             return NextResponse.redirect(new URL('/payment-pending', request.url));
           }
-          
+
           // Allow documents page if they are not totally pending
           const isTotallyPending = !payload.documentsVerified && payload.status === 'pending';
           if (isTotallyPending && pathname !== '/vendor/onboarding') {
@@ -132,7 +132,7 @@ export async function proxy(request: NextRequest) {
         // Page Protection
         if (isSubVendorPage) {
           const isTotallyPending = !payload.documentsVerified && payload.status === 'pending';
-          
+
           // STEP 1: Document Verification is HIGHEST priority
           if (!payload.documentsVerified && pathname !== '/sub-vendor/onboarding' && pathname !== '/sub-vendor/dashboard/documents') {
             if (isTotallyPending) {
@@ -167,14 +167,14 @@ export async function proxy(request: NextRequest) {
       if (payload.role === 'employee') {
         if (isEmployeePage) {
           const isTotallyPending = !payload.documentsVerified && payload.status === 'pending';
-          
+
           // STEP 1: Document Verification is HIGHEST priority
           if (!payload.documentsVerified && pathname !== '/employee/onboarding' && pathname !== '/employee/dashboard/documents') {
-             if (isTotallyPending) {
-               return NextResponse.redirect(new URL('/employee/onboarding', request.url));
-             } else if (!payload.dashboardAccess) {
-               return NextResponse.redirect(new URL('/employee/onboarding', request.url));
-             }
+            if (isTotallyPending) {
+              return NextResponse.redirect(new URL('/employee/onboarding', request.url));
+            } else if (!payload.dashboardAccess) {
+              return NextResponse.redirect(new URL('/employee/onboarding', request.url));
+            }
           }
 
           // STEP 1.5: Payment Gate (after docs verified, before hierarchy)
@@ -217,10 +217,10 @@ export async function proxy(request: NextRequest) {
 
       // Role-based access control (RBAC)
       if (isAdminPage && payload.role !== 'super_admin') return NextResponse.redirect(new URL('/unauthorized', request.url));
-      if (isVendorPage && payload.role !== 'vendor' && payload.role !== 'super_admin') return NextResponse.redirect(new URL('/unauthorized', request.url));
-      if (isSubVendorPage && !['sub_vendor', 'vendor', 'super_admin'].includes(payload.role)) return NextResponse.redirect(new URL('/unauthorized', request.url));
-      if (isEmployeePage && !['employee', 'sub_vendor', 'vendor', 'super_admin'].includes(payload.role)) return NextResponse.redirect(new URL('/unauthorized', request.url));
-      if (isMemberPage && !['member', 'employee', 'sub_vendor', 'vendor', 'super_admin'].includes(payload.role)) return NextResponse.redirect(new URL('/unauthorized', request.url));
+      if (isVendorPage && payload.role !== 'vendor') return NextResponse.redirect(new URL('/unauthorized', request.url));
+      if (isSubVendorPage && payload.role !== 'sub_vendor') return NextResponse.redirect(new URL('/unauthorized', request.url));
+      if (isEmployeePage && payload.role !== 'employee') return NextResponse.redirect(new URL('/unauthorized', request.url));
+      if (isMemberPage && payload.role !== 'member') return NextResponse.redirect(new URL('/unauthorized', request.url));
 
     } catch (e) {
       return NextResponse.redirect(new URL('/login', request.url));

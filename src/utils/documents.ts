@@ -228,7 +228,7 @@ export function getDocumentViewUrl(url: string | undefined | null): string {
  * Check if a document entry has valid uploaded file data.
  */
 export function isDocumentUploaded(docInfo: any): boolean {
-  return !!(docInfo && typeof docInfo.url === 'string' && docInfo.url.trim() !== '');
+  return !!(docInfo && (docInfo.hasUrl || (typeof docInfo.url === 'string' && docInfo.url.trim() !== '')));
 }
 
 /**

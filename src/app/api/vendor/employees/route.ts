@@ -3,6 +3,15 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
+import { 
+  buildDateRangeQuery, 
+  buildStatusQuery, 
+  buildPaymentQuery, 
+  buildPaginationAndCountsFacet, 
+  parseCountsFromFacet, 
+  resolveActiveStatuses 
+} from '@/utils/filterHelpers';
+import { sanitizeUserListForClient } from '@/utils/apiSecurity';
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,12 +21,12 @@ export async function GET(req: NextRequest) {
     }
 
     await dbConnect();
-    
+
     // Get this vendor's details
     const vendor = await User.findById((session as any).id);
     if (!vendor) return errorResponse('Vendor not found', 404);
 
-    // 1. Fetch sub-vendors under this vendor
+    // Fetch sub-vendors under this vendor
     const subVendors = await User.find({ 
       parentVendorId: vendor._id, 
       role: 'sub_vendor'
@@ -25,20 +34,36 @@ export async function GET(req: NextRequest) {
 
     const subVendorIds = subVendors.map(sv => sv._id);
 
-    // 2. Fetch all employees under this vendor directly OR under their sub-vendors
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search');
+    const status = searchParams.get('status');
+    const dateRange = searchParams.get('dateRange');
+    const customDate = searchParams.get('customDate');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+    const paymentStatus = searchParams.get('paymentStatus');
 
-    const query: any = { 
+    let page = parseInt(searchParams.get('page') || '1', 10);
+    let limit = parseInt(searchParams.get('limit') || '50', 10);
+    if (isNaN(page) || page < 1) page = 1;
+    if (isNaN(limit) || limit < 1) limit = 50;
+
+    const dateQuery = buildDateRangeQuery(dateRange, customDate, startDate, endDate);
+    const { activeStatus, activePaymentStatus } = resolveActiveStatuses(status, paymentStatus);
+    const statusFilterQuery = buildStatusQuery(activeStatus);
+    const paymentFilterQuery = buildPaymentQuery(activePaymentStatus);
+
+    const baseMatch: any = { 
       role: 'employee',
       $or: [
         { parentVendorId: vendor._id },
         { parentVendorId: { $in: subVendorIds } }
-      ]
+      ],
+      ...dateQuery
     };
 
     if (search) {
-      query.$and = [
+      baseMatch.$and = [
         {
           $or: [
             { fullName: { $regex: search, $options: 'i' } },
@@ -50,11 +75,29 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const employees = await User.find(query)
-    .select('-password')
-    .sort({ createdAt: -1 });
+    const facet = buildPaginationAndCountsFacet(page, limit, statusFilterQuery, paymentFilterQuery);
 
-    return successResponse(employees);
+    const aggregationResult = await User.aggregate([
+      { $match: baseMatch },
+      { $facet: facet }
+    ]);
+
+    const resultFacet = aggregationResult[0] || { statusCounts: [], paymentCounts: [], data: [] };
+    const counts = parseCountsFromFacet(resultFacet);
+
+    const populatedEmployees = await User.populate(resultFacet.data, {
+      path: 'parentVendorId',
+      select: 'fullName'
+    });
+
+    const employees = JSON.parse(JSON.stringify(populatedEmployees));
+    const sanitizedData = sanitizeUserListForClient(employees);
+
+    return Response.json({
+      success: true,
+      data: sanitizedData,
+      counts
+    });
   } catch (error: any) {
     return errorResponse(error.message, 500);
   }

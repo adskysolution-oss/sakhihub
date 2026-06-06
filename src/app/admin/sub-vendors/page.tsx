@@ -14,6 +14,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 import HierarchyDetailView from "@/components/features/dashboard/HierarchyDetailView";
 import { getDocComplianceSummary } from '@/utils/documents';
+import UnifiedFilterBar from "@/components/shared/filters/UnifiedFilterBar";
+import StatusFilterTabs from "@/components/shared/filters/StatusFilterTabs";
+import PaginationControls from "@/components/shared/filters/PaginationControls";
 
 const getStatusBadge = (status: string) => {
   const map: Record<string, { label: string; className: string }> = {
@@ -187,102 +190,14 @@ export default function SubVendorManagement() {
         </div>
 
         <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
-          <div className="flex gap-4 mb-8 flex-wrap">
-            <div className="relative flex-1 min-w-[300px]">
-              <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input 
-                type="text" 
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by sub-vendor name, code, or parent vendor..." 
-                className="w-full pl-14 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-              />
-            </div>
-            <div className="flex gap-2">
-              <select
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-              >
-                <option value="all">All Time</option>
-                <option value="today">Today</option>
-                <option value="yesterday">Yesterday</option>
-                <option value="custom">Custom Date</option>
-              </select>
-
-              <select
-                value={agreementFilter}
-                onChange={(e) => setAgreementFilter(e.target.value)}
-                className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-              >
-                <option value="all">Agreement: All</option>
-                <option value="generated">Generated</option>
-                <option value="not_generated">Not Generated</option>
-              </select>
-              
-              {dateFilter === 'custom' && (
-                <div className="flex gap-2 items-center">
-                  <input 
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                  />
-                  <span className="text-gray-400 font-bold text-xs">→</span>
-                  <input 
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                  />
-                </div>
-              )}
-              
-            </div>
-             <div className="flex gap-2 bg-gray-50 p-1.5 rounded-2xl overflow-x-auto no-scrollbar">
-               {['all', 'pending', 'documents_uploaded', 'under_review', 'reupload_required', 'active', 'rejected', 'paid', 'unpaid'].map((s) => {
-                 const labelMap: Record<string, string> = {
-                   all: 'All',
-                   pending: 'Pending',
-                   documents_uploaded: 'Docs Submitted',
-                   under_review: 'Review',
-                   reupload_required: 'Re-upload',
-                   active: 'Active',
-                   rejected: 'Rejected',
-                   paid: 'Paid',
-                   unpaid: 'Unpaid'
-                 };
-                 const countColorMap: Record<string, string> = {
-                   all: 'text-primary',
-                   pending: 'text-amber-500',
-                   documents_uploaded: 'text-blue-500',
-                   under_review: 'text-purple-500',
-                   reupload_required: 'text-orange-500',
-                   active: 'text-green-600',
-                   rejected: 'text-red-500',
-                   paid: 'text-emerald-500',
-                   unpaid: 'text-red-400'
-                 };
-                 let count = 0;
-                 if (s === 'paid') {
-                   count = counts.payment.paid;
-                 } else if (s === 'unpaid') {
-                   count = counts.payment.unpaid;
-                 } else {
-                   count = counts.status[s as keyof typeof counts.status] || 0;
-                 }
-                 return (
-                   <button 
-                    key={s}
-                    onClick={() => setStatus(s)}
-                    className={`px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${status === s ? 'bg-white text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                   >
-                     {labelMap[s] || s} <span className={`ml-1 font-bold ${countColorMap[s] || 'text-gray-400'}`}>({count})</span>
-                   </button>
-                 );
-               })}
-            </div>
-          </div>
+          <UnifiedFilterBar
+            search={search} setSearch={setSearch} searchPlaceholder="Search by sub-vendor name, code, or parent vendor..."
+            dateFilter={dateFilter} setDateFilter={setDateFilter}
+            startDate={startDate} setStartDate={setStartDate}
+            endDate={endDate} setEndDate={setEndDate}
+            agreementFilter={agreementFilter} setAgreementFilter={setAgreementFilter}
+          />
+          <StatusFilterTabs status={status} setStatus={setStatus} counts={counts} />
 
           <div className="overflow-x-auto">
             <table className="w-full border-collapse min-w-[1000px]">
@@ -480,39 +395,10 @@ export default function SubVendorManagement() {
             </table>
           </div>
           
-          {/* Pagination Controls */}
-          {(() => {
-            const totalCount = status === 'paid' ? counts.payment.paid : status === 'unpaid' ? counts.payment.unpaid : (counts.status[status] || 0);
-            const startEntry = totalCount === 0 ? 0 : (page - 1) * limit + 1;
-            const endEntry = Math.min(page * limit, totalCount);
-            const totalPages = Math.ceil(totalCount / limit);
-            
-            if (totalCount === 0) return null;
-            
-            return (
-              <div className="flex justify-between items-center mt-6 pt-6 border-t border-gray-100 flex-wrap gap-4">
-                <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">
-                  Showing {startEntry} to {endEntry} of {totalCount} entries
-                </span>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setPage(prev => Math.max(prev - 1, 1))}
-                    disabled={page === 1}
-                    className="px-4 py-2 border border-gray-100 rounded-xl text-xs font-black uppercase tracking-wider text-secondary disabled:opacity-50 hover:bg-gray-50 transition-all"
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={page === totalPages || totalPages === 0}
-                    className="px-4 py-2 border border-gray-100 rounded-xl text-xs font-black uppercase tracking-wider text-secondary disabled:opacity-50 hover:bg-gray-50 transition-all"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            );
-          })()}
+          <PaginationControls 
+            page={page} setPage={setPage} limit={limit}
+            totalCount={status === 'paid' ? counts.payment.paid : status === 'unpaid' ? counts.payment.unpaid : (counts.status[status] || 0)}
+          />
         </div>
 
         <AnimatePresence>

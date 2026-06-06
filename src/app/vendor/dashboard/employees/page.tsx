@@ -8,6 +8,9 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 import ChildProfileView from "@/components/features/dashboard/ChildProfileView";
+import UnifiedFilterBar from "@/components/shared/filters/UnifiedFilterBar";
+import StatusFilterTabs from "@/components/shared/filters/StatusFilterTabs";
+import PaginationControls from "@/components/shared/filters/PaginationControls";
 
 export default function VendorEmployees() {
   const [employees, setEmployees] = useState<any[]>([]);
@@ -16,13 +19,33 @@ export default function VendorEmployees() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [status, setStatus] = useState('all');
+  const [dateFilter, setDateFilter] = useState('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [counts, setCounts] = useState({ status: {}, payment: {} });
   const isFirstMount = useRef(true);
 
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/vendor/employees?search=${search}`);
-      if (res.data.success) setEmployees(res.data.data);
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        status,
+        dateRange: dateFilter,
+      });
+      if (search) params.append('search', search);
+      if (dateFilter === 'custom' && startDate) params.append('startDate', startDate);
+      if (dateFilter === 'custom' && endDate) params.append('endDate', endDate);
+
+      const res = await axios.get(`/api/vendor/employees?${params.toString()}`);
+      if (res.data.success) {
+        setEmployees(res.data.data);
+        if (res.data.counts) setCounts(res.data.counts);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -41,23 +64,19 @@ export default function VendorEmployees() {
 
   useEffect(() => {
     fetchProfile();
+    fetchEmployees();
   }, []);
 
   useEffect(() => {
     if (isFirstMount.current) {
       isFirstMount.current = false;
-      fetchEmployees();
-      return;
-    }
-    if (search === "") {
-      fetchEmployees();
       return;
     }
     const delayDebounce = setTimeout(() => {
       fetchEmployees();
     }, 500);
     return () => clearTimeout(delayDebounce);
-  }, [search]);
+  }, [search, page, status, dateFilter, startDate, endDate]);
 
   return (
     <DashboardLayout>
@@ -84,18 +103,13 @@ export default function VendorEmployees() {
         </header>
 
         <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
-          <div className="flex gap-4 mb-8">
-            <div className="relative flex-1">
-              <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input 
-                type="text" 
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by name, ID or mobile..." 
-                className="w-full pl-14 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-              />
-            </div>
-          </div>
+          <UnifiedFilterBar
+            search={search} setSearch={setSearch} searchPlaceholder="Search by name, ID or mobile..."
+            dateFilter={dateFilter} setDateFilter={setDateFilter}
+            startDate={startDate} setStartDate={setStartDate}
+            endDate={endDate} setEndDate={setEndDate}
+          />
+          <StatusFilterTabs status={status} setStatus={setStatus} counts={counts as any} />
 
           <div className="overflow-x-auto">
             <table className="w-full border-collapse min-w-[900px]">
@@ -105,14 +119,15 @@ export default function VendorEmployees() {
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Affiliation</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Location</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Payment</th>
                   <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">Gathering field force data...</td></tr>
+                  <tr><td colSpan={6} className="p-20 text-center text-gray-400 font-bold italic">Gathering field force data...</td></tr>
                 ) : employees.length === 0 ? (
-                  <tr><td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">No field staff found in your hierarchy.</td></tr>
+                  <tr><td colSpan={6} className="p-20 text-center text-gray-400 font-bold italic">No field staff found in your hierarchy.</td></tr>
                 ) : (
                   employees.map((emp) => (
                     <tr key={emp._id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer group">
@@ -142,6 +157,11 @@ export default function VendorEmployees() {
                         </span>
                       </td>
                       <td className="p-5">
+                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${emp.paymentCompleted || emp.subscriptionPaid ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-500'}`}>
+                          {emp.paymentCompleted || emp.subscriptionPaid ? 'PAID' : 'UNPAID'}
+                        </span>
+                      </td>
+                      <td className="p-5">
                         <div className="flex gap-2">
                           <button className="p-2.5 bg-gray-50 text-gray-400 rounded-xl hover:bg-primary hover:text-white transition-all shadow-sm">
                             <ClipboardList size={16} />
@@ -161,6 +181,11 @@ export default function VendorEmployees() {
               </tbody>
             </table>
           </div>
+
+          <PaginationControls 
+            page={page} setPage={setPage} limit={limit}
+            totalCount={status === 'paid' ? (counts.payment as any)?.paid : status === 'unpaid' ? (counts.payment as any)?.unpaid : ((counts.status as any)?.[status] || 0)}
+          />
         </div>
         <RegisterPartnerModal 
           isOpen={showRegisterModal}
