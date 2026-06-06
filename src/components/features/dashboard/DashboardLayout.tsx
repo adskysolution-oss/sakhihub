@@ -99,7 +99,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     return MEMBER_DASHBOARD_LINKS;
   };
 
-  const menuItems = getMenuItems();
+  const menuItems = getMenuItems() as any[];
 
   if (loading) {
     return (

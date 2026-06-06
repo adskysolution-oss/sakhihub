@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import Link from "next/link";
 import { 
-  FileText, ShieldCheck, Download, AlertCircle, CheckCircle, ChevronRight, Upload, BadgeCheck
+  FileText, ShieldCheck, Download, AlertCircle, CheckCircle, ChevronRight, Upload, BadgeCheck, Heart
 } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -348,6 +348,17 @@ export default function EmployeeDocuments() {
                   </div>
                   <ChevronRight size={18} className="opacity-40 group-hover:opacity-100" />
                 </Link>
+                <div className="flex items-center justify-between p-5 bg-teal-50/30 rounded-3xl border border-teal-100/50 text-left opacity-75 cursor-not-allowed">
+                  <div className="flex items-center gap-4">
+                    <Heart size={20} className="text-teal-400" />
+                    <div>
+                      <span className="font-bold text-sm text-teal-800">ABHA Card (Live View / Create)</span>
+                      <p className="text-[10px] text-teal-600 font-bold uppercase tracking-widest mt-1 flex items-center gap-1">
+                        <AlertCircle size={12} /> Coming Soon (Locked)
+                      </p>
+                    </div>
+                  </div>
+                </div>
                 {[
                   { id: 'employee_offer_letter', title: 'Employee Offer Letter', icon: FileText },
                   { id: 'vendor_code_cert', title: 'Employee ID Card', icon: ShieldCheck }

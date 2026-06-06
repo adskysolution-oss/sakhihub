@@ -47,6 +47,7 @@ export const ADMIN_DASHBOARD_LINKS = [
   { section: 'Users', name: 'Employees', icon: ClipboardList, href: '/admin/employees' },
   { section: 'Users', name: 'All Groups', icon: Layout, href: '/admin/groups' },
   { section: 'Users', name: 'All Members', icon: Users, href: '/admin/members' },
+  { section: 'Users', name: 'ABHA', icon: Heart, href: '/admin/abha' },
 
   // HR & RECRUITMENT
   { section: 'Recruitment', name: 'Vacancies', icon: Briefcase, href: '/admin/careers/vacancies' },
