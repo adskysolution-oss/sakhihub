@@ -242,8 +242,10 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
+                disabled
+                title="Search is temporarily locked"
                 placeholder={t('dashboardCommon.search', 'Search...')}
-                className="pl-10 pr-4 py-2 rounded-xl border border-[#eee] bg-[#f8f9fa] w-[200px] lg:w-[300px] text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="pl-10 pr-4 py-2 rounded-xl border border-[#eee] bg-[#f8f9fa] w-[200px] lg:w-[300px] text-sm focus:outline-none cursor-not-allowed opacity-60"
               />
             </div>
           </div>
