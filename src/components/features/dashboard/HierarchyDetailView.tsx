@@ -125,6 +125,69 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
     }
   }, [localUser]);
 
+  const handleDownloadReport = async (reportType: string, format: string) => {
+    const toastId = toast.loading(`Generating ${reportType.toUpperCase()} ${format.toUpperCase()} report...`);
+    try {
+      const response = await axios({
+        url: `/api/admin/reports/users/${user._id}?reportType=${reportType}&format=${format}`,
+        method: 'GET',
+        responseType: 'blob'
+      });
+
+      const blob = new Blob([response.data], {
+        type: response.headers['content-type'] as string | undefined
+      });
+
+      const contentDisposition = response.headers['content-disposition'] as string | undefined;
+      let filename = `report_${reportType}_${user._id}.${format === 'excel' ? 'xls' : format}`;
+      if (contentDisposition) {
+        const matches = /filename="?([^"]+)"?/g.exec(contentDisposition);
+        if (matches && matches[1]) {
+          filename = matches[1];
+        }
+      }
+
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(`${reportType.toUpperCase()} report downloaded successfully!`, { id: toastId });
+    } catch (err: any) {
+      console.error(err);
+      toast.error('Failed to download report. Please try again.', { id: toastId });
+    }
+  };
+
+  const getReportOptions = (role: string) => {
+    switch (role) {
+      case 'vendor':
+        return [
+          { type: 'profile', label: 'Profile' },
+          { type: 'network', label: 'Network' },
+          { type: 'collection', label: 'Collection' },
+          { type: 'performance', label: 'Performance' }
+        ];
+      case 'sub_vendor':
+        return [
+          { type: 'profile', label: 'Profile' },
+          { type: 'network', label: 'Network' },
+          { type: 'collection', label: 'Collection' }
+        ];
+      case 'employee':
+        return [
+          { type: 'profile', label: 'Profile' },
+          { type: 'activity', label: 'Activity' },
+          { type: 'payment', label: 'Payment' },
+          { type: 'member', label: 'Member' }
+        ];
+      default:
+        return [];
+    }
+  };
+
+
   const tabs = [
     { id: 'overview', label: 'Overview', icon: PieChart },
     { id: 'network', label: 'Network', icon: Users },
@@ -371,7 +434,39 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                   </div>
                 </div>
 
+                {/* Report Generation Center */}
+                <div>
+                  <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                    <FileText size={14} /> Report Center Downloads
+                  </h4>
+                  <div className="space-y-3">
+                    {getReportOptions(user.role).map((opt) => (
+                      <div key={opt.type} className="p-4 bg-gray-50 border border-gray-100 rounded-2xl flex items-center justify-between group hover:border-primary transition-all">
+                        <div>
+                          <p className="font-bold text-secondary text-sm">{opt.label} Report</p>
+                          <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Quick Export</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleDownloadReport(opt.type, 'pdf')}
+                            className="px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-[10px] font-black text-secondary hover:bg-secondary hover:text-white hover:border-secondary transition-all uppercase tracking-wider"
+                          >
+                            PDF
+                          </button>
+                          <button
+                            onClick={() => handleDownloadReport(opt.type, 'excel')}
+                            className="px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-[10px] font-black text-emerald-600 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all uppercase tracking-wider"
+                          >
+                            Excel
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
               </div>
+
             </div>
           </motion.div>
         )}

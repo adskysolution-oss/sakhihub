@@ -7,11 +7,12 @@ import {
   MapPin, RefreshCw, Sparkles, User, ShieldCheck, 
   Briefcase, Users, Network, LayoutDashboard, Trophy, 
   Globe, DollarSign, ShieldAlert, AlertCircle, CheckCircle, 
-  ArrowRight, Calendar, Award
+  ArrowRight, Calendar, Award, FileText
 } from 'lucide-react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import HierarchyDetailView from '@/components/features/dashboard/HierarchyDetailView';
+import { toast } from 'sonner';
 
 interface Node {
   id: string;
@@ -314,6 +315,75 @@ export default function AdminNetworkPage() {
      }
   };
 
+  const handleDownloadReport = async (nodeId: string, nodeRole: string, reportType: string, format: string) => {
+    const toastId = toast.loading(`Generating ${reportType.toUpperCase()} ${format.toUpperCase()} report...`);
+    try {
+      const response = await axios({
+        url: `/api/admin/reports/users/${nodeId}?reportType=${reportType}&format=${format}`,
+        method: 'GET',
+        responseType: 'blob'
+      });
+
+      const blob = new Blob([response.data], {
+        type: response.headers['content-type'] as string | undefined
+      });
+
+      const contentDisposition = response.headers['content-disposition'] as string | undefined;
+      let filename = `report_${reportType}_${nodeId}.${format === 'excel' ? 'xls' : format}`;
+      if (contentDisposition) {
+        const matches = /filename="?([^"]+)"?/g.exec(contentDisposition);
+        if (matches && matches[1]) {
+          filename = matches[1];
+        }
+      }
+
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(`${reportType.toUpperCase()} report downloaded successfully!`, { id: toastId });
+    } catch (err: any) {
+      console.error(err);
+      toast.error('Failed to download report. Please try again.', { id: toastId });
+    }
+  };
+
+  const getReportOptions = (role: string) => {
+    switch (role) {
+      case 'vendor':
+        return [
+          { type: 'profile', label: 'Profile' },
+          { type: 'network', label: 'Network' },
+          { type: 'collection', label: 'Collection' },
+          { type: 'performance', label: 'Performance' }
+        ];
+      case 'sub_vendor':
+        return [
+          { type: 'profile', label: 'Profile' },
+          { type: 'network', label: 'Network' },
+          { type: 'collection', label: 'Collection' }
+        ];
+      case 'employee':
+        return [
+          { type: 'profile', label: 'Profile' },
+          { type: 'activity', label: 'Activity' },
+          { type: 'payment', label: 'Payment' },
+          { type: 'member', label: 'Member' }
+        ];
+      case 'member':
+        return [
+          { type: 'profile', label: 'Profile' },
+          { type: 'membership', label: 'Membership' },
+          { type: 'payment', label: 'Payments' }
+        ];
+      default:
+        return [];
+    }
+  };
+
+
   const handleSyncClick = () => {
     if (activeTab === 'explorer') {
       fetchNetwork();
@@ -555,6 +625,34 @@ export default function AdminNetworkPage() {
                                 <span className="text-[10px] text-green-700 font-bold">No risk flags detected.</span>
                               </div>
                             )}
+                          </div>
+
+                          {/* Quick Report Actions */}
+                          <div className="border-t border-gray-100 pt-4">
+                            <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1">
+                              <FileText size={12} className="text-gray-400" /> Quick Reports
+                            </h5>
+                            <div className="space-y-2">
+                              {getReportOptions(statsData.role).map((opt) => (
+                                <div key={opt.type} className="flex items-center justify-between p-2 bg-gray-50/50 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                                  <span className="text-[11px] font-bold text-gray-600 pl-1">{opt.label} Report</span>
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={() => handleDownloadReport(statsData.id, statsData.role, opt.type, 'pdf')}
+                                      className="px-2 py-1 bg-white border border-gray-200 rounded-lg text-[9px] font-black text-secondary hover:bg-secondary hover:text-white hover:border-secondary transition-all uppercase tracking-wider"
+                                    >
+                                      PDF
+                                    </button>
+                                    <button
+                                      onClick={() => handleDownloadReport(statsData.id, statsData.role, opt.type, 'excel')}
+                                      className="px-2 py-1 bg-white border border-gray-200 rounded-lg text-[9px] font-black text-emerald-600 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all uppercase tracking-wider"
+                                    >
+                                      XLS
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
 

@@ -10,6 +10,7 @@ import PaymentTransaction from '@/models/PaymentTransaction';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 
+
 export async function GET(req: NextRequest) {
   try {
     const session = await getAuthSession();
@@ -27,11 +28,53 @@ export async function GET(req: NextRequest) {
     }
 
     const userObjectId = new mongoose.Types.ObjectId(nodeId);
-    const targetUser = await User.findById(userObjectId).lean();
+    let targetUser = await User.findById(userObjectId).lean();
+    let isMember = false;
+    let targetMember = null;
 
     if (!targetUser) {
-      return errorResponse('User not found', 404);
+      targetMember = await WomenMember.findById(userObjectId).lean();
+      if (!targetMember) {
+        return errorResponse('User not found', 404);
+      }
+      isMember = true;
     }
+
+    if (isMember && targetMember) {
+      const membership = await Membership.findOne({ memberId: userObjectId }).lean();
+      return successResponse({
+        id: targetMember._id.toString(),
+        name: targetMember.name,
+        role: 'member',
+        status: targetMember.membershipStatus || 'unpaid',
+        connectionStatus: targetMember.connectionStatus || 'pending',
+        mobile: targetMember.mobile,
+        location: targetMember.village || 'N/A',
+        counts: {
+          subVendors: 0,
+          employees: 0,
+          members: 0
+        },
+        geography: {
+          states: targetMember.state ? 1 : 0,
+          districts: targetMember.district ? 1 : 0,
+          blocks: targetMember.block ? 1 : 0,
+          areas: targetMember.village ? 1 : 0
+        },
+        collections: {
+          paid: membership && membership.paymentStatus === 'Paid' ? membership.amount : 0,
+          pending: membership && membership.paymentStatus === 'Pending' ? membership.amount : 0,
+          failed: membership && membership.paymentStatus === 'Failed' ? membership.amount : 0,
+          split: {
+            membership: membership && membership.paymentStatus === 'Paid' ? membership.amount : 0,
+            deposit: 0,
+            subscription: 0
+          }
+        },
+        riskFlags: []
+      });
+    }
+
 
     // 1. Fetch recursively all downstream sub-vendors and employees
     const userHierarchy = await User.aggregate([
@@ -68,6 +111,7 @@ export async function GET(req: NextRequest) {
         { vendorCode: { $in: vendorCodes } }
       ]
     }).lean();
+
 
     // 3. Status splits
     const activeMembers = matchingMembers.filter((m: any) => m.accountStatus === 'active').length;
