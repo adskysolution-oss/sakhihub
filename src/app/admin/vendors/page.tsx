@@ -7,7 +7,7 @@ import {
   ShieldCheck, MapPin, Search, Plus,
   ShieldAlert, FileCheck, FileX,
   Phone, Mail, Calendar, ExternalLink, Clock,
-  FileText, Upload, AlertCircle
+  FileText, Upload, AlertCircle, RefreshCw
 } from "lucide-react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
@@ -63,11 +63,12 @@ export default function VendorManagement() {
   const [hierarchyData, setHierarchyData] = useState<any>(null);
   const [loadingHierarchy, setLoadingHierarchy] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [agreementFilter, setAgreementFilter] = useState("all");
 
   const fetchVendors = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/admin/vendors?status=${status}&search=${search}&dateRange=${dateFilter}&paymentStatus=${paymentFilter}&customDate=${customDate}&startDate=${startDate}&endDate=${endDate}&page=${page}&limit=${limit}`);
+      const res = await axios.get(`/api/admin/vendors?status=${status}&search=${search}&dateRange=${dateFilter}&paymentStatus=${paymentFilter}&customDate=${customDate}&startDate=${startDate}&endDate=${endDate}&page=${page}&limit=${limit}&agreement=${agreementFilter}`);
       if (res.data.success) {
         setVendors(res.data.data);
         if (res.data.counts) {
@@ -84,14 +85,14 @@ export default function VendorManagement() {
   // Reset page to 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [search, status, dateFilter, paymentFilter, customDate, startDate, endDate]);
+  }, [search, status, dateFilter, paymentFilter, customDate, startDate, endDate, agreementFilter]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchVendors();
     }, 500);
     return () => clearTimeout(timer);
-  }, [search, status, dateFilter, paymentFilter, customDate, startDate, endDate, page]);
+  }, [search, status, dateFilter, paymentFilter, customDate, startDate, endDate, page, agreementFilter]);
 
   // Body Scroll Lock
   useEffect(() => {
@@ -185,6 +186,16 @@ export default function VendorManagement() {
                 <option value="today">Today</option>
                 <option value="yesterday">Yesterday</option>
                 <option value="custom">Custom Date</option>
+              </select>
+
+              <select
+                value={agreementFilter}
+                onChange={(e) => setAgreementFilter(e.target.value)}
+                className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              >
+                <option value="all">Agreement: All</option>
+                <option value="generated">Generated</option>
+                <option value="not_generated">Not Generated</option>
               </select>
 
               {dateFilter === 'custom' && (
@@ -289,7 +300,41 @@ export default function VendorManagement() {
                               )}
                             </div>
                             <div>
-                              <p className="font-black text-secondary leading-tight">{vendor.fullName}</p>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <p className="font-black text-secondary leading-tight">{vendor.fullName}</p>
+                                {(() => {
+                                  const details = vendor.vendorAgreementDetails;
+                                  if (!details) {
+                                    return (
+                                      <span 
+                                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-gray-100 text-gray-400 text-[8px] font-black uppercase tracking-wider" 
+                                        title="Agreement: Not Generated"
+                                      >
+                                        <FileText size={10} /> No Agr
+                                      </span>
+                                    );
+                                  }
+                                  const status = details.status || 'generated';
+                                  const statusConfig: Record<string, { label: string; cls: string; icon: any }> = {
+                                    generated: { label: 'Agr Generated', cls: 'bg-blue-50 text-blue-600 border border-blue-100', icon: FileText },
+                                    uploaded: { label: 'Agr Uploaded', cls: 'bg-purple-50 text-purple-600 border border-purple-100', icon: Upload },
+                                    under_review: { label: 'Agr Review', cls: 'bg-amber-50 text-amber-600 border border-amber-100', icon: Clock },
+                                    approved: { label: 'Agr Approved', cls: 'bg-green-50 text-green-600 border border-green-100', icon: FileCheck },
+                                    rejected: { label: 'Agr Rejected', cls: 'bg-red-50 text-red-600 border border-red-100', icon: AlertCircle },
+                                    reupload_required: { label: 'Agr Re-upload', cls: 'bg-orange-50 text-orange-600 border border-orange-100', icon: RefreshCw },
+                                  };
+                                  const config = statusConfig[status] || statusConfig.generated;
+                                  const Icon = config.icon;
+                                  return (
+                                    <span 
+                                      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider ${config.cls}`}
+                                      title={`Agreement Status: ${config.label}`}
+                                    >
+                                      <Icon size={10} /> {config.label}
+                                    </span>
+                                  );
+                                })()}
+                              </div>
                               <div className="flex items-center gap-2 mt-1">
                                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Joined {new Date(vendor.createdAt).toLocaleDateString()}</p>
                                 {vendor.vendorType && (

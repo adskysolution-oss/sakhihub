@@ -36,6 +36,7 @@ export default function EmployeeManagement() {
   const limit = 50;
   const [selectedEmp, setSelectedEmp] = useState<any>(null);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [offerLetterFilter, setOfferLetterFilter] = useState("all");
   
   // Assignment State
   const [allPartners, setAllPartners] = useState<any[]>([]);
@@ -58,7 +59,7 @@ export default function EmployeeManagement() {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/admin/employees?status=${status}&search=${search}&dateRange=${dateFilter}&paymentStatus=${paymentFilter}&customDate=${customDate}&startDate=${startDate}&endDate=${endDate}&page=${page}&limit=${limit}`);
+      const res = await axios.get(`/api/admin/employees?status=${status}&search=${search}&dateRange=${dateFilter}&paymentStatus=${paymentFilter}&customDate=${customDate}&startDate=${startDate}&endDate=${endDate}&page=${page}&limit=${limit}&offerLetter=${offerLetterFilter}`);
       if (res.data.success) {
         setEmployees(res.data.data);
         if (res.data.counts) {
@@ -88,14 +89,14 @@ export default function EmployeeManagement() {
   // Reset page to 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [search, status, dateFilter, paymentFilter, customDate, startDate, endDate]);
+  }, [search, status, dateFilter, paymentFilter, customDate, startDate, endDate, offerLetterFilter]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchEmployees();
     }, 500);
     return () => clearTimeout(timer);
-  }, [search, status, dateFilter, paymentFilter, customDate, startDate, endDate, page]);
+  }, [search, status, dateFilter, paymentFilter, customDate, startDate, endDate, page, offerLetterFilter]);
 
   useEffect(() => {
     if (selectedEmp?.offerLetterDetails) {
@@ -260,6 +261,16 @@ export default function EmployeeManagement() {
                 <option value="yesterday">Yesterday</option>
                 <option value="custom">Custom Date</option>
               </select>
+
+              <select
+                value={offerLetterFilter}
+                onChange={(e) => setOfferLetterFilter(e.target.value)}
+                className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              >
+                <option value="all">Offer Letter: All</option>
+                <option value="generated">Generated</option>
+                <option value="not_generated">Not Generated</option>
+              </select>
               
               {dateFilter === 'custom' && (
                 <div className="flex gap-2 items-center">
@@ -361,7 +372,41 @@ export default function EmployeeManagement() {
                               )}
                             </div>
                             <div>
-                              <p className="font-black text-secondary leading-tight">{emp.fullName}</p>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <p className="font-black text-secondary leading-tight">{emp.fullName}</p>
+                                {(() => {
+                                  const details = emp.offerLetterDetails;
+                                  if (!details) {
+                                    return (
+                                      <span 
+                                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-gray-100 text-gray-400 text-[8px] font-black uppercase tracking-wider" 
+                                        title="Offer Letter: Not Generated"
+                                      >
+                                        <FileText size={10} /> No OL
+                                      </span>
+                                    );
+                                  }
+                                  const status = details.status || 'generated';
+                                  const statusConfig: Record<string, { label: string; cls: string; icon: any }> = {
+                                    generated: { label: 'OL Generated', cls: 'bg-blue-50 text-blue-600 border border-blue-100', icon: FileText },
+                                    uploaded: { label: 'OL Uploaded', cls: 'bg-purple-50 text-purple-600 border border-purple-100', icon: Upload },
+                                    under_review: { label: 'OL Review', cls: 'bg-amber-50 text-amber-600 border border-amber-100', icon: Clock },
+                                    approved: { label: 'OL Approved', cls: 'bg-green-50 text-green-600 border border-green-100', icon: FileCheck },
+                                    rejected: { label: 'OL Rejected', cls: 'bg-red-50 text-red-600 border border-red-100', icon: AlertCircle },
+                                    reupload_required: { label: 'OL Re-upload', cls: 'bg-orange-50 text-orange-600 border border-orange-100', icon: RefreshCw },
+                                  };
+                                  const config = statusConfig[status] || statusConfig.generated;
+                                  const Icon = config.icon;
+                                  return (
+                                    <span 
+                                      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider ${config.cls}`}
+                                      title={`Offer Letter Status: ${config.label}`}
+                                    >
+                                      <Icon size={10} /> {config.label}
+                                    </span>
+                                  );
+                                })()}
+                              </div>
                               <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest">{emp.mobile}</p>
                             </div>
                           </div>

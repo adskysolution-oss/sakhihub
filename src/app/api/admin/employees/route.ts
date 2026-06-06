@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
     const startDate = searchParams.get('startDate'); // 'YYYY-MM-DD'
     const endDate = searchParams.get('endDate'); // 'YYYY-MM-DD'
     const paymentStatus = searchParams.get('paymentStatus'); // 'all', 'paid', 'unpaid'
+    const offerLetterFilter = searchParams.get('offerLetter'); // 'all', 'generated', 'not_generated'
 
     let page = parseInt(searchParams.get('page') || '1', 10);
     let limit = parseInt(searchParams.get('limit') || '50', 10);
@@ -79,6 +80,18 @@ export async function GET(req: NextRequest) {
     if (district && district !== 'all') baseMatch.district = district;
     if (vendorCode) baseMatch.vendorCode = vendorCode;
     if (subVendorCode) baseMatch.subVendorCode = subVendorCode;
+
+    if (offerLetterFilter === 'generated' || offerLetterFilter === 'not_generated') {
+      const EmployeeOfferLetter = (await import('@/models/EmployeeOfferLetter')).default;
+      const generatedIds = await EmployeeOfferLetter.find({}, 'employeeId').lean();
+      const employeeIdsWithOl = generatedIds.map((ol: any) => ol.employeeId);
+      
+      if (offerLetterFilter === 'generated') {
+        baseMatch._id = { $in: employeeIdsWithOl };
+      } else {
+        baseMatch._id = { $nin: employeeIdsWithOl };
+      }
+    }
 
     if (search) {
       const parentPartners = await User.find({

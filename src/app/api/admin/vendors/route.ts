@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
     const startDate = searchParams.get('startDate'); // 'YYYY-MM-DD'
     const endDate = searchParams.get('endDate'); // 'YYYY-MM-DD'
     const paymentStatus = searchParams.get('paymentStatus'); // 'all', 'paid', 'unpaid'
+    const agreementFilter = searchParams.get('agreement'); // 'all', 'generated', 'not_generated'
     
     let page = parseInt(searchParams.get('page') || '1', 10);
     let limit = parseInt(searchParams.get('limit') || '50', 10);
@@ -72,6 +73,19 @@ export async function GET(req: NextRequest) {
     }
 
     const baseMatch: any = { role: 'vendor', ...dateQuery };
+
+    if (agreementFilter === 'generated' || agreementFilter === 'not_generated') {
+      const VendorAgreement = (await import('@/models/VendorAgreement')).default;
+      const generatedIds = await VendorAgreement.find({}, 'vendorId').lean();
+      const vendorIdsWithAgr = generatedIds.map((va: any) => va.vendorId);
+      
+      if (agreementFilter === 'generated') {
+        baseMatch._id = { $in: vendorIdsWithAgr };
+      } else {
+        baseMatch._id = { $nin: vendorIdsWithAgr };
+      }
+    }
+
     if (search) {
       baseMatch.$or = [
         { fullName: { $regex: search, $options: 'i' } },
@@ -184,9 +198,22 @@ export async function GET(req: NextRequest) {
     });
     counts.payment.all = totalPaymentCount;
 
+    const vendors = JSON.parse(JSON.stringify(facet.data));
+    const VendorAgreementModel = (await import('@/models/VendorAgreement')).default;
+    const vendorIds = vendors.map((v: any) => v._id);
+    const agreements = await VendorAgreementModel.find({ vendorId: { $in: vendorIds } }).lean();
+    const agreementMap = agreements.reduce((acc: any, val: any) => {
+      acc[val.vendorId.toString()] = val;
+      return acc;
+    }, {});
+    const enrichedVendors = vendors.map((v: any) => ({
+      ...v,
+      vendorAgreementDetails: agreementMap[v._id.toString()] || null
+    }));
+
     return Response.json({
       success: true,
-      data: facet.data,
+      data: enrichedVendors,
       counts
     });
   } catch (error: any) {

@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
     const startDate = searchParams.get('startDate'); // 'YYYY-MM-DD'
     const endDate = searchParams.get('endDate'); // 'YYYY-MM-DD'
     const paymentStatus = searchParams.get('paymentStatus'); // 'all', 'paid', 'unpaid'
+    const agreementFilter = searchParams.get('agreement'); // 'all', 'generated', 'not_generated'
 
     let page = parseInt(searchParams.get('page') || '1', 10);
     let limit = parseInt(searchParams.get('limit') || '50', 10);
@@ -72,6 +73,19 @@ export async function GET(req: NextRequest) {
     }
 
     const baseMatch: any = { role: 'sub_vendor', ...dateQuery };
+
+    if (agreementFilter === 'generated' || agreementFilter === 'not_generated') {
+      const VendorAgreement = (await import('@/models/VendorAgreement')).default;
+      const generatedIds = await VendorAgreement.find({}, 'vendorId').lean();
+      const subVendorIdsWithAgr = generatedIds.map((va: any) => va.vendorId);
+      
+      if (agreementFilter === 'generated') {
+        baseMatch._id = { $in: subVendorIdsWithAgr };
+      } else {
+        baseMatch._id = { $nin: subVendorIdsWithAgr };
+      }
+    }
+
     if (search) {
       const parentVendors = await User.find({
         role: 'vendor',
@@ -200,9 +214,22 @@ export async function GET(req: NextRequest) {
       select: 'fullName vendorCode'
     });
 
+    const subVendors = JSON.parse(JSON.stringify(populatedData));
+    const VendorAgreementModel = (await import('@/models/VendorAgreement')).default;
+    const subVendorIds = subVendors.map((sv: any) => sv._id);
+    const agreements = await VendorAgreementModel.find({ vendorId: { $in: subVendorIds } }).lean();
+    const agreementMap = agreements.reduce((acc: any, val: any) => {
+      acc[val.vendorId.toString()] = val;
+      return acc;
+    }, {});
+    const enrichedSubVendors = subVendors.map((sv: any) => ({
+      ...sv,
+      vendorAgreementDetails: agreementMap[sv._id.toString()] || null
+    }));
+
     return Response.json({
       success: true,
-      data: populatedData,
+      data: enrichedSubVendors,
       counts
     });
   } catch (error: any) {
