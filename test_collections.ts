@@ -21,10 +21,10 @@ try {
   console.error("Failed to parse .env.local", e);
 }
 
-import dbConnect from './src/lib/mongodb.ts';
-import User from './src/models/User.ts';
-import WomenMember from './src/models/WomenMember.ts';
-import Membership from './src/models/Membership.ts';
+import dbConnect from './src/lib/mongodb';
+import User from './src/models/User';
+import WomenMember from './src/models/WomenMember';
+import Membership from './src/models/Membership';
 
 async function test() {
   await dbConnect();
