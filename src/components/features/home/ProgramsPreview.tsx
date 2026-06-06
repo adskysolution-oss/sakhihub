@@ -12,13 +12,13 @@ const ProgramsPreview = () => {
   const programs = [
     {
       title: t('programs.list.health'),
-      image: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?q=80&w=800',
+      image: '/images/hero_awareness_campaign.png',
       color: '#E91E63',
       href: '/programs/health'
     },
     {
       title: t('programs.list.employment'),
-      image: '/images/Programs-Employee.png',
+      image: '/images/Training-Women.png',
       color: '#6A1B9A',
       href: '/programs/employment'
     },
@@ -30,7 +30,7 @@ const ProgramsPreview = () => {
     },
     {
       title: t('programs.list.community'),
-      image: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800',
+      image: '/images/Celebrating-Unity.png',
       color: '#FFD700',
       href: '/programs/community'
     },

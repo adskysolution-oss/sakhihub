@@ -31,7 +31,7 @@ const HowItWorks = () => {
     },
     {
       title: t('howItWorks.steps.5.title'),
-      image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=600",
+      image: "/images/Celebrating-Unity.png",
       desc: t('howItWorks.steps.5.desc')
     }
   ];

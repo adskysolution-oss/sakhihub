@@ -9,28 +9,28 @@ const WhySakhiHub = () => {
   const { t } = useLanguage();
 
   const whyCards = [
-    { 
-      title: t('whySakhi.cards.reach.title'), 
-      desc: t('whySakhi.cards.reach.desc'), 
+    {
+      title: t('whySakhi.cards.reach.title'),
+      desc: t('whySakhi.cards.reach.desc'),
       image: "/images/hero_join_movement.png",
       points: t('whySakhi.cards.reach.points') || ["Direct village outreach", "Real field engagement", "Local women connection"]
     },
-    { 
-      title: t('whySakhi.cards.empowerment.title'), 
-      desc: t('whySakhi.cards.empowerment.desc'), 
-      image: "/images/about_mission.png",
-      points: t('whySakhi.cards.empowerment.points') || ["Skill development", "Leadership building", "Confidence growth"]
-    },
-    { 
-      title: t('whySakhi.cards.impact.title'), 
-      desc: t('whySakhi.cards.impact.desc'), 
-      image: "/images/team_field.png",
+    {
+      title: t('whySakhi.cards.impact.title'),
+      desc: t('whySakhi.cards.impact.desc'),
+      image: "/images/Proven-Impact.png",
       points: t('whySakhi.cards.impact.points') || ["50,000+ women reached", "Real success stories", "Measurable impact"]
     },
-    { 
-      title: t('whySakhi.cards.transparent.title'), 
-      desc: t('whySakhi.cards.transparent.desc'), 
-      image: "/images/hero_awareness_campaign.png",
+    {
+      title: t('whySakhi.cards.empowerment.title'),
+      desc: t('whySakhi.cards.empowerment.desc'),
+      image: "/images/Empowerment-Focused.png",
+      points: t('whySakhi.cards.empowerment.points') || ["Skill development", "Leadership building", "Confidence growth"]
+    },
+    {
+      title: t('whySakhi.cards.transparent.title'),
+      desc: t('whySakhi.cards.transparent.desc'),
+      image: "/images/Transparent-System.png",
       points: t('whySakhi.cards.transparent.points') || ["Clear reporting", "Accountability", "Direct impact tracking"]
     },
   ];
@@ -60,11 +60,11 @@ const WhySakhiHub = () => {
             {t('whySakhi.desc')}
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
           {whyCards.map((card, idx) => (
-            <motion.div 
-              key={idx} 
+            <motion.div
+              key={idx}
               {...fadeInUp}
               whileHover={{ y: -10 }}
               className="bg-white rounded-[40px] overflow-hidden shadow-2xl shadow-black/5 flex flex-col transition-all hover:shadow-primary/5 border border-white"
@@ -73,15 +73,15 @@ const WhySakhiHub = () => {
                 <img src={card.image} className="w-full h-full object-cover transition-transform duration-700 hover:scale-110" alt={card.title} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
                 <div className="absolute bottom-6 left-6">
-                   <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30">
-                     <CheckCircle size={18} />
-                   </div>
+                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30">
+                    <CheckCircle size={18} />
+                  </div>
                 </div>
               </div>
               <div className="p-8 md:p-10 flex-1 flex flex-col">
                 <h3 className="text-xl md:text-2xl font-bold text-secondary mb-4 leading-tight">{card.title}</h3>
                 <p className="text-gray-500 text-sm md:text-base leading-relaxed mb-8 flex-1 font-medium">{card.desc}</p>
-                
+
                 <div className="mb-8 space-y-3">
                   {Array.isArray(card.points) && card.points.map((point: string, i: number) => (
                     <div key={i} className="flex items-center gap-3 text-[11px] md:text-xs font-bold text-secondary uppercase tracking-wider">

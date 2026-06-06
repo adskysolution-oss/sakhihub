@@ -33,10 +33,10 @@ const EmploymentProgram = () => {
 
   return (
     <main className="overflow-x-hidden">
-      <PageBanner 
-        title={t('employmentPage.title')} 
+      <PageBanner
+        title={t('employmentPage.title')}
         subtitle={t('employmentPage.subtitle')}
-        image="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1500"
+        image="/images/Training-Women.png"
       />
 
       {/* Career Vision Section */}
@@ -44,26 +44,26 @@ const EmploymentProgram = () => {
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="relative order-2 lg:order-1">
-               <div className="rounded-[30px] lg:rounded-[40px] overflow-hidden h-[350px] sm:h-[450px] lg:h-[550px] shadow-2xl shadow-black/10 border-[6px] lg:border-[10px] border-gray-50">
-                <img 
-                  src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800" 
-                  className="w-full h-full object-cover" 
+              <div className="rounded-[30px] lg:rounded-[40px] overflow-hidden h-[350px] sm:h-[450px] lg:h-[550px] shadow-2xl shadow-black/10 border-[6px] lg:border-[10px] border-gray-50">
+                <img
+                  src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800"
+                  className="w-full h-full object-cover"
                   alt="Women working together"
                 />
               </div>
-              <motion.div 
+              <motion.div
                 animate={{ y: [0, 15, 0] }}
                 transition={{ duration: 4, repeat: Infinity }}
                 className="absolute top-6 -left-4 sm:top-10 sm:-left-10 bg-white p-5 sm:p-6 rounded-[20px] sm:rounded-[24px] shadow-2xl border border-gray-100 z-20"
               >
                 <div className="flex items-center gap-4">
-                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                      <Award size={24} />
-                   </div>
-                   <div>
-                      <h4 className="m-0 text-sm sm:text-base font-bold text-secondary">{t('employmentPage.certified')}</h4>
-                      <p className="m-0 text-[10px] sm:text-xs text-gray-400 font-medium tracking-wider uppercase">{t('employmentPage.certifiedDesc')}</p>
-                   </div>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                    <Award size={24} />
+                  </div>
+                  <div>
+                    <h4 className="m-0 text-sm sm:text-base font-bold text-secondary">{t('employmentPage.certified')}</h4>
+                    <p className="m-0 text-[10px] sm:text-xs text-gray-400 font-medium tracking-wider uppercase">{t('employmentPage.certifiedDesc')}</p>
+                  </div>
                 </div>
               </motion.div>
             </div>
@@ -80,7 +80,7 @@ const EmploymentProgram = () => {
               <p className="text-base sm:text-lg lg:text-xl text-gray-600 leading-relaxed mb-10">
                 {t('employmentPage.pathIndependenceDesc')}
               </p>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-10 text-left">
                 {[
                   { title: t('employmentPage.stableIncome'), icon: Zap },
@@ -135,31 +135,31 @@ const EmploymentProgram = () => {
       {/* Training Impact Stats */}
       <section className="section-padding bg-white">
         <div className="container">
-           <div className="bg-gradient-to-br from-primary to-secondary rounded-[40px] lg:rounded-[60px] p-8 sm:p-12 lg:p-20 text-center text-white relative overflow-hidden shadow-2xl">
-              <div className="relative z-10">
-                <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold mb-6 leading-tight">{t('employmentPage.statsTitle')}</h2>
-                <p className="text-base sm:text-lg lg:text-2xl opacity-90 mb-10 lg:mb-16 font-medium max-w-3xl mx-auto">{t('employmentPage.statsDesc')}</p>
-                
-                <div className="flex flex-col md:flex-row gap-8 lg:gap-16 justify-center items-center">
-                   <div className="flex flex-col items-center">
-                      <h4 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">15+</h4>
-                      <p className="text-xs sm:text-sm font-bold uppercase tracking-widest opacity-80">{t('employmentPage.stat1')}</p>
-                   </div>
-                   <div className="hidden md:block w-px h-16 bg-white/20"></div>
-                   <div className="flex flex-col items-center">
-                      <h4 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">₹8k-15k</h4>
-                      <p className="text-xs sm:text-sm font-bold uppercase tracking-widest opacity-80">{t('employmentPage.stat2')}</p>
-                   </div>
-                   <div className="hidden md:block w-px h-16 bg-white/20"></div>
-                   <div className="flex flex-col items-center">
-                      <h4 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">22+</h4>
-                      <p className="text-xs sm:text-sm font-bold uppercase tracking-widest opacity-80">{t('employmentPage.stat3')}</p>
-                   </div>
+          <div className="bg-gradient-to-br from-primary to-secondary rounded-[40px] lg:rounded-[60px] p-8 sm:p-12 lg:p-20 text-center text-white relative overflow-hidden shadow-2xl">
+            <div className="relative z-10">
+              <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold mb-6 leading-tight">{t('employmentPage.statsTitle')}</h2>
+              <p className="text-base sm:text-lg lg:text-2xl opacity-90 mb-10 lg:mb-16 font-medium max-w-3xl mx-auto">{t('employmentPage.statsDesc')}</p>
+
+              <div className="flex flex-col md:flex-row gap-8 lg:gap-16 justify-center items-center">
+                <div className="flex flex-col items-center">
+                  <h4 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">15+</h4>
+                  <p className="text-xs sm:text-sm font-bold uppercase tracking-widest opacity-80">{t('employmentPage.stat1')}</p>
+                </div>
+                <div className="hidden md:block w-px h-16 bg-white/20"></div>
+                <div className="flex flex-col items-center">
+                  <h4 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">₹8k-15k</h4>
+                  <p className="text-xs sm:text-sm font-bold uppercase tracking-widest opacity-80">{t('employmentPage.stat2')}</p>
+                </div>
+                <div className="hidden md:block w-px h-16 bg-white/20"></div>
+                <div className="flex flex-col items-center">
+                  <h4 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">22+</h4>
+                  <p className="text-xs sm:text-sm font-bold uppercase tracking-widest opacity-80">{t('employmentPage.stat3')}</p>
                 </div>
               </div>
-              <div className="absolute top-[-50px] left-[-50px] w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-              <div className="absolute bottom-[-50px] right-[-50px] w-64 h-64 bg-secondary/30 rounded-full blur-3xl" />
-           </div>
+            </div>
+            <div className="absolute top-[-50px] left-[-50px] w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-[-50px] right-[-50px] w-64 h-64 bg-secondary/30 rounded-full blur-3xl" />
+          </div>
         </div>
       </section>
     </main>

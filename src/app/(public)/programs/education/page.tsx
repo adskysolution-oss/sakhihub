@@ -33,10 +33,10 @@ const EducationProgram = () => {
 
   return (
     <main className="overflow-x-hidden">
-      <PageBanner 
-        title={t('educationPage.title')} 
+      <PageBanner
+        title={t('educationPage.title')}
         subtitle={t('educationPage.subtitle')}
-        image="https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1500"
+        image="/images/Programs-Education.png"
       />
 
       {/* Philosophy Section */}
@@ -61,7 +61,7 @@ const EducationProgram = () => {
                 transition={{ delay: i * 0.1 }}
                 className="bg-gray-50 p-8 sm:p-10 rounded-[35px] text-center border border-gray-100 transition-all hover:bg-white hover:shadow-2xl hover:shadow-black/5"
               >
-                <div 
+                <div
                   className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg shadow-black/[0.03]"
                   style={{ color: item.color }}
                 >
@@ -98,7 +98,7 @@ const EducationProgram = () => {
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-4 text-base sm:text-lg font-bold">
                     <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center shrink-0">
-                       <CheckCircle2 size={16} />
+                      <CheckCircle2 size={16} />
                     </div>
                     {item}
                   </div>
@@ -106,9 +106,9 @@ const EducationProgram = () => {
               </div>
             </motion.div>
             <div className="rounded-[30px] lg:rounded-[40px] overflow-hidden h-[300px] sm:h-[450px] lg:h-[500px] border-[6px] lg:border-[10px] border-white/10 shadow-2xl">
-              <img 
-                src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?q=80&w=800" 
-                className="w-full h-full object-cover" 
+              <img
+                src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?q=80&w=800"
+                className="w-full h-full object-cover"
                 alt="Workshop Session"
               />
             </div>
@@ -130,7 +130,7 @@ const EducationProgram = () => {
                 {t('educationPage.enrollDesc')}
               </p>
               <Link href="/register" className="btn-primary py-5 px-10 sm:px-16 text-base sm:text-xl rounded-2xl shadow-2xl hover:scale-105 transition-transform inline-flex">
-                 {t('educationPage.joinBtn')}
+                {t('educationPage.joinBtn')}
               </Link>
             </div>
           </div>
