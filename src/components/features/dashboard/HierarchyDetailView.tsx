@@ -23,6 +23,7 @@ import DocumentReviewCard from '@/components/features/dashboard/DocumentReviewCa
 import { toast } from 'sonner';
 import StatCard from '@/components/shared/StatCard';
 import { getProxiedImageUrl } from '@/utils/imageUrl';
+import ReportFilterModal from '@/components/features/dashboard/ReportFilterModal';
 
 interface HierarchyDetailViewProps {
   data: {
@@ -78,6 +79,10 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
   const [localUser, setLocalUser] = React.useState(user);
   const [digitalCertificates, setDigitalCertificates] = React.useState<any[]>((data as any).digitalCertificates || []);
 
+  // Report Filter Modal States
+  const [isFilterModalOpen, setIsFilterModalOpen] = React.useState(false);
+  const [selectedReportType, setSelectedReportType] = React.useState('');
+
   React.useEffect(() => {
     setLocalUser(user);
     setDigitalCertificates((data as any).digitalCertificates || []);
@@ -125,11 +130,28 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
     }
   }, [localUser]);
 
-  const handleDownloadReport = async (reportType: string, format: string) => {
+  const handleDownloadReport = async (
+    reportType: string,
+    format: string,
+    filters?: {
+      dateRange?: string;
+      startDate?: string;
+      endDate?: string;
+      status?: string;
+      paymentType?: string;
+      scope?: string;
+    }
+  ) => {
     const toastId = toast.loading(`Generating ${reportType.toUpperCase()} ${format.toUpperCase()} report...`);
     try {
+      const queryParams = new URLSearchParams({
+        reportType,
+        format,
+        ...(filters || {})
+      });
+
       const response = await axios({
-        url: `/api/admin/reports/users/${user._id}?reportType=${reportType}&format=${format}`,
+        url: `/api/admin/reports/users/${user._id}?${queryParams.toString()}`,
         method: 'GET',
         responseType: 'blob'
       });
@@ -158,6 +180,11 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
       console.error(err);
       toast.error('Failed to download report. Please try again.', { id: toastId });
     }
+  };
+
+  const triggerReportFilters = (reportType: string) => {
+    setSelectedReportType(reportType);
+    setIsFilterModalOpen(true);
   };
 
   const getReportOptions = (role: string) => {
@@ -448,13 +475,13 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                         </div>
                         <div className="flex gap-2">
                           <button
-                            onClick={() => handleDownloadReport(opt.type, 'pdf')}
+                            onClick={() => triggerReportFilters(opt.type)}
                             className="px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-[10px] font-black text-secondary hover:bg-secondary hover:text-white hover:border-secondary transition-all uppercase tracking-wider"
                           >
                             PDF
                           </button>
                           <button
-                            onClick={() => handleDownloadReport(opt.type, 'excel')}
+                            onClick={() => triggerReportFilters(opt.type)}
                             className="px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-[10px] font-black text-emerald-600 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all uppercase tracking-wider"
                           >
                             Excel
@@ -1273,6 +1300,25 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
            )}
         </div>
       </div>
+
+      {/* Report Filter Modal */}
+      <ReportFilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        userId={user._id}
+        userRole={user.role}
+        reportType={selectedReportType}
+        onConfirm={(filters) => {
+          handleDownloadReport(selectedReportType, filters.format, {
+            dateRange: filters.dateRange,
+            startDate: filters.startDate,
+            endDate: filters.endDate,
+            status: filters.status,
+            paymentType: filters.paymentType,
+            scope: filters.scope
+          });
+        }}
+      />
     </div>
   );
 }

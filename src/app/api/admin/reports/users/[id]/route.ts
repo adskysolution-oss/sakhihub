@@ -15,6 +15,43 @@ import { getAuthSession } from '@/lib/auth';
 import { getStyledHtmlReport, exportToExcel, exportToCsv, escapeXml } from '@/utils/reportExporter';
 import { generatePdfBuffer } from '@/utils/pdfGenerator';
 
+async function calculateCollectionsForUsers(userIds: mongoose.Types.ObjectId[]) {
+  const users = await User.find({ _id: { $in: userIds } }).select('role vendorCode subVendorCode').lean();
+  const vendorCodes = users.filter((u: any) => u.role === 'vendor' && u.vendorCode).map((u: any) => u.vendorCode);
+  const subVendorCodes = users.filter((u: any) => u.role === 'sub_vendor' && u.subVendorCode).map((u: any) => u.subVendorCode);
+
+  const memberIds = await WomenMember.find({
+    $or: [
+      { assignedEmployeeId: { $in: userIds } },
+      { subVendorCode: { $in: subVendorCodes } },
+      { vendorCode: { $in: vendorCodes } }
+    ]
+  }).distinct('_id');
+
+  const memberships = await Membership.find({ memberId: { $in: memberIds } }).lean();
+  const membershipPaid = memberships.filter((m: any) => m.paymentStatus === 'Paid').reduce((sum, m) => sum + m.amount, 0);
+  const membershipPending = memberships.filter((m: any) => m.paymentStatus === 'Pending').reduce((sum, m) => sum + m.amount, 0);
+
+  const deposits = await SecurityDeposit.find({ vendorId: { $in: userIds } }).lean();
+  const depositPaid = deposits.reduce((sum, d) => sum + (d.paidAmount || 0), 0);
+  const depositPending = deposits.filter((d: any) => d.paymentStatus === 'pending').reduce((sum, d) => sum + (d.amount || 0), 0);
+
+  const manualPayments = await ManualPaymentRequest.find({ userId: { $in: userIds } }).lean();
+  const subscriptionPaid = manualPayments.filter((p: any) => p.type === 'subscription' && p.status === 'approved').reduce((sum, p) => sum + p.amount, 0);
+  const subscriptionPending = manualPayments.filter((p: any) => p.type === 'subscription' && p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
+
+  const onlineTx = await PaymentTransaction.find({ userId: { $in: userIds } }).lean();
+  const onlineDepositPaid = onlineTx.filter((t: any) => t.type === 'deposit' && ['paid', 'completed', 'success'].includes(t.status)).reduce((sum, t) => sum + t.amount, 0);
+  const onlineDepositPending = onlineTx.filter((t: any) => t.type === 'deposit' && ['pending', 'created'].includes(t.status)).reduce((sum, t) => sum + t.amount, 0);
+  const onlineSubscriptionPaid = onlineTx.filter((t: any) => t.type === 'subscription' && ['paid', 'completed', 'success'].includes(t.status)).reduce((sum, t) => sum + t.amount, 0);
+  const onlineSubscriptionPending = onlineTx.filter((t: any) => t.type === 'subscription' && ['pending', 'created'].includes(t.status)).reduce((sum, t) => sum + t.amount, 0);
+
+  const paidTotal = membershipPaid + depositPaid + onlineDepositPaid + subscriptionPaid + onlineSubscriptionPaid;
+  const pendingTotal = membershipPending + depositPending + onlineDepositPending + subscriptionPending + onlineSubscriptionPending;
+
+  return { paidTotal, pendingTotal };
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -45,6 +82,50 @@ export async function GET(
     const { searchParams } = new URL(req.url);
     const format = searchParams.get('format') || 'pdf'; // 'pdf' | 'excel' | 'csv'
     const reportType = searchParams.get('reportType') || 'profile'; // 'profile' | 'network' | 'collection' | 'performance' | 'activity' | 'payment' | 'member' | 'membership'
+    const preview = searchParams.get('preview') === 'true';
+    const dateRange = searchParams.get('dateRange'); // 'today' | 'yesterday' | 'week' | 'month' | 'custom'
+    const startDateStr = searchParams.get('startDate'); // 'YYYY-MM-DD'
+    const endDateStr = searchParams.get('endDate'); // 'YYYY-MM-DD'
+    const statusFilter = searchParams.get('status'); // 'all' | status value
+    const paymentTypeFilter = searchParams.get('paymentType'); // 'all' | type value
+    const scope = searchParams.get('scope') || 'entire'; // 'entire' | 'direct'
+
+    let startDate: Date | null = null;
+    let endDate: Date | null = null;
+
+    if (dateRange && dateRange !== 'custom') {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      if (dateRange === 'today') {
+        startDate = new Date(now);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+      } else if (dateRange === 'yesterday') {
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 1);
+        endDate = new Date(startDate);
+        endDate.setHours(23, 59, 59, 999);
+      } else if (dateRange === 'week') {
+        const day = now.getDay();
+        const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+        startDate = new Date(now.setDate(diff));
+        endDate = new Date();
+        endDate.setHours(23, 59, 59, 999);
+      } else if (dateRange === 'month') {
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        endDate = new Date();
+        endDate.setHours(23, 59, 59, 999);
+      }
+    } else {
+      if (startDateStr) {
+        startDate = new Date(startDateStr);
+        startDate.setHours(0, 0, 0, 0);
+      }
+      if (endDateStr) {
+        endDate = new Date(endDateStr);
+        endDate.setHours(23, 59, 59, 999);
+      }
+    }
 
     const sessionUser = session as any;
     const currentUserId = sessionUser.id || sessionUser.userId;
@@ -102,19 +183,37 @@ export async function GET(
       if (reportType === 'membership' || reportType === 'payment') {
         reportTitle = 'Member Membership & Payment Report';
         selectedFields = ['membershipId', 'receiptNumber', 'amount', 'paymentMode', 'paymentDate', 'paymentStatus'];
-        records = [{
+        
+        let memRecords = [{
+          _id: membership?._id?.toString() || 'N/A',
           membershipId: membership?.membershipId || 'N/A',
           receiptNumber: membership?.receiptNumber || 'N/A',
           amount: membership?.amount ? `₹${membership.amount}` : 'N/A',
           paymentMode: membership?.paymentMode || 'N/A',
           paymentDate: membership?.paymentDate ? new Date(membership.paymentDate).toLocaleDateString('en-IN') : 'N/A',
-          paymentStatus: membership?.paymentStatus || 'N/A'
+          paymentStatus: membership?.paymentStatus || 'N/A',
+          paymentStatusRaw: membership?.paymentStatus === 'Paid' ? 'Paid' : 'Pending',
+          rawAmount: membership?.amount || 0,
+          rawDate: membership?.paymentDate ? new Date(membership.paymentDate) : new Date(membership?.createdAt || Date.now())
         }];
+
+        if (startDate) {
+          memRecords = memRecords.filter(r => r.rawDate >= startDate!);
+        }
+        if (endDate) {
+          memRecords = memRecords.filter(r => r.rawDate <= endDate!);
+        }
+        if (statusFilter && statusFilter !== 'all') {
+          memRecords = memRecords.filter(r => r.paymentStatusRaw?.toLowerCase() === statusFilter.toLowerCase());
+        }
+
+        records = memRecords;
       } else {
         // profile
         reportTitle = 'Member Profile Report';
         selectedFields = ['name', 'mobile', 'connectionStatus', 'membershipStatus', 'state', 'district', 'block', 'village', 'assignedEmployee', 'assignedSubVendor', 'assignedVendor'];
         records = [{
+          _id: member._id.toString(),
           name: member.name,
           mobile: member.mobile,
           connectionStatus: member.connectionStatus,
@@ -125,8 +224,26 @@ export async function GET(
           village: member.village,
           assignedEmployee: member.assignedEmployeeId?.fullName || 'N/A',
           assignedSubVendor: subVendorName,
-          assignedVendor: vendorName
+          assignedVendor: vendorName,
+          paymentStatusRaw: membership?.paymentStatus === 'Paid' ? 'Paid' : 'Pending',
+          rawAmount: membership?.amount || 0,
+          rawDate: membership?.paymentDate ? new Date(membership.paymentDate) : new Date(membership?.createdAt || Date.now())
         }];
+      }
+
+      if (preview) {
+        let totalPaidAmount = 0;
+        let totalPendingAmount = 0;
+        if (membership) {
+          totalPaidAmount = membership.paymentStatus === 'Paid' ? membership.amount : 0;
+          totalPendingAmount = membership.paymentStatus === 'Pending' ? membership.amount : 0;
+        }
+        return NextResponse.json({
+          success: true,
+          count: records.length,
+          totalPaidAmount,
+          totalPendingAmount
+        });
       }
 
       await ReportAuditLog.create({
@@ -201,21 +318,26 @@ export async function GET(
     const targetUser = user!;
     const operationalStatuses = ['active', 'approved'];
 
-    // 1. Fetch recursively all downstream IDs to compile totals
-    const userHierarchy = await User.aggregate([
-      { $match: { _id: userObjectId } },
-      {
-        $graphLookup: {
-          from: 'users',
-          startWith: '$_id',
-          connectFromField: '_id',
-          connectToField: 'parentVendorId',
-          as: 'descendants'
+    // 1. Fetch recursively or direct downstream IDs depending on scope
+    let descendants = [];
+    if (scope === 'direct') {
+      descendants = await User.find({ parentVendorId: userObjectId }).lean();
+    } else {
+      const userHierarchy = await User.aggregate([
+        { $match: { _id: userObjectId } },
+        {
+          $graphLookup: {
+            from: 'users',
+            startWith: '$_id',
+            connectFromField: '_id',
+            connectToField: 'parentVendorId',
+            as: 'descendants'
+          }
         }
-      }
-    ]);
+      ]);
+      descendants = userHierarchy[0]?.descendants || [];
+    }
 
-    const descendants = userHierarchy[0]?.descendants || [];
     const directAndIndirectUserIds = [userObjectId, ...descendants.map((d: any) => d._id)];
 
     const subVendorsCount = descendants.filter((d: any) => d.role === 'sub_vendor' && operationalStatuses.includes(d.status)).length;
@@ -278,7 +400,20 @@ export async function GET(
     if (reportType === 'network') {
       reportTitle = `${targetUser.fullName} - Hierarchy Network Report`;
       selectedFields = ['fullName', 'role', 'mobile', 'status', 'district', 'block', 'createdAt'];
-      records = descendants.map((d: any) => ({
+      
+      let filteredDescendants = [...descendants];
+      if (startDate) {
+        filteredDescendants = filteredDescendants.filter(d => new Date(d.createdAt) >= startDate!);
+      }
+      if (endDate) {
+        filteredDescendants = filteredDescendants.filter(d => new Date(d.createdAt) <= endDate!);
+      }
+      if (statusFilter && statusFilter !== 'all') {
+        filteredDescendants = filteredDescendants.filter(d => d.status?.toLowerCase() === statusFilter.toLowerCase());
+      }
+
+      records = filteredDescendants.map((d: any) => ({
+        id: d._id.toString(),
         fullName: d.fullName,
         role: d.role.toUpperCase(),
         mobile: d.mobile,
@@ -392,8 +527,33 @@ export async function GET(
         };
       });
 
-      records = [...membershipRecords, ...depositRecords, ...manualRecords, ...onlineRecords]
-        .sort((a, b) => b.rawDate.getTime() - a.rawDate.getTime());
+      let filteredCollections = [...membershipRecords, ...depositRecords, ...manualRecords, ...onlineRecords];
+
+      // Filter by Date
+      if (startDate) {
+        filteredCollections = filteredCollections.filter(c => c.rawDate >= startDate!);
+      }
+      if (endDate) {
+        filteredCollections = filteredCollections.filter(c => c.rawDate <= endDate!);
+      }
+
+      // Filter by Status
+      if (statusFilter && statusFilter !== 'all') {
+        filteredCollections = filteredCollections.filter(c => c.paymentStatusRaw?.toLowerCase() === statusFilter.toLowerCase());
+      }
+
+      // Filter by Payment Type
+      if (paymentTypeFilter && paymentTypeFilter !== 'all') {
+        filteredCollections = filteredCollections.filter(c => {
+          const type = (c.paymentType || '').toLowerCase();
+          if (paymentTypeFilter === 'membership') return type.includes('membership');
+          if (paymentTypeFilter === 'deposit') return type.includes('deposit');
+          if (paymentTypeFilter === 'subscription') return type.includes('subscription');
+          return true;
+        });
+      }
+
+      records = filteredCollections.sort((a, b) => b.rawDate.getTime() - a.rawDate.getTime());
 
       // -- Calculate report record sums --
       const reportTotalPaid = records.filter(r => r.paymentStatusRaw === 'Paid').reduce((sum, r) => sum + r.rawAmount, 0);
@@ -428,10 +588,21 @@ Total Raw Amount    : ₹${records.reduce((sum, r) => sum + r.rawAmount, 0)}
       reportTitle = `${targetUser.fullName} - Downline Performance Report`;
       selectedFields = ['employeeName', 'employeeId', 'totalMembersRegistered', 'status'];
       
-      const vendorEmployees = descendants.filter((d: any) => d.role === 'employee');
-      records = await Promise.all(vendorEmployees.map(async (emp: any) => {
-        const count = await WomenMember.countDocuments({ assignedEmployeeId: emp._id });
+      let filteredEmployees = descendants.filter((d: any) => d.role === 'employee');
+      if (statusFilter && statusFilter !== 'all') {
+        filteredEmployees = filteredEmployees.filter(emp => emp.status?.toLowerCase() === statusFilter.toLowerCase());
+      }
+
+      records = await Promise.all(filteredEmployees.map(async (emp: any) => {
+        const memberQuery: any = { assignedEmployeeId: emp._id };
+        if (startDate || endDate) {
+          memberQuery.createdAt = {};
+          if (startDate) memberQuery.createdAt.$gte = startDate;
+          if (endDate) memberQuery.createdAt.$lte = endDate;
+        }
+        const count = await WomenMember.countDocuments(memberQuery);
         return {
+          id: emp._id.toString(),
           employeeName: emp.fullName,
           employeeId: emp.employeeId || 'N/A',
           totalMembersRegistered: count,
@@ -442,8 +613,19 @@ Total Raw Amount    : ₹${records.reduce((sum, r) => sum + r.rawAmount, 0)}
       reportTitle = `${targetUser.fullName} - Member Registry Report`;
       selectedFields = ['memberName', 'memberMobile', 'village', 'connectionStatus', 'membershipStatus', 'createdAt'];
       
-      const employeeMembers = await WomenMember.find({ assignedEmployeeId: targetUser._id }).sort({ createdAt: -1 }).lean();
+      const query: any = { assignedEmployeeId: targetUser._id };
+      if (startDate || endDate) {
+        query.createdAt = {};
+        if (startDate) query.createdAt.$gte = startDate;
+        if (endDate) query.createdAt.$lte = endDate;
+      }
+      if (statusFilter && statusFilter !== 'all') {
+        query.connectionStatus = statusFilter;
+      }
+
+      const employeeMembers = await WomenMember.find(query).sort({ createdAt: -1 }).lean();
       records = employeeMembers.map((m: any) => ({
+        id: m._id.toString(),
         memberName: m.name,
         memberMobile: m.mobile,
         village: m.village || 'N/A',
@@ -455,8 +637,19 @@ Total Raw Amount    : ₹${records.reduce((sum, r) => sum + r.rawAmount, 0)}
       reportTitle = `${targetUser.fullName} - Field Activity Report`;
       selectedFields = ['memberName', 'memberMobile', 'village', 'status', 'createdAt'];
       
-      const employeeMembers = await WomenMember.find({ assignedEmployeeId: targetUser._id }).sort({ createdAt: -1 }).lean();
+      const query: any = { assignedEmployeeId: targetUser._id };
+      if (startDate || endDate) {
+        query.createdAt = {};
+        if (startDate) query.createdAt.$gte = startDate;
+        if (endDate) query.createdAt.$lte = endDate;
+      }
+      if (statusFilter && statusFilter !== 'all') {
+        query.connectionStatus = statusFilter;
+      }
+
+      const employeeMembers = await WomenMember.find(query).sort({ createdAt: -1 }).lean();
       records = employeeMembers.map((m: any) => ({
+        id: m._id.toString(),
         memberName: m.name,
         memberMobile: m.mobile,
         village: m.village || 'N/A',
@@ -467,29 +660,57 @@ Total Raw Amount    : ₹${records.reduce((sum, r) => sum + r.rawAmount, 0)}
       reportTitle = `${targetUser.fullName} - Employee Ledger & Payment Report`;
       selectedFields = ['paymentType', 'amount', 'paymentStatus', 'paymentMode', 'transactionId', 'paymentDate'];
       
-      // Fetch online transactions
       const txs = await PaymentTransaction.find({ userId: targetUser._id }).lean();
-      // Fetch deposits
       const deps = await SecurityDeposit.find({ vendorId: targetUser._id }).lean();
       
-      records = [
+      const paymentRecords = [
         ...txs.map((t: any) => ({
+          id: t._id.toString(),
           paymentType: `${t.type.toUpperCase()} (Online)`,
           amount: `₹${t.amount}`,
           paymentStatus: t.status,
-          paymentMode: 'Online Gateway',
+          paymentStatusRaw: ['paid', 'completed', 'success'].includes(t.status) ? 'Paid' : ['pending', 'created'].includes(t.status) ? 'Pending' : 'Failed',
+          paymentMode: t.paymentMethod || 'Online Gateway',
           transactionId: t.gatewayOrderId || t._id.toString(),
-          paymentDate: new Date(t.createdAt).toLocaleDateString('en-IN')
+          paymentDate: new Date(t.createdAt).toLocaleDateString('en-IN'),
+          rawDate: new Date(t.createdAt),
+          rawAmount: t.amount
         })),
         ...deps.map((d: any) => ({
+          id: d._id.toString(),
           paymentType: 'SECURITY DEPOSIT',
           amount: `₹${d.amount}`,
           paymentStatus: d.paymentStatus,
+          paymentStatusRaw: d.paymentStatus === 'paid' ? 'Paid' : 'Pending',
           paymentMode: d.paymentMode || 'N/A',
           transactionId: d.receiptNumber || 'N/A',
-          paymentDate: d.paymentDate ? new Date(d.paymentDate).toLocaleDateString('en-IN') : 'N/A'
+          paymentDate: d.paymentDate ? new Date(d.paymentDate).toLocaleDateString('en-IN') : 'N/A',
+          rawDate: d.paymentDate ? new Date(d.paymentDate) : new Date(d.createdAt || Date.now()),
+          rawAmount: d.paymentStatus === 'paid' ? (d.paidAmount || d.amount || 0) : 0
         }))
       ];
+
+      let filteredPayments = [...paymentRecords];
+      if (startDate) {
+        filteredPayments = filteredPayments.filter(p => p.rawDate >= startDate!);
+      }
+      if (endDate) {
+        filteredPayments = filteredPayments.filter(p => p.rawDate <= endDate!);
+      }
+      if (statusFilter && statusFilter !== 'all') {
+        filteredPayments = filteredPayments.filter(p => p.paymentStatusRaw?.toLowerCase() === statusFilter.toLowerCase());
+      }
+      if (paymentTypeFilter && paymentTypeFilter !== 'all') {
+        filteredPayments = filteredPayments.filter(p => {
+          const type = (p.paymentType || '').toLowerCase();
+          if (paymentTypeFilter === 'membership') return type.includes('membership');
+          if (paymentTypeFilter === 'deposit') return type.includes('deposit');
+          if (paymentTypeFilter === 'subscription') return type.includes('subscription');
+          return true;
+        });
+      }
+
+      records = filteredPayments.sort((a, b) => b.rawDate.getTime() - a.rawDate.getTime());
     } else {
       // DEFAULT: profile summary sheet
       reportTitle = `${targetUser.role.toUpperCase()} Profile Summary Sheet`;
@@ -514,6 +735,43 @@ Total Raw Amount    : ₹${records.reduce((sum, r) => sum + r.rawAmount, 0)}
         parentSubVendorName,
         createdAt: new Date(targetUser.createdAt).toLocaleDateString('en-IN')
       }];
+    }
+
+    // PREVIEW JSON HANDLER
+    if (preview) {
+      let totalPaidAmount = 0;
+      let totalPendingAmount = 0;
+
+      if (reportType === 'collection' || reportType === 'payment') {
+        totalPaidAmount = records.filter((r: any) => r.paymentStatusRaw === 'Paid').reduce((sum, r) => sum + (r.rawAmount || 0), 0);
+        totalPendingAmount = records.filter((r: any) => r.paymentStatusRaw === 'Pending').reduce((sum, r) => sum + (r.rawAmount || 0), 0);
+      } else if (reportType === 'network') {
+        const filteredUserIds = [userObjectId, ...records.map((r: any) => new mongoose.Types.ObjectId(r.id || r._id))];
+        const colls = await calculateCollectionsForUsers(filteredUserIds);
+        totalPaidAmount = colls.paidTotal;
+        totalPendingAmount = colls.pendingTotal;
+      } else if (reportType === 'profile' && user) {
+        const colls = await calculateCollectionsForUsers(directAndIndirectUserIds);
+        totalPaidAmount = colls.paidTotal;
+        totalPendingAmount = colls.pendingTotal;
+      } else if (reportType === 'performance' && user) {
+        const employeeIds = records.map((r: any) => new mongoose.Types.ObjectId(r.id || r._id));
+        const colls = await calculateCollectionsForUsers(employeeIds);
+        totalPaidAmount = colls.paidTotal;
+        totalPendingAmount = colls.pendingTotal;
+      } else if ((reportType === 'member' || reportType === 'activity') && user) {
+        const memberIdsInScope = records.map((r: any) => new mongoose.Types.ObjectId(r.id || r._id));
+        const membershipsInScope = await Membership.find({ memberId: { $in: memberIdsInScope } }).lean();
+        totalPaidAmount = membershipsInScope.filter((m: any) => m.paymentStatus === 'Paid').reduce((sum, m) => sum + m.amount, 0);
+        totalPendingAmount = membershipsInScope.filter((m: any) => m.paymentStatus === 'Pending').reduce((sum, m) => sum + m.amount, 0);
+      }
+
+      return NextResponse.json({
+        success: true,
+        count: records.length,
+        totalPaidAmount,
+        totalPendingAmount
+      });
     }
 
     await ReportAuditLog.create({

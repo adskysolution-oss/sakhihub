@@ -1103,7 +1103,7 @@
       "role": "employee",
       "employeeId": "SHEMPSSPFDB",
       "parentVendorId": "6a0da67c7cd472e6747c3762",
-      "status": "documents_uploaded"
+      "status": "approved"
     },
     {
       "_id": "6a1d68b0d80c14cc60a5845e",
@@ -1380,7 +1380,7 @@
       "role": "employee",
       "employeeId": "SHEMP29HCLR",
       "parentVendorId": "6a0da67c7cd472e6747c3762",
-      "status": "pending"
+      "status": "active"
     },
     {
       "_id": "6a1fd1448cac3b75ee3a4075",
@@ -1684,7 +1684,7 @@
       "role": "employee",
       "employeeId": "SHEMP5RWCXF",
       "parentVendorId": "6a0da67c7cd472e6747c3762",
-      "status": "documents_uploaded"
+      "status": "approved"
     },
     {
       "_id": "6a22465f663637662e30d24c",
@@ -1723,14 +1723,14 @@
       "role": "employee",
       "employeeId": "SHEMP8T7C3R",
       "parentVendorId": "6a0da67c7cd472e6747c3762",
-      "status": "documents_uploaded"
+      "status": "pending"
     },
     {
       "_id": "6a2260b66f2f0144bd903e7f",
       "fullName": "nodagala lakshmi",
       "role": "employee",
       "employeeId": "SHEMPG8O2UM",
-      "status": "approved"
+      "status": "active"
     },
     {
       "_id": "6a2268156a261c853c4c888d",
@@ -1828,7 +1828,7 @@
       "role": "employee",
       "employeeId": "SHEMPM0H9KS",
       "parentVendorId": "6a0da67c7cd472e6747c3762",
-      "status": "documents_uploaded"
+      "status": "approved"
     },
     {
       "_id": "6a229b2a1ea153e3cf2746f1",
@@ -1962,7 +1962,7 @@
       "role": "employee",
       "employeeId": "SHEMPGAJ7AI",
       "parentVendorId": "6a0da67c7cd472e6747c3762",
-      "status": "documents_uploaded"
+      "status": "approved"
     },
     {
       "_id": "6a2392e414510bbe5a69c40c",
@@ -1970,7 +1970,7 @@
       "role": "employee",
       "employeeId": "SHEMP286BZR",
       "parentVendorId": "6a0da67c7cd472e6747c3762",
-      "status": "pending"
+      "status": "approved"
     },
     {
       "_id": "6a23b0081113cc5ae1a46d6b",
@@ -1986,7 +1986,7 @@
       "role": "employee",
       "employeeId": "SHEMPDZW1Y8",
       "parentVendorId": "6a0da67c7cd472e6747c3762",
-      "status": "documents_uploaded"
+      "status": "approved"
     },
     {
       "_id": "6a23b36cb0aaa1cd00e1ba56",
@@ -1994,7 +1994,7 @@
       "role": "employee",
       "employeeId": "SHEMPG2LQU3",
       "parentVendorId": "6a0da67c7cd472e6747c3762",
-      "status": "documents_uploaded"
+      "status": "suspended"
     },
     {
       "_id": "6a23b602465ada7fd4d4885d",
@@ -2010,7 +2010,7 @@
       "role": "employee",
       "employeeId": "SHEMPNXZQ6E",
       "parentVendorId": "6a0da67c7cd472e6747c3762",
-      "status": "documents_uploaded"
+      "status": "pending"
     },
     {
       "_id": "6a23bbd87b5da2a58488d791",
@@ -2026,7 +2026,7 @@
       "role": "employee",
       "employeeId": "SHEMPLRV648",
       "parentVendorId": "6a0da67c7cd472e6747c3762",
-      "status": "documents_uploaded"
+      "status": "approved"
     },
     {
       "_id": "6a23bf0bdf9910e59e46fac7",
@@ -2034,6 +2034,141 @@
       "role": "employee",
       "employeeId": "SHEMPAM7393",
       "parentVendorId": "6a0da67c7cd472e6747c3762",
+      "status": "approved"
+    },
+    {
+      "_id": "6a23c1197b5da2a58488d79c",
+      "fullName": "Pari Santhi Sri ",
+      "role": "employee",
+      "employeeId": "SHEMP4DZ2K7",
+      "parentVendorId": "6a0da67c7cd472e6747c3762",
+      "status": "approved"
+    },
+    {
+      "_id": "6a23c7877b5da2a58488d7a4",
+      "fullName": "Jammula P B Chandrika rani ",
+      "role": "employee",
+      "employeeId": "SHEMPH0Z81N",
+      "status": "approved"
+    },
+    {
+      "_id": "6a23c8637b5da2a58488d7ac",
+      "fullName": "TUMATTA USHARANI",
+      "role": "employee",
+      "employeeId": "SHEMPWSLG1L",
+      "status": "active"
+    },
+    {
+      "_id": "6a23ca40a48d505303676641",
+      "fullName": "Budupula Valeeva Kumari",
+      "role": "employee",
+      "employeeId": "SHEMPTGTTOS",
+      "parentVendorId": "6a0da67c7cd472e6747c3762",
+      "status": "approved"
+    },
+    {
+      "_id": "6a23cd0dd74ad72c44b9e1f9",
+      "fullName": "P varalaxmi  devi",
+      "role": "employee",
+      "employeeId": "SHEMP3NB3LG",
+      "parentVendorId": "6a0da67c7cd472e6747c3762",
+      "status": "pending"
+    },
+    {
+      "_id": "6a23ceaec2ef10986023b82c",
+      "fullName": "TALARI NAGA JYOTHI",
+      "role": "employee",
+      "employeeId": "SHEMP38LW6S",
+      "status": "approved"
+    },
+    {
+      "_id": "6a23d58a5b9349e1d967a709",
+      "fullName": "BODAPATI NAGASRIVENI",
+      "role": "employee",
+      "employeeId": "SHEMPWEM1GO",
+      "status": "approved"
+    },
+    {
+      "_id": "6a23e745e502ab24b9185d3d",
+      "fullName": "Ganta venkatalakshmi ",
+      "role": "employee",
+      "employeeId": "SHEMP3DN7T9",
+      "parentVendorId": "6a0da67c7cd472e6747c3762",
+      "status": "pending"
+    },
+    {
+      "_id": "6a23e941a0303072473cebf6",
+      "fullName": "Bandaru radhika ",
+      "role": "employee",
+      "employeeId": "SHEMPWJIP8X",
+      "parentVendorId": "6a0da67c7cd472e6747c3762",
+      "status": "pending"
+    },
+    {
+      "_id": "6a23e9b2a0303072473cebf8",
+      "fullName": "Godi latha syamala ",
+      "role": "employee",
+      "employeeId": "SHEMPRP4OCL",
+      "parentVendorId": "6a0da67c7cd472e6747c3762",
+      "status": "pending"
+    },
+    {
+      "_id": "6a23ea3f708534986dcd39dc",
+      "fullName": "M Shirisha",
+      "role": "employee",
+      "employeeId": "SHEMPHWMYCT",
+      "parentVendorId": "6a0da67c7cd472e6747c3762",
+      "status": "documents_uploaded"
+    },
+    {
+      "_id": "6a23ea48708534986dcd39de",
+      "fullName": "Thalari  Guru Vandana",
+      "role": "employee",
+      "employeeId": "SHEMPDG6JD8",
+      "status": "documents_uploaded"
+    },
+    {
+      "_id": "6a23eaaf708534986dcd39e2",
+      "fullName": "K USHASHREE",
+      "role": "employee",
+      "employeeId": "SHEMPRPYU0S",
+      "status": "documents_uploaded"
+    },
+    {
+      "_id": "6a23eadd708534986dcd39e5",
+      "fullName": "Jagthakaripadma",
+      "role": "employee",
+      "employeeId": "SHEMPQ4TELZ",
+      "status": "documents_uploaded"
+    },
+    {
+      "_id": "6a23ed4fd040fc6a31fabc73",
+      "fullName": "Dunga.dhanalaxmi",
+      "role": "employee",
+      "employeeId": "SHEMPJLL7DX",
+      "parentVendorId": "6a0da67c7cd472e6747c3762",
+      "status": "pending"
+    },
+    {
+      "_id": "6a23f0fad040fc6a31fabc7c",
+      "fullName": "M Sunitha",
+      "role": "employee",
+      "employeeId": "SHEMPJDACYM",
+      "parentVendorId": "6a0da67c7cd472e6747c3762",
+      "status": "documents_uploaded"
+    },
+    {
+      "_id": "6a23f344d040fc6a31fabc81",
+      "fullName": "Morra Rama Lakshmi",
+      "role": "employee",
+      "employeeId": "SHEMPGQ0GBW",
+      "status": "pending"
+    },
+    {
+      "_id": "6a23f3d1d040fc6a31fabc87",
+      "fullName": "KATURI KARUNA",
+      "role": "employee",
+      "employeeId": "SHEMPG6U42A",
       "status": "pending"
     }
   ],

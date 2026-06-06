@@ -13,6 +13,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import HierarchyDetailView from '@/components/features/dashboard/HierarchyDetailView';
 import { toast } from 'sonner';
+import ReportFilterModal from '@/components/features/dashboard/ReportFilterModal';
 
 interface Node {
   id: string;
@@ -58,6 +59,12 @@ export default function AdminNetworkPage() {
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+
+  // Report Filter Modal States
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [selectedReportType, setSelectedReportType] = useState('');
+  const [selectedReportNodeId, setSelectedReportNodeId] = useState('');
+  const [selectedReportNodeRole, setSelectedReportNodeRole] = useState('');
 
   // Recursive tree updater helper
   const updateNodeInTree = (node: any, targetId: string, children: any[]): any => {
@@ -315,11 +322,30 @@ export default function AdminNetworkPage() {
      }
   };
 
-  const handleDownloadReport = async (nodeId: string, nodeRole: string, reportType: string, format: string) => {
+  const handleDownloadReport = async (
+    nodeId: string,
+    nodeRole: string,
+    reportType: string,
+    format: string,
+    filters?: {
+      dateRange?: string;
+      startDate?: string;
+      endDate?: string;
+      status?: string;
+      paymentType?: string;
+      scope?: string;
+    }
+  ) => {
     const toastId = toast.loading(`Generating ${reportType.toUpperCase()} ${format.toUpperCase()} report...`);
     try {
+      const queryParams = new URLSearchParams({
+        reportType,
+        format,
+        ...(filters || {})
+      });
+
       const response = await axios({
-        url: `/api/admin/reports/users/${nodeId}?reportType=${reportType}&format=${format}`,
+        url: `/api/admin/reports/users/${nodeId}?${queryParams.toString()}`,
         method: 'GET',
         responseType: 'blob'
       });
@@ -348,6 +374,13 @@ export default function AdminNetworkPage() {
       console.error(err);
       toast.error('Failed to download report. Please try again.', { id: toastId });
     }
+  };
+
+  const triggerReportFilters = (nodeId: string, nodeRole: string, reportType: string) => {
+    setSelectedReportNodeId(nodeId);
+    setSelectedReportNodeRole(nodeRole);
+    setSelectedReportType(reportType);
+    setIsFilterModalOpen(true);
   };
 
   const getReportOptions = (role: string) => {
@@ -638,13 +671,13 @@ export default function AdminNetworkPage() {
                                   <span className="text-[11px] font-bold text-gray-600 pl-1">{opt.label} Report</span>
                                   <div className="flex gap-1">
                                     <button
-                                      onClick={() => handleDownloadReport(statsData.id, statsData.role, opt.type, 'pdf')}
+                                      onClick={() => triggerReportFilters(statsData.id, statsData.role, opt.type)}
                                       className="px-2 py-1 bg-white border border-gray-200 rounded-lg text-[9px] font-black text-secondary hover:bg-secondary hover:text-white hover:border-secondary transition-all uppercase tracking-wider"
                                     >
                                       PDF
                                     </button>
                                     <button
-                                      onClick={() => handleDownloadReport(statsData.id, statsData.role, opt.type, 'excel')}
+                                      onClick={() => triggerReportFilters(statsData.id, statsData.role, opt.type)}
                                       className="px-2 py-1 bg-white border border-gray-200 rounded-lg text-[9px] font-black text-emerald-600 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all uppercase tracking-wider"
                                     >
                                       XLS
@@ -1010,6 +1043,25 @@ export default function AdminNetworkPage() {
             </div>
           )}
         </AnimatePresence>
+
+        {/* Report Filter Modal */}
+        <ReportFilterModal
+          isOpen={isFilterModalOpen}
+          onClose={() => setIsFilterModalOpen(false)}
+          userId={selectedReportNodeId}
+          userRole={selectedReportNodeRole}
+          reportType={selectedReportType}
+          onConfirm={(filters) => {
+            handleDownloadReport(selectedReportNodeId, selectedReportNodeRole, selectedReportType, filters.format, {
+              dateRange: filters.dateRange,
+              startDate: filters.startDate,
+              endDate: filters.endDate,
+              status: filters.status,
+              paymentType: filters.paymentType,
+              scope: filters.scope
+            });
+          }}
+        />
       </div>
     </DashboardLayout>
   );
