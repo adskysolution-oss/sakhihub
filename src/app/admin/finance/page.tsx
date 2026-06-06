@@ -293,6 +293,77 @@ export default function AdminFinancePage() {
           )}
         </AnimatePresence>
 
+        {/* Global Commission Master Toggle Card */}
+        <section className="bg-white p-6 md:p-8 rounded-[35px] border border-gray-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 print:hidden">
+          <div className="flex-1 space-y-2">
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-black text-secondary uppercase tracking-wider">Global Commission System</h3>
+              <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
+                commConfig.commissionSystemEnabled !== false 
+                  ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                  : 'bg-amber-50 text-amber-600 border-amber-100'
+              }`}>
+                {commConfig.commissionSystemEnabled !== false ? 'ACTIVE' : 'DISABLED'}
+              </span>
+            </div>
+            <p className="text-gray-500 text-xs font-bold leading-relaxed max-w-3xl">
+              When disabled, no new commissions, incentives, rewards, recruiter earnings, coordinator earnings, or wallet credits will be generated anywhere in the platform. Existing balances remain unchanged.
+            </p>
+          </div>
+          <div className="flex flex-col items-start md:items-end gap-2 shrink-0">
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-black text-secondary uppercase tracking-widest">
+                {commConfig.commissionSystemEnabled !== false ? 'Distribution Enabled' : 'Distribution Frozen'}
+              </span>
+              <button
+                type="button"
+                onClick={async () => {
+                  const targetState = commConfig.commissionSystemEnabled === false;
+                  if (confirm(`Are you sure you want to ${targetState ? 'ENABLE' : 'DISABLE'} the global commission system-wide?`)) {
+                    setActionLoading(true);
+                    try {
+                      const updatedConfig = { ...commConfig, commissionSystemEnabled: targetState };
+                      const res = await axios.post('/api/admin/commission-config', updatedConfig);
+                      if (res.data.success) {
+                        setCommConfig(res.data.data);
+                        setToastMessage(`Commission system ${targetState ? 'enabled' : 'disabled'} successfully!`);
+                        setTimeout(() => setToastMessage(''), 3000);
+                      }
+                    } catch (err: any) {
+                      console.error(err);
+                      toast.error(err.response?.data?.message || 'Failed to update commission toggle.');
+                    } finally {
+                      setActionLoading(false);
+                    }
+                  }
+                }}
+                className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  commConfig.commissionSystemEnabled !== false ? 'bg-primary' : 'bg-gray-200'
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    commConfig.commissionSystemEnabled !== false ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Disabled Warning Banner */}
+        {commConfig.commissionSystemEnabled === false && (
+          <section className="p-6 bg-amber-50 rounded-[30px] border border-amber-200 flex items-start gap-4 shadow-sm animate-pulse print:hidden">
+            <ShieldAlert size={24} className="text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <h4 className="text-sm font-black text-amber-900 leading-none">Global Commission Frozen</h4>
+              <p className="text-amber-800 text-[11px] font-bold mt-1.5 leading-relaxed">
+                Global commission distribution is currently disabled. Payments and registrations will continue normally, but no new commission credits will be generated.
+              </p>
+            </div>
+          </section>
+        )}
+
         {/* Stats Summary Cards */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
@@ -844,6 +915,21 @@ export default function AdminFinancePage() {
                       <p className="font-bold text-secondary text-sm mb-1">Central Commission Config Registry</p>
                       <p>Changes below adjust system-wide commission calculations for subscriptions, deposits, and rural memberships instantly. Calculations utilize double-entry ledger security.</p>
                     </div>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-[30px] border border-gray-100 shadow-sm flex items-center justify-between gap-6">
+                    <div>
+                      <h4 className="text-sm font-black text-secondary uppercase tracking-wider mb-1">Global System Control</h4>
+                      <p className="text-gray-400 text-xs font-bold leading-relaxed">Turn ON or OFF all automated commission distributions globally.</p>
+                    </div>
+                    <select
+                      value={commConfig.commissionSystemEnabled !== false ? 'true' : 'false'}
+                      onChange={(e) => setCommConfig({ ...commConfig, commissionSystemEnabled: e.target.value === 'true' })}
+                      className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-secondary text-xs font-bold focus:outline-none"
+                    >
+                      <option value="true">ACTIVE (Enable Distributions)</option>
+                      <option value="false">DISABLED (Freeze Distributions)</option>
+                    </select>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

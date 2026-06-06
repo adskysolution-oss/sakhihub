@@ -3,6 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 import CommissionConfig from '@/models/CommissionConfig';
+import AuditLog from '@/models/AuditLog';
 
 export async function GET(req: NextRequest) {
   try {
@@ -40,12 +41,29 @@ export async function POST(req: NextRequest) {
       memberCommission, 
       payoutRules,
       membershipFee,
-      membershipPaymentEnabled
+      membershipPaymentEnabled,
+      commissionSystemEnabled
     } = body;
 
     let config = await CommissionConfig.findOne({ key: 'default' });
     if (!config) {
       config = new CommissionConfig({ key: 'default' });
+    }
+
+    if (commissionSystemEnabled !== undefined) {
+      const targetVal = Boolean(commissionSystemEnabled);
+      const oldVal = config.commissionSystemEnabled !== undefined ? config.commissionSystemEnabled : true;
+      if (oldVal !== targetVal) {
+        await AuditLog.create({
+          action: 'COMMISSION_SYSTEM_TOGGLE',
+          performedBy: (session as any).id,
+          details: {
+            previousValue: oldVal,
+            newValue: targetVal
+          }
+        });
+      }
+      config.commissionSystemEnabled = targetVal;
     }
 
     if (subscriptionCommission) {

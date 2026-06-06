@@ -26,6 +26,7 @@ export interface ICommissionConfig extends Document {
   };
   membershipFee: number; // e.g. 100
   membershipPaymentEnabled: boolean; // true/false
+  commissionSystemEnabled: boolean; // true/false
   updatedBy?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -58,6 +59,7 @@ const CommissionConfigSchema: Schema = new Schema(
     },
     membershipFee: { type: Number, default: 100 },
     membershipPaymentEnabled: { type: Boolean, default: true },
+    commissionSystemEnabled: { type: Boolean, default: true },
     updatedBy: { type: Schema.Types.ObjectId, ref: 'User' }
   },
   { timestamps: true }

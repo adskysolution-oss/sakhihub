@@ -143,6 +143,11 @@ export async function distributeCommission(
       config = await CommissionConfig.create({ key: 'default' });
     }
 
+    if (config.commissionSystemEnabled === false) {
+      console.log(`[Commission Engine] Commission distribution is disabled system-wide. Skipping distribution for referenceId: ${referenceId}`);
+      return false;
+    }
+
     if (paymentType === 'membership') {
       // Find Member and trace recruiter/employee
       const member = await WomenMember.findOne({
