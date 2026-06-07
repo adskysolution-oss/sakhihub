@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
       vendorAgreementDetails: agreementMap[sv._id.toString()] || null
     }));
 
-    const sanitizedData = sanitizeUserListForClient(enrichedSubVendors);
+    const sanitizedData = sanitizeUserListForClient(enrichedSubVendors, true);
 
     return Response.json({
       success: true,

@@ -1,18 +1,18 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { 
-  ShieldCheck, 
-  Check, 
-  UserPlus, 
-  Crown, 
-  Shield, 
-  Download, 
-  Printer, 
-  User, 
-  Globe, 
-  Mail, 
-  Phone, 
+import {
+  ShieldCheck,
+  Check,
+  UserPlus,
+  Crown,
+  Shield,
+  Download,
+  Printer,
+  User,
+  Globe,
+  Mail,
+  Phone,
   MapPin,
   Clock,
   Calendar,
@@ -114,7 +114,7 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
   };
 
   // Generate a mock verification hash if not present
-  const hash = data.verificationHash || `SH-${type.toUpperCase().substring(0,3)}-${Math.random().toString(36).substring(2,10).toUpperCase()}-${Date.now().toString().slice(-4)}`;
+  const hash = data.verificationHash || `SH-${type.toUpperCase().substring(0, 3)}-${Math.random().toString(36).substring(2, 10).toUpperCase()}-${Date.now().toString().slice(-4)}`;
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-4">
@@ -137,17 +137,17 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
       </div>
 
       {/* Printable Receipt Card */}
-      <div 
+      <div
         ref={printRef}
-        className="printable-card-wrapper bg-white border border-gray-100 rounded-[32px] p-6 md:p-8 shadow-2xl shadow-gray-100/50 relative overflow-hidden print:shadow-none print:border-none print:p-0 print:rounded-none"
-        style={{ contentVisibility: 'auto' }}
+        className="printable-card-wrapper bg-white border border-gray-100 rounded-[24px] p-5 md:p-6 shadow-2xl shadow-gray-100/50 relative overflow-hidden print:shadow-none print:border-none print:rounded-none"
       >
         {/* Style tag injection for custom print layout override */}
-        <style dangerouslySetInnerHTML={{ __html: `
+        <style dangerouslySetInnerHTML={{
+          __html: `
           @media print {
             @page {
               size: A4 portrait;
-              margin: 6mm 8mm !important;
+              margin: 15mm !important;
             }
             body * {
               visibility: hidden !important;
@@ -167,75 +167,19 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
               display: none !important;
             }
             .printable-card-wrapper {
-              position: absolute !important;
+              position: fixed !important;
               left: 0 !important;
               top: 0 !important;
               width: 100% !important;
-              max-height: 280mm !important;
               box-sizing: border-box !important;
               border: none !important;
               box-shadow: none !important;
-              padding: 0 !important;
-              margin: 0 !important;
-              overflow: hidden !important;
+              overflow: visible !important;
             }
-            .printable-card-wrapper .my-8,
-            .printable-card-wrapper .my-6 {
-              margin-top: 0.75rem !important;
-              margin-bottom: 0.75rem !important;
-            }
-            .printable-card-wrapper .space-y-6 > * + * {
-              margin-top: 0.75rem !important;
-            }
-            .printable-card-wrapper .space-y-4 > * + * {
-              margin-top: 0.5rem !important;
-            }
-            .printable-card-wrapper .mt-12 {
-              margin-top: 1rem !important;
-            }
-            .printable-card-wrapper .mt-8 {
-              margin-top: 0.75rem !important;
-            }
-            .printable-card-wrapper .p-8,
-            .printable-card-wrapper .p-6,
-            .printable-card-wrapper .md\\:p-12,
-            .printable-card-wrapper .md\\:p-8 {
-              padding: 1rem !important;
-            }
-            .printable-card-wrapper .gap-8 {
-              gap: 0.75rem !important;
-            }
-            .printable-card-wrapper h1 {
-              font-size: 1.2rem !important;
-            }
-            .printable-card-wrapper h2 {
-              font-size: 1.1rem !important;
-            }
-            .printable-card-wrapper h3 {
-              font-size: 0.75rem !important;
-              margin-bottom: 0.35rem !important;
-            }
-            .printable-card-wrapper p, 
-            .printable-card-wrapper span, 
-            .printable-card-wrapper div {
-              font-size: 90% !important;
-            }
-            .printable-card-wrapper .qr-code-svg {
-              width: 64px !important;
-              height: 64px !important;
-            }
-            .printable-card-wrapper img {
-              height: 40px !important;
-            }
-            .printable-card-wrapper .logo-fallback {
-              font-size: 1.2rem !important;
-            }
-            .printable-card-wrapper .-mx-8,
-            .printable-card-wrapper .md\\:-mx-12 {
-              margin-left: -1rem !important;
-              margin-right: -1rem !important;
-              margin-bottom: -1rem !important;
-              padding: 0.5rem 1rem !important;
+            .printable-card-wrapper .-mx-6 {
+              margin-left: -1.5rem !important;
+              margin-right: -1.5rem !important;
+              margin-bottom: -1.5rem !important;
             }
           }
         `}} />
@@ -248,12 +192,12 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
         </div>
 
         {/* 1. HEADER SECTION */}
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6 relative z-10">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 relative z-10">
           <div className="flex items-center gap-4">
-            <img 
-              src="/logo.png" 
-              alt="SakhiHub Logo" 
-              className="h-[55px] w-auto shrink-0" 
+            <img
+              src="/logo.png"
+              alt="SakhiHub Logo"
+              className="h-[48px] w-auto shrink-0"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
                 const fallback = e.currentTarget.parentElement?.querySelector('.logo-fallback');
@@ -261,21 +205,21 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
               }}
             />
             <div>
-              <div className="logo-fallback text-2xl font-black text-secondary leading-none">
+              <div className="logo-fallback text-xl font-black text-secondary leading-none">
                 Sakhi<span className="text-primary">Hub</span>
               </div>
-              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
+              <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1">
                 Empowering Rural Women
               </p>
             </div>
           </div>
 
           <div className="text-left md:text-right">
-            <h1 className="text-lg md:text-xl font-black text-secondary tracking-wide">
+            <h1 className="text-base md:text-lg font-black text-secondary tracking-wide">
               {config.title}
             </h1>
-            <div className="flex md:justify-end items-center gap-2 mt-2">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-100">
+            <div className="flex md:justify-end items-center gap-2 mt-1.5">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-100">
                 <Check size={10} className="stroke-[3]" />
                 Payment Confirmed
               </span>
@@ -284,20 +228,20 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
         </div>
 
         {/* Top Divider */}
-        <div className="h-[2px] bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 my-8 relative z-10" />
+        <div className="h-[2px] bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 my-5 relative z-10" />
 
         {/* 2. MAIN 2-COLUMN CONTENT SECTION */}
-        <div className="grid grid-cols-1 md:grid-cols-12 print:grid-cols-12 gap-6 relative z-10">
-          
+        <div className="grid grid-cols-1 md:grid-cols-12 print:grid-cols-12 gap-5 relative z-10">
+
           {/* LEFT COLUMN: Payer & Member Details */}
-          <div className="md:col-span-7 print:col-span-7 space-y-4">
+          <div className="md:col-span-7 print:col-span-7 space-y-3">
             <div>
-              <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <User size={14} className="text-primary" />
+              <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <User size={13} className="text-primary" />
                 Member Details
               </h3>
-              
-              <div className="bg-gray-50/50 border border-gray-100 rounded-3xl p-5 md:p-6 space-y-4">
+
+              <div className="bg-gray-50/50 border border-gray-100 rounded-[20px] p-4 md:p-5 space-y-3">
                 <div>
                   <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Full Name</span>
                   <p className="text-lg font-black text-secondary mt-1">{data.fullName}</p>
@@ -347,26 +291,26 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
           </div>
 
           {/* RIGHT COLUMN: Transaction Summary */}
-          <div className="md:col-span-5 print:col-span-5 space-y-4">
+          <div className="md:col-span-5 print:col-span-5 space-y-3">
             <div>
-              <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <Building size={14} className="text-primary" />
+              <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <Building size={13} className="text-primary" />
                 Transaction Summary
               </h3>
 
-              <div className="bg-white border border-gray-100 rounded-3xl p-5 md:p-6 space-y-3 shadow-sm">
-                
-                <div className="flex justify-between items-center py-2 border-b border-gray-50">
+              <div className="bg-white border border-gray-100 rounded-[20px] p-4 md:p-5 space-y-1.5 shadow-sm">
+
+                <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Receipt No.</span>
                   <span className="text-xs font-black text-secondary tracking-wide">{data.receiptNumber}</span>
                 </div>
 
-                <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Transaction ID</span>
                   <span className="text-xs font-bold text-secondary truncate max-w-[160px]">{data.transactionId}</span>
                 </div>
 
-                <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Payment Date</span>
                   <span className="text-xs font-bold text-secondary flex items-center gap-1.5">
                     <Calendar size={12} className="text-gray-400" />
@@ -374,7 +318,7 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Payment Time</span>
                   <span className="text-xs font-bold text-secondary flex items-center gap-1.5">
                     <Clock size={12} className="text-gray-400" />
@@ -382,7 +326,7 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Payment Mode</span>
                   <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-purple-50 text-purple-600 border border-purple-100">
                     {data.paymentMode}
@@ -391,7 +335,7 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
 
                 {/* Dynamic Extra Detail Fields for Subscription & Deposit */}
                 {type === 'subscription' && (data.planType || data.renewalDate) && (
-                  <div className="pt-2 space-y-2 border-t border-gray-100">
+                  <div className="pt-1.5 space-y-1.5 border-t border-gray-100">
                     {data.planType && (
                       <div className="flex justify-between items-center py-1">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Plan Type</span>
@@ -408,7 +352,7 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
                 )}
 
                 {type === 'deposit' && (data.depositPurpose || data.approvalStatus) && (
-                  <div className="pt-2 space-y-2 border-t border-gray-100">
+                  <div className="pt-1.5 space-y-1.5 border-t border-gray-100">
                     {data.depositPurpose && (
                       <div className="flex justify-between items-center py-1">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Purpose</span>
@@ -425,12 +369,12 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
                 )}
 
                 {/* Amount Box */}
-                <div className={`mt-6 rounded-2xl border p-4 ${config.accentBg} ${config.accentBorder} flex justify-between items-center`}>
+                <div className={`mt-4 rounded-[16px] border p-3 ${config.accentBg} ${config.accentBorder} flex justify-between items-center`}>
                   <div>
                     <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest block">{config.amountLabel}</span>
-                    <p className={`text-2xl font-black ${config.accentText} mt-1`}>₹{data.amount}</p>
+                    <p className={`text-xl font-black ${config.accentText} mt-0.5`}>₹{data.amount}</p>
                   </div>
-                  <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-white border border-gray-100 text-secondary shadow-sm`}>
+                  <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-white border border-gray-100 text-secondary shadow-sm`}>
                     {config.extraLabel}
                   </span>
                 </div>
@@ -440,24 +384,24 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
         </div>
 
         {/* 3. SUCCESS MESSAGE & SECURITY NOTICE */}
-        <div className="mt-5 bg-purple-50/50 border border-purple-100/50 rounded-2xl p-3 flex gap-3 relative z-10">
-          <div className="w-10 h-10 rounded-xl bg-purple-100/50 flex items-center justify-center text-purple-600 shrink-0">
-            <ShieldCheck size={20} />
+        <div className="mt-4 bg-purple-50/50 border border-purple-100/50 rounded-2xl p-3 flex gap-3 relative z-10">
+          <div className="w-8 h-8 rounded-[10px] bg-purple-100/50 flex items-center justify-center text-purple-600 shrink-0">
+            <ShieldCheck size={16} />
           </div>
           <div>
-            <h4 className="text-xs font-black text-secondary uppercase tracking-wider">Payment Successful</h4>
-            <p className="text-[11px] text-gray-500 leading-relaxed font-semibold mt-1">
+            <h4 className="text-[11px] font-black text-secondary uppercase tracking-wider">Payment Successful</h4>
+            <p className="text-[10px] text-gray-500 leading-relaxed font-semibold mt-0.5">
               This digital receipt serves as official proof of payment. The transaction has been securely recorded, reconciled, and audited in the SakhiHub distributed ledger database.
             </p>
           </div>
         </div>
 
         {/* Middle Line Divider */}
-        <div className="h-px bg-gray-100 my-5 relative z-10" />
+        <div className="h-px bg-gray-100 my-4 relative z-10" />
 
         {/* 4. VERIFICATION SEAL & QR CODE & SIGNATURE INFO SECTION */}
-        <div className="grid grid-cols-1 md:grid-cols-12 print:grid-cols-12 gap-6 items-center relative z-10">
-          
+        <div className="grid grid-cols-1 md:grid-cols-12 print:grid-cols-12 gap-4 items-center relative z-10">
+
           {/* QR Verification Code */}
           <div className="md:col-span-3 print:col-span-3 flex justify-center md:justify-start">
             <div className="bg-white border border-gray-200/80 p-3 rounded-2xl flex flex-col items-center shadow-sm shrink-0">
@@ -489,8 +433,8 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
         </div>
 
         {/* 5. BOTTOM INFO BLOCKS */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 print:grid-cols-3 gap-4 pt-6 border-t border-gray-100 relative z-10">
-          
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 print:grid-cols-3 gap-3 pt-4 border-t border-gray-100 relative z-10">
+
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 shrink-0">
               <User size={14} />
@@ -528,29 +472,29 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
         </div>
 
         {/* 6. SYSTEM FOOTER STRIP */}
-        <div className="mt-6 -mx-8 -mb-8 md:-mx-12 md:-mb-12 bg-gray-50 border-t border-gray-100 px-6 py-3 flex flex-wrap print:flex-nowrap justify-center md:justify-between items-center gap-4 relative z-10 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-          <div className="flex items-center gap-1">
-            <Globe size={12} className="text-gray-400 shrink-0" />
+        <div className="mt-5 -mx-5 md:-mx-6 -mb-5 md:-mb-6 bg-gray-50 border-t border-gray-100 px-5 py-2.5 flex flex-wrap print:flex-nowrap justify-center md:justify-between items-center gap-3 relative z-10 text-[9px] font-bold text-gray-400 uppercase tracking-widest rounded-b-[24px]">
+          <div className="flex items-center gap-1.5">
+            <Globe size={11} className="text-gray-400 shrink-0" />
             <a href="https://www.sakhihub.org" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors text-gray-400 no-underline">
               www.sakhihub.org
             </a>
           </div>
 
-          <div className="flex items-center gap-1">
-            <Mail size={12} className="text-gray-400 shrink-0" />
+          <div className="flex items-center gap-1.5">
+            <Mail size={11} className="text-gray-400 shrink-0" />
             <a href="mailto:care@sakhihub.org" className="hover:text-primary transition-colors text-gray-400 no-underline">
               care@sakhihub.org
             </a>
           </div>
 
-          <div className="flex items-center gap-1">
-            <Phone size={12} className="text-gray-400 shrink-0" />
+          <div className="flex items-center gap-1.5">
+            <Phone size={11} className="text-gray-400 shrink-0" />
             <span>+91 9988273555</span>
           </div>
 
-          <div className="flex items-center gap-1">
-            <MapPin size={12} className="text-gray-400 shrink-0" />
-            <span>Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010</span>
+          <div className="flex items-center gap-1.5">
+            <MapPin size={11} className="text-gray-400 shrink-0" />
+            <span className="truncate">Pu 4, Behind C21 Mall, Scheme 54, Indore, MP 452010</span>
           </div>
         </div>
       </div>

@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
       vendorAgreementDetails: agreementMap[v._id.toString()] || null
     }));
 
-    const sanitizedData = sanitizeUserListForClient(enrichedVendors);
+    const sanitizedData = sanitizeUserListForClient(enrichedVendors, true);
 
     return Response.json({
       success: true,

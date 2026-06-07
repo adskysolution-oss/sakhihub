@@ -67,8 +67,8 @@ export default function PaymentReceiptCard() {
 
       {/* Receipt Modal Overlay */}
       {selectedReceipt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 overflow-y-auto print:p-0 print:bg-white print:relative print:z-auto">
-          <div className="relative w-full max-w-4xl bg-white rounded-[32px] shadow-2xl p-6 md:p-10 my-8 overflow-y-auto max-h-[90vh] print:max-h-none print:my-0 print:p-0 print:shadow-none print:border-none">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 overflow-y-auto print:p-0 print:bg-white print:fixed print:inset-0 print:overflow-visible">
+          <div className="relative w-full max-w-4xl bg-white rounded-[32px] shadow-2xl p-6 md:p-10 my-8 overflow-y-auto max-h-[90vh] print:max-h-none print:my-0 print:p-0 print:shadow-none print:border-none print:static print:overflow-visible">
             {/* Close Button - Hidden on Print */}
             <button
               onClick={() => setSelectedReceipt(null)}

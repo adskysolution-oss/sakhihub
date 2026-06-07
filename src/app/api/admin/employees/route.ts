@@ -113,7 +113,7 @@ export async function GET(req: NextRequest) {
       appointmentDetails: offerLetterMap[emp._id.toString()] || null
     }));
 
-    const sanitizedData = sanitizeUserListForClient(enrichedEmployees);
+    const sanitizedData = sanitizeUserListForClient(enrichedEmployees, true);
 
     return Response.json({
       success: true,
