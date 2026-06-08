@@ -15,10 +15,9 @@ import { sanitizeUserListForClient } from '@/utils/apiSecurity';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return errorResponse('Unauthorized', 403);
-    }
+    const { verifyPermission, applyRegionalFilter } = await import('@/utils/authHelpers');
+    const { authorized, error, session } = await verifyPermission('vendors.view');
+    if (!authorized) return error;
 
     await dbConnect();
     const { searchParams } = new URL(req.url);
@@ -41,7 +40,8 @@ export async function GET(req: NextRequest) {
     const statusFilterQuery = buildStatusQuery(activeStatus);
     const paymentFilterQuery = buildPaymentQuery(activePaymentStatus);
 
-    const baseMatch: any = { role: 'vendor', ...dateQuery };
+    let baseMatch: any = { role: 'vendor', ...dateQuery };
+    await applyRegionalFilter(baseMatch, session);
 
     if (agreementFilter === 'generated' || agreementFilter === 'not_generated') {
       const VendorAgreement = (await import('@/models/VendorAgreement')).default;

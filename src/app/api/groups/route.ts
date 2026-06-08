@@ -61,7 +61,14 @@ export async function GET(req: NextRequest) {
       query = { vendorCode: userProfile?.vendorCode };
     } else if (role === 'sub_vendor') {
       query = { subVendorCode: userProfile?.subVendorCode };
-    } else if (role !== 'super_admin') {
+    } else if (role === 'super_admin' || role === 'operations_admin') {
+      query = {};
+      if (role === 'operations_admin' && userProfile?.assignedScope === 'regional') {
+        if (Array.isArray(userProfile.assignedDistricts) && userProfile.assignedDistricts.length > 0) {
+          query.district = { $in: userProfile.assignedDistricts };
+        }
+      }
+    } else {
       return errorResponse('Forbidden', 403);
     }
 

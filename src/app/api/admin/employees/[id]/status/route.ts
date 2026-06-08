@@ -16,7 +16,7 @@ export async function PATCH(
 ) {
   try {
     const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
+    if (!session) {
       return errorResponse('Unauthorized', 401);
     }
 
@@ -25,12 +25,28 @@ export async function PATCH(
     const { status, remarks } = body;
 
     await dbConnect();
+    const userToUpdate = await User.findById(id);
+    if (!userToUpdate) return errorResponse('User not found', 404);
+
+    const { hasPermission } = await import('@/utils/authHelpers');
+
+    if (status.startsWith('doc:')) {
+      const requiredPerm = status.endsWith(':approved') || status.endsWith(':exception_approved') ? 'documents.verify' : 'documents.reject';
+      const isAuthorized = await hasPermission(session.id, (session as any).role, requiredPerm);
+      if (!isAuthorized) return errorResponse('Forbidden: Insufficient Permissions', 403);
+    } else {
+      let requiredPerm = '';
+      if (userToUpdate.role === 'vendor') requiredPerm = 'vendors.update';
+      else if (userToUpdate.role === 'sub_vendor') requiredPerm = 'sub_vendors.update';
+      else if (userToUpdate.role === 'employee') requiredPerm = 'employees.update';
+      else if (userToUpdate.role === 'member') requiredPerm = 'members.update';
+
+      const isAuthorized = await hasPermission(session.id, (session as any).role, requiredPerm);
+      if (!isAuthorized) return errorResponse('Forbidden: Insufficient Permissions', 403);
+    }
 
     // 1. Handle overall status update (active/rejected/suspended)
     if (['active', 'rejected', 'suspended'].includes(status)) {
-      const userToUpdate = await User.findById(id);
-      if (!userToUpdate) return errorResponse('User not found', 404);
-
       const updateData: any = { 
         status, 
         updatedAt: new Date() 

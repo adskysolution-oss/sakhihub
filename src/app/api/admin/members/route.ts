@@ -9,10 +9,9 @@ import { successResponse, errorResponse } from '@/utils/response';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return errorResponse('Unauthorized', 403);
-    }
+    const { verifyPermission, applyRegionalFilter } = await import('@/utils/authHelpers');
+    const { authorized, error, session } = await verifyPermission('members.view');
+    if (!authorized) return error;
 
     await dbConnect();
     const { searchParams } = new URL(req.url);
@@ -68,10 +67,11 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const baseMatch: any = {
+    let baseMatch: any = {
       accountStatus: { $ne: 'inactive' },
       ...dateQuery
     };
+    await applyRegionalFilter(baseMatch, session);
     if (vendorCode) baseMatch.vendorCode = vendorCode;
     if (subVendorCode) baseMatch.subVendorCode = subVendorCode;
 
@@ -319,10 +319,9 @@ export async function GET(req: NextRequest) {
 }
 export async function PATCH(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return errorResponse('Unauthorized', 403);
-    }
+    const { verifyPermission } = await import('@/utils/authHelpers');
+    const { authorized, error, session } = await verifyPermission('members.update');
+    if (!authorized) return error;
 
     const body = await req.json();
     const { id, accountStatus, connectionStatus, assignedEmployeeId } = body;

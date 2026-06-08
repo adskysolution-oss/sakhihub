@@ -7,34 +7,30 @@ import { successResponse, errorResponse } from '@/utils/response';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return errorResponse('Unauthorized', 403);
-    }
+    const { verifyPermission, applyRegionalFilter } = await import('@/utils/authHelpers');
+    const { authorized, error, session } = await verifyPermission('network.view');
+    if (!authorized) return error;
 
     await dbConnect();
 
     // 1. Fetch only ACTIVE/APPROVED operational records
     const operationalStatuses = ['active', 'approved'];
 
-    const vendors = await User.find({
-      role: 'vendor',
-      status: { $in: operationalStatuses }
-    }).select('fullName vendorCode role mobile status district block profileImage');
+    let vendorMatch: any = { role: 'vendor', status: { $in: operationalStatuses } };
+    await applyRegionalFilter(vendorMatch, session);
+    const vendors = await User.find(vendorMatch).select('fullName vendorCode role mobile status district block profileImage');
 
-    const subVendors = await User.find({
-      role: 'sub_vendor',
-      status: { $in: operationalStatuses }
-    }).select('fullName subVendorCode role mobile status district block parentVendorId profileImage');
+    let subVendorMatch: any = { role: 'sub_vendor', status: { $in: operationalStatuses } };
+    await applyRegionalFilter(subVendorMatch, session);
+    const subVendors = await User.find(subVendorMatch).select('fullName subVendorCode role mobile status district block parentVendorId profileImage');
 
-    const employees = await User.find({
-      role: 'employee',
-      status: { $in: operationalStatuses }
-    }).select('fullName employeeId role mobile status district block parentVendorId profileImage');
+    let employeeMatch: any = { role: 'employee', status: { $in: operationalStatuses } };
+    await applyRegionalFilter(employeeMatch, session);
+    const employees = await User.find(employeeMatch).select('fullName employeeId role mobile status district block parentVendorId profileImage');
 
-    const members = await WomenMember.find({
-      accountStatus: 'active'
-    }).select('name mobile village status membershipStatus assignedEmployeeId subVendorCode vendorCode');
+    let memberMatch: any = { accountStatus: 'active' };
+    await applyRegionalFilter(memberMatch, session);
+    const members = await WomenMember.find(memberMatch).select('name mobile village status membershipStatus assignedEmployeeId subVendorCode vendorCode state district');
 
     // 2. Build the Root
     const root: any = {

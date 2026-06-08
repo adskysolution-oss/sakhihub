@@ -67,6 +67,12 @@ export const ADMIN_DASHBOARD_LINKS = [
   { section: 'System & Finance', name: 'Dynamic Forms', icon: ClipboardList, href: '/admin/forms' },
   { section: 'System & Finance', name: 'CMS Manage', icon: Settings, href: '/admin/cms' },
   { section: 'System & Finance', name: 'My Profile', icon: User, href: '/admin/profile' },
+
+  // ADMIN MANAGEMENT
+  { section: 'Admin Management', name: 'Operations Admins', icon: User, href: '/admin/operations-admins' },
+  { section: 'Admin Management', name: 'Permissions', icon: ShieldCheck, href: '/admin/permissions' },
+  { section: 'Admin Management', name: 'Assignments', icon: MapPin, href: '/admin/assignments' },
+  { section: 'Admin Management', name: 'Activity Logs', icon: ClipboardList, href: '/admin/activity-logs' },
 ];
 
 export const VENDOR_DASHBOARD_LINKS = [

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export type UserRole = 'super_admin' | 'vendor' | 'sub_vendor' | 'employee' | 'member';
+export type UserRole = 'super_admin' | 'operations_admin' | 'vendor' | 'sub_vendor' | 'employee' | 'member';
 export type UserStatus = 'pending' | 'documents_uploaded' | 'under_review' | 'reupload_required' | 'approved' | 'active' | 'rejected' | 'suspended';
 export type VendorDocumentStatus = 'uploaded' | 'pending' | 'under_review' | 'approved' | 'rejected' | 'reupload_required' | 'exception_requested' | 'exception_responded' | 'exception_approved' | 'on_hold';
 
@@ -110,6 +110,11 @@ export interface IUser extends Document {
   accessStatus?: 'locked' | 'unlocked';
   paymentStatus?: 'pending' | 'completed';
   verificationStatus?: 'pending' | 'verified';
+  permissions?: string[];
+  assignedScope?: 'all' | 'regional';
+  assignedStates?: string[];
+  assignedDistricts?: string[];
+  assignedRegions?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -145,7 +150,7 @@ const UserSchema: Schema = new Schema(
     password: { type: String },
     role: {
       type: String,
-      enum: ['super_admin', 'vendor', 'sub_vendor', 'employee', 'member'],
+      enum: ['super_admin', 'operations_admin', 'vendor', 'sub_vendor', 'employee', 'member'],
       default: 'member'
     },
     vendorType: {
@@ -240,6 +245,11 @@ const UserSchema: Schema = new Schema(
     accessStatus: { type: String, enum: ['locked', 'unlocked'], default: 'locked' },
     paymentStatus: { type: String, enum: ['pending', 'completed'], default: 'pending' },
     verificationStatus: { type: String, enum: ['pending', 'verified'], default: 'pending' },
+    permissions: { type: [String], default: [] },
+    assignedScope: { type: String, enum: ['all', 'regional'], default: 'all' },
+    assignedStates: { type: [String], default: [] },
+    assignedDistricts: { type: [String], default: [] },
+    assignedRegions: { type: [String], default: [] },
   },
   { timestamps: true }
 );

@@ -17,10 +17,9 @@ import { generatePdfBuffer } from '@/utils/pdfGenerator';
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 403 });
-    }
+    const { verifyPermission } = await import('@/utils/authHelpers');
+    const { authorized, error, session } = await verifyPermission('reports.export');
+    if (!authorized) return error;
 
     await dbConnect();
     const sessionUser = session as any;

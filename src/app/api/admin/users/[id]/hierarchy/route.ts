@@ -16,8 +16,26 @@ export async function GET(
   try {
     const { id } = await params;
     const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return errorResponse('Unauthorized', 403);
+    if (!session) {
+      return errorResponse('Unauthorized', 401);
+    }
+
+    const sessionUser = session as any;
+    const { hasPermission } = await import('@/utils/authHelpers');
+    const isSuperAdmin = sessionUser.role === 'super_admin';
+    const isAuthorized = isSuperAdmin || (
+      sessionUser.role === 'operations_admin' && 
+      (
+        await hasPermission(sessionUser.id, sessionUser.role, 'network.view') ||
+        await hasPermission(sessionUser.id, sessionUser.role, 'vendors.view') ||
+        await hasPermission(sessionUser.id, sessionUser.role, 'sub_vendors.view') ||
+        await hasPermission(sessionUser.id, sessionUser.role, 'employees.view') ||
+        await hasPermission(sessionUser.id, sessionUser.role, 'members.view')
+      )
+    );
+
+    if (!isAuthorized) {
+      return errorResponse('Forbidden: Insufficient Permissions', 403);
     }
 
     await dbConnect();

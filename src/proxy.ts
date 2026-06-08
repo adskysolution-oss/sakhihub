@@ -39,7 +39,7 @@ export async function proxy(request: NextRequest) {
       }
 
       // Strict Role & Status Redirects
-      if (payload.role === 'super_admin') return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+      if (payload.role === 'super_admin' || payload.role === 'operations_admin') return NextResponse.redirect(new URL('/admin/dashboard', request.url));
 
       if (payload.role === 'vendor') {
         if (!payload.dashboardAccess) {
@@ -209,14 +209,33 @@ export async function proxy(request: NextRequest) {
 
       // Hierarchy check (General)
       // Now including sub_vendor in the mandatory assignment check
-      if (!['super_admin', 'vendor', 'member'].includes(payload.role) && payload.assignmentStatus === 'pending') {
+      if (!['super_admin', 'operations_admin', 'vendor', 'member'].includes(payload.role) && payload.assignmentStatus === 'pending') {
         if (pathname !== '/pending-assignment' && pathname !== '/pending-approval' && pathname !== '/vendor/onboarding' && !pathname.includes('onboarding')) {
           return NextResponse.redirect(new URL('/pending-assignment', request.url));
         }
       }
 
       // Role-based access control (RBAC)
-      if (isAdminPage && payload.role !== 'super_admin') return NextResponse.redirect(new URL('/unauthorized', request.url));
+      if (isAdminPage) {
+        if (payload.role !== 'super_admin' && payload.role !== 'operations_admin') {
+          return NextResponse.redirect(new URL('/unauthorized', request.url));
+        }
+        if (payload.role === 'operations_admin') {
+          const restrictedAdminSubPages = [
+            '/admin/operations-admins',
+            '/admin/permissions',
+            '/admin/assignments',
+            '/admin/activity-logs',
+            '/admin/cms',
+            '/admin/finance',
+            '/admin/forms',
+            '/admin/payment-config'
+          ];
+          if (restrictedAdminSubPages.some(subPath => pathname.startsWith(subPath))) {
+            return NextResponse.redirect(new URL('/unauthorized', request.url));
+          }
+        }
+      }
       if (isVendorPage && payload.role !== 'vendor') return NextResponse.redirect(new URL('/unauthorized', request.url));
       if (isSubVendorPage && payload.role !== 'sub_vendor') return NextResponse.redirect(new URL('/unauthorized', request.url));
       if (isEmployeePage && payload.role !== 'employee') return NextResponse.redirect(new URL('/unauthorized', request.url));
@@ -282,6 +301,7 @@ export async function proxy(request: NextRequest) {
         // Redirect to their respective dashboards
         const dashMap: any = {
           super_admin: '/admin/dashboard',
+          operations_admin: '/admin/dashboard',
           vendor: '/vendor/dashboard',
           sub_vendor: '/sub-vendor/dashboard',
           employee: '/employee/dashboard',

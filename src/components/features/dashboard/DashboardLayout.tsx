@@ -79,6 +79,38 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   const getMenuItems = () => {
     if (user?.role === 'super_admin') return ADMIN_DASHBOARD_LINKS;
+    if (user?.role === 'operations_admin') {
+      const restrictedHrefs = [
+        '/admin/operations-admins',
+        '/admin/permissions',
+        '/admin/assignments',
+        '/admin/activity-logs',
+        '/admin/cms',
+        '/admin/finance',
+        '/admin/forms',
+        '/admin/payment-config'
+      ];
+      const linkPermissionMap: Record<string, string> = {
+        '/admin/network': 'network.view',
+        '/admin/reports': 'reports.view',
+        '/admin/vendors': 'vendors.view',
+        '/admin/sub-vendors': 'sub_vendors.view',
+        '/admin/employees': 'employees.view',
+        '/admin/members': 'members.view',
+        '/admin/memberships': 'payments.view',
+      };
+      const userPermissions = Array.isArray(user.permissions) ? user.permissions : [];
+      return ADMIN_DASHBOARD_LINKS.filter(link => {
+        if (restrictedHrefs.some(href => link.href.startsWith(href))) return false;
+        if (link.section === 'Admin Management') return false;
+        
+        const requiredPermission = linkPermissionMap[link.href];
+        if (requiredPermission && !userPermissions.includes(requiredPermission)) {
+          return false;
+        }
+        return true;
+      });
+    }
     if (user?.role === 'vendor') return VENDOR_DASHBOARD_LINKS;
     if (user?.role === 'sub_vendor') return SUBVENDOR_DASHBOARD_LINKS;
     if (user?.role === 'employee') return EMPLOYEE_DASHBOARD_LINKS;
@@ -257,7 +289,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             </button>
 
             <Link
-              href={user?.role === 'super_admin' ? '/admin/profile' : `/${user?.role?.replace('_', '-')}/dashboard/profile`}
+              href={['super_admin', 'operations_admin'].includes(user?.role) ? '/admin/profile' : `/${user?.role?.replace('_', '-')}/dashboard/profile`}
               className="flex items-center gap-3 pl-3 md:pl-5 border-l border-[#eee] no-underline group"
             >
               <div className="text-right hidden sm:block">
@@ -289,7 +321,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                 </div>
               </div>
               <Link
-                href={user?.role === 'super_admin' ? '/admin/profile' : `/${user?.role?.replace('_', '-')}/dashboard/profile`}
+                href={['super_admin', 'operations_admin'].includes(user?.role) ? '/admin/profile' : `/${user?.role?.replace('_', '-')}/dashboard/profile`}
                 className="shrink-0 w-full sm:w-auto text-center px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold tracking-wide hover:bg-rose-700 transition-colors shadow-sm"
               >
                 {t('dashboardCommon.completeProfileBtn', 'Complete Profile')}

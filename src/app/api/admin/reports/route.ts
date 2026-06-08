@@ -9,15 +9,29 @@ import { successResponse, errorResponse } from '@/utils/response';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return errorResponse('Unauthorized', 403);
-    }
+    const { verifyPermission } = await import('@/utils/authHelpers');
+    const { authorized, error, session } = await verifyPermission('reports.view');
+    if (!authorized || !session) return error;
 
     await dbConnect();
 
+    // Check regional boundaries
+    const sessionUser = session as any;
+    const dbUser = await User.findById(sessionUser.id).lean();
+    let regionalMatch: any = {};
+    if (dbUser && dbUser.assignedScope === 'regional') {
+      const filters: any[] = [];
+      if (dbUser.assignedStates?.length) filters.push({ state: { $in: dbUser.assignedStates } });
+      if (dbUser.assignedDistricts?.length) filters.push({ district: { $in: dbUser.assignedDistricts } });
+      if (filters.length > 0) regionalMatch.$or = filters;
+    }
+
     // Aggregate monthly registrations
-    const monthlyRegs = await WomenMember.aggregate([
+    const regStages: any[] = [];
+    if (Object.keys(regionalMatch).length > 0) {
+      regStages.push({ $match: regionalMatch });
+    }
+    regStages.push(
       {
         $group: {
           _id: { $month: "$createdAt" },
@@ -25,11 +39,35 @@ export async function GET(req: NextRequest) {
         }
       },
       { $sort: { "_id": 1 } }
-    ]);
+    );
+    const monthlyRegs = await WomenMember.aggregate(regStages);
 
-    // Aggregate monthly collections
-    const monthlyCollections = await Membership.aggregate([
-      { $match: { paymentStatus: 'Paid' } },
+    // Aggregate monthly collections with regional lookup
+    const membershipMatchStages: any[] = [
+      { $match: { paymentStatus: 'Paid' } }
+    ];
+    if (dbUser && dbUser.assignedScope === 'regional') {
+      membershipMatchStages.push(
+        {
+          $lookup: {
+            from: 'womenmembers',
+            localField: 'memberId',
+            foreignField: '_id',
+            as: 'member'
+          }
+        },
+        { $unwind: '$member' }
+      );
+      
+      const filters: any[] = [];
+      if (dbUser.assignedStates?.length) filters.push({ 'member.state': { $in: dbUser.assignedStates } });
+      if (dbUser.assignedDistricts?.length) filters.push({ 'member.district': { $in: dbUser.assignedDistricts } });
+      if (filters.length > 0) {
+        membershipMatchStages.push({ $match: { $or: filters } });
+      }
+    }
+
+    membershipMatchStages.push(
       {
         $group: {
           _id: { $month: "$createdAt" },
@@ -37,10 +75,15 @@ export async function GET(req: NextRequest) {
         }
       },
       { $sort: { "_id": 1 } }
-    ]);
+    );
+    const monthlyCollections = await Membership.aggregate(membershipMatchStages);
 
     // Employee performance (members added by each employee)
-    const employeePerformance = await WomenMember.aggregate([
+    const employeePerfStages: any[] = [];
+    if (Object.keys(regionalMatch).length > 0) {
+      employeePerfStages.push({ $match: regionalMatch });
+    }
+    employeePerfStages.push(
       {
         $group: {
           _id: "$createdBy",
@@ -49,7 +92,8 @@ export async function GET(req: NextRequest) {
       },
       { $sort: { membersCount: -1 } },
       { $limit: 10 }
-    ]);
+    );
+    const employeePerformance = await WomenMember.aggregate(employeePerfStages);
 
     // Populate employee names manually or via $lookup
     const populatedPerformance = await Promise.all(employeePerformance.map(async (perf) => {

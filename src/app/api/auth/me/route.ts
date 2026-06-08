@@ -72,8 +72,13 @@ export async function GET() {
     const hasAssignmentChanged = user.assignmentStatus !== sessionUser.assignmentStatus;
     const hasDocsVerifiedChanged = user.documentsVerified !== sessionUser.documentsVerified;
     const hasPaymentChanged = user.paymentCompleted !== sessionUser.paymentCompleted;
+    const hasPermissionsChanged = JSON.stringify(user.permissions || []) !== JSON.stringify(sessionUser.permissions || []);
+    const hasAssignmentsChanged = user.assignedScope !== sessionUser.assignedScope || 
+                                  JSON.stringify(user.assignedStates || []) !== JSON.stringify(sessionUser.assignedStates || []) ||
+                                  JSON.stringify(user.assignedDistricts || []) !== JSON.stringify(sessionUser.assignedDistricts || []) ||
+                                  JSON.stringify(user.assignedRegions || []) !== JSON.stringify(sessionUser.assignedRegions || []);
 
-    if (hasStatusChanged || hasAccessChanged || hasAssignmentChanged || hasDocsVerifiedChanged || hasPaymentChanged) {
+    if (hasStatusChanged || hasAccessChanged || hasAssignmentChanged || hasDocsVerifiedChanged || hasPaymentChanged || hasPermissionsChanged || hasAssignmentsChanged) {
       // Strip JWT metadata (iat, exp) from existing session to avoid conflict with signToken's expiresIn
       const { iat, exp, ...cleanPayload } = sessionUser;
       
@@ -87,7 +92,12 @@ export async function GET() {
         parentVendorId: user.parentVendorId,
         vendorCode: user.vendorCode,
         subVendorCode: user.subVendorCode,
-        paymentCompleted: user.paymentCompleted
+        paymentCompleted: user.paymentCompleted,
+        permissions: user.permissions || [],
+        assignedScope: user.assignedScope || 'all',
+        assignedStates: user.assignedStates || [],
+        assignedDistricts: user.assignedDistricts || [],
+        assignedRegions: user.assignedRegions || []
       };
       const newToken = signToken(newPayload);
       await setAuthCookie(newToken);

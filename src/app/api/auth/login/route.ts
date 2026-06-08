@@ -24,19 +24,19 @@ export async function POST(req: NextRequest) {
 
     // Verify role if specified (Strict Separation)
     if (role === 'admin') {
-      if (user.role !== 'super_admin') {
-        return errorResponse('Only Super Admin can access this portal', 403);
+      if (user.role !== 'super_admin' && user.role !== 'operations_admin') {
+        return errorResponse('Only administrators can access this portal', 403);
       }
     } else if (role === 'member' || role === 'employee' || role === 'vendor' || role === 'sub_vendor') {
-      if (user.role === 'super_admin') {
-        return errorResponse('Super Admin must use the Admin Portal', 403);
+      if (user.role === 'super_admin' || user.role === 'operations_admin') {
+        return errorResponse('Administrators must use the Admin Portal', 403);
       }
       if (user.role !== role) {
         return errorResponse(`Unauthorized for ${role} access. Your account is registered as ${user.role}.`, 403);
       }
     } else {
       // Default fallback if no role is passed (should not happen with new UI)
-      if (user.role === 'super_admin') {
+      if (user.role === 'super_admin' || user.role === 'operations_admin') {
         return errorResponse('Please use the Admin Portal', 403);
       }
     }
@@ -63,7 +63,12 @@ export async function POST(req: NextRequest) {
       onboardingCompleted: user.onboardingCompleted,
       documentsVerified: user.documentsVerified,
       dashboardAccess: user.dashboardAccess,
-      paymentCompleted: user.paymentCompleted
+      paymentCompleted: user.paymentCompleted,
+      permissions: user.permissions || [],
+      assignedScope: user.assignedScope || 'all',
+      assignedStates: user.assignedStates || [],
+      assignedDistricts: user.assignedDistricts || [],
+      assignedRegions: user.assignedRegions || []
     });
 
     await setAuthCookie(token);

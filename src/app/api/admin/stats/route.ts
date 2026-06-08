@@ -7,11 +7,102 @@ import { successResponse, errorResponse } from '@/utils/response';
 export async function GET(req: NextRequest) {
   try {
     const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
+    if (!session || !['super_admin', 'operations_admin'].includes((session as any).role)) {
       return errorResponse('Unauthorized', 403);
     }
 
     await dbConnect();
+    const AuditLog = (await import('@/models/AuditLog')).default;
+
+    const isOperationsAdmin = (session as any).role === 'operations_admin';
+    if (isOperationsAdmin) {
+      const dbUser = await User.findById(session.id).lean();
+      
+      let regionalMatch: any = { role: { $in: ['employee', 'vendor', 'sub_vendor', 'member'] } };
+      if (dbUser && dbUser.assignedScope === 'regional') {
+        const filters: any[] = [];
+        if (dbUser.assignedStates?.length) filters.push({ state: { $in: dbUser.assignedStates } });
+        if (dbUser.assignedDistricts?.length) filters.push({ district: { $in: dbUser.assignedDistricts } });
+        if (filters.length > 0) regionalMatch.$or = filters;
+      }
+
+      const pendingDocumentsCount = await User.countDocuments({
+        ...regionalMatch,
+        status: { $in: ['documents_uploaded', 'under_review'] }
+      });
+
+      const pendingVerificationsCount = await User.countDocuments({
+        ...regionalMatch,
+        documentsVerified: false,
+        status: { $in: ['documents_uploaded', 'under_review', 'pending'] }
+      });
+
+      const VendorAgreement = (await import('@/models/VendorAgreement')).default;
+      const allRegionalPartners = await User.find({
+        ...regionalMatch,
+        role: { $in: ['vendor', 'sub_vendor'] },
+        status: 'active'
+      }).select('_id');
+      const partnerIds = allRegionalPartners.map(p => p._id);
+      const generatedAgreements = await VendorAgreement.find({ vendorId: { $in: partnerIds } }).select('vendorId');
+      const generatedPartnerIds = generatedAgreements.map((g: any) => g.vendorId.toString());
+      const pendingAgreementsCount = partnerIds.filter(id => !generatedPartnerIds.includes(id.toString())).length;
+
+      const EmployeeOfferLetter = (await import('@/models/EmployeeOfferLetter')).default;
+      const allRegionalEmployees = await User.find({
+        ...regionalMatch,
+        role: 'employee',
+        status: 'active'
+      }).select('_id');
+      const employeeIds = allRegionalEmployees.map(e => e._id);
+      const generatedOfferLetters = await EmployeeOfferLetter.find({ employeeId: { $in: employeeIds } }).select('employeeId');
+      const generatedEmployeeIds = generatedOfferLetters.map((g: any) => g.employeeId.toString());
+      const pendingOfferLettersCount = employeeIds.filter(id => !generatedEmployeeIds.includes(id.toString())).length;
+
+      const DailyReport = (await import('@/models/DailyReport')).default;
+      let reportQuery: any = {};
+      if (dbUser && dbUser.assignedScope === 'regional') {
+        const regionalEmployees = await User.find({
+          ...regionalMatch,
+          role: 'employee'
+        }).select('_id');
+        reportQuery.employeeId = { $in: regionalEmployees.map(e => e._id) };
+      }
+      const pendingReportsCount = await DailyReport.countDocuments(reportQuery);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayActionsCount = await AuditLog.countDocuments({
+        performedBy: session.id,
+        timestamp: { $gte: today }
+      });
+
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      const weeklyActionsCount = await AuditLog.countDocuments({
+        performedBy: session.id,
+        timestamp: { $gte: oneWeekAgo }
+      });
+
+      const recentLogs = await AuditLog.find({ performedBy: session.id })
+        .populate('targetUser', 'fullName role')
+        .sort({ timestamp: -1 })
+        .limit(10);
+
+      return successResponse({
+        isOperationsAdmin: true,
+        stats: {
+          pendingDocuments: pendingDocumentsCount,
+          pendingVerifications: pendingVerificationsCount,
+          pendingAgreements: pendingAgreementsCount,
+          pendingOfferLetters: pendingOfferLettersCount,
+          pendingReports: pendingReportsCount,
+          todayActions: todayActionsCount,
+          weeklyActions: weeklyActionsCount
+        },
+        recentLogs
+      });
+    }
 
     // Import models for stats
     const Group = (await import('@/models/Group')).default;

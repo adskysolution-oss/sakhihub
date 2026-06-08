@@ -6,10 +6,9 @@ import { getAuthSession } from '@/lib/auth';
 // GET: Retrieve all saved report configurations/templates
 export async function GET(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 403 });
-    }
+    const { verifyPermission } = await import('@/utils/authHelpers');
+    const { authorized, error, session } = await verifyPermission('reports.view');
+    if (!authorized) return error;
 
     await dbConnect();
 
@@ -27,10 +26,9 @@ export async function GET(req: NextRequest) {
 // POST: Save a new template manually
 export async function POST(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 403 });
-    }
+    const { verifyPermission } = await import('@/utils/authHelpers');
+    const { authorized, error, session } = await verifyPermission('reports.view');
+    if (!authorized) return error;
 
     await dbConnect();
     const sessionUser = session as any;
@@ -61,10 +59,9 @@ export async function POST(req: NextRequest) {
 // DELETE: Remove a saved template
 export async function DELETE(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 403 });
-    }
+    const { verifyPermission } = await import('@/utils/authHelpers');
+    const { authorized, error, session } = await verifyPermission('reports.view');
+    if (!authorized) return error;
 
     await dbConnect();
     const { searchParams } = new URL(req.url);
