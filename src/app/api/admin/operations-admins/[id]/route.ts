@@ -25,7 +25,7 @@ export async function PUT(
     }
 
     const { logActivity } = await import('@/utils/authHelpers');
-    const ip = req.headers.get('x-forwarded-for') || req.ip || '127.0.0.1';
+    const ip = req.headers.get('x-forwarded-for') || (req as any).ip || '127.0.0.1';
 
     // 1. Password Reset
     if (action === 'reset_password') {
@@ -34,7 +34,7 @@ export async function PUT(
       }
       user.password = await hashPassword(password);
       await user.save();
-      await logActivity('operations_admin_password_reset', session.id, user._id, ip);
+      await logActivity('operations_admin_password_reset', (session as any).id, user._id, ip);
       return successResponse(null, 'Password reset successfully');
     }
 
@@ -47,7 +47,7 @@ export async function PUT(
       // If suspended, block dashboard access
       user.dashboardAccess = status === 'active';
       await user.save();
-      await logActivity(`operations_admin_${status}`, session.id, user._id, ip);
+      await logActivity(`operations_admin_${status}`, (session as any).id, user._id, ip);
       return successResponse(user, `Operations admin status updated to ${status}`);
     }
 
@@ -58,7 +58,7 @@ export async function PUT(
     if (designation) user.designation = designation;
 
     await user.save();
-    await logActivity('operations_admin_updated', session.id, user._id, ip, {
+    await logActivity('operations_admin_updated', (session as any).id, user._id, ip, {
       fullName,
       email,
       mobile,

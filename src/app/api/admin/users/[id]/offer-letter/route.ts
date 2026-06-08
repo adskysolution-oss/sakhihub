@@ -10,8 +10,17 @@ export async function POST(
 ) {
   try {
     const session = await getAuthSession() as any;
-    if (!session || (session.role !== 'super_admin' && session.role !== 'admin')) {
-      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 403 });
+    if (!session) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
+    const currentUserId = session.id || session.userId;
+    const { hasPermission } = await import('@/utils/authHelpers');
+    const isAuthorized = session.role === 'super_admin' || 
+      session.role === 'admin' ||
+      await hasPermission(currentUserId, session.role, 'offer_letters.generate');
+
+    if (!isAuthorized) {
+      return NextResponse.json({ success: false, message: 'Forbidden: Insufficient Permissions' }, { status: 403 });
     }
 
     const { id } = await params;

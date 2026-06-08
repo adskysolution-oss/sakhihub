@@ -61,8 +61,8 @@ export async function POST(req: NextRequest) {
     });
 
     const { logActivity } = await import('@/utils/authHelpers');
-    const ip = req.headers.get('x-forwarded-for') || req.ip || '127.0.0.1';
-    await logActivity('operations_admin_created', session.id, newUser._id, ip, {
+    const ip = req.headers.get('x-forwarded-for') || (req as any).ip || '127.0.0.1';
+    await logActivity('operations_admin_created', (session as any).id, newUser._id, ip, {
       fullName,
       email,
       mobile,

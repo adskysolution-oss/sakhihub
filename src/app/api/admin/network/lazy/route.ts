@@ -8,9 +8,10 @@ import { successResponse, errorResponse } from '@/utils/response';
 
 export async function GET(req: NextRequest) {
   try {
-    const { verifyPermission } = await import('@/utils/authHelpers');
-    const { authorized, error, session } = await verifyPermission('network.view');
-    if (!authorized) return error;
+    const session = await getAuthSession();
+    if (!session || (session as any).role !== 'super_admin') {
+      return errorResponse('Unauthorized', 403);
+    }
 
     await dbConnect();
 
@@ -26,9 +27,9 @@ export async function GET(req: NextRequest) {
         role: 'vendor',
         status: { $in: operationalStatuses }
       })
-      .select('fullName vendorCode role mobile status district block profileImage createdAt')
-      .sort({ createdAt: -1 })
-      .lean();
+        .select('fullName vendorCode role mobile status district block profileImage createdAt')
+        .sort({ createdAt: -1 })
+        .lean();
 
       // Compute counts for each Vendor
       nodes = await Promise.all(
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
 
           const thirtyDaysAgo = new Date();
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-          const hasRisk = (svIds.length === 0) || 
+          const hasRisk = (svIds.length === 0) ||
             (v.status === 'pending' && new Date(v.createdAt) < thirtyDaysAgo) ||
             (v.status === 'reupload_required');
 

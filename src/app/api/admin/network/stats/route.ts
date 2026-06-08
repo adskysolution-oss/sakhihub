@@ -13,9 +13,10 @@ import { successResponse, errorResponse } from '@/utils/response';
 
 export async function GET(req: NextRequest) {
   try {
-    const { verifyPermission } = await import('@/utils/authHelpers');
-    const { authorized, error, session } = await verifyPermission('network.view');
-    if (!authorized) return error;
+    const session = await getAuthSession();
+    if (!session || (session as any).role !== 'super_admin') {
+      return errorResponse('Unauthorized', 403);
+    }
 
     await dbConnect();
 

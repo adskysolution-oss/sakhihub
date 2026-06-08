@@ -14,9 +14,20 @@ import { distributeCommission } from '@/lib/commission';
  */
 export async function GET(req: NextRequest) {
   try {
-    const { verifyPermission } = await import('@/utils/authHelpers');
-    const { authorized, error, session } = await verifyPermission('offline_payments.view');
-    if (!authorized) return error;
+    const session = await getAuthSession();
+    if (!session) {
+      return errorResponse('Unauthorized', 401);
+    }
+
+    const currentUserId = (session as any).id || (session as any).userId;
+    const { hasPermission } = await import('@/utils/authHelpers');
+    const isAuthorized = (session as any).role === 'super_admin' ||
+      (session as any).role === 'admin' ||
+      await hasPermission(currentUserId, (session as any).role, 'payments.view');
+
+    if (!isAuthorized) {
+      return errorResponse('Forbidden', 403);
+    }
 
     await dbConnect();
 
@@ -48,9 +59,20 @@ export async function GET(req: NextRequest) {
  */
 export async function PATCH(req: NextRequest) {
   try {
-    const { verifyPermission } = await import('@/utils/authHelpers');
-    const { authorized, error, session } = await verifyPermission('offline_payments.view');
-    if (!authorized) return error;
+    const session = await getAuthSession();
+    if (!session) {
+      return errorResponse('Unauthorized', 401);
+    }
+
+    const currentUserId = (session as any).id || (session as any).userId;
+    const { hasPermission } = await import('@/utils/authHelpers');
+    const isAuthorized = (session as any).role === 'super_admin' ||
+      (session as any).role === 'admin' ||
+      await hasPermission(currentUserId, (session as any).role, 'payments.view');
+
+    if (!isAuthorized) {
+      return errorResponse('Forbidden', 403);
+    }
 
     await dbConnect();
 

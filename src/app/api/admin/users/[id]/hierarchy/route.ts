@@ -24,7 +24,7 @@ export async function GET(
     const { hasPermission } = await import('@/utils/authHelpers');
     const isSuperAdmin = sessionUser.role === 'super_admin';
     const isAuthorized = isSuperAdmin || (
-      sessionUser.role === 'operations_admin' && 
+      sessionUser.role === 'operations_admin' &&
       (
         await hasPermission(sessionUser.id, sessionUser.role, 'network.view') ||
         await hasPermission(sessionUser.id, sessionUser.role, 'vendors.view') ||
@@ -39,9 +39,9 @@ export async function GET(
     }
 
     await dbConnect();
-    
+
     // Explicitly reference models to ensure they are registered for populate()
-    const _Campaign = Campaign; 
+    const _Campaign = Campaign;
 
     // 1. Fetch User Profile with populated parent/campaign
     const user = await User.findById(id)
@@ -65,7 +65,7 @@ export async function GET(
     let employees: any[] = [];
     let members: any[] = [];
     let groups: any[] = [];
-    
+
     const counts: any = {
       subVendors: 0,
       employees: 0,
@@ -84,7 +84,7 @@ export async function GET(
       const subVendorIds = subVendors.map(sv => sv._id);
 
       // Find Employees (Direct under Vendor OR under its Sub-Vendors)
-      employees = await User.find({ 
+      employees = await User.find({
         role: 'employee',
         $or: [
           { parentVendorId: userId },
@@ -94,7 +94,7 @@ export async function GET(
       counts.employees = employees.length;
 
       // Find Members
-      members = await WomenMember.find({ 
+      members = await WomenMember.find({
         $or: [
           { vendorCode: vendorCode },
           { subVendorCode: { $in: subVendors.map(sv => sv.subVendorCode) } }
@@ -105,7 +105,7 @@ export async function GET(
       counts.freeMembers = members.filter((m: any) => m.membershipStatus === 'free').length;
 
       // Find Groups
-      groups = await Group.find({ 
+      groups = await Group.find({
         $or: [
           { vendorCode: vendorCode },
           { subVendorCode: { $in: subVendors.map(sv => sv.subVendorCode) } }
@@ -156,14 +156,14 @@ export async function GET(
     if (user.role === 'employee') {
       const EmployeeOfferLetter = (await import('@/models/EmployeeOfferLetter')).default;
       const EmployeeCertificate = (await import('@/models/EmployeeCertificate')).default;
-      
+
       const offerLetter = await EmployeeOfferLetter.findOne({ employeeId: user._id }).lean();
       if (offerLetter) {
         userObj.offerLetterDetails = offerLetter;
       }
 
       const certs = await EmployeeCertificate.find({ employeeId: user._id }).lean();
-      
+
       digitalCertificates = [
         ...(offerLetter ? [{
           _id: offerLetter._id,

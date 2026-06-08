@@ -195,7 +195,8 @@ export const NotificationService = {
             </html>
           `;
 
-          const pdfBuffer = await generatePdfBuffer(receiptHtml);
+          const pdfBufferVal = await generatePdfBuffer(receiptHtml);
+          const pdfBuffer = Buffer.from(pdfBufferVal);
           const attachments: EmailAttachment[] = [{
             filename: `Receipt-${transaction.gatewayOrderId || transaction._id}.pdf`,
             content: pdfBuffer,
@@ -409,10 +410,11 @@ export const NotificationService = {
           };
 
           const htmlContent = generateOfferLetterHtml(letterData);
-          const pdfBuffer = await generatePdfBuffer(htmlContent, undefined, {
+          const pdfBufferVal = await generatePdfBuffer(htmlContent, undefined, {
             margin: { top: '0', right: '0', bottom: '0', left: '0' },
             displayHeaderFooter: false
           });
+          const pdfBuffer = Buffer.from(pdfBufferVal);
 
           const attachments: EmailAttachment[] = [{
             filename: `OfferLetter-${offerLetter.offerLetterId}.pdf`,
@@ -480,7 +482,8 @@ export const NotificationService = {
           };
 
           const htmlContent = generateAgreementHtml(templateData);
-          const pdfBuffer = await generatePdfBuffer(htmlContent, agreement.agreementId);
+          const pdfBufferVal = await generatePdfBuffer(htmlContent, agreement.agreementId);
+          const pdfBuffer = Buffer.from(pdfBufferVal);
 
           const attachments: EmailAttachment[] = [{
             filename: `Agreement-${agreement.agreementId}.pdf`,

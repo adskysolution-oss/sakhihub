@@ -4,8 +4,8 @@ import { getAuthSession } from '@/lib/auth';
 import { errorResponse, successResponse } from '@/utils/response';
 import User from '@/models/User';
 import Document from '@/models/Document';
-import { 
-  REQUIRED_DOCS_BY_ROLE, 
+import {
+  REQUIRED_DOCS_BY_ROLE,
   determineUserStatus,
   areAllDocsApproved
 } from '@/lib/docs/service';
@@ -28,12 +28,11 @@ export async function PATCH(
     const userToUpdate = await User.findById(id);
     if (!userToUpdate) return errorResponse('User not found', 404);
 
-    const sessionUser = session as any;
     const { hasPermission } = await import('@/utils/authHelpers');
 
     if (status.startsWith('doc:')) {
       const requiredPerm = status.endsWith(':approved') || status.endsWith(':exception_approved') ? 'documents.verify' : 'documents.reject';
-      const isAuthorized = await hasPermission(sessionUser.id, sessionUser.role, requiredPerm);
+      const isAuthorized = await hasPermission((session as any).id, (session as any).role, requiredPerm);
       if (!isAuthorized) return errorResponse('Forbidden: Insufficient Permissions', 403);
     } else {
       let requiredPerm = '';
@@ -42,43 +41,43 @@ export async function PATCH(
       else if (userToUpdate.role === 'employee') requiredPerm = 'employees.update';
       else if (userToUpdate.role === 'member') requiredPerm = 'members.update';
 
-      const isAuthorized = await hasPermission(sessionUser.id, sessionUser.role, requiredPerm);
+      const isAuthorized = await hasPermission((session as any).id, (session as any).role, requiredPerm);
       if (!isAuthorized) return errorResponse('Forbidden: Insufficient Permissions', 403);
     }
 
     // 1. Handle overall status update (active/rejected/suspended)
     if (['active', 'rejected', 'suspended'].includes(status)) {
-      const updateData: any = { 
-        status, 
-        updatedAt: new Date() 
+      const updateData: any = {
+        status,
+        updatedAt: new Date()
       };
 
       // Set dashboard access and verification based on status
       if (status === 'active') {
         updateData.isVerified = true;
-        
+
         // STRICT ACCESS RULE: Sub-vendors and Employees require BOTH document approval AND hierarchy assignment AND payment completion
         if (['sub_vendor', 'employee'].includes(userToUpdate.role)) {
-           // Check actual documentsVerified flag or re-verify
-           const allDocsOk = areAllDocsApproved(userToUpdate);
-            if (allDocsOk && userToUpdate.paymentCompleted && userToUpdate.assignmentStatus === 'completed' && userToUpdate.parentVendorId) {
-              updateData.dashboardAccess = true;
-              updateData.documentsVerified = true;
-              updateData.onboardingCompleted = true;
-            } else {
-              // Mark as active but keep dashboard blocked until ALL conditions are met
-              updateData.dashboardAccess = false;
-              updateData.documentsVerified = allDocsOk;
-              updateData.onboardingCompleted = false;
-            }
+          // Check actual documentsVerified flag or re-verify
+          const allDocsOk = areAllDocsApproved(userToUpdate);
+          if (allDocsOk && userToUpdate.paymentCompleted && userToUpdate.assignmentStatus === 'completed' && userToUpdate.parentVendorId) {
+            updateData.dashboardAccess = true;
+            updateData.documentsVerified = true;
+            updateData.onboardingCompleted = true;
+          } else {
+            // Mark as active but keep dashboard blocked until ALL conditions are met
+            updateData.dashboardAccess = false;
+            updateData.documentsVerified = allDocsOk;
+            updateData.onboardingCompleted = false;
+          }
         } else if (userToUpdate.role === 'vendor') {
-           // Vendors get immediate access on activation ONLY if payment is completed
-           updateData.dashboardAccess = userToUpdate.paymentCompleted;
-           updateData.documentsVerified = true;
+          // Vendors get immediate access on activation ONLY if payment is completed
+          updateData.dashboardAccess = userToUpdate.paymentCompleted;
+          updateData.documentsVerified = true;
         } else {
-           // Members get immediate access
-           updateData.dashboardAccess = true;
-           updateData.documentsVerified = true;
+          // Members get immediate access
+          updateData.dashboardAccess = true;
+          updateData.documentsVerified = true;
         }
       } else {
         updateData.dashboardAccess = false;
@@ -96,7 +95,7 @@ export async function PATCH(
         const { NotificationService, NotificationEvent } = await import('@/lib/notifications');
         await NotificationService.trigger(NotificationEvent.ACCOUNT_ACTIVATED, { userId: updatedUser._id });
       }
-      
+
       return successResponse(updatedUser, `User status updated to ${status}`);
     }
 
@@ -104,10 +103,10 @@ export async function PATCH(
     if (status.startsWith('doc:')) {
       const parts = status.split(':');
       if (parts.length !== 3) return errorResponse('Invalid document status format', 400);
-      
+
       const [, docType, docStatus] = parts;
       const validDocStatuses = ['approved', 'rejected', 'reupload_required', 'exception_approved', 'on_hold'];
-      
+
       if (!validDocStatuses.includes(docStatus)) {
         return errorResponse(`Invalid document status: ${docStatus}`, 400);
       }
@@ -117,7 +116,7 @@ export async function PATCH(
 
       if (!user.documents) user.documents = {};
       const doc = (user.documents as any)[docType];
-      
+
       // Allow review even if url is empty for exception requests
       if (!doc || (!doc.url && doc.status !== 'exception_requested' && doc.status !== 'on_hold' && doc.status !== 'exception_responded')) {
         return errorResponse('Document not uploaded yet — cannot review', 404);
@@ -134,37 +133,37 @@ export async function PATCH(
         }
       }
       if (docStatus === 'approved' || docStatus === 'exception_approved') {
-        doc.remarks = ''; 
+        doc.remarks = '';
         doc.exceptionAdminRemarks = '';
       }
 
       // Auto-determine overall user status based on all doc statuses via Service
       user.status = determineUserStatus(user);
-      
+
       // Sync documentsVerified flag based on overall compliance
       user.documentsVerified = areAllDocsApproved(user);
 
       // DUAL-GATE ACCESS LOGIC:
       // If all docs are approved AND payment is completed AND (hierarchy is already set or role is vendor),
       // we can automatically unlock dashboard access.
-      
+
       // Strict Activation for Employees
       if (user.role === 'employee') {
-         if (user.documentsVerified) {
-            user.status = 'approved';
-            user.isVerified = true;
-         } else {
-            user.status = 'pending';
-            user.isVerified = false;
-            user.dashboardAccess = false;
-         }
+        if (user.documentsVerified) {
+          user.status = 'approved';
+          user.isVerified = true;
+        } else {
+          user.status = 'pending';
+          user.isVerified = false;
+          user.dashboardAccess = false;
+        }
       }
 
       if (user.documentsVerified && user.paymentCompleted && (user.role === 'vendor' || user.assignmentStatus === 'completed') && ['active', 'approved', 'documents_uploaded'].includes(user.status)) {
-         user.dashboardAccess = true;
-         user.onboardingCompleted = true;
+        user.dashboardAccess = true;
+        user.onboardingCompleted = true;
       }
-      
+
       user.markModified('documents');
       await user.save();
 
@@ -191,7 +190,7 @@ export async function PATCH(
       // Sync to Document collection in MongoDB
       await Document.findOneAndUpdate(
         { userId: user._id, documentType: docType },
-        { 
+        {
           status: docStatus,
           verificationStatus: docStatus,
           reviewedAt: new Date(),

@@ -7,9 +7,10 @@ import User from '@/models/User';
 
 export async function GET(req: NextRequest) {
   try {
-    const { verifyPermission } = await import('@/utils/authHelpers');
-    const { authorized, error, session } = await verifyPermission('abha.view');
-    if (!authorized) return error;
+    const session = await getAuthSession();
+    if (!session || (session as any).role !== 'super_admin') {
+      return errorResponse('Unauthorized access', 401);
+    }
 
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search');

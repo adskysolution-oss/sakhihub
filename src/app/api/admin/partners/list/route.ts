@@ -7,8 +7,20 @@ import { successResponse, errorResponse } from '@/utils/response';
 export async function GET(req: NextRequest) {
   try {
     const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return errorResponse('Unauthorized', 403);
+    if (!session) {
+      return errorResponse('Unauthorized', 401);
+    }
+
+    const currentUserId = (session as any).id || (session as any).userId;
+    const { hasPermission } = await import('@/utils/authHelpers');
+    const isAuthorized = (session as any).role === 'super_admin' ||
+      (session as any).role === 'admin' ||
+      await hasPermission(currentUserId, (session as any).role, 'vendors.view') ||
+      await hasPermission(currentUserId, (session as any).role, 'sub_vendors.view') ||
+      await hasPermission(currentUserId, (session as any).role, 'employees.view');
+
+    if (!isAuthorized) {
+      return errorResponse('Forbidden', 403);
     }
 
     await dbConnect();

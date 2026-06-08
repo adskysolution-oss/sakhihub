@@ -11,9 +11,10 @@ import { successResponse, errorResponse } from '@/utils/response';
 
 export async function GET(req: NextRequest) {
   try {
-    const { verifyPermission } = await import('@/utils/authHelpers');
-    const { authorized, error, session } = await verifyPermission('network.view');
-    if (!authorized) return error;
+    const session = await getAuthSession();
+    if (!session || (session as any).role !== 'super_admin') {
+      return errorResponse('Unauthorized', 403);
+    }
 
     await dbConnect();
 
@@ -32,7 +33,7 @@ export async function GET(req: NextRequest) {
 
     const adjList: Record<string, string[]> = {};
     const userMap: Record<string, any> = {};
-    
+
     users.forEach(u => {
       const id = u._id.toString();
       userMap[id] = u;
@@ -63,7 +64,7 @@ export async function GET(req: NextRequest) {
       .select('_id assignedEmployeeId subVendorCode vendorCode createdAt accountStatus connectionStatus')
       .lean();
 
-    const memberships = await Membership.find({ 
+    const memberships = await Membership.find({
       paymentStatus: 'Paid',
       paymentDate: { $gte: start, $lte: end }
     }).select('memberId amount employeeId').lean();
@@ -108,7 +109,7 @@ export async function GET(req: NextRequest) {
         .filter(u => u && u.role === 'sub_vendor' && u.subVendorCode)
         .map(u => u.subVendorCode);
 
-      const vMembers = members.filter(m => 
+      const vMembers = members.filter(m =>
         (m.assignedEmployeeId && allUserIds.includes(m.assignedEmployeeId.toString())) ||
         (m.subVendorCode && svCodes.includes(m.subVendorCode)) ||
         (m.vendorCode && vCodes.includes(m.vendorCode))
@@ -149,7 +150,7 @@ export async function GET(req: NextRequest) {
         .filter(u => u && u.role === 'sub_vendor' && u.subVendorCode)
         .map(u => u.subVendorCode);
 
-      const svMembers = members.filter(m => 
+      const svMembers = members.filter(m =>
         (m.assignedEmployeeId && allUserIds.includes(m.assignedEmployeeId.toString())) ||
         (m.subVendorCode && svCodes.includes(m.subVendorCode))
       );

@@ -1631,11 +1631,11 @@ export const generatePdfBuffer = async (
 
     browser = await puppeteerCore.launch({
       args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
+      defaultViewport: (chromium as any).defaultViewport,
       executablePath: await chromium.executablePath(
         'https://github.com/Sparticuz/chromium/releases/download/v148.0.0/chromium-v148.0.0-pack.x64.tar'
       ),
-      headless: chromium.headless,
+      headless: (chromium as any).headless === 'shell' ? 'shell' : (chromium as any).headless,
     });
   } else {
     const puppeteerLocal = (await import('puppeteer')).default;

@@ -15,8 +15,19 @@ export async function POST(
   try {
     const { id, docId } = await params;
     const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
+    if (!session) {
       return errorResponse('Unauthorized', 401);
+    }
+
+    const currentUserId = (session as any).id || (session as any).userId;
+    const { hasPermission } = await import('@/utils/authHelpers');
+    const isAuthorized = (session as any).role === 'super_admin' ||
+      (session as any).role === 'admin' ||
+      await hasPermission(currentUserId, (session as any).role, 'documents.verify') ||
+      await hasPermission(currentUserId, (session as any).role, 'documents.reject');
+
+    if (!isAuthorized) {
+      return errorResponse('Forbidden', 403);
     }
 
     const { isLocked, isApproved, adminRemarks, newStatus } = await req.json();

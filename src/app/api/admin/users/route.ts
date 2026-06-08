@@ -7,8 +7,22 @@ import User from '@/models/User';
 export async function GET(req: NextRequest) {
   try {
     const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
+    if (!session) {
       return errorResponse('Unauthorized', 401);
+    }
+
+    const currentUserId = (session as any).id || (session as any).userId;
+    const { hasPermission } = await import('@/utils/authHelpers');
+    const isAuthorized = (session as any).role === 'super_admin' ||
+      (session as any).role === 'admin' ||
+      (session as any).role === 'operations_admin' ||
+      await hasPermission(currentUserId, (session as any).role, 'vendors.view') ||
+      await hasPermission(currentUserId, (session as any).role, 'sub_vendors.view') ||
+      await hasPermission(currentUserId, (session as any).role, 'employees.view') ||
+      await hasPermission(currentUserId, (session as any).role, 'members.view');
+
+    if (!isAuthorized) {
+      return errorResponse('Forbidden', 403);
     }
 
     const { searchParams } = new URL(req.url);

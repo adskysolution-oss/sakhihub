@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     if (!image) return errorResponse('No image provided', 400);
 
     const uploadResult = await uploadFile(image, folder, {
-      uploadedBy: session.user.id,
+      uploadedBy: (session as any).id || (session as any).userId,
       uploadedFor,
       originalName
     });

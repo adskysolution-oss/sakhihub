@@ -56,8 +56,8 @@ export async function POST(req: NextRequest) {
     let assignmentStatus: 'pending' | 'completed' = 'pending';
 
     // Securely auto-assign the logged-in vendor's ID if they are creating an employee
-    if (session && ['vendor', 'sub_vendor', 'super_admin'].includes(session.role)) {
-      parentVendorId = session.id;
+    if (session && ['vendor', 'sub_vendor', 'super_admin'].includes((session as any).role)) {
+      parentVendorId = (session as any).id;
       assignmentStatus = 'completed';
       referralSource = 'invite';
     }

@@ -7,10 +7,10 @@ import { uploadBuffer } from '@/lib/storage';
 
 export async function PUT(req: NextRequest) {
   try {
-    const { verifyPermission } = await import('@/utils/authHelpers');
-    const { authorized, error, session } = await verifyPermission('campaigns.view');
-    if (!authorized || !session) return error;
-    const sessionUser = session as any;
+    const session = await getAuthSession();
+    if (!session || (session as any).role !== 'super_admin') {
+      return errorResponse('Unauthorized', 403);
+    }
 
     await dbConnect();
     const formData = await req.formData();
@@ -28,18 +28,18 @@ export async function PUT(req: NextRequest) {
     // Process image upload if new banner exists
     let bannerImageUrl = campaign.bannerImage;
     const bannerFile = formData.get('bannerImage') as File;
-    
+
     if (bannerFile && bannerFile.size > 0) {
       const arrayBuffer = await bannerFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       const folderName = `sakhihub/campaigns/${formData.get('title')?.toString().replace(/[^a-zA-Z0-9]/g, '_').toLowerCase() || 'default'}`;
-      
+
       const uploadResult = await uploadBuffer(
         buffer,
         bannerFile.type,
         folderName,
         {
-          uploadedBy: sessionUser.id,
+          uploadedBy: (session as any).id,
           uploadedFor: 'campaignBannerUpdate',
           originalName: bannerFile.name
         }

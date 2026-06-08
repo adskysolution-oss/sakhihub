@@ -8,9 +8,8 @@ import { uploadBuffer } from '@/lib/storage';
 
 export async function GET(req: NextRequest) {
   try {
-    const { verifyPermission } = await import('@/utils/authHelpers');
-    const { authorized, error, session } = await verifyPermission('campaigns.view');
-    if (!authorized) return error;
+    const session = await getAuthSession();
+    if (!session) return errorResponse('Unauthorized', 401);
 
     await dbConnect();
     const campaigns = await Campaign.find({})
@@ -26,7 +25,7 @@ export async function GET(req: NextRequest) {
       })
       .sort({ createdAt: -1 })
       .lean(); // Using lean() for better performance and to avoid circular refs
-    
+
     return successResponse(campaigns);
   } catch (error: any) {
     console.error("Admin Campaigns GET Error:", error);
@@ -36,29 +35,29 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { verifyPermission } = await import('@/utils/authHelpers');
-    const { authorized, error, session } = await verifyPermission('campaigns.view');
-    if (!authorized || !session) return error;
-    const sessionUser = session as any;
+    const session = await getAuthSession();
+    if (!session || (session as any).role !== 'super_admin') {
+      return errorResponse('Unauthorized', 403);
+    }
 
     await dbConnect();
     const formData = await req.formData();
-    
+
     let bannerImageUrl = '';
     const bannerFile = formData.get('bannerImage') as File;
-    
+
     if (bannerFile) {
       const arrayBuffer = await bannerFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      
+
       const folderName = `sakhihub/campaigns/${formData.get('title')?.toString().replace(/[^a-zA-Z0-9]/g, '_').toLowerCase() || 'default'}`;
-      
+
       const uploadResult = await uploadBuffer(
         buffer,
         bannerFile.type,
         folderName,
         {
-          uploadedBy: sessionUser.id,
+          uploadedBy: (session as any).id,
           uploadedFor: 'campaignBanner',
           originalName: bannerFile.name
         }
@@ -86,7 +85,7 @@ export async function POST(req: NextRequest) {
     // Update with real ID-based link if needed, or keep unique hash
     campaign.referralLink = `/register?campaignId=${campaign._id}`;
     await campaign.save();
-    
+
     return successResponse(campaign, 'Campaign launched successfully', 201);
   } catch (error: any) {
     return errorResponse(error.message, 500);
@@ -95,16 +94,17 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const { verifyPermission } = await import('@/utils/authHelpers');
-    const { authorized, error, session } = await verifyPermission('campaigns.view');
-    if (!authorized) return error;
+    const session = await getAuthSession();
+    if (!session || (session as any).role !== 'super_admin') {
+      return errorResponse('Unauthorized', 403);
+    }
 
     await dbConnect();
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
-    
+
     if (!id) return errorResponse('Campaign ID required', 400);
-    
+
     await Campaign.findByIdAndDelete(id);
     return successResponse(null, 'Campaign deleted successfully');
   } catch (error: any) {

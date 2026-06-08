@@ -110,14 +110,12 @@ export default function PermissionsPage() {
                     <button
                       key={admin._id}
                       onClick={() => handleSelectAdmin(admin)}
-                      className={`p-5 text-left border-b border-gray-50 flex items-center justify-between transition-colors ${
-                        isSelected ? 'bg-primary/5 text-primary' : 'bg-transparent text-secondary hover:bg-gray-50'
-                      }`}
+                      className={`p-5 text-left border-b border-gray-50 flex items-center justify-between transition-colors ${isSelected ? 'bg-primary/5 text-primary' : 'bg-transparent text-secondary hover:bg-gray-50'
+                        }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs ${
-                          isSelected ? 'bg-primary text-white shadow-lg' : 'bg-gray-100 text-gray-400'
-                        }`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs ${isSelected ? 'bg-primary text-white shadow-lg' : 'bg-gray-100 text-gray-400'
+                          }`}>
                           {admin.fullName[0].toUpperCase()}
                         </div>
                         <div>
@@ -177,19 +175,17 @@ export default function PermissionsPage() {
                           <div
                             key={perm.key}
                             onClick={() => handleTogglePermission(perm.key)}
-                            className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
-                              isChecked
+                            className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${isChecked
                                 ? 'border-primary/20 bg-primary/5 text-primary'
                                 : 'border-gray-100 bg-white text-secondary hover:border-gray-200'
-                            }`}
+                              }`}
                           >
                             <div>
                               <p className="text-xs font-black">{perm.name}</p>
                               <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{perm.key}</p>
                             </div>
-                            <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
-                              isChecked ? 'bg-primary border-primary text-white' : 'border-gray-200 bg-white'
-                            }`}>
+                            <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${isChecked ? 'bg-primary border-primary text-white' : 'border-gray-200 bg-white'
+                              }`}>
                               {isChecked && <Check size={12} />}
                             </div>
                           </div>

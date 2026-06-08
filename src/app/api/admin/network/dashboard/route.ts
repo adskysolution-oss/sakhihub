@@ -11,9 +11,10 @@ import { successResponse, errorResponse } from '@/utils/response';
 
 export async function GET(req: NextRequest) {
   try {
-    const { verifyPermission } = await import('@/utils/authHelpers');
-    const { authorized, error, session } = await verifyPermission('network.view');
-    if (!authorized) return error;
+    const session = await getAuthSession();
+    if (!session || (session as any).role !== 'super_admin') {
+      return errorResponse('Unauthorized', 403);
+    }
 
     await dbConnect();
 
@@ -57,9 +58,9 @@ export async function GET(req: NextRequest) {
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ]);
 
-    const totalPaidCollections = 
-      (membershipPaid[0]?.total || 0) + 
-      (depositPaid[0]?.total || 0) + (onlineDepositPaid[0]?.total || 0) + 
+    const totalPaidCollections =
+      (membershipPaid[0]?.total || 0) +
+      (depositPaid[0]?.total || 0) + (onlineDepositPaid[0]?.total || 0) +
       (subPaid[0]?.total || 0) + (onlineSubPaid[0]?.total || 0);
 
     // 3. Growth metrics (Last 30 days)

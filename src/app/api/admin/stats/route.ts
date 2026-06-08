@@ -11,14 +11,13 @@ export async function GET(req: NextRequest) {
       return errorResponse('Unauthorized', 403);
     }
 
-    const sessionUser = session as any;
     await dbConnect();
     const AuditLog = (await import('@/models/AuditLog')).default;
 
-    const isOperationsAdmin = sessionUser.role === 'operations_admin';
+    const isOperationsAdmin = (session as any).role === 'operations_admin';
     if (isOperationsAdmin) {
-      const dbUser = await User.findById(sessionUser.id).lean();
-      
+      const dbUser = await User.findById((session as any).id).lean();
+
       let regionalMatch: any = { role: { $in: ['employee', 'vendor', 'sub_vendor', 'member'] } };
       if (dbUser && dbUser.assignedScope === 'regional') {
         const filters: any[] = [];
@@ -74,18 +73,18 @@ export async function GET(req: NextRequest) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayActionsCount = await AuditLog.countDocuments({
-        performedBy: sessionUser.id,
+        performedBy: (session as any).id,
         timestamp: { $gte: today }
       });
 
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
       const weeklyActionsCount = await AuditLog.countDocuments({
-        performedBy: sessionUser.id,
+        performedBy: (session as any).id,
         timestamp: { $gte: oneWeekAgo }
       });
 
-      const recentLogs = await AuditLog.find({ performedBy: sessionUser.id })
+      const recentLogs = await AuditLog.find({ performedBy: (session as any).id })
         .populate('targetUser', 'fullName role')
         .sort({ timestamp: -1 })
         .limit(10);
@@ -121,12 +120,12 @@ export async function GET(req: NextRequest) {
     const activeVendors = await User.countDocuments({ role: 'vendor', status: 'active' });
     const totalSubVendors = await User.countDocuments({ role: 'sub_vendor' });
     const activeSubVendors = await User.countDocuments({ role: 'sub_vendor', status: 'active' });
-    
+
     const totalMembers = await WomenMember.countDocuments();
     const unassignedMembers = await WomenMember.countDocuments({ connectionStatus: 'unassigned' });
     const pendingConnections = await MemberRequest.countDocuments({ status: 'pending' });
     const totalGroups = await Group.countDocuments();
-    
+
     const collections = await Membership.aggregate([
       { $match: { paymentStatus: 'Paid' } },
       { $group: { _id: null, total: { $sum: '$amount' } } }
@@ -202,7 +201,7 @@ export async function GET(req: NextRequest) {
     const recentMembers = await WomenMember.find().sort({ createdAt: -1 }).limit(5).select('name village createdAt');
 
     // Recent partner/employee applications (Option A + C review queue)
-    const pendingApplications = await User.find({ 
+    const pendingApplications = await User.find({
       $or: [
         { role: { $in: ['employee', 'vendor', 'sub_vendor'] }, status: 'pending' },
         { assignmentStatus: 'pending', role: { $ne: 'super_admin' } }

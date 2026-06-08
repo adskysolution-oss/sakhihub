@@ -8,40 +8,32 @@ export const DEFAULT_PERMISSIONS = [
   { key: 'documents.view', name: 'View Documents', module: 'Documents' },
   { key: 'documents.verify', name: 'Verify Documents', module: 'Documents' },
   { key: 'documents.reject', name: 'Reject Documents', module: 'Documents' },
-  
+
   { key: 'offer_letters.view', name: 'View Offer Letters', module: 'Offer Letters' },
   { key: 'offer_letters.generate', name: 'Generate Offer Letters', module: 'Offer Letters' },
   { key: 'offer_letters.download', name: 'Download Offer Letters', module: 'Offer Letters' },
-  
+
   { key: 'agreements.view', name: 'View Agreements', module: 'Agreements' },
   { key: 'agreements.generate', name: 'Generate Agreements', module: 'Agreements' },
   { key: 'agreements.download', name: 'Download Agreements', module: 'Agreements' },
-  
+
   { key: 'reports.view', name: 'View Reports', module: 'Reports' },
   { key: 'reports.export', name: 'Export/Download Reports', module: 'Reports' },
-  
+
   { key: 'vendors.view', name: 'View Vendors', module: 'Vendors' },
   { key: 'vendors.update', name: 'Update Vendors', module: 'Vendors' },
-  
+
   { key: 'sub_vendors.view', name: 'View Sub-Vendors', module: 'Sub-Vendors' },
   { key: 'sub_vendors.update', name: 'Update Sub-Vendors', module: 'Sub-Vendors' },
-  
+
   { key: 'employees.view', name: 'View Employees', module: 'Employees' },
   { key: 'employees.update', name: 'Update Employees', module: 'Employees' },
-  
+
   { key: 'members.view', name: 'View Members', module: 'Members' },
   { key: 'members.update', name: 'Update Members', module: 'Members' },
-  
+
   { key: 'payments.view', name: 'View Payments', module: 'Payments' },
-  { key: 'network.view', name: 'View Network Tree', module: 'Network' },
-  { key: 'groups.view', name: 'View Groups', module: 'Groups' },
-  { key: 'abha.view', name: 'View ABHA', module: 'ABHA' },
-  { key: 'careers.view', name: 'Manage Recruitment', module: 'Recruitment' },
-  { key: 'campaigns.view', name: 'Manage Campaigns', module: 'Campaigns' },
-  { key: 'projects.view', name: 'Manage Projects', module: 'Projects' },
-  { key: 'products.view', name: 'Manage Products', module: 'Products' },
-  { key: 'support.view', name: 'View Support Queries', module: 'Support' },
-  { key: 'offline_payments.view', name: 'Manage Offline Payments', module: 'Finance' }
+  { key: 'network.view', name: 'View Network Tree', module: 'Network' }
 ];
 
 export async function GET(req: NextRequest) {
@@ -52,16 +44,13 @@ export async function GET(req: NextRequest) {
     }
 
     await dbConnect();
-    
+
     // Seed default permissions if they don't exist
-    for (const perm of DEFAULT_PERMISSIONS) {
-      await Permission.findOneAndUpdate(
-        { key: perm.key },
-        { $setOnInsert: perm },
-        { upsert: true }
-      );
+    const count = await Permission.countDocuments();
+    if (count === 0) {
+      await Permission.insertMany(DEFAULT_PERMISSIONS);
     }
-    
+
     const permissions = await Permission.find({}).sort({ module: 1, key: 1 });
     return successResponse(permissions);
   } catch (error: any) {
@@ -93,8 +82,7 @@ export async function POST(req: NextRequest) {
 
     const { logActivity } = await import('@/utils/authHelpers');
     const ip = req.headers.get('x-forwarded-for') || (req as any).ip || '127.0.0.1';
-    const sessionUser = session as any;
-    await logActivity('permissions_updated', sessionUser.id, user._id, ip, { permissions });
+    await logActivity('permissions_updated', (session as any).id, user._id, ip, { permissions });
 
     return successResponse(user, 'Permissions updated successfully');
   } catch (error: any) {

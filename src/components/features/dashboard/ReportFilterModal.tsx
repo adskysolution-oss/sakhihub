@@ -330,7 +330,7 @@ export default function ReportFilterModal({
           </button>
           <button
             onClick={handleGenerate}
-            disabled={loadingPreview || (previewData && previewData.count === 0)}
+            disabled={loadingPreview || (previewData !== null && previewData.count === 0)}
             className="flex-1 py-3.5 bg-secondary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary-dark hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 disabled:pointer-events-none"
           >
             <Download size={14} /> Generate Report

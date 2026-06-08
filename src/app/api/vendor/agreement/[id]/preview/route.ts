@@ -28,9 +28,15 @@ export async function GET(
       return NextResponse.json({ success: false, message: 'Agreement not found' }, { status: 404 });
     }
 
-    // Security check: Only admins or the specific vendor can view
+    // Security check: Only super_admin, authorized admin, or the specific vendor can view
     const currentUserId = session.id || session.userId;
-    if (session.role !== 'admin' && session.role !== 'super_admin' && currentUserId !== agreement.vendorId.toString()) {
+    const { hasPermission } = await import('@/utils/authHelpers');
+    const isAuthorized = session.role === 'super_admin' || 
+      session.role === 'admin' ||
+      await hasPermission(currentUserId, session.role, 'agreements.view') ||
+      currentUserId === agreement.vendorId.toString();
+
+    if (!isAuthorized) {
         return NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
     }
 
@@ -38,16 +44,16 @@ export async function GET(
 
     // If it's already approved and has a real fileUrl (from Cloudinary), redirect to it
     if (!regenerate && agreement.status === 'approved' && agreement.fileUrl && agreement.fileUrl.startsWith('http')) {
-        return NextResponse.redirect(agreement.fileUrl);
+      return NextResponse.redirect(agreement.fileUrl);
     }
 
     // If templateData is not available, construct it from the generated agreement snapshot
     let templateData = agreement.templateData || {};
-    
+
     // Always fetch latest vendor details to populate mobile and email dynamically
     const user = await User.findById(agreement.vendorId);
     if (!user) {
-        return NextResponse.json({ success: false, message: 'Vendor details not found for preview' }, { status: 404 });
+      return NextResponse.json({ success: false, message: 'Vendor details not found for preview' }, { status: 404 });
     }
 
     templateData = {
@@ -71,24 +77,24 @@ export async function GET(
 
     // If we are regenerating an approved agreement, upload it back to Cloudinary
     if (regenerate && agreement.status === 'approved') {
-        try {
-            const { uploadBuffer } = await import('@/lib/storage');
-            const uploadResult = await uploadBuffer(
-                Buffer.from(pdfBuffer),
-                'application/pdf',
-                'vendor_agreements',
-                {
-                    uploadedBy: currentUserId,
-                    uploadedFor: 'vendorAgreement',
-                    originalName: `${agreementId}_signed.pdf`
-                }
-            );
-            agreement.fileUrl = uploadResult.url;
-            agreement.templateData = templateData;
-            await agreement.save();
-        } catch (uploadError) {
-            console.error('Failed to upload regenerated agreement to Cloudinary:', uploadError);
-        }
+      try {
+        const { uploadBuffer } = await import('@/lib/storage');
+        const uploadResult = await uploadBuffer(
+          Buffer.from(pdfBuffer),
+          'application/pdf',
+          'vendor_agreements',
+          {
+            uploadedBy: currentUserId,
+            uploadedFor: 'vendorAgreement',
+            originalName: `${agreementId}_signed.pdf`
+          }
+        );
+        agreement.fileUrl = uploadResult.url;
+        agreement.templateData = templateData;
+        await agreement.save();
+      } catch (uploadError) {
+        console.error('Failed to upload regenerated agreement to Cloudinary:', uploadError);
+      }
     }
 
     // Return the PDF directly
@@ -102,9 +108,9 @@ export async function GET(
 
   } catch (error: any) {
     console.error('Preview Agreement Error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      message: 'Failed to generate preview', 
+    return NextResponse.json({
+      success: false,
+      message: 'Failed to generate preview',
       error: error.message || String(error),
       stack: error.stack
     }, { status: 500 });

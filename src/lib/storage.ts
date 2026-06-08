@@ -41,7 +41,7 @@ export const uploadFile = async (
     ...providerOptions 
   } = options;
 
-  let result;
+  let result: UploadResult;
   let fileType = 'unknown';
 
   // Try to extract mime type from data URI
@@ -115,7 +115,7 @@ export const uploadBuffer = async (
     ...providerOptions 
   } = options;
 
-  let result;
+  let result: UploadResult;
   
   // Need to dynamically import to prevent cyclic dependency issues if any
   const { uploadBufferToS3 } = require('./s3');

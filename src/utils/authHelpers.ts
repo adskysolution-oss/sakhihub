@@ -29,7 +29,11 @@ export async function hasPermission(
 /**
  * Middleware helper for API routes to gate by permission.
  */
-export async function verifyPermission(permissionKey: string) {
+export async function verifyPermission(permissionKey: string): Promise<{
+  authorized: boolean;
+  error: any;
+  session: any;
+}> {
   const session = await getAuthSession();
   if (!session) {
     return {
@@ -49,7 +53,7 @@ export async function verifyPermission(permissionKey: string) {
     };
   }
 
-  return { authorized: true, error: null, session };
+  return { authorized: true, error: undefined, session };
 }
 
 /**

@@ -58,8 +58,18 @@ export async function GET(
 ) {
   try {
     const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 403 });
+    if (!session) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
+
+    const currentUserId = (session as any).id || (session as any).userId;
+    const { hasPermission } = await import('@/utils/authHelpers');
+    const isAuthorized = (session as any).role === 'super_admin' ||
+      (session as any).role === 'admin' ||
+      await hasPermission(currentUserId, (session as any).role, 'reports.view');
+
+    if (!isAuthorized) {
+      return NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
     }
 
     await dbConnect();
@@ -128,7 +138,6 @@ export async function GET(
     }
 
     const sessionUser = session as any;
-    const currentUserId = sessionUser.id || sessionUser.userId;
 
     const userObjectId = new mongoose.Types.ObjectId(id);
 
@@ -163,7 +172,7 @@ export async function GET(
     // ----------------------------------------------------
     if (member) {
       const membership = await Membership.findOne({ memberId: member._id }).lean();
-      
+
       let subVendorName = 'N/A';
       let vendorName = 'N/A';
       if (member.subVendorCode) {
@@ -183,7 +192,7 @@ export async function GET(
       if (reportType === 'membership' || reportType === 'payment') {
         reportTitle = 'Member Membership & Payment Report';
         selectedFields = ['membershipId', 'receiptNumber', 'amount', 'paymentMode', 'paymentDate', 'paymentStatus'];
-        
+
         let memRecords = [{
           _id: membership?._id?.toString() || 'N/A',
           membershipId: membership?.membershipId || 'N/A',
@@ -400,7 +409,7 @@ export async function GET(
     if (reportType === 'network') {
       reportTitle = `${targetUser.fullName} - Hierarchy Network Report`;
       selectedFields = ['fullName', 'role', 'mobile', 'status', 'district', 'block', 'createdAt'];
-      
+
       let filteredDescendants = [...descendants];
       if (startDate) {
         filteredDescendants = filteredDescendants.filter(d => new Date(d.createdAt) >= startDate!);
@@ -425,7 +434,7 @@ export async function GET(
     } else if (reportType === 'collection') {
       reportTitle = `${targetUser.fullName} - Collection Intelligence Report`;
       selectedFields = ['payerName', 'payerMobile', 'paymentType', 'amount', 'paymentMode', 'paymentDate', 'paymentStatus'];
-      
+
       const allMembers = await WomenMember.find({ _id: { $in: memberIds } }).select('name mobile').lean();
       const memberMap = new Map(allMembers.map((m: any) => [m._id.toString(), m]));
       const userMap = new Map([targetUser, ...descendants].map((u: any) => [u._id.toString(), u]));
@@ -444,13 +453,13 @@ export async function GET(
 
       // -- Calculate stats metrics mathematically for comparison --
       const membershipPaidSum = allMemberships.filter((m: any) => m.paymentStatus === 'Paid').reduce((sum, m) => sum + m.amount, 0);
-      
+
       const depositPaidSum = allDeposits.reduce((sum, d) => sum + (d.paidAmount || 0), 0);
-      
+
       const subscriptionPaidSum = allManualPayments.filter((p: any) => p.status === 'approved').reduce((sum, p) => sum + p.amount, 0);
-      
+
       const onlineDepositPaidSum = allOnlineTx.filter((t: any) => t.type === 'deposit' && ['paid', 'completed', 'success'].includes(t.status)).reduce((sum, t) => sum + t.amount, 0);
-      
+
       const onlineSubscriptionPaidSum = allOnlineTx.filter((t: any) => t.type === 'subscription' && ['paid', 'completed', 'success'].includes(t.status)).reduce((sum, t) => sum + t.amount, 0);
 
       const statsTotalPaid = membershipPaidSum + depositPaidSum + onlineDepositPaidSum + subscriptionPaidSum + onlineSubscriptionPaidSum;
@@ -587,10 +596,10 @@ Total Raw Amount    : ₹${records.reduce((sum, r) => sum + r.rawAmount, 0)}
     } else if (reportType === 'performance' && targetUser.role === 'vendor') {
       reportTitle = `${targetUser.fullName} - Downline Performance Report`;
       selectedFields = ['employeeName', 'employeeId', 'totalMembersRegistered', 'status'];
-      
+
       let filteredEmployees = descendants.filter((d: any) => d.role === 'employee');
       if (statusFilter && statusFilter !== 'all') {
-        filteredEmployees = filteredEmployees.filter(emp => emp.status?.toLowerCase() === statusFilter.toLowerCase());
+        filteredEmployees = filteredEmployees.filter((emp: any) => emp.status?.toLowerCase() === statusFilter.toLowerCase());
       }
 
       records = await Promise.all(filteredEmployees.map(async (emp: any) => {
@@ -612,7 +621,7 @@ Total Raw Amount    : ₹${records.reduce((sum, r) => sum + r.rawAmount, 0)}
     } else if (reportType === 'member' && targetUser.role === 'employee') {
       reportTitle = `${targetUser.fullName} - Member Registry Report`;
       selectedFields = ['memberName', 'memberMobile', 'village', 'connectionStatus', 'membershipStatus', 'createdAt'];
-      
+
       const query: any = { assignedEmployeeId: targetUser._id };
       if (startDate || endDate) {
         query.createdAt = {};
@@ -636,7 +645,7 @@ Total Raw Amount    : ₹${records.reduce((sum, r) => sum + r.rawAmount, 0)}
     } else if (reportType === 'activity' && targetUser.role === 'employee') {
       reportTitle = `${targetUser.fullName} - Field Activity Report`;
       selectedFields = ['memberName', 'memberMobile', 'village', 'status', 'createdAt'];
-      
+
       const query: any = { assignedEmployeeId: targetUser._id };
       if (startDate || endDate) {
         query.createdAt = {};
@@ -659,10 +668,10 @@ Total Raw Amount    : ₹${records.reduce((sum, r) => sum + r.rawAmount, 0)}
     } else if (reportType === 'payment' && targetUser.role === 'employee') {
       reportTitle = `${targetUser.fullName} - Employee Ledger & Payment Report`;
       selectedFields = ['paymentType', 'amount', 'paymentStatus', 'paymentMode', 'transactionId', 'paymentDate'];
-      
+
       const txs = await PaymentTransaction.find({ userId: targetUser._id }).lean();
       const deps = await SecurityDeposit.find({ vendorId: targetUser._id }).lean();
-      
+
       const paymentRecords = [
         ...txs.map((t: any) => ({
           id: t._id.toString(),
