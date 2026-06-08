@@ -97,7 +97,16 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
         '/admin/sub-vendors': 'sub_vendors.view',
         '/admin/employees': 'employees.view',
         '/admin/members': 'members.view',
+        '/admin/abha': 'abha.view',
+        '/admin/groups': 'groups.view',
+        '/admin/careers/vacancies': 'careers.view',
+        '/admin/careers/applications': 'careers.view',
         '/admin/memberships': 'payments.view',
+        '/admin/campaigns': 'campaigns.view',
+        '/admin/projects': 'projects.view',
+        '/admin/products': 'products.view',
+        '/admin/support-requests': 'support.view',
+        '/admin/offline-payments': 'offline_payments.view',
       };
       const userPermissions = Array.isArray(user.permissions) ? user.permissions : [];
       return ADMIN_DASHBOARD_LINKS.filter(link => {

@@ -14,10 +14,9 @@ import { distributeCommission } from '@/lib/commission';
  */
 export async function GET(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return errorResponse('Unauthorized', 401);
-    }
+    const { verifyPermission } = await import('@/utils/authHelpers');
+    const { authorized, error, session } = await verifyPermission('offline_payments.view');
+    if (!authorized) return error;
 
     await dbConnect();
 
@@ -49,10 +48,9 @@ export async function GET(req: NextRequest) {
  */
 export async function PATCH(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return errorResponse('Unauthorized', 401);
-    }
+    const { verifyPermission } = await import('@/utils/authHelpers');
+    const { authorized, error, session } = await verifyPermission('offline_payments.view');
+    if (!authorized) return error;
 
     await dbConnect();
 

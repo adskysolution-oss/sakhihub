@@ -8,8 +8,9 @@ import { uploadBuffer } from '@/lib/storage';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session) return errorResponse('Unauthorized', 401);
+    const { verifyPermission } = await import('@/utils/authHelpers');
+    const { authorized, error, session } = await verifyPermission('campaigns.view');
+    if (!authorized) return error;
 
     await dbConnect();
     const campaigns = await Campaign.find({})
@@ -35,10 +36,10 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return errorResponse('Unauthorized', 403);
-    }
+    const { verifyPermission } = await import('@/utils/authHelpers');
+    const { authorized, error, session } = await verifyPermission('campaigns.view');
+    if (!authorized || !session) return error;
+    const sessionUser = session as any;
 
     await dbConnect();
     const formData = await req.formData();
@@ -57,7 +58,7 @@ export async function POST(req: NextRequest) {
         bannerFile.type,
         folderName,
         {
-          uploadedBy: (session as any).id,
+          uploadedBy: sessionUser.id,
           uploadedFor: 'campaignBanner',
           originalName: bannerFile.name
         }
@@ -94,10 +95,9 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return errorResponse('Unauthorized', 403);
-    }
+    const { verifyPermission } = await import('@/utils/authHelpers');
+    const { authorized, error, session } = await verifyPermission('campaigns.view');
+    if (!authorized) return error;
 
     await dbConnect();
     const { searchParams } = new URL(req.url);

@@ -11,12 +11,13 @@ export async function GET(req: NextRequest) {
       return errorResponse('Unauthorized', 403);
     }
 
+    const sessionUser = session as any;
     await dbConnect();
     const AuditLog = (await import('@/models/AuditLog')).default;
 
-    const isOperationsAdmin = (session as any).role === 'operations_admin';
+    const isOperationsAdmin = sessionUser.role === 'operations_admin';
     if (isOperationsAdmin) {
-      const dbUser = await User.findById(session.id).lean();
+      const dbUser = await User.findById(sessionUser.id).lean();
       
       let regionalMatch: any = { role: { $in: ['employee', 'vendor', 'sub_vendor', 'member'] } };
       if (dbUser && dbUser.assignedScope === 'regional') {
@@ -73,18 +74,18 @@ export async function GET(req: NextRequest) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayActionsCount = await AuditLog.countDocuments({
-        performedBy: session.id,
+        performedBy: sessionUser.id,
         timestamp: { $gte: today }
       });
 
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
       const weeklyActionsCount = await AuditLog.countDocuments({
-        performedBy: session.id,
+        performedBy: sessionUser.id,
         timestamp: { $gte: oneWeekAgo }
       });
 
-      const recentLogs = await AuditLog.find({ performedBy: session.id })
+      const recentLogs = await AuditLog.find({ performedBy: sessionUser.id })
         .populate('targetUser', 'fullName role')
         .sort({ timestamp: -1 })
         .limit(10);

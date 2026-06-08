@@ -28,11 +28,12 @@ export async function PATCH(
     const userToUpdate = await User.findById(id);
     if (!userToUpdate) return errorResponse('User not found', 404);
 
+    const sessionUser = session as any;
     const { hasPermission } = await import('@/utils/authHelpers');
 
     if (status.startsWith('doc:')) {
       const requiredPerm = status.endsWith(':approved') || status.endsWith(':exception_approved') ? 'documents.verify' : 'documents.reject';
-      const isAuthorized = await hasPermission(session.id, (session as any).role, requiredPerm);
+      const isAuthorized = await hasPermission(sessionUser.id, sessionUser.role, requiredPerm);
       if (!isAuthorized) return errorResponse('Forbidden: Insufficient Permissions', 403);
     } else {
       let requiredPerm = '';
@@ -41,7 +42,7 @@ export async function PATCH(
       else if (userToUpdate.role === 'employee') requiredPerm = 'employees.update';
       else if (userToUpdate.role === 'member') requiredPerm = 'members.update';
 
-      const isAuthorized = await hasPermission(session.id, (session as any).role, requiredPerm);
+      const isAuthorized = await hasPermission(sessionUser.id, sessionUser.role, requiredPerm);
       if (!isAuthorized) return errorResponse('Forbidden: Insufficient Permissions', 403);
     }
 

@@ -7,10 +7,10 @@ import { uploadBuffer } from '@/lib/storage';
 
 export async function PUT(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session || (session as any).role !== 'super_admin') {
-      return errorResponse('Unauthorized', 403);
-    }
+    const { verifyPermission } = await import('@/utils/authHelpers');
+    const { authorized, error, session } = await verifyPermission('campaigns.view');
+    if (!authorized || !session) return error;
+    const sessionUser = session as any;
 
     await dbConnect();
     const formData = await req.formData();
@@ -39,7 +39,7 @@ export async function PUT(req: NextRequest) {
         bannerFile.type,
         folderName,
         {
-          uploadedBy: (session as any).id,
+          uploadedBy: sessionUser.id,
           uploadedFor: 'campaignBannerUpdate',
           originalName: bannerFile.name
         }

@@ -33,7 +33,15 @@ export const DEFAULT_PERMISSIONS = [
   { key: 'members.update', name: 'Update Members', module: 'Members' },
   
   { key: 'payments.view', name: 'View Payments', module: 'Payments' },
-  { key: 'network.view', name: 'View Network Tree', module: 'Network' }
+  { key: 'network.view', name: 'View Network Tree', module: 'Network' },
+  { key: 'groups.view', name: 'View Groups', module: 'Groups' },
+  { key: 'abha.view', name: 'View ABHA', module: 'ABHA' },
+  { key: 'careers.view', name: 'Manage Recruitment', module: 'Recruitment' },
+  { key: 'campaigns.view', name: 'Manage Campaigns', module: 'Campaigns' },
+  { key: 'projects.view', name: 'Manage Projects', module: 'Projects' },
+  { key: 'products.view', name: 'Manage Products', module: 'Products' },
+  { key: 'support.view', name: 'View Support Queries', module: 'Support' },
+  { key: 'offline_payments.view', name: 'Manage Offline Payments', module: 'Finance' }
 ];
 
 export async function GET(req: NextRequest) {
@@ -46,9 +54,12 @@ export async function GET(req: NextRequest) {
     await dbConnect();
     
     // Seed default permissions if they don't exist
-    const count = await Permission.countDocuments();
-    if (count === 0) {
-      await Permission.insertMany(DEFAULT_PERMISSIONS);
+    for (const perm of DEFAULT_PERMISSIONS) {
+      await Permission.findOneAndUpdate(
+        { key: perm.key },
+        { $setOnInsert: perm },
+        { upsert: true }
+      );
     }
     
     const permissions = await Permission.find({}).sort({ module: 1, key: 1 });
@@ -81,8 +92,9 @@ export async function POST(req: NextRequest) {
     await user.save();
 
     const { logActivity } = await import('@/utils/authHelpers');
-    const ip = req.headers.get('x-forwarded-for') || req.ip || '127.0.0.1';
-    await logActivity('permissions_updated', session.id, user._id, ip, { permissions });
+    const ip = req.headers.get('x-forwarded-for') || (req as any).ip || '127.0.0.1';
+    const sessionUser = session as any;
+    await logActivity('permissions_updated', sessionUser.id, user._id, ip, { permissions });
 
     return successResponse(user, 'Permissions updated successfully');
   } catch (error: any) {
