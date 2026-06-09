@@ -388,6 +388,18 @@ export const NotificationService = {
             return false;
           }
 
+          // Fetch depositAmount from PaymentConfig
+          let depositAmount = '2000';
+          try {
+            const PaymentConfig = (await import('@/models/PaymentConfig')).default;
+            const config = await PaymentConfig.findOne({ key: 'default' }).lean();
+            if (config?.depositAmount?.employee) {
+              depositAmount = String(config.depositAmount.employee);
+            }
+          } catch (err) {
+            console.error('Error loading PaymentConfig in notification trigger:', err);
+          }
+
           // Generate Offer Letter PDF
           const letterData = {
             employeeName: user.fullName,
@@ -406,7 +418,8 @@ export const NotificationService = {
             assignedState: user.state || 'N/A',
             generatedDate: offerLetter.generatedDate,
             offerLetterId: offerLetter.offerLetterId,
-            documentStatus: offerLetter.status
+            documentStatus: offerLetter.status,
+            depositAmount
           };
 
           const htmlContent = generateOfferLetterHtml(letterData);

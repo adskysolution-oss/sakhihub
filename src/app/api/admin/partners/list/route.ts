@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
       role: { $in: ['vendor', 'sub_vendor'] },
       status: 'active'
     })
-    .select('fullName role mobile vendorCode subVendorCode')
+    .select('fullName role mobile vendorCode subVendorCode parentVendorId')
     .sort({ role: 1, fullName: 1 });
 
     return successResponse(partners);

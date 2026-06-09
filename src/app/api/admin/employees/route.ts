@@ -93,7 +93,11 @@ export async function GET(req: NextRequest) {
 
     const populatedEmployees = await User.populate(resultFacet.data, {
       path: 'parentVendorId',
-      select: 'fullName'
+      select: 'fullName role parentVendorId',
+      populate: {
+        path: 'parentVendorId',
+        select: 'fullName role'
+      }
     });
 
     const employees = JSON.parse(JSON.stringify(populatedEmployees));

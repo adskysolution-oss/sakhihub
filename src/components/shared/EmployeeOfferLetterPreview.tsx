@@ -20,6 +20,7 @@ export interface EmployeeOfferLetterData {
   offerLetterId: string;
   generatedDate: string | Date;
   documentStatus?: string;
+  depositAmount?: string;
 }
 
 const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = ({ data }) => {
@@ -419,6 +420,14 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
               <p className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
                 Confidentiality, Data Protection, Intellectual Property, Recovery Rights, Jurisdiction and Group Ownership Clauses shall survive resignation, suspension or termination.
               </p>
+
+              {/* 29. SECURITY DEPOSIT & REFUND POLICY */}
+              <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">29. SECURITY DEPOSIT & REFUND POLICY</h3>
+              <ul className="text-xs space-y-1.5 mb-6 list-none pl-1 text-gray-700">
+                <li className="flex items-start gap-1.5">• <span className="flex-1"><strong>Security Deposit Amount:</strong> ₹{data.depositAmount || '2,000'}</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1"><strong>Refund Eligibility Period:</strong> 90 Days (3 Months) of continuous service.</span></li>
+                <li className="flex items-start gap-1.5">• <span className="flex-1"><strong>Refund Policy & Conditions:</strong> The employee security deposit shall become refundable only after successful completion of 90 days (3 months) of continuous service. If the employee leaves, resigns, abandons duties, or is terminated before completion of 90 days, the security deposit shall not be refundable.</span></li>
+              </ul>
 
               {/* Keep notice and signatures together in print */}
               <div className="keep-together">

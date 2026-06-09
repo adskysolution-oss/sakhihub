@@ -1539,6 +1539,14 @@ export const generateOfferLetterHtml = (data: any) => {
                 Confidentiality, Data Protection, Intellectual Property, Recovery Rights, Jurisdiction and Group Ownership Clauses shall survive resignation, suspension or termination.
               </p>
 
+              <!-- 29. SECURITY DEPOSIT & REFUND POLICY -->
+              <h3 class="section-title">29. SECURITY DEPOSIT & REFUND POLICY</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span><strong>Security Deposit Amount:</strong> ₹${data.depositAmount || '2,000'}</span></li>
+                <li>• <span><strong>Refund Eligibility Period:</strong> 90 Days (3 Months) of continuous service.</span></li>
+                <li>• <span><strong>Refund Policy & Conditions:</strong> The employee security deposit shall become refundable only after successful completion of 90 days (3 months) of continuous service. If the employee leaves, resigns, abandons duties, or is terminated before completion of 90 days, the security deposit shall not be refundable.</span></li>
+              </ul>
+
               <!-- Keep notice and signatures together in print -->
               <div class="keep-together">
                 <!-- IMPORTANT NOTICE -->

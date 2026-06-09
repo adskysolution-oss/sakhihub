@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import EmployeeOfferLetter from '@/models/EmployeeOfferLetter';
+import PaymentConfig from '@/models/PaymentConfig';
 import EmployeeOfferLetterPreview, { EmployeeOfferLetterData } from '@/components/shared/EmployeeOfferLetterPreview';
 import PrintButton from '@/components/shared/PrintButton';
 
@@ -16,6 +17,9 @@ export default async function EmployeeOfferLetterPage({ params }: { params: Prom
   if (!user || !offerLetter || user.role !== 'employee') {
     notFound();
   }
+
+  const config = await PaymentConfig.findOne({ key: 'default' }).lean();
+  const depositAmountValue = config?.depositAmount?.employee ? String(config.depositAmount.employee) : '2000';
 
   const letterData: EmployeeOfferLetterData = {
     employeeName: user.fullName as string,
@@ -34,7 +38,8 @@ export default async function EmployeeOfferLetterPage({ params }: { params: Prom
     assignedRegions: offerLetter.assignedRegions as string,
     generatedDate: offerLetter.generatedDate as Date,
     offerLetterId: offerLetter.offerLetterId as string,
-    documentStatus: offerLetter.status as any
+    documentStatus: offerLetter.status as any,
+    depositAmount: depositAmountValue
   };
 
   return (

@@ -7,6 +7,8 @@ export interface IPendingUser extends Document {
   password?: string;
   role: string;
   designation?: string;
+  gender?: string;
+  dob?: Date;
   qualification?: string;
   experience?: string;
   state?: string;
@@ -53,6 +55,8 @@ const PendingUserSchema: Schema = new Schema(
     role: { type: String, required: true },
     vendorType: { type: String, enum: ['individual', 'company', 'ngo_trust'] },
     designation: { type: String },
+    gender: { type: String },
+    dob: { type: Date },
     qualification: { type: String },
     experience: { type: String },
     state: { type: String },

@@ -20,8 +20,10 @@ import { getProxiedImageUrl } from '@/utils/imageUrl';
 import UnifiedFilterBar from "@/components/shared/filters/UnifiedFilterBar";
 import StatusFilterTabs from "@/components/shared/filters/StatusFilterTabs";
 import PaginationControls from "@/components/shared/filters/PaginationControls";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function EmployeeManagement() {
+  const { user: currentUser } = useAuth();
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -58,6 +60,12 @@ export default function EmployeeManagement() {
   const [activeTab, setActiveTab] = useState('overview');
   const [signedDocRemarks, setSignedDocRemarks] = useState('');
   const [signedDocActionLoading, setSignedDocActionLoading] = useState<string | null>(null);
+
+  // Super Admin Edit States
+  const [editDesignation, setEditDesignation] = useState('');
+  const [editVendorId, setEditVendorId] = useState('');
+  const [editSubVendorId, setEditSubVendorId] = useState('');
+  const [isSavingEmp, setIsSavingEmp] = useState(false);
 
   const fetchEmployees = async () => {
     setLoading(true);
@@ -120,6 +128,35 @@ export default function EmployeeManagement() {
       setCoordinatorType('');
       setAssignedRegions('');
     }
+
+    if (selectedEmp) {
+      setEditDesignation(selectedEmp.designation || '');
+      const parent = selectedEmp.parentVendorId;
+      if (parent && typeof parent === 'object') {
+        if (parent.role === 'vendor') {
+          setEditVendorId(parent._id);
+          setEditSubVendorId('');
+        } else if (parent.role === 'sub_vendor') {
+          setEditSubVendorId(parent._id);
+          const parentVendor = parent.parentVendorId;
+          if (parentVendor) {
+            setEditVendorId(typeof parentVendor === 'object' ? parentVendor._id : parentVendor);
+          } else {
+            setEditVendorId('');
+          }
+        } else {
+          setEditVendorId('');
+          setEditSubVendorId('');
+        }
+      } else {
+        setEditVendorId('');
+        setEditSubVendorId('');
+      }
+    } else {
+      setEditDesignation('');
+      setEditVendorId('');
+      setEditSubVendorId('');
+    }
   }, [selectedEmp?._id]);
 
   const handleStatusUpdate = async (id: string, newStatus: string, remarks?: string) => {
@@ -156,7 +193,11 @@ export default function EmployeeManagement() {
         fetchEmployees();
         setAssignTarget(null);
         if (selectedEmp?._id === assignTarget._id) {
-           setSelectedEmp(res.data.data);
+           // Fetch fresh populated user
+           const freshRes = await axios.get(`/api/admin/employees?search=${assignTarget.mobile}`);
+           if (freshRes.data.success && freshRes.data.data.length > 0) {
+             setSelectedEmp(freshRes.data.data[0]);
+           }
         }
       }
     } catch (err) {
@@ -164,6 +205,36 @@ export default function EmployeeManagement() {
       toast.error("Failed to update assignment");
     } finally {
       setIsAssigning(false);
+    }
+  };
+
+  const handleVendorChange = (vendorId: string) => {
+    setEditVendorId(vendorId);
+    setEditSubVendorId(''); // Reset sub-vendor when vendor changes
+  };
+
+  const handleSaveEmployee = async () => {
+    setIsSavingEmp(true);
+    try {
+      const targetParentId = editSubVendorId || editVendorId || null;
+      const res = await axios.patch(`/api/admin/employees/${selectedEmp._id}`, {
+        designation: editDesignation,
+        parentVendorId: targetParentId
+      });
+
+      if (res.data.success) {
+        toast.success("Employee profile updated successfully");
+        const freshRes = await axios.get(`/api/admin/employees?search=${selectedEmp.mobile}`);
+        if (freshRes.data.success && freshRes.data.data.length > 0) {
+          setSelectedEmp(freshRes.data.data[0]);
+        }
+        fetchEmployees();
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to update employee details");
+    } finally {
+      setIsSavingEmp(false);
     }
   };
 
@@ -184,7 +255,10 @@ export default function EmployeeManagement() {
         assignedRegions
       });
       if (res.data.success) {
-        setSelectedEmp(res.data.data);
+        const freshRes = await axios.get(`/api/admin/employees?search=${selectedEmp.mobile}`);
+        if (freshRes.data.success && freshRes.data.data.length > 0) {
+          setSelectedEmp(freshRes.data.data[0]);
+        }
       }
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to generate offer letter");
@@ -484,54 +558,203 @@ export default function EmployeeManagement() {
                 <div className="flex-1 overflow-y-auto p-10">
                   {activeTab === 'overview' && (
                     <>
-                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
-                      <div className="space-y-6">
-                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-4 border-primary pl-4">Personal & Network Details</h4>
-                         <div className="grid grid-cols-2 gap-6 bg-gray-50 p-6 rounded-3xl border border-gray-100">
-                            <div>
-                               <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Email Address</p>
-                               <p className="font-bold text-secondary text-sm">{selectedEmp.email || 'Not provided'}</p>
-                            </div>
-                            <div>
-                               <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Designation</p>
-                               <p className="font-bold text-secondary text-sm">{selectedEmp.designation || 'Field Staff'}</p>
-                            </div>
-                            <div>
-                               <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Assigned Vendor</p>
-                               <p className="font-black text-primary text-sm">
-                                 {selectedEmp.parentVendorId ? (typeof selectedEmp.parentVendorId === 'object' ? selectedEmp.parentVendorId.fullName : 'Network Linked') : 'Unassigned'}
-                               </p>
-                            </div>
-                            <div>
-                               <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Joined Date</p>
-                               <p className="font-bold text-secondary text-sm">{new Date(selectedEmp.createdAt).toLocaleDateString()}</p>
-                            </div>
+                       {/* Super Admin Controls Card */}
+                       {currentUser?.role === 'super_admin' && (
+                         <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-100 rounded-[32px] p-8 mb-8 space-y-6 shadow-sm">
+                           <h4 className="text-sm font-black text-secondary uppercase tracking-widest flex items-center gap-2 border-b border-gray-100 pb-3">
+                             <ShieldCheck size={18} className="text-primary" /> Super Admin Controls
+                           </h4>
+                           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                             <div>
+                               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Change Designation</label>
+                               <select
+                                 value={editDesignation}
+                                 onChange={e => setEditDesignation(e.target.value)}
+                                 className="w-full px-4 py-2.5 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary text-xs"
+                               >
+                                 <option value="">Select Designation...</option>
+                                 <option value="Block Employee">Block Employee</option>
+                                 <option value="District Coordinator">District Coordinator</option>
+                                 <option value="Volunteer">Volunteer</option>
+                                 <option value="Delivery Partner">Delivery Partner</option>
+                                 <option value="Other">Other</option>
+                               </select>
+                             </div>
+                             <div>
+                               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Change Assigned Vendor</label>
+                               <select
+                                 value={editVendorId}
+                                 onChange={e => handleVendorChange(e.target.value)}
+                                 className="w-full px-4 py-2.5 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary text-xs"
+                               >
+                                 <option value="">Select Vendor...</option>
+                                 {allPartners.filter(p => p.role === 'vendor').map(v => (
+                                   <option key={v._id} value={v._id}>{v.fullName} ({v.vendorCode})</option>
+                                 ))}
+                               </select>
+                             </div>
+                             <div>
+                               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Change Assigned Sub-Vendor</label>
+                               <select
+                                 value={editSubVendorId}
+                                 onChange={e => setEditSubVendorId(e.target.value)}
+                                 className="w-full px-4 py-2.5 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary text-xs"
+                                 disabled={!editVendorId}
+                               >
+                                 <option value="">Select Sub-Vendor...</option>
+                                 {allPartners.filter(p => p.role === 'sub_vendor' && p.parentVendorId === editVendorId).map(sv => (
+                                   <option key={sv._id} value={sv._id}>{sv.fullName} ({sv.subVendorCode})</option>
+                                 ))}
+                               </select>
+                             </div>
+                           </div>
+                           <div className="flex gap-4 pt-2 justify-end">
+                             <button
+                               onClick={handleSaveEmployee}
+                               disabled={isSavingEmp}
+                               className="px-6 py-3 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-primary/95 transition-all shadow-md shadow-primary/20 disabled:opacity-50"
+                             >
+                               {isSavingEmp ? "Saving Changes..." : "Save Profile & Hierarchy"}
+                             </button>
+                           </div>
                          </div>
-                      </div>
+                       )}
 
-                      <div className="space-y-6">
-                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-4 border-amber-500 pl-4">Operational Status</h4>
-                         <div className="grid grid-cols-3 gap-4 bg-gray-50 p-6 rounded-3xl border border-gray-100 h-full">
-                            <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-sm border border-gray-100">
-                               <ShieldCheck size={20} className={selectedEmp.isVerified ? 'text-green-500' : 'text-gray-200'} />
-                               <p className="text-[9px] font-black uppercase mt-2 text-gray-400">Verified</p>
-                               <p className="font-black text-secondary text-[11px]">{selectedEmp.isVerified ? 'YES' : 'NO'}</p>
-                            </div>
-                            <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-sm border border-gray-100">
-                               <Network size={20} className={selectedEmp.dashboardAccess ? 'text-primary' : 'text-gray-200'} />
-                               <p className="text-[9px] font-black uppercase mt-2 text-gray-400">Dashboard</p>
-                               <p className="font-black text-secondary text-[11px]">{selectedEmp.dashboardAccess ? 'ENABLED' : 'BLOCKED'}</p>
-                            </div>
-                            <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-sm border border-gray-100">
-                               <span className={`text-[10px] font-black leading-none ${selectedEmp.paymentCompleted ? 'text-green-500' : selectedEmp.subscriptionPaid ? 'text-amber-500' : 'text-red-500'}`}>
-                                 {selectedEmp.paymentCompleted ? 'PAID' : selectedEmp.subscriptionPaid ? 'SUB PAID' : 'UNPAID'}
-                               </span>
-                               <p className="text-[9px] font-black uppercase mt-2 text-gray-400">Payment</p>
-                               <p className="font-black text-secondary text-[10px]">{selectedEmp.paymentCompleted || selectedEmp.subscriptionPaid ? 'COMPLETED' : 'PENDING'}</p>
-                            </div>
+                       {/* Comprehensive Profile Information Grid */}
+                       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                         <div className="lg:col-span-2 space-y-6">
+                           <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-4 border-primary pl-4">Personal & Contact Details</h4>
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-3xl border border-gray-100">
+                              <div>
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Full Name</p>
+                                 <p className="font-bold text-secondary text-sm">{selectedEmp.fullName}</p>
+                              </div>
+                              <div>
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Mobile Number</p>
+                                 <p className="font-mono font-bold text-secondary text-sm">{selectedEmp.mobile}</p>
+                              </div>
+                              <div>
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Email Address</p>
+                                 <p className="font-bold text-secondary text-sm">{selectedEmp.email || 'Not provided'}</p>
+                              </div>
+                              <div>
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Gender</p>
+                                 <p className="font-bold text-secondary text-sm capitalize">{selectedEmp.gender || 'Not specified'}</p>
+                              </div>
+                              <div>
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Date of Birth</p>
+                                 <p className="font-bold text-secondary text-sm">
+                                   {selectedEmp.dob ? new Date(selectedEmp.dob).toLocaleDateString('en-IN') : 'Not specified'}
+                                 </p>
+                              </div>
+                              <div>
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Employee ID</p>
+                                 <p className="font-mono font-black text-primary text-sm">{selectedEmp.employeeId || 'Pending'}</p>
+                              </div>
+                              <div>
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Designation</p>
+                                 <p className="font-bold text-secondary text-sm">{selectedEmp.designation || 'Field Staff'}</p>
+                              </div>
+                              <div>
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Joining Date</p>
+                                 <p className="font-bold text-secondary text-sm">
+                                   {selectedEmp.joiningDate ? new Date(selectedEmp.joiningDate).toLocaleDateString('en-IN') : 
+                                    selectedEmp.offerLetterDetails?.joiningDate ? new Date(selectedEmp.offerLetterDetails.joiningDate).toLocaleDateString('en-IN') : 'Pending'}
+                                 </p>
+                              </div>
+                           </div>
+
+                           <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-4 border-secondary pl-4">Location Details</h4>
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-3xl border border-gray-100">
+                              <div className="md:col-span-2">
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Full Address</p>
+                                 <p className="font-bold text-secondary text-sm leading-relaxed">{selectedEmp.address || 'Not provided'}</p>
+                              </div>
+                              <div>
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Village / Area</p>
+                                 <p className="font-bold text-secondary text-sm">{selectedEmp.area || 'Not provided'}</p>
+                              </div>
+                              <div>
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Block</p>
+                                 <p className="font-bold text-secondary text-sm">{selectedEmp.block || 'Not provided'}</p>
+                              </div>
+                              <div>
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">District</p>
+                                 <p className="font-bold text-secondary text-sm">{selectedEmp.district || 'Not provided'}</p>
+                              </div>
+                              <div>
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">State</p>
+                                 <p className="font-bold text-secondary text-sm">{selectedEmp.state || 'Not provided'}</p>
+                              </div>
+                              <div>
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Pincode</p>
+                                 <p className="font-mono font-bold text-secondary text-sm">{selectedEmp.pincode || 'Not provided'}</p>
+                              </div>
+                           </div>
                          </div>
-                      </div>
-                   </div>
+
+                         <div className="space-y-6">
+                           <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-4 border-amber-500 pl-4">Network & Compliance Status</h4>
+                           
+                           {/* Parent Hierarchy Details */}
+                           <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100 space-y-4">
+                              <div>
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Parent Vendor</p>
+                                 <p className="font-black text-secondary text-sm">
+                                   {(() => {
+                                      const parent = selectedEmp.parentVendorId;
+                                      if (parent && typeof parent === 'object') {
+                                        if (parent.role === 'vendor') return parent.fullName;
+                                        if (parent.role === 'sub_vendor' && parent.parentVendorId) {
+                                          return typeof parent.parentVendorId === 'object' ? parent.parentVendorId.fullName : parent.parentVendorId;
+                                        }
+                                      }
+                                      return 'Unassigned';
+                                   })()}
+                                 </p>
+                              </div>
+                              <div className="border-t border-gray-200 pt-3">
+                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Parent Sub-Vendor</p>
+                                 <p className="font-black text-secondary text-sm">
+                                   {(() => {
+                                      const parent = selectedEmp.parentVendorId;
+                                      if (parent && typeof parent === 'object' && parent.role === 'sub_vendor') {
+                                        return parent.fullName;
+                                      }
+                                      return 'None';
+                                   })()}
+                                 </p>
+                              </div>
+                           </div>
+
+                           {/* Operational Status Box */}
+                           <div className="grid grid-cols-3 gap-4 bg-gray-50 p-6 rounded-3xl border border-gray-100">
+                              <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-sm border border-gray-100">
+                                 <ShieldCheck size={20} className={selectedEmp.isVerified ? 'text-green-500' : 'text-gray-200'} />
+                                 <p className="text-[9px] font-black uppercase mt-2 text-gray-400">KYC Status</p>
+                                 <p className="font-black text-secondary text-[10px] text-center mt-1 truncate w-full">
+                                   {selectedEmp.isVerified ? 'VERIFIED' : 'PENDING'}
+                                 </p>
+                              </div>
+                              <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-sm border border-gray-100">
+                                 <Network size={20} className={selectedEmp.dashboardAccess ? 'text-primary' : 'text-gray-200'} />
+                                 <p className="text-[9px] font-black uppercase mt-2 text-gray-400">Dashboard</p>
+                                 <p className="font-black text-secondary text-[10px] text-center mt-1 truncate w-full">
+                                   {selectedEmp.dashboardAccess ? 'ENABLED' : 'BLOCKED'}
+                                 </p>
+                              </div>
+                              <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-sm border border-gray-100">
+                                 <span className={`text-[10px] font-black leading-none ${selectedEmp.paymentCompleted ? 'text-green-500' : selectedEmp.subscriptionPaid ? 'text-amber-500' : 'text-red-500'}`}>
+                                   {selectedEmp.paymentCompleted ? 'PAID' : selectedEmp.subscriptionPaid ? 'SUB PAID' : 'UNPAID'}
+                                 </span>
+                                 <p className="text-[9px] font-black uppercase mt-2 text-gray-400">Payment</p>
+                                 <p className="font-black text-secondary text-[9px] text-center mt-1 truncate w-full">
+                                   {selectedEmp.paymentCompleted || selectedEmp.subscriptionPaid ? 'COMPLETED' : 'PENDING'}
+                                 </p>
+                              </div>
+                           </div>
+                         </div>
+                       </div>
 
                    {/* Document Verification Section */}
                    <section className="space-y-8">
