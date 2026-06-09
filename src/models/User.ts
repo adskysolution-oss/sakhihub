@@ -45,6 +45,13 @@ export interface IUser extends Document {
   area?: string;
   pincode?: string;
   address?: string;
+  workState?: string;
+  workDistrict?: string;
+  workBlock?: string;
+  workTehsil?: string;
+  workPincode?: string;
+  workArea?: string;
+  workAddress?: string;
   qualification?: string;
   experience?: string;
   aadhaarNumber?: string;
@@ -191,6 +198,13 @@ const UserSchema: Schema = new Schema(
     area: { type: String },
     pincode: { type: String },
     address: { type: String },
+    workState: { type: String },
+    workDistrict: { type: String },
+    workBlock: { type: String },
+    workTehsil: { type: String },
+    workPincode: { type: String },
+    workArea: { type: String },
+    workAddress: { type: String },
     qualification: { type: String },
     experience: { type: String },
     aadhaarNumber: { type: String, unique: true, sparse: true },

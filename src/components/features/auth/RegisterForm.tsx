@@ -32,15 +32,6 @@ export default function RegisterForm() {
   const [otp, setOtp] = useState("");
   const [resendTimer, setResendTimer] = useState(0);
 
-  const steps = [
-    { id: 1, name: t('auth.register.steps.role') },
-    { id: 2, name: t('auth.register.steps.details') },
-    { id: 3, name: t('auth.register.steps.location') },
-    { id: 4, name: t('auth.register.steps.connect') },
-    { id: 5, name: t('auth.register.steps.membership') },
-    { id: 6, name: t('auth.register.steps.security') },
-  ];
-
   const [formData, setFormData] = useState({
     role: "",
     fullName: "",
@@ -55,6 +46,13 @@ export default function RegisterForm() {
     area: "",
     pincode: "",
     address: "",
+    workState: "",
+    workDistrict: "",
+    workBlock: "",
+    workTehsil: "",
+    workPincode: "",
+    workArea: "",
+    workAddress: "",
     password: "",
     confirmPassword: "",
     assignedEmployeeId: "",
@@ -64,6 +62,15 @@ export default function RegisterForm() {
     vendorType: "individual",
     membershipType: "free",
   });
+
+  const steps = [
+    { id: 1, name: t('auth.register.steps.role') },
+    { id: 2, name: t('auth.register.steps.details') },
+    { id: 3, name: t('auth.register.steps.location') },
+    { id: 4, name: formData.role === 'member' ? t('auth.register.steps.connect') : 'Work Area' },
+    { id: 5, name: t('auth.register.steps.membership') },
+    { id: 6, name: t('auth.register.steps.security') },
+  ];
 
   const [referralContext, setReferralContext] = useState<{ role: string, parent: string } | null>(null);
   const [referredEmployee, setReferredEmployee] = useState<any>(null);
@@ -165,6 +172,16 @@ export default function RegisterForm() {
       area: data.area[0] || ""
     }));
     fetchNearbyEmployees(formData.pincode, data.district, data.block);
+  });
+
+  const { loading: workPincodeLoading } = usePincodeAutofill(formData.workPincode, (data) => {
+    setFormData(prev => ({
+      ...prev,
+      workState: data.state,
+      workDistrict: data.district,
+      workBlock: data.block,
+      workArea: data.area[0] || ""
+    }));
   });
 
   const fetchNearbyEmployees = async (pincode: string, district: string, block: string) => {
@@ -611,14 +628,57 @@ export default function RegisterForm() {
 
                     <div className="flex flex-col sm:flex-row gap-3 mt-4">
                       <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">{t("auth.register.form.back")}</button>
-                      <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">{formData.role === 'member' ? t('auth.register.form.findNearby') : t('auth.register.form.lastStep')}</button>
+                      <button type="button" onClick={nextStep} className="btn-primary w-full justify-center order-1 sm:order-2 py-4">{formData.role === 'member' ? t('auth.register.form.findNearby') : t('auth.register.form.nextStep')}</button>
                     </div>
                   </motion.div>
                 )}
 
                 {step === 4 && (
                   <motion.div key="step4" {...fadeInUp} className="flex flex-col gap-6">
-                    {referredEmployee ? (
+                    {formData.role !== 'member' ? (
+                      <div className="flex flex-col gap-4 md:gap-6">
+                        <div className="text-center mb-2">
+                          <h3 className="text-xl md:text-2xl font-black text-secondary">Work Location Details</h3>
+                          <p className="text-gray-400 text-sm mt-1">Specify the area where you wish to operate (kis area me work krna chahta hu).</p>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-black text-gray-700">Work Pincode</label>
+                          <div className="relative">
+                            <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input type="text" name="workPincode" value={formData.workPincode} onChange={handleChange} placeholder="6 Digit Pincode" maxLength={6} className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 font-black text-lg" required />
+                            {workPincodeLoading && <div className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 border-2 border-gray-200 border-t-primary rounded-full animate-spin"></div>}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                          <div className="flex flex-col gap-2">
+                            <label className="text-sm font-black text-gray-700">Work State</label>
+                            <input type="text" name="workState" value={formData.workState} onChange={handleChange} placeholder="State" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-sm font-black text-gray-700">Work District</label>
+                            <input type="text" name="workDistrict" value={formData.workDistrict} onChange={handleChange} placeholder="District" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                          <div className="flex flex-col gap-2">
+                            <label className="text-sm font-black text-gray-700">Work Block / Tehsil</label>
+                            <input type="text" name="workBlock" value={formData.workBlock} onChange={handleChange} placeholder="Block Name" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-sm font-black text-gray-700">Work Panchayat / Area</label>
+                            <input type="text" name="workArea" value={formData.workArea} onChange={handleChange} placeholder="Area Name" className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required />
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-black text-gray-700">Work Full Address</label>
+                          <textarea name="workAddress" value={formData.workAddress} onChange={handleChange} placeholder="Village, Landmark, etc." rows={3} className="w-full px-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20" required></textarea>
+                        </div>
+                      </div>
+                    ) : referredEmployee ? (
                       <>
                         <div className="text-center">
                           <h3 className="text-xl md:text-2xl font-black text-secondary">{t("auth.register.form.connectionConfirmed")}</h3>
@@ -648,50 +708,42 @@ export default function RegisterForm() {
                     ) : (
                       <>
                         <div className="text-center">
-                          <h3 className="text-xl md:text-2xl font-black text-secondary">{formData.role === 'member' ? t('auth.register.form.connectLocal') : t('auth.register.form.verifyLocation')}</h3>
-                          <p className="text-gray-400 text-sm mt-1">{formData.role === 'member' ? t('auth.register.form.chooseEmployee') : t('auth.register.form.confirmArea')}</p>
+                          <h3 className="text-xl md:text-2xl font-black text-secondary">{t('auth.register.form.connectLocal')}</h3>
+                          <p className="text-gray-400 text-sm mt-1">{t('auth.register.form.chooseEmployee')}</p>
                         </div>
 
-                        {formData.role === 'member' ? (
-                          <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto px-2 pb-4 scrollbar-hide">
-                            {discoveryLoading ? (
-                              <div className="text-center py-12 flex flex-col items-center gap-3">
-                                <div className="w-8 h-8 border-4 border-gray-100 border-t-primary rounded-full animate-spin"></div>
-                                <p className="text-gray-400 font-bold">{t("auth.register.form.searching")}</p>
-                              </div>
-                            ) : nearbyEmployees.length > 0 ? (
-                              nearbyEmployees.map((emp) => (
-                                <div key={emp._id} className={`p-5 rounded-3xl border-2 transition-all flex justify-between items-center gap-4 ${requestStatus[emp._id] ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white'}`}>
-                                  <div className="flex items-center gap-4 text-left">
-                                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                                      <User size={24} />
-                                    </div>
-                                    <div>
-                                      <h4 className="font-black text-secondary">{emp.fullName}</h4>
-                                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">CODE: {emp.employeeId || 'N/A'}</p>
-                                      <p className="text-xs text-primary font-black mt-0.5">{emp.block}, {emp.district}</p>
-                                    </div>
+                        <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto px-2 pb-4 scrollbar-hide">
+                          {discoveryLoading ? (
+                            <div className="text-center py-12 flex flex-col items-center gap-3">
+                              <div className="w-8 h-8 border-4 border-gray-100 border-t-primary rounded-full animate-spin"></div>
+                              <p className="text-gray-400 font-bold">{t("auth.register.form.searching")}</p>
+                            </div>
+                          ) : nearbyEmployees.length > 0 ? (
+                            nearbyEmployees.map((emp) => (
+                              <div key={emp._id} className={`p-5 rounded-3xl border-2 transition-all flex justify-between items-center gap-4 ${requestStatus[emp._id] ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white'}`}>
+                                <div className="flex items-center gap-4 text-left">
+                                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                                    <User size={24} />
                                   </div>
-                                  <button type="button" onClick={() => handleConnect(emp._id)} className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${requestStatus[emp._id] ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-                                    {requestStatus[emp._id] ? 'Selected' : 'Connect'}
-                                  </button>
+                                  <div>
+                                    <h4 className="font-black text-secondary">{emp.fullName}</h4>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">CODE: {emp.employeeId || 'N/A'}</p>
+                                    <p className="text-xs text-primary font-black mt-0.5">{emp.block}, {emp.district}</p>
+                                  </div>
                                 </div>
-                              ))
-                            ) : (
-                              <div className="text-center py-12 bg-gray-50 rounded-3xl px-6">
-                                <AlertCircle size={40} className="mx-auto text-gray-200 mb-4" />
-                                <p className="text-gray-500 font-bold">{t("auth.register.form.noEmployees")}</p>
-                                <button type="button" onClick={nextStep} className="text-primary font-black mt-4 underline">{t("auth.register.form.continueWithout")}</button>
+                                <button type="button" onClick={() => handleConnect(emp._id)} className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${requestStatus[emp._id] ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+                                  {requestStatus[emp._id] ? 'Selected' : 'Connect'}
+                                </button>
                               </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="text-center py-12 bg-gray-50 rounded-3xl px-6">
-                            <CheckCircle size={48} className="mx-auto text-secondary mb-4 animate-bounce" />
-                            <p className="text-gray-500 font-bold">{t("auth.register.form.yourArea")}</p>
-                            <p className="text-xl md:text-2xl font-black text-primary mt-2">{formData.block}, {formData.district}</p>
-                          </div>
-                        )}
+                            ))
+                          ) : (
+                            <div className="text-center py-12 bg-gray-50 rounded-3xl px-6">
+                              <AlertCircle size={40} className="mx-auto text-gray-200 mb-4" />
+                              <p className="text-gray-500 font-bold">{t("auth.register.form.noEmployees")}</p>
+                              <button type="button" onClick={nextStep} className="text-primary font-black mt-4 underline">{t("auth.register.form.continueWithout")}</button>
+                            </div>
+                          )}
+                        </div>
                       </>
                     )}
 

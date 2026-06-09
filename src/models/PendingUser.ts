@@ -15,6 +15,13 @@ export interface IPendingUser extends Document {
   area?: string;
   pincode?: string;
   address?: string;
+  workState?: string;
+  workDistrict?: string;
+  workBlock?: string;
+  workTehsil?: string;
+  workPincode?: string;
+  workArea?: string;
+  workAddress?: string;
   aadhaarNumber?: string;
   otp: string;
   otpExpires: Date;
@@ -54,6 +61,13 @@ const PendingUserSchema: Schema = new Schema(
     area: { type: String },
     pincode: { type: String },
     address: { type: String },
+    workState: { type: String },
+    workDistrict: { type: String },
+    workBlock: { type: String },
+    workTehsil: { type: String },
+    workPincode: { type: String },
+    workArea: { type: String },
+    workAddress: { type: String },
     aadhaarNumber: { type: String },
     otp: { type: String, required: true },
     otpExpires: { type: Date, required: true },

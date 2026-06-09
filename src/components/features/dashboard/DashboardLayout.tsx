@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -33,6 +33,47 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const [loading, setLoading] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
+  const navRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll active sidebar item into view on route change
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const scrollActiveIntoView = () => {
+      try {
+        const container = navRef.current;
+        if (!container) return;
+
+        const activeEl = container.querySelector('[data-sidebar-active="true"]') as HTMLElement;
+        if (!activeEl) return;
+
+        const containerRect = container.getBoundingClientRect();
+        const activeRect = activeEl.getBoundingClientRect();
+
+        // Check if the active item is visible in the container's viewport (with 10px buffer)
+        const isVisible = (
+          activeRect.top >= containerRect.top + 10 &&
+          activeRect.bottom <= containerRect.bottom - 10
+        );
+
+        if (!isVisible) {
+          activeEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+      } catch (err) {
+        console.error('Failed to scroll active sidebar item into view', err);
+      }
+    };
+
+    // Run immediately and at staggered intervals to account for render updates & sidebar transition
+    scrollActiveIntoView();
+    const timer1 = setTimeout(scrollActiveIntoView, 100);
+    const timer2 = setTimeout(scrollActiveIntoView, 350);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, [pathname]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -189,7 +230,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               </button>
             </div>
 
-            <nav className="flex-1 p-5 overflow-y-auto">
+            <nav ref={navRef} className="flex-1 p-5 overflow-y-auto">
               <div className="grid gap-2">
                 {menuItems.map((item: any, index: number) => {
                   const isActive = pathname === item.href ||
@@ -223,6 +264,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                       ) : (
                         <Link
                           href={item.href}
+                          data-sidebar-active={isActive ? "true" : undefined}
                           onClick={() => window.innerWidth < 1024 && setSidebarOpen(false)}
                           className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 no-underline ${isActive ? 'text-primary bg-[#FFF5F8] font-semibold shadow-sm' : 'text-gray-500 font-medium hover:bg-gray-50 hover:text-secondary'}`}
                         >

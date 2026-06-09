@@ -22,7 +22,9 @@ export async function POST(req: NextRequest) {
       designation, qualification, experience, state, district,
       block, area, pincode, address, assignedEmployeeId,
       age, maritalStatus, occupation, interests,
-      vendorCode, subVendorCode, campaignId, vendorType, membershipType
+      vendorCode, subVendorCode, campaignId, vendorType, membershipType,
+      workState, workDistrict, workBlock, workTehsil,
+      workPincode, workArea, workAddress
     } = body;
 
     if (!fullName || !mobile || !password || !email) {
@@ -127,6 +129,13 @@ export async function POST(req: NextRequest) {
       area,
       pincode,
       address,
+      workState: workState || undefined,
+      workDistrict: workDistrict || undefined,
+      workBlock: workBlock || undefined,
+      workTehsil: workTehsil || undefined,
+      workPincode: workPincode || undefined,
+      workArea: workArea || undefined,
+      workAddress: workAddress || undefined,
       aadhaarNumber: body.aadhaarNumber,
       otp: hashedOtp,
       otpExpires,
