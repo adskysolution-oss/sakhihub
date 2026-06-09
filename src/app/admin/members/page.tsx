@@ -133,14 +133,14 @@ export default function MemberManagement() {
                 
               </div>
               <div className="flex gap-1.5 bg-gray-50 p-1.5 rounded-2xl overflow-x-auto no-scrollbar">
-                 {['all', 'pending', 'documents_uploaded', 'under_review', 'reupload_required', 'active', 'rejected', 'paid', 'unpaid'].map((s) => {
+                 {['all', 'pending', 'documents_uploaded', 'reupload_required', 'active', 'approved', 'rejected', 'paid', 'unpaid'].map((s) => {
                    const labelMap: Record<string, string> = {
                      all: 'All',
                      pending: 'Pending',
                      documents_uploaded: 'Docs Submitted',
-                     under_review: 'Review',
                      reupload_required: 'Re-upload',
                      active: 'Active',
+                     approved: 'Approved',
                      rejected: 'Rejected',
                      paid: 'Paid',
                      unpaid: 'Unpaid/Free'
@@ -149,9 +149,9 @@ export default function MemberManagement() {
                      all: 'text-primary',
                      pending: 'text-amber-500',
                      documents_uploaded: 'text-blue-500',
-                     under_review: 'text-purple-500',
                      reupload_required: 'text-orange-500',
                      active: 'text-green-600',
+                     approved: 'text-emerald-600',
                      rejected: 'text-red-500',
                      paid: 'text-emerald-500',
                      unpaid: 'text-red-400'

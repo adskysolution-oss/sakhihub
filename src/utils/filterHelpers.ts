@@ -107,6 +107,7 @@ export function parseCountsFromFacet(facet: any) {
     under_review: 0,
     reupload_required: 0,
     active: 0,
+    approved: 0,
     rejected: 0
   };
   
@@ -128,6 +129,7 @@ export function parseCountsFromFacet(facet: any) {
       under_review: rawStatusCounts.under_review,
       reupload_required: rawStatusCounts.reupload_required,
       active: rawStatusCounts.active,
+      approved: rawStatusCounts.approved,
       rejected: rawStatusCounts.rejected
     },
     payment: {
