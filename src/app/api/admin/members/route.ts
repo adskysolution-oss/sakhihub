@@ -167,8 +167,7 @@ export async function GET(req: NextRequest) {
 
     const aggregationResult = await WomenMember.aggregate([
       { $match: baseMatch },
-      // Deduplicate by mobile, taking the newest record (by sorting createdAt descending)
-      { $sort: { createdAt: -1 } },
+      // Deduplicate by mobile
       {
         $group: {
           _id: "$mobile",
@@ -226,7 +225,7 @@ export async function GET(req: NextRequest) {
           ]
         }
       }
-    ]);
+    ]).allowDiskUse(true);
 
     const facet = aggregationResult[0] || { statusCounts: [], paymentCounts: [], data: [] };
 
@@ -277,7 +276,7 @@ export async function GET(req: NextRequest) {
 
     // Populate data relations
     const populatedMembers = await WomenMember.populate(facet.data, [
-      { path: 'groupId', select: 'groupName village district' },
+      { path: 'groupId', select: 'groupName village district', model: Group },
       { path: 'assignedEmployeeId', select: 'fullName mobile employeeId' },
       {
         path: 'userId',
@@ -314,6 +313,7 @@ export async function GET(req: NextRequest) {
       counts
     });
   } catch (error: any) {
+    require('fs').writeFileSync('C:\\projects\\sakhihub\\api_error.log', error.stack || error.message);
     return errorResponse(error.message, 500);
   }
 }
