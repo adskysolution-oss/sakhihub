@@ -9,7 +9,7 @@ interface StatusFilterTabsProps {
   };
 }
 
-export const STATUS_FILTERS = ['all', 'pending', 'documents_uploaded', 'under_review', 'reupload_required', 'active', 'rejected', 'paid', 'unpaid'];
+export const STATUS_FILTERS = ['all', 'pending', 'documents_uploaded', /* 'under_review', */ 'reupload_required', 'active', 'approved', 'rejected', 'paid', 'unpaid'];
 
 export const LABEL_MAP: Record<string, string> = {
   all: 'All',
@@ -18,6 +18,7 @@ export const LABEL_MAP: Record<string, string> = {
   under_review: 'Review',
   reupload_required: 'Re-upload',
   active: 'Active',
+  approved: 'Approved',
   rejected: 'Rejected',
   paid: 'Paid',
   unpaid: 'Unpaid'
@@ -30,6 +31,7 @@ export const COUNT_COLOR_MAP: Record<string, string> = {
   under_review: 'text-purple-500',
   reupload_required: 'text-orange-500',
   active: 'text-green-600',
+  approved: 'text-emerald-600',
   rejected: 'text-red-500',
   paid: 'text-emerald-500',
   unpaid: 'text-red-400'

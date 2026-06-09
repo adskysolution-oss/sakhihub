@@ -68,7 +68,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
     if (user.role === 'employee' && user.designation) {
       // capitalize designation
       const d = user.designation.replace(/\b\w/g, l => l.toUpperCase());
-      return `${base} | ${d}`;
+      return d;
     }
     if ((user.role === 'vendor' || user.role === 'sub_vendor') && user.vendorType) {
       // format vendor type (e.g. 'company' -> 'Company Vendor')
