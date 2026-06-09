@@ -28,6 +28,16 @@ export default function ProfileManager() {
     }));
   });
 
+  const { loading: workPincodeLoading } = usePincodeAutofill(formData.workPincode, (data) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      workState: data.state,
+      workDistrict: data.district,
+      workBlock: data.block,
+      workArea: data.area[0] || ''
+    }));
+  });
+
   const fetchProfile = async () => {
     try {
       const res = await axios.get('/api/user/profile');
@@ -295,6 +305,108 @@ export default function ProfileManager() {
                   </div>
                 </div>
               </section>
+
+              {/* Proposed Work Location & Address */}
+              {['vendor', 'sub_vendor', 'employee'].includes(user?.role) && (
+                <section className="space-y-8 lg:col-span-2 pt-8 border-t border-gray-100">
+                  <h3 className="text-xl font-black text-secondary uppercase tracking-wider flex items-center gap-3">
+                    <Map size={20} className="text-primary" /> Proposed Work Location & Address
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Work Pincode</label>
+                      <div className="relative">
+                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
+                        <input
+                          type="text"
+                          name="workPincode"
+                          maxLength={6}
+                          value={formData.workPincode || ''}
+                          onChange={(e) => setFormData({ ...formData, workPincode: e.target.value.replace(/\D/g, '') })}
+                          className="w-full pl-12 pr-10 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:ring-4 ring-primary/10 focus:border-primary transition-all outline-none font-bold text-secondary"
+                          placeholder="6 digit pincode"
+                        />
+                        {workPincodeLoading && (
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Work State</label>
+                      <input
+                        type="text"
+                        name="workState"
+                        value={formData.workState || ''}
+                        onChange={handleChange}
+                        className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:ring-4 ring-primary/10 focus:border-primary transition-all outline-none font-bold text-secondary"
+                        placeholder="State"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Work District</label>
+                      <input
+                        type="text"
+                        name="workDistrict"
+                        value={formData.workDistrict || ''}
+                        onChange={handleChange}
+                        className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:ring-4 ring-primary/10 focus:border-primary transition-all outline-none font-bold text-secondary"
+                        placeholder="District"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Work Block</label>
+                      <input
+                        type="text"
+                        name="workBlock"
+                        value={formData.workBlock || ''}
+                        onChange={handleChange}
+                        className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:ring-4 ring-primary/10 focus:border-primary transition-all outline-none font-bold text-secondary"
+                        placeholder="Block"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Work Tehsil</label>
+                      <input
+                        type="text"
+                        name="workTehsil"
+                        value={formData.workTehsil || ''}
+                        onChange={handleChange}
+                        className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:ring-4 ring-primary/10 focus:border-primary transition-all outline-none font-bold text-secondary"
+                        placeholder="Tehsil"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Work Panchayat / Area</label>
+                      <input
+                        type="text"
+                        name="workArea"
+                        value={formData.workArea || ''}
+                        onChange={handleChange}
+                        className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:ring-4 ring-primary/10 focus:border-primary transition-all outline-none font-bold text-secondary"
+                        placeholder="Panchayat / Area"
+                      />
+                    </div>
+
+                    <div className="lg:col-span-3 space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Work Full Address</label>
+                      <textarea
+                        name="workAddress"
+                        rows={3}
+                        value={formData.workAddress || ''}
+                        onChange={handleChange}
+                        className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:ring-4 ring-primary/10 focus:border-primary transition-all outline-none font-bold text-secondary resize-none"
+                        placeholder="Work Office / Field Address"
+                      />
+                    </div>
+                  </div>
+                </section>
+              )}
             </div>
 
             {/* Other Details */}

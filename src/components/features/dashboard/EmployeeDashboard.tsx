@@ -41,8 +41,35 @@ export default function EmployeeDashboard({ user }: { user: any }) {
   const isVerified = user?.isVerified;
   const isPending = user?.status === 'pending' || user?.status === 'documents_uploaded' || user?.status === 'reupload_required';
 
+  const isWorkLocationIncomplete = user && (
+    !user.workState || !user.workDistrict || !user.workBlock ||
+    !user.workTehsil || !user.workPincode || !user.workArea || !user.workAddress
+  );
+
   return (
     <div className="flex flex-col gap-6 md:gap-10 p-2 md:p-4">
+      {/* Work Location Alert Banner */}
+      {isWorkLocationIncomplete && (
+        <section className="p-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-[30px] border border-amber-500/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg shadow-amber-500/5 backdrop-blur-md">
+          <div className="flex items-center gap-5 flex-1">
+            <div className="w-14 h-14 bg-amber-500 text-white rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
+              <AlertCircle size={28} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-amber-900 leading-tight">Action Required: Complete Your Work Location</h2>
+              <p className="text-amber-700/80 mt-1 text-sm leading-relaxed">
+                Please provide your detailed proposed work location (Tehsil, Panchayat/Area, block, district, state, pincode, and address) in your profile.
+              </p>
+            </div>
+          </div>
+          <Link href="/employee/dashboard/profile">
+            <button className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-lg shadow-amber-500/20 transition-all hover:scale-105 active:scale-95 whitespace-nowrap flex items-center gap-2">
+              Edit Profile
+            </button>
+          </Link>
+        </section>
+      )}
+
       {/* Verification Banner */}
       {!isVerified && (
         <section className="p-6 bg-amber-50 rounded-[30px] border border-amber-200 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">

@@ -38,6 +38,13 @@ export async function PATCH(req: NextRequest) {
     const area = formData.get('area') as string;
     const pincode = formData.get('pincode') as string;
     const businessName = formData.get('businessName') as string;
+    const workState = formData.get('workState') as string;
+    const workDistrict = formData.get('workDistrict') as string;
+    const workBlock = formData.get('workBlock') as string;
+    const workTehsil = formData.get('workTehsil') as string;
+    const workPincode = formData.get('workPincode') as string;
+    const workArea = formData.get('workArea') as string;
+    const workAddress = formData.get('workAddress') as string;
     const file = formData.get('profileImage') as File;
 
     await dbConnect();
@@ -57,13 +64,21 @@ export async function PATCH(req: NextRequest) {
     // Email is read-only as per request
     // if (email) user.email = email; 
 
-    if (address) user.address = address;
-    if (state) user.state = state;
-    if (district) user.district = district;
-    if (block) user.block = block;
-    if (area) user.area = area;
-    if (pincode) user.pincode = pincode;
-    if (businessName) user.businessName = businessName;
+    if (address !== null) user.address = address;
+    if (state !== null) user.state = state;
+    if (district !== null) user.district = district;
+    if (block !== null) user.block = block;
+    if (area !== null) user.area = area;
+    if (pincode !== null) user.pincode = pincode;
+    if (businessName !== null) user.businessName = businessName;
+
+    if (workState !== null) user.workState = workState;
+    if (workDistrict !== null) user.workDistrict = workDistrict;
+    if (workBlock !== null) user.workBlock = workBlock;
+    if (workTehsil !== null) user.workTehsil = workTehsil;
+    if (workPincode !== null) user.workPincode = workPincode;
+    if (workArea !== null) user.workArea = workArea;
+    if (workAddress !== null) user.workAddress = workAddress;
 
     // Handle Profile Image Upload
     if (file && typeof file !== 'string') {

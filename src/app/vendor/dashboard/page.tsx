@@ -4,10 +4,12 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import {
   Target, Users, Briefcase, User, IndianRupee,
-  ClipboardList, TrendingUp, ShieldCheck, CheckCircle, Clock, FileText, ExternalLink
+  ClipboardList, TrendingUp, ShieldCheck, CheckCircle, Clock, FileText, ExternalLink,
+  AlertCircle
 } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartnerModal";
 import ReferralLinkCard from "@/components/features/dashboard/ReferralLinkCard";
 import PaymentReceiptCard from "@/components/features/dashboard/PaymentReceiptCard";
@@ -49,9 +51,38 @@ export default function VendorDashboard() {
     { title: 'Free Members', value: stats?.freeMembers || 0, icon: Clock, color: '#EF6C00', trend: 'Pending activation' },
   ];
 
+  const isWorkLocationIncomplete = user && (
+    !user.workState || !user.workDistrict || !user.workBlock ||
+    !user.workTehsil || !user.workPincode || !user.workArea || !user.workAddress
+  );
+
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-8">
+        {isWorkLocationIncomplete && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-[30px] border border-amber-500/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg shadow-amber-500/5 backdrop-blur-md"
+          >
+            <div className="flex items-center gap-5 flex-1">
+              <div className="w-14 h-14 bg-amber-500 text-white rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
+                <AlertCircle size={28} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-amber-900 leading-tight">Action Required: Complete Your Work Location</h2>
+                <p className="text-amber-700/80 mt-1 text-sm leading-relaxed">
+                  Please provide your detailed proposed work location (Tehsil, Panchayat/Area, block, district, state, pincode, and address) in your profile.
+                </p>
+              </div>
+            </div>
+            <Link href="/vendor/dashboard/profile">
+              <button className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-lg shadow-amber-500/20 transition-all hover:scale-105 active:scale-95 whitespace-nowrap flex items-center gap-2">
+                Edit Profile
+              </button>
+            </Link>
+          </motion.div>
+        )}
         <header className="flex justify-between items-start">
           {/* <div>
             <h1 className="text-3xl md:text-4xl font-black text-secondary">Vendor Command Center</h1>
