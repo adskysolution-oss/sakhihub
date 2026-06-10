@@ -1,8 +1,10 @@
 import {
   LayoutDashboard, Users, Heart, Settings, User,
   MapPin, IndianRupee, ClipboardList, Target, Layout, FileText,
-  ShieldCheck, Mail, Sparkles, Wallet, ShoppingBag, BadgeCheck, Briefcase
+  ShieldCheck, Mail, Sparkles, Wallet, ShoppingBag, BadgeCheck, Briefcase,
+  History, BarChart3
 } from 'lucide-react';
+
 
 export const PUBLIC_LINKS = [
   { name: 'Home', href: '/' },
@@ -73,6 +75,13 @@ export const ADMIN_DASHBOARD_LINKS = [
   { section: 'Admin Management', name: 'Permissions', icon: ShieldCheck, href: '/admin/permissions' },
   { section: 'Admin Management', name: 'Assignments', icon: MapPin, href: '/admin/assignments' },
   { section: 'Admin Management', name: 'Activity Logs', icon: ClipboardList, href: '/admin/activity-logs' },
+
+  // COMMUNICATION CENTER
+  { section: 'Communication Center', name: 'Email Campaigns', icon: Mail, href: '/admin/communication/campaigns' },
+  { section: 'Communication Center', name: 'Campaign History', icon: History, href: '/admin/communication/history' },
+  { section: 'Communication Center', name: 'Email Templates', icon: FileText, href: '/admin/communication/templates' },
+  { section: 'Communication Center', name: 'Delivery Logs', icon: ClipboardList, href: '/admin/communication/logs' },
+  { section: 'Communication Center', name: 'Analytics Dashboard', icon: BarChart3, href: '/admin/communication/analytics' },
 ];
 
 export const VENDOR_DASHBOARD_LINKS = [

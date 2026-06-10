@@ -229,7 +229,8 @@ export async function proxy(request: NextRequest) {
             '/admin/cms',
             '/admin/finance',
             '/admin/forms',
-            '/admin/payment-config'
+            '/admin/payment-config',
+            '/admin/communication'
           ];
           if (restrictedAdminSubPages.some(subPath => pathname.startsWith(subPath))) {
             return NextResponse.redirect(new URL('/unauthorized', request.url));

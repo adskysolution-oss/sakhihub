@@ -129,7 +129,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
         '/admin/cms',
         '/admin/finance',
         '/admin/forms',
-        '/admin/payment-config'
+        '/admin/payment-config',
+        '/admin/communication'
       ];
       const linkPermissionMap: Record<string, string> = {
         '/admin/network': 'network.view',
