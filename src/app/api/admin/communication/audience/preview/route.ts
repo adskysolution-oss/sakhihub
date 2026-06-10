@@ -1,9 +1,8 @@
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
-import User from '@/models/User';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
-import { translateFiltersToMongoQuery } from '@/utils/audienceBuilder';
+import { getCampaignRecipients } from '@/utils/audienceBuilder';
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,16 +14,11 @@ export async function POST(req: NextRequest) {
     await dbConnect();
     const { filters } = await req.json();
 
-    const query = await translateFiltersToMongoQuery(filters);
+    // Fetch unified recipients
+    const recipients = await getCampaignRecipients(filters);
     
-    // Only fetch users with valid emails
-    query.email = { $exists: true, $ne: '' };
-
-    // Limit to 10 for audience validation preview
-    const previewUsers = await User.find(query)
-      .select('fullName email role state district designation')
-      .limit(10)
-      .lean();
+    // Limit to 10 for preview
+    const previewUsers = recipients.slice(0, 10);
 
     return successResponse({ preview: previewUsers });
   } catch (error: any) {

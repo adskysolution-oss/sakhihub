@@ -5,7 +5,7 @@ import EmailCampaign from '@/models/EmailCampaign';
 import EmailLog from '@/models/EmailLog';
 import User from '@/models/User';
 import { EmailService } from './email';
-import { translateFiltersToMongoQuery } from '@/utils/audienceBuilder';
+import { getCampaignRecipients } from '@/utils/audienceBuilder';
 
 const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
 const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379');
@@ -135,12 +135,8 @@ async function dispatchCampaignJobs(campaignId: string) {
   campaign.sentAt = new Date();
   await campaign.save();
 
-  // Query matching audience
-  const query = await translateFiltersToMongoQuery(campaign.filters);
-  // Ensure email is present
-  query.email = { $exists: true, $ne: '' };
-  
-  const recipients = await User.find(query).lean();
+  // Query matching audience using unified extraction service
+  const recipients = await getCampaignRecipients(campaign.filters);
   
   console.log(`[QUEUE] Dispatching campaign "${campaign.name}" to ${recipients.length} recipients`);
   campaign.recipientCount = recipients.length;

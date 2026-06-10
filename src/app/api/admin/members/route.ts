@@ -6,6 +6,7 @@ import User from '@/models/User';
 import Group from '@/models/Group';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
+import { memberStatsService } from '@/services/dashboardStatsService';
 
 export async function GET(req: NextRequest) {
   try {
@@ -165,7 +166,9 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const aggregationResult = await WomenMember.aggregate([
+    const counts = await memberStatsService(baseMatch, activeStatus, activePaymentStatus);
+
+    const data = await WomenMember.aggregate([
       { $match: baseMatch },
       // Deduplicate by mobile
       {
@@ -190,92 +193,14 @@ export async function GET(req: NextRequest) {
           preserveNullAndEmptyArrays: true
         }
       },
-      // Facets
-      {
-        $facet: {
-          statusCounts: [
-            { $match: paymentFilterQuery },
-            {
-              $group: {
-                _id: { $ifNull: ["$userDoc.status", { $ifNull: ["$accountStatus", "active"] }] },
-                count: { $sum: 1 }
-              }
-            }
-          ],
-          paymentCounts: [
-            { $match: statusFilterQuery },
-            {
-              $group: {
-                _id: {
-                  $cond: [
-                    { $eq: ["$membershipStatus", "paid"] },
-                    "paid",
-                    "unpaid"
-                  ]
-                },
-                count: { $sum: 1 }
-              }
-            }
-          ],
-          data: [
-            { $match: { ...statusFilterQuery, ...paymentFilterQuery } },
-            { $sort: { createdAt: -1 } },
-            { $skip: (page - 1) * limit },
-            { $limit: limit }
-          ]
-        }
-      }
+      { $match: { ...statusFilterQuery, ...paymentFilterQuery } },
+      { $sort: { createdAt: -1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: limit }
     ]).allowDiskUse(true);
 
-    const facet = aggregationResult[0] || { statusCounts: [], paymentCounts: [], data: [] };
-
-    // Process status counts
-    const rawStatusCounts: Record<string, number> = {
-      pending: 0,
-      documents_uploaded: 0,
-      under_review: 0,
-      reupload_required: 0,
-      active: 0,
-      rejected: 0
-    };
-
-    let totalStatusCount = 0;
-    facet.statusCounts.forEach((item: any) => {
-      totalStatusCount += item.count;
-      if (item._id in rawStatusCounts) {
-        rawStatusCounts[item._id] = item.count;
-      }
-    });
-
-    const pendingSum = rawStatusCounts.pending + rawStatusCounts.documents_uploaded + rawStatusCounts.under_review + rawStatusCounts.reupload_required;
-
-    const counts = {
-      status: {
-        all: totalStatusCount,
-        pending: pendingSum,
-        documents_uploaded: rawStatusCounts.documents_uploaded,
-        under_review: rawStatusCounts.under_review,
-        reupload_required: rawStatusCounts.reupload_required,
-        active: rawStatusCounts.active,
-        rejected: rawStatusCounts.rejected
-      },
-      payment: {
-        all: 0,
-        paid: 0,
-        unpaid: 0
-      }
-    };
-
-    let totalPaymentCount = 0;
-    facet.paymentCounts.forEach((item: any) => {
-      totalPaymentCount += item.count;
-      if (item._id === 'paid') counts.payment.paid = item.count;
-      if (item._id === 'unpaid') counts.payment.unpaid = item.count;
-    });
-    counts.payment.all = totalPaymentCount;
-
     // Populate data relations
-    const populatedMembers = await WomenMember.populate(facet.data, [
+    const populatedMembers = await WomenMember.populate(data, [
       { path: 'groupId', select: 'groupName village district', model: Group },
       { path: 'assignedEmployeeId', select: 'fullName mobile employeeId' },
       {

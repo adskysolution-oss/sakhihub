@@ -12,6 +12,7 @@ import {
   resolveActiveStatuses 
 } from '@/utils/filterHelpers';
 import { sanitizeUserListForClient } from '@/utils/apiSecurity';
+import { employeeStatsService } from '@/services/dashboardStatsService';
 
 export async function GET(req: NextRequest) {
   try {
@@ -81,15 +82,18 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const facet = buildPaginationAndCountsFacet(page, limit, statusFilterQuery, paymentFilterQuery);
+    const counts = await employeeStatsService(baseMatch, activeStatus, activePaymentStatus);
 
-    const aggregationResult = await User.aggregate([
-      { $match: baseMatch },
-      { $facet: facet }
-    ]);
+    const data = await User.find({
+      ...baseMatch,
+      ...statusFilterQuery,
+      ...paymentFilterQuery
+    })
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
 
-    const resultFacet = aggregationResult[0] || { statusCounts: [], paymentCounts: [], data: [] };
-    const counts = parseCountsFromFacet(resultFacet);
+    const resultFacet = { data };
 
     const populatedEmployees = await User.populate(resultFacet.data, {
       path: 'parentVendorId',

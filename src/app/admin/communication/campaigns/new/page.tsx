@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { STATUS_FILTERS, LABEL_MAP } from '@/components/shared/filters/StatusFilterTabs';
 
 export default function NewCampaignPage() {
   const router = useRouter();
@@ -49,6 +50,7 @@ export default function NewCampaignPage() {
   const [recipientCount, setRecipientCount] = useState<number>(0);
   const [previewUsers, setPreviewUsers] = useState<any[]>([]);
   const [isCounting, setIsCounting] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
 
   // Send Options
   const [sendType, setSendType] = useState<'immediate' | 'scheduled'>('immediate');
@@ -83,6 +85,7 @@ export default function NewCampaignPage() {
       if (rules.length === 0) {
         setRecipientCount(0);
         setPreviewUsers([]);
+        setDebugInfo(null);
         return;
       }
       setIsCounting(true);
@@ -95,6 +98,7 @@ export default function NewCampaignPage() {
 
         if (countRes.data.success) {
           setRecipientCount(countRes.data.data.count);
+          setDebugInfo(countRes.data.data.debug || null);
         }
         if (previewRes.data.success) {
           setPreviewUsers(previewRes.data.data.preview || []);
@@ -593,11 +597,9 @@ export default function NewCampaignPage() {
                           className="w-full bg-white border border-gray-150 rounded-lg py-1.5 px-2 text-[10px] font-semibold focus:outline-none"
                         >
                           <option value="">-- Choose Status --</option>
-                          <option value="active">Active</option>
-                          <option value="pending">Pending Approval</option>
-                          <option value="approved">Approved</option>
-                          <option value="rejected">Rejected</option>
-                          <option value="suspended">Suspended</option>
+                          {STATUS_FILTERS.filter(s => s !== 'all').map(s => (
+                            <option key={s} value={s}>{LABEL_MAP[s] || s}</option>
+                          ))}
                         </select>
                       )}
 
@@ -702,6 +704,34 @@ export default function NewCampaignPage() {
                           <span className="text-[8px] text-gray-400 font-mono italic">{u.email}</span>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                )}
+                {/* Admin Query Debug Panel */}
+                {debugInfo && (
+                  <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-2xl flex flex-col gap-3">
+                    <span className="text-[10px] font-black text-secondary uppercase tracking-widest border-b border-gray-200 pb-1 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Admin Query Debug Panel
+                    </span>
+                    <div className="flex flex-col gap-1.5 text-[10px]">
+                      <div className="flex justify-between">
+                        <span className="font-bold text-gray-400">Matched Collection:</span>
+                        <span className="font-black text-secondary">{debugInfo.matchedCollection}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-bold text-gray-400">Total Raw Records:</span>
+                        <span className="font-black text-secondary">{debugInfo.rawCount}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-bold text-gray-400">Unique Recipients:</span>
+                        <span className="font-black text-secondary">{debugInfo.uniqueRecipients}</span>
+                      </div>
+                      <div className="mt-1 flex flex-col gap-1">
+                        <span className="font-bold text-gray-400">Generated Mongo Query:</span>
+                        <pre className="p-2 bg-[#1e1e1e] text-green-400 rounded-lg text-[8px] font-mono overflow-x-auto max-h-[150px] whitespace-pre-wrap leading-tight">
+                          {JSON.stringify(debugInfo.generatedQuery, null, 2)}
+                        </pre>
+                      </div>
                     </div>
                   </div>
                 )}
