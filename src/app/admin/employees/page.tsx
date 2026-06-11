@@ -664,33 +664,65 @@ export default function EmployeeManagement() {
                               </div>
                            </div>
 
-                           <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-4 border-secondary pl-4">Location Details</h4>
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-3xl border border-gray-100">
-                              <div className="md:col-span-2">
-                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Full Address</p>
-                                 <p className="font-bold text-secondary text-sm leading-relaxed">{selectedEmp.address || 'Not provided'}</p>
-                              </div>
-                              <div>
-                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Village / Area</p>
-                                 <p className="font-bold text-secondary text-sm">{selectedEmp.area || 'Not provided'}</p>
-                              </div>
-                              <div>
-                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Block</p>
-                                 <p className="font-bold text-secondary text-sm">{selectedEmp.block || 'Not provided'}</p>
-                              </div>
-                              <div>
-                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">District</p>
-                                 <p className="font-bold text-secondary text-sm">{selectedEmp.district || 'Not provided'}</p>
-                              </div>
-                              <div>
-                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">State</p>
-                                 <p className="font-bold text-secondary text-sm">{selectedEmp.state || 'Not provided'}</p>
-                              </div>
-                              <div>
-                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Pincode</p>
-                                 <p className="font-mono font-bold text-secondary text-sm">{selectedEmp.pincode || 'Not provided'}</p>
-                              </div>
-                           </div>
+                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-4 border-secondary pl-4">Permanent Location Details</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-3xl border border-gray-100">
+                               <div className="md:col-span-2">
+                                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Full Address</p>
+                                  <p className="font-bold text-secondary text-sm leading-relaxed">{selectedEmp.address || 'Not provided'}</p>
+                               </div>
+                               <div>
+                                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Village / Area</p>
+                                  <p className="font-bold text-secondary text-sm">{selectedEmp.area || 'Not provided'}</p>
+                               </div>
+                               <div>
+                                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Block</p>
+                                  <p className="font-bold text-secondary text-sm">{selectedEmp.block || 'Not provided'}</p>
+                               </div>
+                               <div>
+                                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1">District</p>
+                                  <p className="font-bold text-secondary text-sm">{selectedEmp.district || 'Not provided'}</p>
+                               </div>
+                               <div>
+                                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1">State</p>
+                                  <p className="font-bold text-secondary text-sm">{selectedEmp.state || 'Not provided'}</p>
+                               </div>
+                               <div>
+                                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Pincode</p>
+                                  <p className="font-mono font-bold text-secondary text-sm">{selectedEmp.pincode || 'Not provided'}</p>
+                               </div>
+                            </div>
+
+                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-4 border-secondary pl-4">Work Location Details</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-3xl border border-gray-100">
+                               <div className="md:col-span-2">
+                                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Work Full Address</p>
+                                  <p className="font-bold text-secondary text-sm leading-relaxed">{selectedEmp.workAddress || 'Not provided'}</p>
+                               </div>
+                               <div>
+                                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Work Village / Area</p>
+                                  <p className="font-bold text-secondary text-sm">{selectedEmp.workArea || 'Not provided'}</p>
+                               </div>
+                               <div>
+                                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Work Block</p>
+                                  <p className="font-bold text-secondary text-sm">{selectedEmp.workBlock || 'Not provided'}</p>
+                               </div>
+                               <div>
+                                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Work Tehsil</p>
+                                  <p className="font-bold text-secondary text-sm">{selectedEmp.workTehsil || 'Not provided'}</p>
+                               </div>
+                               <div>
+                                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Work District</p>
+                                  <p className="font-bold text-secondary text-sm">{selectedEmp.workDistrict || 'Not provided'}</p>
+                               </div>
+                               <div>
+                                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Work State</p>
+                                  <p className="font-bold text-secondary text-sm">{selectedEmp.workState || 'Not provided'}</p>
+                               </div>
+                               <div>
+                                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Work Pincode</p>
+                                  <p className="font-mono font-bold text-secondary text-sm">{selectedEmp.workPincode || 'Not provided'}</p>
+                               </div>
+                            </div>
                          </div>
 
                          <div className="space-y-6">

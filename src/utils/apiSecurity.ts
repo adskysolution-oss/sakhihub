@@ -26,7 +26,12 @@ export function sanitizeUserListForClient(users: any[], includePII = false) {
     const sanitized: any = {};
     
     const fieldsToKeep = includePII 
-      ? [...ALLOWED_USER_FIELDS, 'aadhaarNumber', 'panNumber', 'bankDetails']
+      ? [
+          ...ALLOWED_USER_FIELDS, 
+          'aadhaarNumber', 'panNumber', 'bankDetails',
+          'address', 'area', 'state', 'pincode', 'dob', 'gender',
+          'workState', 'workDistrict', 'workBlock', 'workTehsil', 'workPincode', 'workArea', 'workAddress'
+        ]
       : ALLOWED_USER_FIELDS;
 
     // Copy only allowed fields

@@ -365,6 +365,13 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                         { label: 'Joined', value: new Date(user.createdAt).toLocaleDateString(), icon: Calendar },
                       ];
 
+                      if (user.dob) {
+                        items.push({ label: 'Date of Birth', value: new Date(user.dob).toLocaleDateString('en-IN'), icon: Calendar });
+                      }
+                      if (user.gender) {
+                        items.push({ label: 'Gender', value: user.gender.charAt(0).toUpperCase() + user.gender.slice(1), icon: User });
+                      }
+
                       if (user.role === 'vendor' || user.role === 'sub_vendor') {
                         if (user.businessName) {
                           items.push({ label: 'Business Name', value: user.businessName, icon: Briefcase });
@@ -383,22 +390,6 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                         }
                       }
 
-                      if (user.address) {
-                        items.push({ label: 'Street Address', value: user.address, icon: MapPin });
-                      }
-                      if (user.block) {
-                        items.push({ label: 'Block', value: user.block, icon: MapPin });
-                      }
-                      if (user.district) {
-                        items.push({ label: 'District', value: user.district, icon: MapPin });
-                      }
-                      if (user.state) {
-                        items.push({ label: 'State', value: user.state, icon: MapPin });
-                      }
-                      if (user.pincode) {
-                        items.push({ label: 'Pincode', value: user.pincode, icon: MapPin });
-                      }
-
                       return items.map((item, idx) => (
                         <div key={idx} className="flex items-start gap-4 p-5 bg-gray-50 rounded-3xl border border-gray-100 min-w-0">
                           <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-gray-400 shadow-sm shrink-0 mt-0.5">
@@ -411,6 +402,81 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                         </div>
                       ));
                     })()}
+                  </div>
+                </div>
+
+                {/* Location Details */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                      <MapPin size={14} /> Permanent Location Details
+                    </h4>
+                    <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100 space-y-4">
+                      <div>
+                        <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Full Address</p>
+                        <p className="font-bold text-secondary text-xs">{user.address || 'Not provided'}</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Village / Area</p>
+                          <p className="font-bold text-secondary text-xs">{user.area || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Block</p>
+                          <p className="font-bold text-secondary text-xs">{user.block || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-gray-400 uppercase mb-1">District</p>
+                          <p className="font-bold text-secondary text-xs">{user.district || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-gray-400 uppercase mb-1">State</p>
+                          <p className="font-bold text-secondary text-xs">{user.state || 'Not provided'}</p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Pincode</p>
+                          <p className="font-mono font-bold text-secondary text-xs">{user.pincode || 'Not provided'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                      <MapPin size={14} /> Work Location Details
+                    </h4>
+                    <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100 space-y-4">
+                      <div>
+                        <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Work Full Address</p>
+                        <p className="font-bold text-secondary text-xs">{user.workAddress || 'Not provided'}</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Work Village / Area</p>
+                          <p className="font-bold text-secondary text-xs">{user.workArea || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Work Block</p>
+                          <p className="font-bold text-secondary text-xs">{user.workBlock || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Work Tehsil</p>
+                          <p className="font-bold text-secondary text-xs">{user.workTehsil || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Work District</p>
+                          <p className="font-bold text-secondary text-xs">{user.workDistrict || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Work State</p>
+                          <p className="font-bold text-secondary text-xs">{user.workState || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Work Pincode</p>
+                          <p className="font-mono font-bold text-secondary text-xs">{user.workPincode || 'Not provided'}</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
