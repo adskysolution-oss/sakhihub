@@ -146,7 +146,16 @@ export const generateAgreementHtml = (data: any) => {
     },
     {
       id: 13,
-      title: "13. CONFIDENTIALITY",
+      title: "13. STATE OPERATIONAL PRIORITY & PERFORMANCE PROTECTION",
+      content: `13.1 Where a Vendor has been officially assigned a particular State for the SakhiHub Awareness Program, SakhiHub shall not appoint any additional Vendor, NGO Partner or equivalent operational partner for the same SakhiHub Awareness Program within that assigned State, provided the Vendor continues to perform satisfactorily and remains fully compliant with Company policies, reporting requirements, membership targets, employee management standards and operational obligations.<br/>
+      13.2 The Vendor shall be granted operational priority for the assigned State for the SakhiHub Awareness Program during the validity of the Agreement, subject to continued satisfactory performance.<br/>
+      13.3 Further, for any future projects, programs or expansion opportunities introduced by SakhiHub within the assigned State, the existing Vendor shall be given first preference for consideration, subject to eligibility, performance, operational capability and Company requirements. However, SakhiHub shall retain the sole discretion regarding final appointment and project allocation.<br/>
+      13.4 In the event that the Vendor's performance is found to be unsatisfactory, including but not limited to poor reporting, inactive operations, target non-achievement, employee management issues, compliance failures or other operational deficiencies, SakhiHub shall issue a written Performance Improvement Notice and provide the Vendor with a period of ten (10) days to rectify the deficiencies.<br/>
+      13.5 Upon completion of the 10-day review period, if the Vendor fails to demonstrate satisfactory improvement as determined by SakhiHub, the Company shall have the right to terminate the Vendor's operational priority and/or Agreement and appoint another Vendor, NGO Partner or operational representative for the concerned State without any further obligation.`
+    },
+    {
+      id: 14,
+      title: "14. CONFIDENTIALITY",
       content: `Vendor shall maintain confidentiality of:
       <div class="bullet-list">
         • Employee Data | • Member Data | • Reports | • Training Materials | • Internal Systems | • Operational Information
@@ -154,8 +163,8 @@ export const generateAgreementHtml = (data: any) => {
       This obligation survives termination.`
     },
     {
-      id: 14,
-      title: "14. DATA PROTECTION",
+      id: 15,
+      title: "15. DATA PROTECTION",
       content: `Vendor shall not:
       <div class="bullet-list">
         • Copy Data | • Export Data | • Sell Data | • Share Data | • Download Data without authorization
@@ -163,8 +172,8 @@ export const generateAgreementHtml = (data: any) => {
       All data belongs exclusively to SakhiHub.`
     },
     {
-      id: 15,
-      title: "15. FRAUD PREVENTION",
+      id: 16,
+      title: "16. FRAUD PREVENTION",
       content: `The following are strictly prohibited:
       <div class="bullet-list">
         • Fake Memberships | • Duplicate Memberships | • Fake Attendance | • Fake Reporting | • Identity Fraud | • Forged Documents
@@ -172,8 +181,8 @@ export const generateAgreementHtml = (data: any) => {
       Any such activity may result in immediate termination.`
     },
     {
-      id: 16,
-      title: "16. RECOVERY RIGHTS",
+      id: 17,
+      title: "17. RECOVERY RIGHTS",
       content: `Company may recover losses arising from:
       <div class="bullet-list">
         • Fraud | • Misrepresentation | • Fake Memberships | • Data Theft | • Financial Loss
@@ -181,13 +190,13 @@ export const generateAgreementHtml = (data: any) => {
       Recovery may be adjusted from future payments.`
     },
     {
-      id: 17,
-      title: "17. NON-POACHING CLAUSE",
+      id: 18,
+      title: "18. NON-POACHING CLAUSE",
       content: "Vendor shall not recruit or induce SakhiHub employees, members, partners or vendors to leave SakhiHub. This restriction shall continue for 24 months after termination."
     },
     {
-      id: 18,
-      title: "18. BRAND PROTECTION",
+      id: 19,
+      title: "19. BRAND PROTECTION",
       content: `Vendor shall not misuse:
       <div class="bullet-list">
         • SakhiHub Name | • Logo | • Website | • Training Material | • Marketing Content
@@ -195,13 +204,13 @@ export const generateAgreementHtml = (data: any) => {
       without written approval.`
     },
     {
-      id: 19,
-      title: "19. SOCIAL MEDIA RESTRICTIONS",
+      id: 20,
+      title: "20. SOCIAL MEDIA RESTRICTIONS",
       content: "Vendor shall not issue public announcements, media statements or press releases on behalf of SakhiHub without written authorization."
     },
     {
-      id: 20,
-      title: "20. AUDIT RIGHTS",
+      id: 21,
+      title: "21. AUDIT RIGHTS",
       content: `Company may conduct:
       <div class="bullet-list">
         • Physical Audits | • Digital Audits | • Membership Verification | • Employee Verification
@@ -209,44 +218,44 @@ export const generateAgreementHtml = (data: any) => {
       at any time. Vendor shall cooperate fully.`
     },
     {
-      id: 21,
-      title: "21. SUSPENSION RIGHTS",
+      id: 22,
+      title: "22. SUSPENSION RIGHTS",
       content: `Company may suspend Vendor immediately for:
       <div class="bullet-list">
         • Fraud | • Policy Violation | • Brand Misuse | • Data Misuse | • Poor Performance
       </div>`
     },
     {
-      id: 22,
-      title: "22. TERMINATION",
+      id: 23,
+      title: "23. TERMINATION",
       content: `Company may terminate this Agreement immediately without notice for:
       <div class="bullet-list">
         • Fraud | • Fake Reporting | • Criminal Activity | • Brand Damage | • Policy Violation
       </div>`
     },
     {
-      id: 23,
-      title: "23. NO COMPENSATION CLAIM",
+      id: 24,
+      title: "24. NO COMPENSATION CLAIM",
       content: "Vendor shall not claim future earnings, damages or compensation arising from termination."
     },
     {
-      id: 24,
-      title: "24. INDEMNITY",
+      id: 25,
+      title: "25. INDEMNITY",
       content: "Vendor shall indemnify SakhiHub against all claims, damages, penalties and legal costs arising from Vendor actions."
     },
     {
-      id: 25,
-      title: "25. JURISDICTION",
+      id: 26,
+      title: "26. JURISDICTION",
       content: "All disputes shall be subject exclusively to the competent courts located in: <strong>Indore, Madhya Pradesh</strong>. Vendor expressly agrees to such jurisdiction."
     },
     {
-      id: 26,
-      title: "26. DIGITAL ACCEPTANCE",
+      id: 27,
+      title: "27. DIGITAL ACCEPTANCE",
       content: "Portal Acceptance, OTP Verification, E-Signature, Digital Signature or Online Approval shall constitute valid legal acceptance of this Agreement."
     },
     {
-      id: 27,
-      title: "27. FINAL AUTHORITY",
+      id: 28,
+      title: "28. FINAL AUTHORITY",
       content: `Company decisions relating to:
       <div class="bullet-list">
         • Membership Verification | • Incentive Approval | • Employee Verification | • Operational Matters | • Policy Interpretation
@@ -254,68 +263,68 @@ export const generateAgreementHtml = (data: any) => {
       shall be final and binding.`
     },
     {
-      id: 28,
-      title: "28. NO PERMANENT COMMISSION CLAUSE",
+      id: 29,
+      title: "29. NO PERMANENT COMMISSION CLAUSE",
       content: "Vendor acknowledges that commission and incentive structures are policy-based benefits and do not create any vested, permanent or lifetime rights. Company may revise, suspend or discontinue any commission structure at its sole discretion. Vendor shall not claim compensation for such revision."
     },
     {
-      id: 29,
-      title: "29. NO EXCLUSIVE RIGHTS CLAUSE",
+      id: 30,
+      title: "30. NO EXCLUSIVE RIGHTS CLAUSE",
       content: "This Agreement does not grant any exclusive rights over any district, block, tehsil, state, territory, members, groups or employees. Company may appoint any number of vendors, coordinators, agencies or representatives in the same territory."
     },
     {
-      id: 30,
-      title: "30. MEMBER VALIDATION CLAUSE",
+      id: 31,
+      title: "31. MEMBER VALIDATION CLAUSE",
       content: "Only memberships verified and approved by SakhiHub shall be eligible for incentive calculation. Company reserves the right to reject, suspend or cancel memberships without assigning any reason. No incentive shall be payable on rejected, cancelled or disputed memberships."
     },
     {
-      id: 31,
-      title: "31. EMPLOYEE REPLACEMENT LIABILITY",
+      id: 32,
+      title: "32. EMPLOYEE REPLACEMENT LIABILITY",
       content: "If Vendor-referred employees are repeatedly non-performing, fraudulent, absent or non-compliant, Company may require replacement. Failure to provide suitable replacements may result in suspension or termination of Vendor status."
     },
     {
-      id: 32,
-      title: "32. REPUTATION DAMAGE CLAUSE",
+      id: 33,
+      title: "33. REPUTATION DAMAGE CLAUSE",
       content: "Any action, statement, social media post, communication or conduct that harms the reputation, goodwill, credibility or public image of SakhiHub shall constitute a material breach of this Agreement. Company may immediately terminate the Agreement and pursue legal remedies."
     },
     {
-      id: 33,
-      title: "33. NO AUTHORITY TO BIND COMPANY",
+      id: 34,
+      title: "34. NO AUTHORITY TO BIND COMPANY",
       content: "Vendor shall not enter into any agreement, commitment, financial obligation, employment promise, partnership arrangement or legal undertaking on behalf of SakhiHub. Any such action shall be solely at Vendor’s risk and responsibility."
     },
     {
-      id: 34,
-      title: "34. NO CASH COLLECTION CLAUSE",
+      id: 35,
+      title: "35. NO CASH COLLECTION CLAUSE",
       content: "Vendor shall not collect any membership fees, registration charges, donations, service fees or other payments in cash on behalf of SakhiHub unless specifically authorized in writing. Unauthorized collection may result in immediate termination and recovery proceedings."
     },
     {
-      id: 35,
-      title: "35. SURVIVAL OF OBLIGATIONS",
+      id: 36,
+      title: "36. SURVIVAL OF OBLIGATIONS",
       content: "Confidentiality, Data Protection, Recovery Rights, Intellectual Property, Non-Poaching, Jurisdiction, Member Ownership and Group Ownership clauses shall survive termination and remain enforceable."
     },
     {
-      id: 36,
-      title: "36. RIGHT TO MODIFY PROGRAM",
+      id: 37,
+      title: "37. RIGHT TO MODIFY PROGRAM",
       content: "Company may modify, suspend, restructure, merge or discontinue any campaign, incentive model, operational structure, membership program or activity at any time. Vendor shall not claim damages or compensation due to such changes."
     },
     {
-      id: 37,
-      title: "37. FORCEFUL RECOVERY CONSENT",
+      id: 38,
+      title: "38. FORCEFUL RECOVERY CONSENT",
       content: "Vendor agrees that any proven financial loss caused by fraud, fake memberships, data misuse, forged records or policy violations may be recovered from any outstanding incentives, commissions or payable amounts."
     },
     {
-      id: 38,
-      title: "38. DIGITAL RECORDS EVIDENCE CLAUSE",
+      id: 39,
+      title: "39. DIGITAL RECORDS EVIDENCE CLAUSE",
       content: "Vendor agrees that portal logs, attendance records, OTP logs, uploaded documents, digital signatures, communication records and system reports shall constitute valid operational evidence for decision-making."
     },
     {
-      id: 39,
-      title: "39. ENTIRE AGREEMENT CLAUSE",
+      id: 40,
+      title: "40. ENTIRE AGREEMENT CLAUSE",
       content: "This Agreement, portal acceptance, digital declarations, future policy updates and operational guidelines issued by SakhiHub collectively constitute the entire understanding between the parties."
     },
     {
-      id: 40,
-      title: "40. COMPANY FINAL DECISION CLAUSE",
+      id: 41,
+      title: "41. COMPANY FINAL DECISION CLAUSE",
       content: `For matters relating to:
       <div class="bullet-list">
         • Vendor Approval | • Membership Validation | • Incentive Calculation | • Employee Status | • Territory Allocation | • Operational Policies | • Compliance Review
@@ -323,78 +332,78 @@ export const generateAgreementHtml = (data: any) => {
       The decision of SakhiHub shall be final for operational purposes and binding under this Agreement.`
     },
     {
-      id: 41,
-      title: "41. NO EMPLOYMENT CLAIM CLAUSE",
+      id: 42,
+      title: "42. NO EMPLOYMENT CLAIM CLAUSE",
       content: "Vendor acknowledges that no employee engaged under SakhiHub programs shall be deemed an employee, agent, representative or worker of the Vendor. Vendor shall not claim any employment rights, management rights or employer authority over SakhiHub employees."
     },
     {
-      id: 42,
-      title: "42. NO MEMBER DATABASE RIGHTS CLAUSE",
+      id: 43,
+      title: "43. NO MEMBER DATABASE RIGHTS CLAUSE",
       content: "Vendor expressly waives all rights, title and interest in any membership database, lead database, women groups, beneficiary records, campaign records or contact information generated through SakhiHub activities. All such information shall remain exclusive property of SakhiHub."
     },
     {
-      id: 43,
-      title: "43. NON-COMPETE CLAUSE",
+      id: 44,
+      title: "44. NON-COMPETE CLAUSE",
       content: "During the term of this Agreement and for a period of 24 months after termination, Vendor shall not use SakhiHub training material, operational models, campaign structures, databases, member networks or confidential information to establish or support a competing program."
     },
     {
-      id: 44,
-      title: "44. VENDOR ACCOUNT SUSPENSION CLAUSE",
+      id: 45,
+      title: "45. VENDOR ACCOUNT SUSPENSION CLAUSE",
       content: "SakhiHub reserves the right to temporarily suspend Vendor access, Vendor Panel access, reporting rights, incentive eligibility or operational privileges whenever policy violations, investigations or operational concerns arise. No compensation shall be payable during suspension."
     },
     {
-      id: 45,
-      title: "45. NO ASSIGNMENT CLAUSE",
+      id: 46,
+      title: "46. NO ASSIGNMENT CLAUSE",
       content: "Vendor shall not transfer, assign, sublicense, sell or delegate its rights or obligations under this Agreement to any third party without prior written approval from SakhiHub."
     },
     {
-      id: 46,
-      title: "46. RECORD RETENTION CLAUSE",
+      id: 47,
+      title: "47. RECORD RETENTION CLAUSE",
       content: "Vendor shall maintain accurate operational records, membership records and campaign records for a minimum period of three (3) years and shall provide such records whenever requested by SakhiHub."
     },
     {
-      id: 47,
-      title: "47. COMPLIANCE WITH COMPANY POLICIES",
+      id: 48,
+      title: "48. COMPLIANCE WITH COMPANY POLICIES",
       content: "Vendor agrees to comply with all present and future policies, SOPs, operational manuals, portal guidelines, reporting formats and instructions issued by SakhiHub from time to time. Such policies shall form an integral part of this Agreement."
     },
     {
-      id: 48,
-      title: "48. NO PUBLIC REPRESENTATION CLAUSE",
+      id: 49,
+      title: "49. NO PUBLIC REPRESENTATION CLAUSE",
       content: "Vendor shall not represent itself as owner, co-owner, founder, co-founder, franchise owner, state head, district owner or legal authority of SakhiHub. Vendor may only represent itself as an authorized Vendor / NGO Partner of SakhiHub."
     },
     {
-      id: 49,
-      title: "49. SEVERABILITY CLAUSE",
+      id: 50,
+      title: "50. SEVERABILITY CLAUSE",
       content: "If any provision of this Agreement is held invalid, illegal or unenforceable by a competent authority, the remaining provisions shall continue in full force and effect."
     },
     {
-      id: 50,
-      title: "50. BINDING EFFECT CLAUSE",
+      id: 51,
+      title: "51. BINDING EFFECT CLAUSE",
       content: "This Agreement shall be binding upon the Vendor, its representatives, successors, assigns, office bearers, trustees, directors, employees and authorized representatives. All obligations contained herein shall continue to apply as permitted by law."
     },
     {
-      id: 51,
-      title: "51. ANTI-BRIBERY & ANTI-CORRUPTION CLAUSE",
+      id: 52,
+      title: "52. ANTI-BRIBERY & ANTI-CORRUPTION CLAUSE",
       content: "Vendor shall not offer, promise, authorize or provide any unlawful payment, benefit, gift, commission or advantage in connection with SakhiHub operations. Any violation shall result in immediate termination."
     },
     {
-      id: 52,
-      title: "52. GOVERNMENT COMPLIANCE CLAUSE",
+      id: 53,
+      title: "53. GOVERNMENT COMPLIANCE CLAUSE",
       content: "Vendor shall comply with all applicable laws, regulations, registrations, tax requirements and governmental directions applicable to its operations. Any liability arising from Vendor non-compliance shall remain Vendor's responsibility."
     },
     {
-      id: 53,
-      title: "53. NO PARTNERSHIP PROPERTY RIGHTS CLAUSE",
+      id: 54,
+      title: "54. NO PARTNERSHIP PROPERTY RIGHTS CLAUSE",
       content: "Vendor shall not claim ownership, tenancy rights, possession rights or proprietary rights over any SakhiHub office, infrastructure, portal, system, territory, project, database or operational asset."
     },
     {
-      id: 54,
-      title: "54. LIMITATION OF LIABILITY CLAUSE",
+      id: 55,
+      title: "55. LIMITATION OF LIABILITY CLAUSE",
       content: "Under no circumstances shall SakhiHub be liable for indirect, consequential, incidental, special or business losses suffered by Vendor. Maximum liability, if any, shall not exceed the amount payable to Vendor under this Agreement."
     },
     {
-      id: 55,
-      title: "55. VOLUNTARY EXECUTION CLAUSE",
+      id: 56,
+      title: "56. VOLUNTARY EXECUTION CLAUSE",
       content: "Vendor confirms that this Agreement has been read, understood and accepted voluntarily without coercion, undue influence or misrepresentation and shall be legally binding upon acceptance through signature, OTP verification, digital signature or portal approval."
     }
   ];
@@ -479,7 +488,7 @@ export const generateAgreementHtml = (data: any) => {
         }
 
         .clause-container {
-          page-break-inside: avoid;
+          page-break-inside: auto;
           margin-bottom: 8px;
         }
 
@@ -488,6 +497,8 @@ export const generateAgreementHtml = (data: any) => {
           margin-bottom: 3px;
           font-size: 11px;
           text-transform: uppercase;
+          page-break-after: avoid;
+          break-after: avoid;
         }
 
         .clause {
