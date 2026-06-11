@@ -24,7 +24,7 @@ export function getRequiredDocs(role: string, vendorType?: string, designation?:
   let docs = [...(REQUIRED_DOCS_BY_ROLE[role] || [])];
   
   if (role === 'employee' && designation) {
-    if (designation === 'District Coordinator') {
+    if (designation === 'District Coordinator' || designation === 'Trainer') {
       docs.push('graduationCertificate');
     } else {
       docs.push('certificate12th');

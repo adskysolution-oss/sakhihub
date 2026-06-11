@@ -575,6 +575,7 @@ export default function EmployeeManagement() {
                                  <option value="">Select Designation...</option>
                                  <option value="Block Employee">Block Employee</option>
                                  <option value="District Coordinator">District Coordinator</option>
+                                 <option value="Trainer">Trainer</option>
                                  <option value="Volunteer">Volunteer</option>
                                  <option value="Delivery Partner">Delivery Partner</option>
                                  <option value="Other">Other</option>

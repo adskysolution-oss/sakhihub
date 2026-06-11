@@ -448,7 +448,7 @@ export default function EmployeeOnboarding() {
               {/* Remaining Standard Documents (Resume, Passport Photo, Certificates) */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {(() => {
-                  const extraDocs = profile?.designation === 'District Coordinator' ? ['graduationCertificate'] : ['certificate12th'];
+                  const extraDocs = (profile?.designation === 'District Coordinator' || profile?.designation === 'Trainer') ? ['graduationCertificate'] : ['certificate12th'];
                   return [...extraDocs, 'resume', 'passportPhoto'].map((type) => (
                     <DocumentCard
                       key={type}
