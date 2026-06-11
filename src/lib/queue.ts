@@ -101,8 +101,8 @@ export function resolveMergeTags(content: string, user: any): string {
   if (!content) return '';
   let resolved = content;
   
-  const joiningDateFormatted = user.joiningDate 
-    ? new Date(user.joiningDate).toLocaleDateString()
+  const joiningDateFormatted = (user.joiningDate || user.createdAt)
+    ? new Date(user.joiningDate || user.createdAt).toLocaleDateString('en-IN')
     : 'N/A';
 
   const tags: Record<string, string> = {

@@ -168,7 +168,7 @@ export async function GET(req: NextRequest) {
 
     const counts = await memberStatsService(baseMatch, activeStatus, activePaymentStatus);
 
-    const data = await WomenMember.aggregate([
+    const rawMembers = await WomenMember.aggregate([
       { $match: baseMatch },
       // Deduplicate by mobile
       {
@@ -200,7 +200,7 @@ export async function GET(req: NextRequest) {
     ]).allowDiskUse(true);
 
     // Populate data relations
-    const populatedMembers = await WomenMember.populate(data, [
+    const populatedMembers = await WomenMember.populate(rawMembers, [
       { path: 'groupId', select: 'groupName village district', model: Group },
       { path: 'assignedEmployeeId', select: 'fullName mobile employeeId' },
       {
@@ -218,7 +218,7 @@ export async function GET(req: NextRequest) {
     const memberIds = membersList.map((m: any) => m._id);
     const memberships = await Membership.find({ memberId: { $in: memberIds } }).lean();
 
-    const data = membersList.map((member: any) => {
+    const resolvedMembers = membersList.map((member: any) => {
       const membership = memberships.find((m: any) => m.memberId.toString() === member._id.toString());
       const employee = member.assignedEmployeeId || member.userId?.parentVendorId;
 
@@ -234,7 +234,7 @@ export async function GET(req: NextRequest) {
 
     return Response.json({
       success: true,
-      data,
+      data: resolvedMembers,
       counts
     });
   } catch (error: any) {
