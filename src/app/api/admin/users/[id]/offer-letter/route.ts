@@ -40,7 +40,9 @@ export async function POST(
 
     // Generate Offer Letter ID
     const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const offerLetterId = `SH-OFR-${randomStr}`;
+    const offerLetterId = user.designation === 'Trainer'
+      ? `SH/TRN/2026/${randomStr}`
+      : `SH-OFR-${randomStr}`;
 
     const offerLetterDetails = {
       employeeId: user._id,
