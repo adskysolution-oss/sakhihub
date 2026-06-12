@@ -7,8 +7,24 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 import ChildProfileView from "@/components/features/dashboard/ChildProfileView";
+import { useLanguage } from "@/context/LanguageContext";
+
+const getStatusBadge = (status: string) => {
+  const map: Record<string, { label: string; className: string }> = {
+    pending: { label: 'Pending', className: 'bg-gray-100 text-gray-500' },
+    documents_uploaded: { label: 'Docs Submitted', className: 'bg-blue-100 text-blue-600' },
+    under_review: { label: 'Under Review', className: 'bg-amber-100 text-amber-600' },
+    reupload_required: { label: 'Re-upload', className: 'bg-red-100 text-red-600' },
+    approved: { label: 'Approved', className: 'bg-green-100 text-green-600' },
+    active: { label: 'Active', className: 'bg-green-100 text-green-600' },
+    rejected: { label: 'Rejected', className: 'bg-red-100 text-red-600' },
+    suspended: { label: 'Suspended', className: 'bg-gray-200 text-gray-600' },
+  };
+  return map[status] || { label: status, className: 'bg-gray-100 text-gray-500' };
+};
 
 export default function VendorMembers() {
+  const { t } = useLanguage();
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
@@ -100,8 +116,8 @@ export default function VendorMembers() {
                         <MapPin size={12} className="inline mr-1 text-primary" /> {member.village}, {member.pincode}
                       </td>
                       <td className="p-5">
-                         <span className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${member.membershipStatus === 'paid' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
-                           {member.membershipStatus}
+                         <span className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${member.membershipStatus?.toLowerCase() === 'paid' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
+                           {t('status.' + member.membershipStatus?.toLowerCase(), member.membershipStatus)}
                          </span>
                       </td>
                       <td className="p-5">
@@ -111,9 +127,14 @@ export default function VendorMembers() {
                         </div>
                       </td>
                       <td className="p-5">
-                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${member.accountStatus === 'active' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>
-                          {member.accountStatus}
-                        </span>
+                        {(() => {
+                          const badge = getStatusBadge(member.accountStatus);
+                          return (
+                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${badge.className}`}>
+                              {t('status.' + member.accountStatus, badge.label)}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="p-5">
                         <button 

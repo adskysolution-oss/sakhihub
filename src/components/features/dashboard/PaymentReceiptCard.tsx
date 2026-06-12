@@ -4,8 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { IndianRupee, FileText, Download, X } from 'lucide-react';
 import axios from 'axios';
 import PaymentSlip from '@/components/shared/PaymentSlip';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function PaymentReceiptCard() {
+  const { t } = useLanguage();
   const [receipts, setReceipts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReceipt, setSelectedReceipt] = useState<any | null>(null);
@@ -33,7 +35,7 @@ export default function PaymentReceiptCard() {
   return (
     <>
       <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
-        <h2 className="text-xl font-black text-secondary mb-6">Payment Receipts</h2>
+        <h2 className="text-xl font-black text-secondary mb-6">{t('onboarding.paymentReceipts', 'Payment Receipts')}</h2>
         <div className="flex flex-col gap-3">
           {receipts.map((receipt, i) => (
             <button 
@@ -46,13 +48,13 @@ export default function PaymentReceiptCard() {
                 <FileText size={20} className="text-primary group-hover:text-white shrink-0" />
                 <div>
                   <span className="font-bold text-sm block">
-                    {receipt.type === 'subscription' ? 'Platform Subscription' : 'Security Deposit'}
+                    {receipt.type === 'subscription' ? t('onboarding.platformSubscription', 'Platform Subscription') : t('onboarding.securityDeposit', 'Security Deposit')}
                   </span>
                   <span className="text-[10px] text-gray-400 group-hover:text-white/70 font-bold uppercase tracking-widest mt-0.5 block flex items-center gap-1">
                     {receipt.amount > 0 ? (
                       <><IndianRupee size={10} />{receipt.amount}</>
                     ) : (
-                      'MANUAL PAID'
+                      t('onboarding.manualPaid', 'MANUAL PAID')
                     )}
                     <span className="mx-1">•</span>
                     {new Date(receipt.paidAt || receipt.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}

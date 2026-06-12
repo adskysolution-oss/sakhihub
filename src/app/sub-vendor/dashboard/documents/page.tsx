@@ -12,8 +12,10 @@ import { REQUIRED_DOCS_BY_ROLE, getDocComplianceSummary, getRequiredDocsForUser,
 import DocumentCard from '@/components/features/dashboard/DocumentCard';
 import { useDocumentFlow } from '@/hooks/useDocumentFlow';
 import PaymentReceiptCard from "@/components/features/dashboard/PaymentReceiptCard";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function SubVendorDocuments() {
+  const { t } = useLanguage();
   const [documents, setDocuments] = useState<any>({});
   const [vendorType, setVendorType] = useState<string>('individual');
   const [digitalCertificates, setDigitalCertificates] = useState<any[]>([]);
@@ -84,8 +86,8 @@ export default function SubVendorDocuments() {
     <DashboardLayout>
       <div className="flex flex-col gap-8">
         <header>
-          <h1 className="text-3xl font-black text-secondary">Document Center</h1>
-          <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Verify your identity and legal compliance</p>
+          <h1 className="text-3xl font-black text-secondary">{t('onboarding.documentsTitle', 'Document Center')}</h1>
+          <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">{t('onboarding.documentsSubtitle', 'Verify your identity and legal compliance')}</p>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -114,11 +116,11 @@ export default function SubVendorDocuments() {
                   <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
                     <ShieldCheck size={28} />
                   </div>
-                  <h2 className="text-xl font-black">Verification Level</h2>
+                  <h2 className="text-xl font-black">{t('onboarding.verificationLevel', 'Verification Level')}</h2>
                 </div>
                 <div className="flex flex-col gap-4">
                   <div className="flex justify-between items-end mb-2">
-                    <span className="text-sm font-bold opacity-60 uppercase tracking-widest">Compliance Progress</span>
+                    <span className="text-sm font-bold opacity-60 uppercase tracking-widest">{t('onboarding.complianceProgress', 'Compliance Progress')}</span>
                     <span className="text-2xl font-black">{Math.round((compliance.uploaded / compliance.total) * 100)}%</span>
                   </div>
                   <div className="h-3 bg-white/10 rounded-full overflow-hidden">
@@ -130,33 +132,33 @@ export default function SubVendorDocuments() {
                   <div className="grid grid-cols-2 gap-3 mt-4">
                     <div className="p-3 bg-white/10 rounded-2xl text-center">
                       <p className="text-2xl font-black">{compliance.uploaded}</p>
-                      <p className="text-[9px] font-bold uppercase tracking-widest opacity-60 mt-1">Uploaded</p>
+                      <p className="text-[9px] font-bold uppercase tracking-widest opacity-60 mt-1">{t('onboarding.uploaded', 'Uploaded')}</p>
                     </div>
                     <div className="p-3 bg-white/10 rounded-2xl text-center">
                       <p className="text-2xl font-black">{compliance.approved}</p>
-                      <p className="text-[9px] font-bold uppercase tracking-widest opacity-60 mt-1">Approved</p>
+                      <p className="text-[9px] font-bold uppercase tracking-widest opacity-60 mt-1">{t('onboarding.approved', 'Approved')}</p>
                     </div>
                   </div>
                 </div>
                 <p className="text-xs text-white/60 mt-8 font-medium leading-relaxed">
-                  Your account will be fully activated for operations once all mandatory documents are verified by the Admin.
+                  {t('onboarding.vendorDocsDesc', 'Your account will be fully activated for operations once all mandatory documents are verified by the Admin.')}
                 </p>
               </div>
             </div>
 
             <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
               <h5 className="text-sm font-black text-secondary uppercase tracking-widest mb-4 flex items-center gap-2">
-                <AlertCircle size={16} className="text-primary" /> Security Note
+                <AlertCircle size={16} className="text-primary" /> {t('onboarding.securityNote', 'Security Note')}
               </h5>
               <p className="text-xs text-gray-400 font-bold leading-relaxed">
-                Your data is stored securely using enterprise-grade encryption. We only use these documents for government compliance and NGO verification purposes.
+                {t('onboarding.securityNoteDesc', 'Your data is stored securely using enterprise-grade encryption. We only use these documents for government compliance and NGO verification purposes.')}
               </p>
             </div>
 
             <PaymentReceiptCard />
 
             <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
-              <h2 className="text-xl font-black text-secondary mb-6">Digital Certificates</h2>
+              <h2 className="text-xl font-black text-secondary mb-6">{t('onboarding.digitalCertificates', 'Digital Certificates')}</h2>
               <div className="flex flex-col gap-3">
                 <Link 
                   href="/id-card"
@@ -164,7 +166,7 @@ export default function SubVendorDocuments() {
                 >
                   <div className="flex items-center gap-4">
                     <BadgeCheck size={20} className="text-primary group-hover:text-white" />
-                    <span className="font-bold text-sm">Digital ID Card (Live View)</span>
+                    <span className="font-bold text-sm">{t('onboarding.digitalIdCardLiveView', 'Digital ID Card (Live View)')}</span>
                   </div>
                   <ChevronRight size={18} className="opacity-40 group-hover:opacity-100" />
                 </Link>
@@ -172,16 +174,16 @@ export default function SubVendorDocuments() {
                   <div className="flex items-center gap-4">
                     <Heart size={20} className="text-teal-400" />
                     <div>
-                      <span className="font-bold text-sm text-teal-800">ABHA Card (Live View / Create)</span>
+                      <span className="font-bold text-sm text-teal-800">{t('onboarding.abhaCardLiveView', 'ABHA Card (Live View / Create)')}</span>
                       <p className="text-[10px] text-teal-600 font-bold uppercase tracking-widest mt-1 flex items-center gap-1">
-                        <AlertCircle size={12} /> Coming Soon (Locked)
+                        <AlertCircle size={12} /> {t('onboarding.comingSoonLocked', 'Coming Soon (Locked)')}
                       </p>
                     </div>
                   </div>
                 </div>
                 {[
-                  { id: 'auth_letter', title: 'Appointment & Agreement Letter', icon: FileText },
-                  { id: 'vendor_code_cert', title: 'Sub-Vendor Certificate', icon: ShieldCheck }
+                  { id: 'auth_letter', titleKey: 'onboarding.appointmentAgreementLetter', defaultTitle: 'Appointment & Agreement Letter', icon: FileText },
+                  { id: 'vendor_code_cert', titleKey: 'onboarding.subVendorCertificate', defaultTitle: 'Sub-Vendor Certificate', icon: ShieldCheck }
                 ].map((expectedCert, idx) => {
                   const certData = digitalCertificates.find(c => c.type === expectedCert.id);
                   if (certData && certData.visibleToVendor !== false) {
@@ -195,7 +197,7 @@ export default function SubVendorDocuments() {
                       >
                         <div className="flex items-center gap-4">
                           <expectedCert.icon size={20} className="text-green-600 group-hover:text-white" />
-                          <span className="font-bold text-sm">{certData.title || expectedCert.title}</span>
+                          <span className="font-bold text-sm">{t(expectedCert.titleKey, expectedCert.defaultTitle)}</span>
                         </div>
                         <Download size={18} className="opacity-40 group-hover:opacity-100" />
                       </a>
@@ -206,9 +208,9 @@ export default function SubVendorDocuments() {
                         <div className="flex items-center gap-4">
                           <expectedCert.icon size={20} className="text-red-400" />
                           <div>
-                            <span className="font-bold text-sm text-red-800 line-through decoration-red-300">{expectedCert.title}</span>
+                            <span className="font-bold text-sm text-red-800 line-through decoration-red-300">{t(expectedCert.titleKey, expectedCert.defaultTitle)}</span>
                             <p className="text-[10px] text-red-600 font-bold uppercase tracking-widest mt-1 flex items-center gap-1">
-                              <AlertCircle size={12} /> Not Generated Yet
+                              <AlertCircle size={12} /> {t('onboarding.notGeneratedYet', 'Not Generated Yet')}
                             </p>
                           </div>
                         </div>
@@ -226,7 +228,7 @@ export default function SubVendorDocuments() {
                     <CheckCircle size={20} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-black text-green-800">Agreement Generated Successfully</h3>
+                    <h3 className="text-sm font-black text-green-800">{t('onboarding.agreementGeneratedSuccessfully', 'Agreement Generated Successfully')}</h3>
                     <p className="text-xs text-green-600 font-bold mt-1">
                       ID: {digitalCertificates.find(c => c.type === 'auth_letter')?.agreementId || 'N/A'} • {new Date(digitalCertificates.find(c => c.type === 'auth_letter')?.createdAt || Date.now()).toLocaleDateString()}
                     </p>
@@ -245,10 +247,10 @@ export default function SubVendorDocuments() {
               return (
                 <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft mt-8">
                   <h2 className="text-xl font-black text-secondary mb-6 flex items-center gap-2">
-                    <FileText size={24} className="text-primary" /> Signed Agreement Upload
+                    <FileText size={24} className="text-primary" /> {t('onboarding.signedAgreementUpload', 'Signed Agreement Upload')}
                   </h2>
                   <p className="text-xs text-gray-400 font-bold mb-6 leading-relaxed">
-                    Please download your <span className="text-primary">Appointment & Agreement Letter</span> from the Digital Certificates section above, sign it physically or digitally, and upload the scanned copy here.
+                    {t('onboarding.signedAgreementUploadDesc', 'Please download your Appointment & Agreement Letter from the Digital Certificates section above, sign it physically or digitally, and upload the scanned copy here.')}
                   </p>
                   
                   {hasUploaded ? (
@@ -259,9 +261,9 @@ export default function SubVendorDocuments() {
                             {isLocked ? <ShieldCheck size={20} /> : <FileText size={20} />}
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-secondary">Signed Agreement Uploaded</p>
+                            <p className="text-sm font-bold text-secondary">{t('onboarding.signedCopyUploaded', 'Signed Copy Uploaded')}</p>
                             <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">
-                              Status: {isLocked ? 'Approved & Locked' : authLetter.status}
+                              Status: {isLocked ? t('onboarding.approvedLocked', 'Approved & Locked') : authLetter.status}
                             </p>
                           </div>
                         </div>
@@ -272,18 +274,18 @@ export default function SubVendorDocuments() {
                       
                       {!isLocked ? (
                         <label className={`w-full py-3 rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest cursor-pointer transition-all border-2 border-primary/20 text-primary hover:bg-primary/5 ${uploadingDocId === authLetter._id ? 'opacity-50 cursor-wait' : ''}`}>
-                          {uploadingDocId === authLetter._id ? 'Uploading...' : 'Replace Signed Document'}
+                          {uploadingDocId === authLetter._id ? t('common.uploading', 'Uploading...') : t('onboarding.replaceSignedDocument', 'Replace Signed Document')}
                           <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp" disabled={uploadingDocId === authLetter._id} onChange={(e) => { if(e.target.files?.[0]) handleSignedDocumentUpload(e.target.files[0], authLetter._id); }} />
                         </label>
                       ) : (
                         <p className="text-[10px] text-green-600 font-bold uppercase tracking-widest text-center mt-2 flex items-center justify-center gap-2">
-                          <CheckCircle size={12} /> Document verified and locked
+                          <CheckCircle size={12} /> {t('onboarding.documentVerifiedAndLocked', 'Document verified and locked')}
                         </p>
                       )}
                     </div>
                   ) : (
                     <label className={`w-full py-4 bg-primary text-white rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest cursor-pointer transition-all shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 ${uploadingDocId === authLetter._id ? 'opacity-50 cursor-wait' : ''}`}>
-                      {uploadingDocId === authLetter._id ? 'Uploading...' : 'Upload Signed Agreement'}
+                      {uploadingDocId === authLetter._id ? t('common.uploading', 'Uploading...') : t('onboarding.uploadSignedAgreement', 'Upload Signed Agreement')}
                       <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp" disabled={uploadingDocId === authLetter._id} onChange={(e) => { if(e.target.files?.[0]) handleSignedDocumentUpload(e.target.files[0], authLetter._id); }} />
                     </label>
                   )}
@@ -296,3 +298,4 @@ export default function SubVendorDocuments() {
     </DashboardLayout>
   );
 }
+

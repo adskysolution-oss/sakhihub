@@ -48,6 +48,20 @@ export default function DocumentCard({
   const statusMeta = DOCUMENT_STATUS_MAP[status] || DOCUMENT_STATUS_MAP.pending;
   const DocIcon = config.icon;
 
+  const statusTranslations: Record<string, string> = {
+    approved: t('status.approved', 'Approved'),
+    exception_approved: t('onboarding.exceptionApproved', 'Exception Approved'),
+    rejected: t('status.rejected', 'Rejected'),
+    reupload_required: t('status.reupload_required', 'Re-upload Required'),
+    under_review: t('status.under_review', 'Under Review'),
+    documents_uploaded: t('status.documents_uploaded', 'Submitted'),
+    uploaded: t('onboarding.uploaded', 'Uploaded'),
+    exception_requested: t('onboarding.exceptionRequested', 'Exception Requested'),
+    exception_responded: t('onboarding.exceptionReplySent', 'Exception Reply Sent'),
+    on_hold: t('status.on_hold', 'On Hold'),
+    pending: t('status.pending', 'Pending Upload')
+  };
+
   return (
     <div className={`p-6 rounded-[32px] border-2 transition-all relative overflow-hidden group ${
       status === 'approved' || status === 'exception_approved' ? 'border-green-100 bg-green-50/30' :
@@ -69,11 +83,11 @@ export default function DocumentCard({
         <DocIcon size={24} />
       </div>
 
-      <h3 className="text-lg font-black text-secondary mb-1">{config.label}</h3>
+      <h3 className="text-lg font-black text-secondary mb-1">{t(`onboarding.${type}_label`, config.label)}</h3>
       <p className="text-[10px] text-primary font-black uppercase tracking-widest mb-2 flex items-center gap-1.5">
         <FileText size={12} /> PDF, JPG, PNG, WEBP
       </p>
-      <p className="text-xs text-gray-400 font-bold leading-relaxed mb-4">{config.desc}</p>
+      <p className="text-xs text-gray-400 font-bold leading-relaxed mb-4">{t(`onboarding.${type}_desc`, config.desc)}</p>
       
       {['exception_requested', 'on_hold', 'exception_responded', 'exception_approved'].includes(status) && (
         <div className={`mb-4 p-3 rounded-2xl border flex items-start gap-2 ${status === 'exception_approved' ? 'bg-green-50 border-green-100' : 'bg-amber-50 border-amber-100'}`}>
@@ -84,7 +98,7 @@ export default function DocumentCard({
           )}
           <div className="flex-1">
              <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md mb-1 inline-block ${status === 'exception_approved' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-               {status === 'on_hold' ? t('status.on_hold', 'On Hold') : status === 'exception_responded' ? t('onboarding.exceptionReplySent', 'Exception Reply Sent') : status === 'exception_approved' ? t('onboarding.exceptionApproved', 'Exception Approved') : t('onboarding.exceptionRequested', 'Exception Requested')}
+                {status === 'on_hold' ? t('status.on_hold', 'On Hold') : status === 'exception_responded' ? t('onboarding.exceptionReplySent', 'Exception Reply Sent') : status === 'exception_approved' ? t('onboarding.exceptionApproved', 'Exception Approved') : t('onboarding.exceptionRequested', 'Exception Requested')}
              </span>
              {docInfo?.exceptionReason && (
                 <p className={`text-[10px] font-bold italic mt-1 ${status === 'exception_approved' ? 'text-green-800' : 'text-amber-800'}`}>{t('onboarding.userLabel', 'User')}: {docInfo.exceptionReason}</p>
@@ -114,10 +128,10 @@ export default function DocumentCard({
                     {t('onboarding.uploaded', 'Uploaded')}
                   </span>
                   <span className={`text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${statusMeta.className}`}>
-                    {statusMeta.label}
+                    {statusTranslations[status] || statusMeta.label}
                   </span>
                 </div>
-                <p className="text-sm font-black text-secondary truncate">{docInfo.fileName || config.label}</p>
+                <p className="text-sm font-black text-secondary truncate">{docInfo.fileName || t(`onboarding.${type}_label`, config.label)}</p>
                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">{formatFileSize(docInfo.fileSize)}</p>
                 {docInfo.uploadedAt && (
                   <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
