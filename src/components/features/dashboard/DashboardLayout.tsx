@@ -12,7 +12,8 @@ import {
   Globe,
   ShieldCheck,
   User,
-  AlertCircle
+  AlertCircle,
+  ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -27,11 +28,26 @@ import { useLanguage } from '@/context/LanguageContext';
 import { getProxiedImageUrl } from '@/utils/imageUrl';
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { t } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [langOpen, setLangOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const pathname = usePathname();
+
+  const languages = [
+    { code: 'en', name: 'English' },
+    { code: 'hi', name: 'हिन्दी' },
+    { code: 'mr', name: 'मराठी' },
+    { code: 'bn', name: 'বাংলা' },
+    { code: 'ta', name: 'தமிழ்' },
+    { code: 'te', name: 'తెలుగు' },
+    { code: 'gu', name: 'ગુજરાતી' },
+    { code: 'kn', name: 'ಕನ್ನಡ' },
+    { code: 'ml', name: 'മലയാളം' },
+    { code: 'pa', name: 'ਪੰਜਾਬੀ' },
+    { code: 'or', name: 'ଓଡ଼ିଆ' },
+  ];
   const router = useRouter();
   const navRef = useRef<HTMLDivElement>(null);
 
@@ -326,6 +342,46 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
           </div>
 
           <div className="flex items-center gap-3 md:gap-6">
+            {/* Language Selector */}
+            <div className="relative">
+              <button
+                className="flex items-center gap-1.5 p-2 bg-gray-50 text-gray-600 rounded-xl hover:bg-gray-100 transition-colors border border-gray-100 cursor-pointer"
+                onClick={() => setLangOpen(!langOpen)}
+              >
+                <Globe size={18} />
+                <span className="text-xs font-bold uppercase hidden sm:block">
+                  {languages.find((l) => l.code === language)?.name}
+                </span>
+                <ChevronDown size={14} className={`transition-transform duration-300 ${langOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              <AnimatePresence>
+                {langOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute top-full right-0 mt-2 bg-white rounded-xl shadow-xl z-[100] w-[140px] border border-gray-100 max-h-[300px] overflow-y-auto overflow-x-hidden"
+                  >
+                    {languages.map((l) => (
+                      <button
+                        key={l.code}
+                        onClick={() => {
+                          setLanguage(l.code as any);
+                          setLangOpen(false);
+                        }}
+                        className={`w-full px-4 py-3 text-left text-xs font-bold transition-colors border-none bg-transparent cursor-pointer ${
+                          language === l.code ? 'bg-primary/5 text-primary' : 'text-gray-500 hover:bg-gray-50 hover:text-secondary'
+                        }`}
+                      >
+                        {l.name}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <button className="relative p-2 text-gray-500 hover:bg-gray-50 rounded-full transition-colors">
               <Bell size={20} />
               <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-white"></span>
