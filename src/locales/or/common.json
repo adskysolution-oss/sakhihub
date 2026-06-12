@@ -1382,7 +1382,8 @@
     "documents_uploaded": "ଡକସ୍ ଦାଖଲ |",
     "reupload_required": "ପୁନ upload- ଅପଲୋଡ୍ କରନ୍ତୁ |",
     "in_progress": "ପ୍ରଗତିରେ",
-    "resolved": "ସମାଧାନ ହୋଇଛି"
+    "resolved": "ସମାଧାନ ହୋଇଛି",
+    "subPaid": "Sub Paid"
   },
   "members": {
     "title": "ସଦସ୍ୟ ଡିରେକ୍ଟୋରୀ |",
@@ -1602,5 +1603,56 @@
   },
   "campaign": "ଅଭିଯାନ |",
   "hero_title": "ହିରୋ ଆଖ୍ୟା |",
-  "hero_subtitle": "ହିରୋ ସବ୍ଟାଇଟ୍ |"
+  "hero_subtitle": "ହିରୋ ସବ୍ଟାଇଟ୍ |",
+  "vendors": {
+    "title": "Vendor Network",
+    "subtitle": "Manage your primary field partners and legal entities.",
+    "registerNew": "Register New Vendor",
+    "searchPlaceholder": "Search by vendor name, code, or mobile...",
+    "sNo": "S.No.",
+    "profile": "Vendor Profile",
+    "codeRegion": "Code & Region",
+    "docCompliance": "Document Compliance",
+    "paymentStatus": "Payment Status",
+    "status": "Status",
+    "actions": "Actions",
+    "loading": "Syncing with vendor registry...",
+    "emptyState": "No vendors found matching your search."
+  },
+  "subVendors": {
+    "title": "Sub-Vendor Network",
+    "subtitle": "Manage secondary partners and regional field coordinators.",
+    "addBtn": "Add Sub-Vendor",
+    "searchPlaceholder": "Search by sub-vendor name, code, or parent vendor...",
+    "sNo": "S.No.",
+    "subVendor": "Sub-Vendor",
+    "parentVendor": "Parent Vendor",
+    "docCompliance": "Document Compliance",
+    "paymentStatus": "Payment Status",
+    "status": "Status",
+    "actions": "Actions",
+    "loading": "Loading partner network...",
+    "emptyState": "No sub-vendors found."
+  },
+  "employees": {
+    "title": "Employee Force",
+    "subtitle": "Verify credentials and manage regional field staff hierarchy.",
+    "addBtn": "Add New Employee",
+    "searchPlaceholder": "Search by name, ID, mobile...",
+    "sNo": "S.No.",
+    "profile": "Employee Profile",
+    "parentNetwork": "Parent Network",
+    "compliance": "Compliance",
+    "paymentStatus": "Payment Status",
+    "status": "Status",
+    "actions": "Actions",
+    "loading": "Syncing field records...",
+    "emptyState": "No employees found."
+  },
+  "filters": {
+    "agreementAll": "Agreement: All",
+    "offerLetterAll": "Offer Letter: All",
+    "generated": "Generated",
+    "notGenerated": "Not Generated"
+  }
 }

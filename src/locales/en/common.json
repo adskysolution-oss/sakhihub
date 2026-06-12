@@ -1380,7 +1380,8 @@
     "documents_uploaded": "Docs Submitted",
     "reupload_required": "Re-upload",
     "in_progress": "In Progress",
-    "resolved": "Resolved"
+    "resolved": "Resolved",
+    "subPaid": "Sub Paid"
   },
   "members": {
     "title": "Members Directory",

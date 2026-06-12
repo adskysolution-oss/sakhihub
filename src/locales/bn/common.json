@@ -1382,7 +1382,8 @@
     "documents_uploaded": "ডক্স জমা দেওয়া হয়েছে",
     "reupload_required": "পুনরায় আপলোড করুন",
     "in_progress": "চলছে",
-    "resolved": "সমাধান করা হয়েছে"
+    "resolved": "সমাধান করা হয়েছে",
+    "subPaid": "সাব পেইড"
   },
   "members": {
     "title": "সদস্যদের ডিরেক্টরি",

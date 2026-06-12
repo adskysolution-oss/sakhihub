@@ -1382,7 +1382,8 @@
     "documents_uploaded": "दस्तऐवज सबमिट केले",
     "reupload_required": "पुन्हा अपलोड करा",
     "in_progress": "प्रगतीपथावर आहे",
-    "resolved": "निराकरण केले"
+    "resolved": "निराकरण केले",
+    "subPaid": "सब सशुल्क"
   },
   "members": {
     "title": "सदस्यांची निर्देशिका",

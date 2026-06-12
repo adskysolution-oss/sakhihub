@@ -166,7 +166,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const counts = await memberStatsService(baseMatch, activeStatus, activePaymentStatus);
+    const counts = await memberStatsService(baseMatch, activeStatus || undefined, activePaymentStatus || undefined);
 
     const rawMembers = await WomenMember.aggregate([
       { $match: baseMatch },

@@ -1382,7 +1382,8 @@
     "documents_uploaded": "दस्तावेज़ प्रस्तुत किए गए",
     "reupload_required": "पुन: अपलोड",
     "in_progress": "प्रगति पर है",
-    "resolved": "हल किया"
+    "resolved": "हल किया",
+    "subPaid": "उप भुगतान"
   },
   "members": {
     "title": "सदस्य निर्देशिका",

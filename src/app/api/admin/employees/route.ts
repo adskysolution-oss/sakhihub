@@ -82,7 +82,7 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const counts = await employeeStatsService(baseMatch, activeStatus, activePaymentStatus);
+    const counts = await employeeStatsService(baseMatch, activeStatus || undefined, activePaymentStatus || undefined);
 
     const data = await User.find({
       ...baseMatch,

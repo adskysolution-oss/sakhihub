@@ -1,15 +1,21 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Application from '@/models/Application';
+import Vacancy from '@/models/Vacancy';
+
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     await connectDB();
+    // Reference Vacancy model to prevent tree-shaking by the Next.js compiler
+    const _ensureVacancy = Vacancy;
+
     const application = await Application.findById(id).populate('vacancyId');
     if (!application) return NextResponse.json({ success: false, message: 'Not found' }, { status: 404 });
     return NextResponse.json({ success: true, data: application });
   } catch (error: any) {
+    console.error('Error in GET /api/admin/careers/applications/[id]:', error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
