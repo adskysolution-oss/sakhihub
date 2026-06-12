@@ -11,8 +11,24 @@ import ChildProfileView from "@/components/features/dashboard/ChildProfileView";
 import UnifiedFilterBar from "@/components/shared/filters/UnifiedFilterBar";
 import StatusFilterTabs from "@/components/shared/filters/StatusFilterTabs";
 import PaginationControls from "@/components/shared/filters/PaginationControls";
+import { useLanguage } from "@/context/LanguageContext";
+
+const getStatusBadge = (status: string) => {
+  const map: Record<string, { label: string; className: string }> = {
+    pending: { label: 'Pending', className: 'bg-gray-100 text-gray-500' },
+    documents_uploaded: { label: 'Docs Submitted', className: 'bg-blue-100 text-blue-600' },
+    under_review: { label: 'Under Review', className: 'bg-amber-100 text-amber-600' },
+    reupload_required: { label: 'Re-upload', className: 'bg-red-100 text-red-600' },
+    approved: { label: 'Approved', className: 'bg-green-100 text-green-600' },
+    active: { label: 'Active', className: 'bg-green-100 text-green-600' },
+    rejected: { label: 'Rejected', className: 'bg-red-100 text-red-600' },
+    suspended: { label: 'Suspended', className: 'bg-gray-200 text-gray-600' },
+  };
+  return map[status] || { label: status, className: 'bg-gray-100 text-gray-500' };
+};
 
 export default function VendorSubVendors() {
+  const { t } = useLanguage();
   const [subVendors, setSubVendors] = useState<any[]>([]);
   const [vendorProfile, setVendorProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -151,14 +167,25 @@ export default function VendorSubVendors() {
                         12 Field Staff
                       </td>
                       <td className="p-5">
-                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${sv.status === 'active' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>
-                          {sv.status}
-                        </span>
+                        {(() => {
+                          const badge = getStatusBadge(sv.status);
+                          return (
+                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${badge.className}`}>
+                              {t('status.' + sv.status, badge.label)}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="p-5">
-                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${sv.paymentCompleted || sv.subscriptionPaid ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-500'}`}>
-                          {sv.paymentCompleted || sv.subscriptionPaid ? 'PAID' : 'UNPAID'}
-                        </span>
+                        {sv.paymentCompleted || sv.subscriptionPaid ? (
+                          <span className="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-600">
+                            {t('status.paid', 'Paid')}
+                          </span>
+                        ) : (
+                          <span className="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-red-100 text-red-500">
+                            {t('status.unpaid', 'Unpaid')}
+                          </span>
+                        )}
                       </td>
                       <td className="p-5">
                         <button 

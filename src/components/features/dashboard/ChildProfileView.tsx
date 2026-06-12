@@ -9,6 +9,7 @@ import {
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { getRequiredDocsForUser } from '@/utils/documents';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface ChildProfileViewProps {
   childId: string;
@@ -16,6 +17,7 @@ interface ChildProfileViewProps {
 }
 
 export default function ChildProfileView({ childId, onClose }: ChildProfileViewProps) {
+  const { t } = useLanguage();
   const [data, setData] = useState<any>(null);
   const [type, setType] = useState<'user' | 'member' | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,7 +73,7 @@ export default function ChildProfileView({ childId, onClose }: ChildProfileViewP
       <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
         isGood ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
       }`}>
-        {status}
+        {t('status.' + s, status)}
       </span>
     );
   };

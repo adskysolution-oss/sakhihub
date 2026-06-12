@@ -768,23 +768,23 @@ export default function EmployeeManagement() {
                                  <ShieldCheck size={20} className={selectedEmp.isVerified ? 'text-green-500' : 'text-gray-200'} />
                                  <p className="text-[9px] font-black uppercase mt-2 text-gray-400">KYC Status</p>
                                  <p className="font-black text-secondary text-[10px] text-center mt-1 truncate w-full">
-                                   {selectedEmp.isVerified ? 'VERIFIED' : 'PENDING'}
+                                   {selectedEmp.isVerified ? t('status.verified', 'Verified') : t('status.pending', 'Pending')}
                                  </p>
                               </div>
                               <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-sm border border-gray-100">
                                  <Network size={20} className={selectedEmp.dashboardAccess ? 'text-primary' : 'text-gray-200'} />
                                  <p className="text-[9px] font-black uppercase mt-2 text-gray-400">Dashboard</p>
                                  <p className="font-black text-secondary text-[10px] text-center mt-1 truncate w-full">
-                                   {selectedEmp.dashboardAccess ? 'ENABLED' : 'BLOCKED'}
+                                   {selectedEmp.dashboardAccess ? t('status.enabled', 'Enabled') : t('status.blocked', 'Blocked')}
                                  </p>
                               </div>
                               <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-sm border border-gray-100">
                                  <span className={`text-[10px] font-black leading-none ${selectedEmp.paymentCompleted ? 'text-green-500' : selectedEmp.subscriptionPaid ? 'text-amber-500' : 'text-red-500'}`}>
-                                   {selectedEmp.paymentCompleted ? 'PAID' : selectedEmp.subscriptionPaid ? 'SUB PAID' : 'UNPAID'}
+                                   {selectedEmp.paymentCompleted ? t('status.paid', 'Paid') : selectedEmp.subscriptionPaid ? t('status.subPaid', 'Sub Paid') : t('status.unpaid', 'Unpaid')}
                                  </span>
                                  <p className="text-[9px] font-black uppercase mt-2 text-gray-400">Payment</p>
                                  <p className="font-black text-secondary text-[9px] text-center mt-1 truncate w-full">
-                                   {selectedEmp.paymentCompleted || selectedEmp.subscriptionPaid ? 'COMPLETED' : 'PENDING'}
+                                   {selectedEmp.paymentCompleted || selectedEmp.subscriptionPaid ? t('status.completed', 'Completed') : t('status.pending', 'Pending')}
                                  </p>
                               </div>
                            </div>
