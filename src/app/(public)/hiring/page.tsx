@@ -168,7 +168,17 @@ export default function HiringPage() {
       {/* Perks Section */}
       <section className="section-padding">
         <div className="container">
-           <div style={{ background: 'var(--grad-secondary)', borderRadius: '60px', padding: '80px', color: 'white', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '100px', alignItems: 'center' }}>
+           <div style={{ 
+             backgroundColor: 'var(--secondary, #6A1B9A)', 
+             backgroundImage: 'var(--grad-secondary, linear-gradient(135deg, #6A1B9A 0%, #4A148C 100%))', 
+             borderRadius: '60px', 
+             padding: '80px', 
+             color: 'white', 
+             display: 'grid', 
+             gridTemplateColumns: '1fr 1fr', 
+             gap: '100px', 
+             alignItems: 'center' 
+           }}>
               <div>
                  <h2 style={{ fontSize: '3.5rem', fontWeight: '900', marginBottom: '30px', lineHeight: '1.1' }}>{t('hiringPage.beyondSalary').split(' ').slice(0, -1).join(' ')} <span style={{ color: 'var(--primary)' }}>{t('hiringPage.beyondSalary').split(' ').slice(-1).join(' ')}</span></h2>
                  <p style={{ fontSize: '1.2rem', opacity: 0.9, lineHeight: '1.7' }}>
