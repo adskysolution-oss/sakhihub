@@ -13,6 +13,7 @@ import {
   formatFileSize 
 } from '@/utils/documents';
 import { toast } from 'sonner';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface DocumentCardProps {
   type: string;
@@ -33,6 +34,7 @@ export default function DocumentCard({
   onExceptionReply,
   readOnly = false 
 }: DocumentCardProps) {
+  const { t } = useLanguage();
   const [showExceptionModal, setShowExceptionModal] = React.useState(false);
   const [exceptionReason, setExceptionReason] = React.useState('');
   const [showReplyModal, setShowReplyModal] = React.useState(false);
@@ -82,21 +84,21 @@ export default function DocumentCard({
           )}
           <div className="flex-1">
              <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md mb-1 inline-block ${status === 'exception_approved' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-               {status === 'on_hold' ? 'On Hold' : status === 'exception_responded' ? 'Exception Reply Sent' : status === 'exception_approved' ? 'Exception Approved' : 'Exception Requested'}
+               {status === 'on_hold' ? t('status.on_hold', 'On Hold') : status === 'exception_responded' ? t('onboarding.exceptionReplySent', 'Exception Reply Sent') : status === 'exception_approved' ? t('onboarding.exceptionApproved', 'Exception Approved') : t('onboarding.exceptionRequested', 'Exception Requested')}
              </span>
              {docInfo?.exceptionReason && (
-               <p className={`text-[10px] font-bold italic mt-1 ${status === 'exception_approved' ? 'text-green-800' : 'text-amber-800'}`}>"User: {docInfo.exceptionReason}"</p>
+                <p className={`text-[10px] font-bold italic mt-1 ${status === 'exception_approved' ? 'text-green-800' : 'text-amber-800'}`}>{t('onboarding.userLabel', 'User')}: {docInfo.exceptionReason}</p>
              )}
              {docInfo?.exceptionAdminRemarks && (
-               <p className={`text-[10px] font-bold mt-1 ${status === 'exception_approved' ? 'text-green-800' : 'text-red-700'}`}>Admin: {docInfo.exceptionAdminRemarks}</p>
+                <p className={`text-[10px] font-bold mt-1 ${status === 'exception_approved' ? 'text-green-800' : 'text-red-700'}`}>{t('onboarding.adminLabel', 'Admin')}: {docInfo.exceptionAdminRemarks}</p>
              )}
              {status === 'on_hold' && onExceptionReply && !readOnly && (
-               <button 
-                 onClick={() => setShowReplyModal(true)}
-                 className="mt-2 text-[9px] font-black uppercase tracking-widest text-amber-600 hover:text-amber-700 hover:underline flex items-center gap-1"
-               >
-                 Reply to Admin <ChevronRight size={10} />
-               </button>
+                <button 
+                  onClick={() => setShowReplyModal(true)}
+                  className="mt-2 text-[9px] font-black uppercase tracking-widest text-amber-600 hover:text-amber-700 hover:underline flex items-center gap-1"
+                >
+                  {t('onboarding.replyToAdmin', 'Reply to Admin')} <ChevronRight size={10} />
+                </button>
              )}
           </div>
         </div>
@@ -109,7 +111,7 @@ export default function DocumentCard({
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">
-                    Uploaded
+                    {t('onboarding.uploaded', 'Uploaded')}
                   </span>
                   <span className={`text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${statusMeta.className}`}>
                     {statusMeta.label}
@@ -119,7 +121,7 @@ export default function DocumentCard({
                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">{formatFileSize(docInfo.fileSize)}</p>
                 {docInfo.uploadedAt && (
                   <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
-                    Uploaded {new Date(docInfo.uploadedAt).toLocaleString()}
+                    {t('onboarding.uploadedAt', 'Uploaded {{date}}', { date: new Date(docInfo.uploadedAt).toLocaleString() })}
                   </p>
                 )}
               </div>
@@ -135,11 +137,11 @@ export default function DocumentCard({
             </div>
             <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-100">
               <a href={viewUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline flex items-center gap-2">
-                Preview / Open <ChevronRight size={14} />
+                {t('onboarding.previewOpen', 'Preview / Open')} <ChevronRight size={14} />
               </a>
               {docInfo.publicId && (
                 <span className="text-[9px] font-black uppercase tracking-widest text-gray-400 truncate max-w-[180px]">
-                  ID: {docInfo.publicId}
+                  {t('members.idLabel', 'ID')}: {docInfo.publicId}
                 </span>
               )}
             </div>
@@ -156,10 +158,10 @@ export default function DocumentCard({
             {uploading ? (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                <span>Uploading...</span>
+                <span>{t('common.uploading', 'Uploading...')}</span>
               </div>
             ) : (
-              <><Upload size={16} /> {isUploaded ? 'Re-upload' : status === 'exception_approved' ? 'Upload Document' : 'Choose File'}</>
+              <><Upload size={16} /> {isUploaded ? t('onboarding.reupload', 'Re-upload') : status === 'exception_approved' ? t('onboarding.uploadDoc', 'Upload Document') : t('onboarding.chooseFile', 'Choose File')}</>
             )}
             <input 
               type="file" 
@@ -180,7 +182,7 @@ export default function DocumentCard({
             onClick={() => setShowExceptionModal(true)}
             className="w-full text-xs font-black text-gray-400 hover:text-amber-600 hover:underline uppercase tracking-widest text-center mt-1"
           >
-            Don't have this document?
+            {t('onboarding.dontHaveDoc', "Don't have this document?")}
           </button>
         )}
       </div>
@@ -189,7 +191,7 @@ export default function DocumentCard({
         <div className="flex flex-col gap-3 pt-4 border-t border-black/5 mt-4 w-full">
           {docInfo?.reviewedAt && (
             <div className="w-full text-[9px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1.5 pl-1">
-              <Clock size={10} /> Reviewed: {new Date(docInfo.reviewedAt).toLocaleString()}
+              <Clock size={10} /> {t('onboarding.reviewedAt', 'Reviewed: {{date}}', { date: new Date(docInfo.reviewedAt).toLocaleString() })}
             </div>
           )}
 
@@ -198,7 +200,7 @@ export default function DocumentCard({
               <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
               <div>
                 <p className="text-[10px] text-red-500 font-black uppercase tracking-widest mb-1">
-                  {status === 'reupload_required' ? 'Re-upload Instructions' : 'Reason for Rejection'}
+                  {status === 'reupload_required' ? t('onboarding.reuploadInstructions', 'Re-upload Instructions') : t('onboarding.rejectionReason', 'Reason for Rejection')}
                 </p>
                 <p className="text-[10px] text-red-500 font-bold leading-relaxed">{docInfo.remarks}</p>
               </div>
@@ -210,11 +212,11 @@ export default function DocumentCard({
       {showExceptionModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-[32px] p-8 max-w-sm w-full shadow-2xl relative border border-gray-100">
-            <h3 className="text-lg font-black text-secondary mb-2">Request Exception</h3>
-            <p className="text-xs text-gray-400 font-bold mb-6">If you don't have this document, please explain why. An admin will review your request.</p>
+            <h3 className="text-lg font-black text-secondary mb-2">{t('onboarding.requestException', 'Request Exception')}</h3>
+            <p className="text-xs text-gray-400 font-bold mb-6">{t('onboarding.requestExceptionDesc', "If you don't have this document, please explain why. An admin will review your request.")}</p>
             <textarea 
               className="w-full bg-gray-50 border border-gray-200 rounded-2xl p-4 text-sm font-bold text-gray-800 focus:outline-none focus:border-amber-400 focus:bg-white mb-6 resize-none h-24"
-              placeholder="E.g., Not applicable for my business..."
+              placeholder={t('onboarding.exceptionPlaceholder', 'E.g., Not applicable for my business...')}
               value={exceptionReason}
               onChange={(e) => setExceptionReason(e.target.value)}
             />
@@ -223,18 +225,18 @@ export default function DocumentCard({
                 onClick={() => { setShowExceptionModal(false); setExceptionReason(''); }}
                 className="flex-1 py-3 text-gray-500 font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 rounded-xl transition-all"
               >
-                Cancel
+                {t('common.cancel', 'Cancel')}
               </button>
               <button 
                 onClick={() => {
-                  if (exceptionReason.trim().length < 5) return toast.error('Please provide a valid reason');
+                  if (exceptionReason.trim().length < 5) return toast.error(t('onboarding.errProvideReason', 'Please provide a valid reason'));
                   onExceptionRequest?.(type, exceptionReason.trim());
                   setShowExceptionModal(false);
                   setExceptionReason('');
                 }}
                 className="flex-1 bg-amber-500 text-white py-3 font-black text-[10px] uppercase tracking-widest hover:bg-amber-600 rounded-xl transition-all shadow-lg shadow-amber-500/30"
               >
-                Submit Request
+                {t('onboarding.submitRequest', 'Submit Request')}
               </button>
             </div>
           </div>
@@ -244,11 +246,11 @@ export default function DocumentCard({
       {showReplyModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-[32px] p-8 max-w-sm w-full shadow-2xl relative border border-gray-100">
-            <h3 className="text-lg font-black text-secondary mb-2">Reply to Admin</h3>
-            <p className="text-xs text-gray-400 font-bold mb-6">Provide your response to the admin's hold remarks.</p>
+            <h3 className="text-lg font-black text-secondary mb-2">{t('onboarding.replyToAdmin', 'Reply to Admin')}</h3>
+            <p className="text-xs text-gray-400 font-bold mb-6">{t('onboarding.replyToAdminDesc', "Provide your response to the admin's hold remarks.")}</p>
             <textarea 
               className="w-full bg-gray-50 border border-gray-200 rounded-2xl p-4 text-sm font-bold text-gray-800 focus:outline-none focus:border-amber-400 focus:bg-white mb-6 resize-none h-24"
-              placeholder="Your reply..."
+              placeholder={t('onboarding.replyPlaceholder', 'Your reply...')}
               value={exceptionReply}
               onChange={(e) => setExceptionReply(e.target.value)}
             />
@@ -257,18 +259,18 @@ export default function DocumentCard({
                 onClick={() => { setShowReplyModal(false); setExceptionReply(''); }}
                 className="flex-1 py-3 text-gray-500 font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 rounded-xl transition-all"
               >
-                Cancel
+                {t('common.cancel', 'Cancel')}
               </button>
               <button 
                 onClick={() => {
-                  if (exceptionReply.trim().length < 2) return toast.error('Please provide a valid reply');
+                  if (exceptionReply.trim().length < 2) return toast.error(t('onboarding.errProvideReply', 'Please provide a valid reply'));
                   onExceptionReply?.(type, exceptionReply.trim());
                   setShowReplyModal(false);
                   setExceptionReply('');
                 }}
                 className="flex-1 bg-amber-500 text-white py-3 font-black text-[10px] uppercase tracking-widest hover:bg-amber-600 rounded-xl transition-all shadow-lg shadow-amber-500/30"
               >
-                Submit Reply
+                {t('onboarding.submitReply', 'Submit Reply')}
               </button>
             </div>
           </div>

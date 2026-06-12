@@ -12,8 +12,10 @@ import DocumentCard from '@/components/features/dashboard/DocumentCard';
 import { useDocumentFlow } from '@/hooks/useDocumentFlow';
 import OnboardingStepper from '@/components/features/onboarding/OnboardingStepper';
 import { toast } from 'sonner';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function VendorOnboarding() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -143,7 +145,7 @@ export default function VendorOnboarding() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.aadhaarNumber || formData.aadhaarNumber.length < 12) {
-      toast.error("Please enter a valid 12-digit Aadhaar Number before uploading.");
+      toast.error(t('onboarding.errAadhaar', 'Please enter a valid 12-digit Aadhaar Number before uploading.'));
       e.target.value = '';
       return;
     }
@@ -155,7 +157,7 @@ export default function VendorOnboarding() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.aadhaarNumber || formData.aadhaarNumber.length < 12) {
-      toast.error("Please enter a valid 12-digit Aadhaar Number before uploading.");
+      toast.error(t('onboarding.errAadhaar', 'Please enter a valid 12-digit Aadhaar Number before uploading.'));
       e.target.value = '';
       return;
     }
@@ -167,7 +169,7 @@ export default function VendorOnboarding() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.panNumber || formData.panNumber.length !== 10) {
-      toast.error("Please enter a valid 10-character PAN Number before uploading.");
+      toast.error(t('onboarding.errPan', 'Please enter a valid 10-character PAN Number before uploading.'));
       e.target.value = '';
       return;
     }
@@ -179,17 +181,17 @@ export default function VendorOnboarding() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.accountHolderName || !formData.ifscCode || !formData.accountNumber) {
-      toast.error("Please fill all bank details before uploading.");
+      toast.error(t('onboarding.errBankFields', 'Please fill all bank details before uploading.'));
       e.target.value = '';
       return;
     }
     if (formData.accountNumber !== formData.confirmAccountNumber) {
-      toast.error("Account numbers do not match.");
+      toast.error(t('onboarding.errBankMatch', 'Account numbers do not match.'));
       e.target.value = '';
       return;
     }
     if (!formData.bankName) {
-      toast.error("Invalid IFSC code.");
+      toast.error(t('onboarding.errIfsc', 'Invalid IFSC code.'));
       e.target.value = '';
       return;
     }
@@ -231,19 +233,19 @@ export default function VendorOnboarding() {
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-2">
               {docInfo.status === 'exception_requested' || docInfo.status === 'on_hold' || docInfo.status === 'exception_responded' ? (
-                <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-amber-100 text-amber-600">Exception</span>
+                <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-amber-100 text-amber-600">{t('onboarding.exception', 'Exception')}</span>
               ) : (
-                <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">Uploaded</span>
+                <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">{t('onboarding.uploaded', 'Uploaded')}</span>
               )}
-              {docInfo.status === 'approved' && <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">Approved</span>}
-              {docInfo.status === 'rejected' && <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-red-100 text-red-600">Rejected</span>}
-              {docInfo.status === 'exception_approved' && <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">Exception Approved</span>}
+              {docInfo.status === 'approved' && <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">{t('status.approved', 'Approved')}</span>}
+              {docInfo.status === 'rejected' && <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-red-100 text-red-600">{t('status.rejected', 'Rejected')}</span>}
+              {docInfo.status === 'exception_approved' && <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">{t('onboarding.exceptionApproved', 'Exception Approved')}</span>}
             </div>
             {docInfo.fileName && <p className="text-sm font-black text-secondary truncate">{docInfo.fileName}</p>}
             {docInfo.exceptionReason && <p className="text-xs font-bold text-amber-700 italic mt-1">"{docInfo.exceptionReason}"</p>}
             {docInfo.uploadedAt && (
               <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
-                Uploaded {new Date(docInfo.uploadedAt).toLocaleString()}
+                {t('onboarding.uploadedAt', 'Uploaded {{date}}', { date: new Date(docInfo.uploadedAt).toLocaleString() })}
               </p>
             )}
           </div>
@@ -252,7 +254,7 @@ export default function VendorOnboarding() {
         <div className="flex items-center gap-2 mt-2 pt-3 border-t border-gray-100">
           {docInfo.url && (
             <a href={getDocumentViewUrl(docInfo.url)} target="_blank" rel="noopener noreferrer" className="flex-1 text-center py-2.5 bg-gray-50 hover:bg-primary hover:text-white text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-              Preview
+              {t('onboarding.preview', 'Preview')}
             </a>
           )}
           {docInfo.status !== 'approved' && reuploadInput && (
@@ -278,12 +280,12 @@ export default function VendorOnboarding() {
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-primary/20">S</div>
             <div>
-              <h1 className="text-lg font-black text-secondary tracking-tight">SakhiHub Vendor</h1>
-              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Verification Portal</p>
+              <h1 className="text-lg font-black text-secondary tracking-tight">{t('onboarding.vendorTitle', 'SakhiHub Vendor')}</h1>
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{t('onboarding.portalSubtitle', 'Verification Portal')}</p>
             </div>
           </div>
           <button onClick={handleLogout} className="flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest hover:text-red-500 transition-all">
-            <LogOut size={16} /> Logout
+            <LogOut size={16} /> {t('dashboardCommon.logout', 'Logout')}
           </button>
         </div>
       </header>
@@ -294,14 +296,14 @@ export default function VendorOnboarding() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2 space-y-8">
             <section className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
-              <h3 className="text-xl font-black text-secondary mb-2">Select Vendor Entity Type</h3>
-              <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-6">This determines which documents and KYC details are required for your organization.</p>
+              <h3 className="text-xl font-black text-secondary mb-2">{t('onboarding.selectVendorType', 'Select Vendor Entity Type')}</h3>
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-6">{t('onboarding.selectVendorTypeDesc', 'This determines which documents and KYC details are required for your organization.')}</p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
-                  { id: 'individual', title: 'Individual Vendor', desc: 'Proprietor, freelancer, or single contractor' },
-                  { id: 'company', title: 'Company Vendor', desc: 'Private Limited, LLP, Partnership or Sole Proprietorship' },
-                  { id: 'ngo_trust', title: 'NGO / Trust Vendor', desc: 'Non-governmental organization, Society, or Trust' }
+                  { id: 'individual', title: t('onboarding.individualVendor', 'Individual Vendor'), desc: t('onboarding.individualVendorDesc', 'Proprietor, freelancer, or single contractor') },
+                  { id: 'company', title: t('onboarding.companyVendor', 'Company Vendor'), desc: t('onboarding.companyVendorDesc', 'Private Limited, LLP, Partnership or Sole Proprietorship') },
+                  { id: 'ngo_trust', title: t('onboarding.ngoVendor', 'NGO / Trust Vendor'), desc: t('onboarding.ngoVendorDesc', 'Non-governmental organization, Society, or Trust') }
                 ].map(type => (
                   <div
                     key={type.id}
@@ -313,7 +315,7 @@ export default function VendorOnboarding() {
                       <p className="text-[10px] text-gray-400 font-medium leading-relaxed mt-1">{type.desc}</p>
                     </div>
                     {savingType && vendorType === type.id && (
-                      <span className="text-[9px] text-primary font-black uppercase tracking-widest mt-2">Saving...</span>
+                      <span className="text-[9px] text-primary font-black uppercase tracking-widest mt-2">{t('common.saving', 'Saving...')}</span>
                     )}
                   </div>
                 ))}
@@ -321,8 +323,8 @@ export default function VendorOnboarding() {
             </section>
 
             <section>
-              <h2 className="text-3xl font-black text-secondary mb-2">Complete Verification</h2>
-              <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Please fill all details and upload valid document scans.</p>
+              <h2 className="text-3xl font-black text-secondary mb-2">{t('onboarding.completeVerification', 'Complete Verification')}</h2>
+              <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">{t('onboarding.step1Desc', 'Please complete all fields and upload valid document scans.')}</p>
             </section>
 
             <div className="space-y-6">
@@ -343,16 +345,16 @@ export default function VendorOnboarding() {
                         <UserCheck size={24} />
                       </div>
                       <div>
-                        <h3 className="text-lg font-black text-secondary">Aadhaar Card Verification</h3>
+                        <h3 className="text-lg font-black text-secondary">{t('onboarding.aadhaarTitle', 'Aadhaar Card Verification')}</h3>
                         <p className="text-[10px] text-primary font-black uppercase tracking-widest flex items-center gap-1.5"><FileText size={12} /> PDF, JPG, PNG</p>
                       </div>
                     </div>
 
                     <div className="space-y-6">
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Aadhaar Number *</label>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t('onboarding.aadhaarNumber', 'Aadhaar Number *')}</label>
                         <input
-                          type="text" maxLength={12} placeholder="Enter 12-digit Aadhaar Number"
+                          type="text" maxLength={12} placeholder={t('onboarding.aadhaarPlaceholder', 'Enter 12-digit Aadhaar Number')}
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:border-primary focus:bg-white"
                           value={formData.aadhaarNumber}
                           onChange={(e) => setFormData({ ...formData, aadhaarNumber: e.target.value.replace(/\D/g, '') })}
@@ -363,59 +365,59 @@ export default function VendorOnboarding() {
                       {isSplit ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
-                            <p className="text-xs font-black text-secondary mb-3">Front Side</p>
+                            <p className="text-xs font-black text-secondary mb-3">{t('onboarding.frontSide', 'Front Side')}</p>
                             {profile?.documents?.[frontType]?.url ? (
                               renderUploadedDocState(profile.documents[frontType], (
                                 <label className="block w-full text-center py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer">
-                                  {uploading === frontType ? 'Uploading...' : 'Re-upload'}
+                                  {uploading === frontType ? t('common.uploading', 'Uploading...') : t('onboarding.reupload', 'Re-upload')}
                                   <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === frontType} onChange={(e) => submitAadhaarSplit(e, 'front', frontType)} />
                                 </label>
                               ))
                             ) : (
                               <label className="w-full py-3 mt-2 bg-primary text-white rounded-xl flex justify-center items-center gap-2 font-black text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-primary/20 hover:bg-primary-dark">
-                                {uploading === frontType ? 'Uploading...' : <><Upload size={14} /> Upload Front</>}
+                                {uploading === frontType ? t('common.uploading', 'Uploading...') : <><Upload size={14} /> {t('onboarding.uploadFront', 'Upload Front')}</>}
                                 <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === frontType} onChange={(e) => submitAadhaarSplit(e, 'front', frontType)} />
                               </label>
                             )}
                           </div>
                           <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
-                            <p className="text-xs font-black text-secondary mb-3">Back Side</p>
+                            <p className="text-xs font-black text-secondary mb-3">{t('onboarding.backSide', 'Back Side')}</p>
                             {profile?.documents?.[backType]?.url ? (
                               renderUploadedDocState(profile.documents[backType], (
                                 <label className="block w-full text-center py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer">
-                                  {uploading === backType ? 'Uploading...' : 'Re-upload'}
+                                  {uploading === backType ? t('common.uploading', 'Uploading...') : t('onboarding.reupload', 'Re-upload')}
                                   <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === backType} onChange={(e) => submitAadhaarSplit(e, 'back', backType)} />
                                 </label>
                               ))
                             ) : (
                               <label className="w-full py-3 mt-2 bg-primary text-white rounded-xl flex justify-center items-center gap-2 font-black text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-primary/20 hover:bg-primary-dark">
-                                {uploading === backType ? 'Uploading...' : <><Upload size={14} /> Upload Back</>}
+                                {uploading === backType ? t('common.uploading', 'Uploading...') : <><Upload size={14} /> {t('onboarding.uploadBack', 'Upload Back')}</>}
                                 <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === backType} onChange={(e) => submitAadhaarSplit(e, 'back', backType)} />
                               </label>
                             )}
                             {(!profile?.documents?.[backType] || (!profile.documents[backType].url && !['exception_requested', 'on_hold', 'exception_responded', 'exception_approved'].includes(profile.documents[backType].status))) && (
-                              <button onClick={() => setExceptionModal({ show: true, type: backType, reason: '' })} className="w-full text-xs font-black text-gray-400 hover:text-amber-600 hover:underline uppercase tracking-widest text-center mt-3">Don't have this document?</button>
+                              <button onClick={() => setExceptionModal({ show: true, type: backType, reason: '' })} className="w-full text-xs font-black text-gray-400 hover:text-amber-600 hover:underline uppercase tracking-widest text-center mt-3">{t('onboarding.dontHaveDoc', "Don't have this document?")}</button>
                             )}
                           </div>
                         </div>
                       ) : (
                         <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
-                          <p className="text-xs font-black text-secondary mb-3">Aadhaar Document</p>
+                          <p className="text-xs font-black text-secondary mb-3">{t('onboarding.aadhaarDoc', 'Aadhaar Document')}</p>
                           {profile?.documents?.[aadhaarDocType]?.url ? (
                             renderUploadedDocState(profile.documents[aadhaarDocType], (
                               <label className="block w-full text-center py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer">
-                                {uploading === aadhaarDocType ? 'Uploading...' : 'Re-upload'}
+                                {uploading === aadhaarDocType ? t('common.uploading', 'Uploading...') : t('onboarding.reupload', 'Re-upload')}
                                 <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === aadhaarDocType} onChange={submitAadhaar} />
                               </label>
                             ))
                           ) : (
                             <label className="w-full py-3 mt-2 bg-primary text-white rounded-xl flex justify-center items-center gap-2 font-black text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-primary/20 hover:bg-primary-dark">
-                              {uploading === aadhaarDocType ? 'Uploading...' : <><Upload size={14} /> Upload Aadhaar</>}
+                              {uploading === aadhaarDocType ? t('common.uploading', 'Uploading...') : <><Upload size={14} /> {t('onboarding.uploadAadhaar', 'Upload Aadhaar')}</>}
                               <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === aadhaarDocType} onChange={submitAadhaar} />
                             </label>
                           )}
                           {(!profile?.documents?.[aadhaarDocType] || (!profile.documents[aadhaarDocType].url && !['exception_requested', 'on_hold', 'exception_responded', 'exception_approved'].includes(profile.documents[aadhaarDocType].status))) && (
-                            <button onClick={() => setExceptionModal({ show: true, type: aadhaarDocType, reason: '' })} className="w-full text-xs font-black text-gray-400 hover:text-amber-600 hover:underline uppercase tracking-widest text-center mt-3">Don't have this document?</button>
+                            <button onClick={() => setExceptionModal({ show: true, type: aadhaarDocType, reason: '' })} className="w-full text-xs font-black text-gray-400 hover:text-amber-600 hover:underline uppercase tracking-widest text-center mt-3">{t('onboarding.dontHaveDoc', "Don't have this document?")}</button>
                           )}
                         </div>
                       )}
@@ -432,16 +434,16 @@ export default function VendorOnboarding() {
                       <CreditCard size={24} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-secondary">PAN Card Verification</h3>
+                      <h3 className="text-lg font-black text-secondary">{t('onboarding.panTitle', 'PAN Card Verification')}</h3>
                       <p className="text-[10px] text-primary font-black uppercase tracking-widest flex items-center gap-1.5"><FileText size={12} /> PDF, JPG, PNG</p>
                     </div>
                   </div>
 
                   <div className="space-y-6">
                     <div>
-                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">PAN Number *</label>
+                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t('onboarding.panNumber', 'PAN Number *')}</label>
                       <input
-                        type="text" maxLength={10} placeholder="Enter 10-character PAN"
+                        type="text" maxLength={10} placeholder={t('onboarding.panPlaceholder', 'Enter 10-character PAN')}
                         className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:outline-none focus:border-primary focus:bg-white"
                         value={formData.panNumber}
                         onChange={(e) => setFormData({ ...formData, panNumber: e.target.value.toUpperCase() })}
@@ -450,17 +452,17 @@ export default function VendorOnboarding() {
                     </div>
 
                     <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
-                      <p className="text-xs font-black text-secondary mb-3">PAN Document</p>
+                      <p className="text-xs font-black text-secondary mb-3">{t('onboarding.panDoc', 'PAN Document')}</p>
                       {profile?.documents?.[panDocType]?.url ? (
                         renderUploadedDocState(profile.documents[panDocType], (
                           <label className="block w-full text-center py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer">
-                            {uploading === panDocType ? 'Uploading...' : 'Re-upload'}
+                            {uploading === panDocType ? t('common.uploading', 'Uploading...') : t('onboarding.reupload', 'Re-upload')}
                             <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === panDocType} onChange={submitPan} />
                           </label>
                         ))
                       ) : (
                         <label className="w-full py-3 mt-2 bg-primary text-white rounded-xl flex justify-center items-center gap-2 font-black text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-primary/20 hover:bg-primary-dark">
-                          {uploading === panDocType ? 'Uploading...' : <><Upload size={14} /> Upload PAN</>}
+                          {uploading === panDocType ? t('common.uploading', 'Uploading...') : <><Upload size={14} /> {t('onboarding.uploadPan', 'Upload PAN')}</>}
                           <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === panDocType} onChange={submitPan} />
                         </label>
                       )}
@@ -477,17 +479,17 @@ export default function VendorOnboarding() {
                       <Landmark size={24} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-secondary">Bank Details & Payout Info</h3>
-                      <p className="text-[10px] text-primary font-black uppercase tracking-widest flex items-center gap-1.5"><FileText size={12} /> Passbook or Cheque</p>
+                      <h3 className="text-lg font-black text-secondary">{t('onboarding.bankTitle', 'Bank Details & Payout Info')}</h3>
+                      <p className="text-[10px] text-primary font-black uppercase tracking-widest flex items-center gap-1.5"><FileText size={12} /> {t('onboarding.passbookCheque', 'Passbook or Cheque')}</p>
                     </div>
                   </div>
 
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="md:col-span-2">
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Account Holder Name *</label>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t('onboarding.bankHolder', 'Account Holder Name *')}</label>
                         <input
-                          type="text" placeholder="Name exactly as per bank records"
+                          type="text" placeholder={t('onboarding.bankHolderPlaceholder', 'Name exactly as per bank records')}
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:outline-none focus:border-primary focus:bg-white"
                           value={formData.accountHolderName}
                           onChange={(e) => setFormData({ ...formData, accountHolderName: e.target.value.toUpperCase() })}
@@ -495,10 +497,10 @@ export default function VendorOnboarding() {
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">IFSC Code *</label>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t('onboarding.ifscCode', 'IFSC Code *')}</label>
                         <div className="relative">
                           <input
-                            type="text" maxLength={11} placeholder="e.g. SBIN0001234"
+                            type="text" maxLength={11} placeholder={t('onboarding.ifscPlaceholder', 'e.g. SBIN0001234')}
                             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:outline-none focus:border-primary focus:bg-white"
                             value={formData.ifscCode}
                             onChange={handleIfscChange}
@@ -508,7 +510,7 @@ export default function VendorOnboarding() {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Bank & Branch</label>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t('onboarding.bankBranch', 'Bank & Branch')}</label>
                         <div className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 min-h-[46px] flex flex-col justify-center">
                           {formData.bankName ? (
                             <>
@@ -516,14 +518,14 @@ export default function VendorOnboarding() {
                               <span className="text-[9px] font-bold text-gray-500 uppercase">{formData.branchName}</span>
                             </>
                           ) : (
-                            <span className="text-xs font-bold text-gray-400">Auto-fetched via IFSC</span>
+                            <span className="text-xs font-bold text-gray-400">{t('onboarding.ifscAutoFetch', 'Auto-fetched via IFSC')}</span>
                           )}
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Account Number *</label>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t('onboarding.bankAccount', 'Account Number *')}</label>
                         <input
-                          type="text" placeholder="Enter Account Number"
+                          type="text" placeholder={t('onboarding.bankAccountPlaceholder', 'Enter Account Number')}
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:border-primary focus:bg-white"
                           value={formData.accountNumber}
                           onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value.replace(/\D/g, '') })}
@@ -531,9 +533,9 @@ export default function VendorOnboarding() {
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Confirm Account Number *</label>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t('onboarding.bankAccountConfirm', 'Confirm Account Number *')}</label>
                         <input
-                          type="text" placeholder="Re-enter Account Number"
+                          type="text" placeholder={t('onboarding.bankAccountConfirmPlaceholder', 'Re-enter Account Number')}
                           className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:bg-white ${formData.confirmAccountNumber && formData.accountNumber !== formData.confirmAccountNumber
                             ? 'border-red-400 focus:border-red-500 focus:ring-red-500'
                             : 'border-gray-200 focus:border-primary focus:ring-primary'
@@ -546,17 +548,17 @@ export default function VendorOnboarding() {
                     </div>
 
                     <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200 mt-4">
-                      <p className="text-xs font-black text-secondary mb-3">Upload Passbook / Cheque</p>
+                      <p className="text-xs font-black text-secondary mb-3">{t('onboarding.uploadPassbook', 'Upload Passbook / Cheque')}</p>
                       {profile?.documents?.[bankDocType]?.url ? (
                         renderUploadedDocState(profile.documents[bankDocType], (
                           <label className="block w-full text-center py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer">
-                            {uploading === bankDocType ? 'Uploading...' : 'Re-upload'}
+                            {uploading === bankDocType ? t('common.uploading', 'Uploading...') : t('onboarding.reupload', 'Re-upload')}
                             <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === bankDocType} onChange={submitBank} />
                           </label>
                         ))
                       ) : (
                         <label className="w-full py-3 mt-2 bg-primary text-white rounded-xl flex justify-center items-center gap-2 font-black text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-primary/20 hover:bg-primary-dark">
-                          {uploading === bankDocType ? 'Uploading...' : <><Upload size={14} /> Upload Document</>}
+                          {uploading === bankDocType ? t('common.uploading', 'Uploading...') : <><Upload size={14} /> {t('onboarding.uploadDoc', 'Upload Document')}</>}
                           <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === bankDocType} onChange={submitBank} />
                         </label>
                       )}
@@ -569,8 +571,8 @@ export default function VendorOnboarding() {
               {generalDocTypes.length > 0 && (
                 <div className="space-y-6">
                   <section>
-                    <h3 className="text-xl font-black text-secondary mb-2">Other Required Certificates</h3>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Please upload other registration and business setup documents</p>
+                    <h3 className="text-xl font-black text-secondary mb-2">{t('onboarding.otherCertificates', 'Other Required Certificates')}</h3>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{t('onboarding.otherCertificatesDesc', 'Please upload other registration and business setup documents')}</p>
                   </section>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {generalDocTypes.map((type) => (
@@ -592,7 +594,7 @@ export default function VendorOnboarding() {
           <div className="space-y-8">
             <div className="bg-secondary-dark p-10 rounded-[40px] text-white shadow-2xl relative overflow-hidden">
               <div className="absolute top-[-50px] right-[-50px] w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
-              <h4 className="text-2xl font-black mb-6 relative z-10">Verification Status</h4>
+              <h4 className="text-2xl font-black mb-6 relative z-10">{t('onboarding.statusTitle', 'Verification Status')}</h4>
 
               <div className="space-y-6 relative z-10">
                 <div className="flex items-center gap-4">
@@ -600,8 +602,8 @@ export default function VendorOnboarding() {
                     <FileCheck size={24} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Documents</p>
-                    <p className="font-bold text-sm">{compliance.uploaded === compliance.total ? 'All Uploaded' : 'Pending Uploads'}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">{t('onboarding.documents', 'Documents')}</p>
+                    <p className="font-bold text-sm">{compliance.uploaded === compliance.total ? t('onboarding.allUploaded', 'All Uploaded') : t('onboarding.pendingUploads', 'Pending Uploads')}</p>
                   </div>
                 </div>
 
@@ -610,14 +612,14 @@ export default function VendorOnboarding() {
                     <Clock size={24} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Review Process</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">{t('onboarding.reviewProcess', 'Review Process')}</p>
                     <p className="font-bold text-sm">
-                      {profile?.status === 'documents_uploaded' ? 'Documents Submitted' :
-                        profile?.status === 'under_review' ? 'In Progress' :
-                          profile?.status === 'reupload_required' ? 'Re-upload Required' :
-                            profile?.status === 'approved' ? 'Compliance Approved' :
-                              profile?.status === 'active' ? 'Account Active' :
-                                'Waiting for Upload'}
+                      {profile?.status === 'documents_uploaded' ? t('onboarding.documentsSubmitted', 'Documents Submitted') :
+                        profile?.status === 'under_review' ? t('status.under_review', 'Under Review') :
+                          profile?.status === 'reupload_required' ? t('onboarding.reuploadRequired', 'Re-upload Required') :
+                            profile?.status === 'approved' ? t('status.approved', 'Compliance Approved') :
+                              profile?.status === 'active' ? t('status.active', 'Account Active') :
+                                t('onboarding.waitingForUpload', 'Waiting for Upload')}
                     </p>
                   </div>
                 </div>
@@ -627,8 +629,8 @@ export default function VendorOnboarding() {
                     <ShieldCheck size={24} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Final Approval</p>
-                    <p className="font-bold text-sm">{['active', 'approved'].includes(profile?.status) ? 'Access Granted' : 'Pending Approval'}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">{t('onboarding.finalApproval', 'Final Approval')}</p>
+                    <p className="font-bold text-sm">{['active', 'approved'].includes(profile?.status) ? t('onboarding.accessGranted', 'Access Granted') : t('onboarding.pendingApproval', 'Pending Approval')}</p>
                   </div>
                 </div>
               </div>
@@ -636,18 +638,18 @@ export default function VendorOnboarding() {
               <div className="mt-12 pt-8 border-t border-white/10 relative z-10 text-center">
                 <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
                   {profile?.status === 'approved' ?
-                    'All documents verified! Please wait for final manual activation by our administrator to access your dashboard.' :
-                    'Once all documents are uploaded, our compliance team will verify your organization within 24-48 business hours.'}
+                    t('onboarding.statusApprovedMsg', 'All documents verified! Please wait for final manual activation by our administrator to access your dashboard.') :
+                    t('onboarding.statusPendingMsg', 'Once all documents are uploaded, our compliance team will verify your organization within 24-48 business hours.')}
                 </p>
               </div>
             </div>
 
             <div className="bg-white p-8 rounded-[40px] border border-gray-100">
               <h5 className="text-sm font-black text-secondary uppercase tracking-widest mb-4 flex items-center gap-2">
-                <AlertCircle size={16} className="text-primary" /> Security Note
+                <AlertCircle size={16} className="text-primary" /> {t('onboarding.privacyTitle', 'Security Note')}
               </h5>
               <p className="text-xs text-gray-400 font-bold leading-relaxed">
-                Your data is stored securely using enterprise-grade encryption. We only use these documents for government compliance and NGO verification purposes.
+                {t('onboarding.privacyDesc', 'Your data is stored securely using enterprise-grade encryption. We only use these documents for government compliance and NGO verification purposes.')}
               </p>
             </div>
           </div>
@@ -657,11 +659,11 @@ export default function VendorOnboarding() {
         {exceptionModal.show && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <div className="bg-white rounded-[32px] p-8 max-w-sm w-full shadow-2xl relative border border-gray-100">
-              <h3 className="text-lg font-black text-secondary mb-2">Request Exception</h3>
-              <p className="text-xs text-gray-400 font-bold mb-6">If you don't have this document, please explain why. An admin will review your request.</p>
+              <h3 className="text-lg font-black text-secondary mb-2">{t('onboarding.requestException', 'Request Exception')}</h3>
+              <p className="text-xs text-gray-400 font-bold mb-6">{t('onboarding.requestExceptionDesc', "If you don't have this document, please explain why. An admin will review your request.")}</p>
               <textarea
                 className="w-full bg-gray-50 border border-gray-200 rounded-2xl p-4 text-sm font-bold text-gray-800 focus:outline-none focus:border-amber-400 focus:bg-white mb-6 resize-none h-24"
-                placeholder="E.g., Not applicable for my business..."
+                placeholder={t('onboarding.exceptionPlaceholder', 'E.g., Not applicable for my business...')}
                 value={exceptionModal.reason}
                 onChange={(e) => setExceptionModal({ ...exceptionModal, reason: e.target.value })}
               />
@@ -670,17 +672,17 @@ export default function VendorOnboarding() {
                   onClick={() => setExceptionModal({ show: false, type: '', reason: '' })}
                   className="flex-1 py-3 text-gray-500 font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 rounded-xl transition-all"
                 >
-                  Cancel
+                  {t('common.cancel', 'Cancel')}
                 </button>
                 <button
                   onClick={() => {
-                    if (exceptionModal.reason.trim().length < 5) return toast.error('Please provide a valid reason');
+                    if (exceptionModal.reason.trim().length < 5) return toast.error(t('onboarding.errProvideReason', 'Please provide a valid reason'));
                     handleExceptionRequest(exceptionModal.type, exceptionModal.reason.trim());
                     setExceptionModal({ show: false, type: '', reason: '' });
                   }}
                   className="flex-1 bg-amber-500 text-white py-3 font-black text-[10px] uppercase tracking-widest hover:bg-amber-600 rounded-xl transition-all shadow-lg shadow-amber-500/30"
                 >
-                  Submit Request
+                  {t('onboarding.submitRequest', 'Submit Request')}
                 </button>
               </div>
             </div>

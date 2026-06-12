@@ -716,25 +716,25 @@ function MemberDashboardContent() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   
                   <div className="p-6 bg-[#f8f9fa] rounded-3xl border border-transparent hover:border-gray-200 transition-all">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Group Name</p>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('dashboardMember.groupNameLabel', 'Group Name')}</p>
                     <h4 className="text-lg font-black text-secondary">{fieldRecord.groupId.groupName}</h4>
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-100 mt-3">
-                      Active Community Unit
+                      {t('dashboardMember.activeCommunityUnit', 'Active Community Unit')}
                     </span>
                   </div>
 
                   <div className="p-6 bg-[#f8f9fa] rounded-3xl border border-transparent hover:border-gray-200 transition-all">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Regional Coordinates</p>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('dashboardMember.regionalCoords', 'Regional Coordinates')}</p>
                     <h4 className="text-base font-bold text-secondary">{fieldRecord.groupId.village || 'N/A'}, {fieldRecord.groupId.district || 'N/A'}</h4>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Block: {fieldRecord?.block || 'Local Area'}</p>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{t('dashboardMember.blockLabel', 'Block: {{block}}', { block: fieldRecord?.block || t('dashboardMember.localArea', 'Local Area') })}</p>
                   </div>
 
                   <div className="sm:col-span-2 p-6 bg-pink-50/50 rounded-3xl border border-pink-100 flex gap-4 items-start">
                     <Calendar size={22} className="text-primary shrink-0 mt-0.5 animate-bounce" />
                     <div>
-                      <h4 className="text-xs font-black text-secondary uppercase tracking-widest">Next Group Meeting</h4>
+                      <h4 className="text-xs font-black text-secondary uppercase tracking-widest">{t('dashboardMember.nextMeetingTitle', 'Next Group Meeting')}</h4>
                       <p className="text-xs text-gray-500 font-semibold leading-relaxed mt-1">
-                        Meetings are held on the first Sunday of every month. Check with your assigned Sakhi Hero (<span className="font-bold underline">{fieldRecord.assignedEmployeeId?.fullName || 'Hero'}</span>) for details.
+                        {t('dashboardMember.nextMeetingDesc', 'Meetings are held on the first Sunday of every month. Check with your assigned Sakhi Hero ({{name}}) for details.', { name: fieldRecord.assignedEmployeeId?.fullName || 'Hero' })}
                       </p>
                     </div>
                   </div>
@@ -743,9 +743,9 @@ function MemberDashboardContent() {
               ) : (
                 <div className="p-8 text-center bg-gray-50 rounded-3xl border border-gray-100">
                   <AlertCircle size={36} className="mx-auto text-gray-300 mb-3" />
-                  <h4 className="text-base font-bold text-secondary">No Community Group Assigned</h4>
+                  <h4 className="text-base font-bold text-secondary">{t('dashboardMember.noGroupTitle', 'No Community Group Assigned')}</h4>
                   <p className="text-gray-400 text-xs font-semibold leading-relaxed max-w-sm mx-auto mt-1">
-                    Once you connect with a nearby Sakhi Hero (Employee), you will be assigned to a local group.
+                    {t('dashboardMember.noGroupDesc', 'Once you connect with a nearby Sakhi Hero (Employee), you will be assigned to a local group.')}
                   </p>
                 </div>
               )}
@@ -754,28 +754,28 @@ function MemberDashboardContent() {
             {/* VERIFIED DIGITAL RECEIPT SECTION */}
             <section className="p-6 sm:p-10 bg-white rounded-[35px] border border-gray-100 shadow-soft print-hide">
               <h2 className="text-2xl font-black text-secondary mb-8 flex items-center gap-3">
-                <CreditCard size={26} className="text-primary" /> Membership Payments History
+                <CreditCard size={26} className="text-primary" /> {t('dashboardMember.paymentHistoryTitle', 'Membership Payments History')}
               </h2>
 
               {membership ? (
                 <div className="p-8 bg-[#f8f9fa] rounded-3xl border border-gray-100 relative">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6 pb-6 border-b border-gray-200">
                     <div>
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Receipt Number</p>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('dashboardMember.receiptNumber', 'Receipt Number')}</p>
                       <h4 className="text-xl font-black text-secondary mt-1">{membership.receiptNumber}</h4>
                     </div>
-                    <div className="sm:text-right">
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Paid Amount</p>
+                    <div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('dashboardMember.paidAmount', 'Paid Amount')}</p>
                       <h4 className="text-xl font-black text-primary mt-1">₹{membership.amount}.00</h4>
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
                     <div className="flex items-center gap-2 text-emerald-600 font-bold text-sm">
-                      <CheckCircle size={20} className="animate-bounce" /> Verified Digital Payment Confirmation
+                      <CheckCircle size={20} className="animate-bounce" /> {t('dashboardMember.verifiedPaymentTag', 'Verified Digital Payment Confirmation')}
                     </div>
                     <Link href={`/member/receipt/${membership._id}`} target="_blank" className="w-full sm:w-auto">
                       <button className="btn-primary w-full py-3.5 px-8 shadow-lg shadow-primary/20">
-                        <FileText size={16} /> View Digital Receipt
+                        <FileText size={16} /> {t('dashboardMember.viewReceipt', 'View Digital Receipt')}
                       </button>
                     </Link>
                   </div>
@@ -785,12 +785,12 @@ function MemberDashboardContent() {
                   <div className="w-16 h-16 bg-blue-100/80 rounded-2xl flex items-center justify-center text-blue-600 mx-auto mb-6">
                     <ShieldCheck size={32} />
                   </div>
-                  <h3 className="text-xl font-black text-secondary leading-tight">Free Membership Active</h3>
+                  <h3 className="text-xl font-black text-secondary leading-tight">{t('dashboardMember.freeMembershipActive', 'Free Membership Active')}</h3>
                   <p className="text-gray-500 text-xs font-semibold max-w-md mx-auto leading-relaxed mt-3 mb-8">
-                    You are currently on the basic free tier. Upgrade to Premium to unlock dynamic digital ID cards, learning manuals, and campaign kit benefits!
+                    {t('dashboardMember.freeMembershipDesc', 'You are currently on the basic free tier. Upgrade to Premium to unlock dynamic digital ID cards, learning manuals, and campaign kit benefits!')}
                   </p>
-                  <button onClick={() => { toast.info("Premium upgrade feature coming soon!") }} className="btn-primary py-3.5 px-8 shadow-lg shadow-primary/20 mx-auto w-auto min-w-[200px] justify-center text-center">
-                    Upgrade to Premium
+                  <button onClick={() => { toast.info(t('dashboardMember.comingSoon', "Premium upgrade feature coming soon!")) }} className="btn-primary py-3.5 px-8 shadow-lg shadow-primary/20 mx-auto w-auto min-w-[200px] justify-center text-center">
+                    {t('dashboardMember.upgradePremium', 'Upgrade to Premium')}
                   </button>
                 </div>
               ) : (
@@ -798,15 +798,15 @@ function MemberDashboardContent() {
                   <div className="w-16 h-16 bg-pink-100/80 rounded-2xl flex items-center justify-center text-primary mx-auto mb-6 animate-pulse">
                     <ShieldAlert size={32} />
                   </div>
-                  <h3 className="text-xl font-black text-secondary leading-tight">Membership Payment Pending</h3>
+                  <h3 className="text-xl font-black text-secondary leading-tight">{t('dashboardMember.joinPremiumTitle', 'Join Premium Membership')}</h3>
                   <p className="text-gray-500 text-xs font-semibold max-w-md mx-auto leading-relaxed mt-3 mb-10">
-                    To activate your dynamic digital membership card, join local community groups, and qualify for campaign kits, please complete your ₹{membershipFee} membership fee.
+                    {t('dashboardMember.joinPremiumDesc', 'Unlock the full potential of SakhiHub! Get your official digital ID card, join self-help groups, and participate in campaigns.')}
                   </p>
                   
                   {verifyingPayment ? (
                     <div className="py-6 flex flex-col items-center justify-center gap-3">
                       <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest animate-pulse">Verifying online transaction...</p>
+                      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest animate-pulse">{t('dashboardMember.verifyingOnline', 'Verifying online transaction...')}</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
@@ -816,9 +816,9 @@ function MemberDashboardContent() {
                           <span className="px-3 py-1 bg-green-50 text-green-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-green-100">
                             Recommended
                           </span>
-                          <h4 className="text-sm font-black text-secondary mt-3">Pay Online Instantly</h4>
+                          <h4 className="text-sm font-black text-secondary mt-3">{t('dashboardMember.payOnline', 'Pay Online Now')}</h4>
                           <p className="text-[11px] text-gray-400 font-bold leading-relaxed mt-2">
-                            Secure payment via Cashfree. Your receipt and dynamic ID card will be activated instantly.
+                            {t('dashboardMember.payOnlineDesc', 'Secure payment via Cashfree. Your receipt and dynamic ID card will be activated instantly.')}
                           </p>
                         </div>
                         <button
@@ -826,7 +826,7 @@ function MemberDashboardContent() {
                           disabled={payingOnline}
                           className="mt-6 w-full py-3.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-md hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                         >
-                          {payingOnline ? 'Initiating...' : `Pay ₹${membershipFee} Online`}
+                          {payingOnline ? t('dashboardMember.initiating', 'Initiating...') : `${t('dashboardMember.payOnline', 'Pay Online Now')} ₹${membershipFee}`}
                         </button>
                       </div>
  
@@ -836,9 +836,9 @@ function MemberDashboardContent() {
                           <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-amber-100">
                             Offline Mode
                           </span>
-                          <h4 className="text-sm font-black text-secondary mt-3">Pay Cash to Sakhi Hero</h4>
+                          <h4 className="text-sm font-black text-secondary mt-3">{t('dashboardMember.payCash', 'Pay Cash to Agent')}</h4>
                           <p className="text-[11px] text-gray-400 font-bold leading-relaxed mt-2">
-                            Hand over ₹{membershipFee} to your regional hero/employee. They will register it on their portal to activate your account.
+                            {t('dashboardMember.payCashDesc', 'Hand over membership fee to your regional hero/employee. They will register it on their portal to activate your account.')}
                           </p>
                         </div>
                         <button
@@ -975,34 +975,33 @@ function MemberDashboardContent() {
               </button>
 
               <h3 className="text-xl font-black text-secondary flex items-center gap-2 mb-2">
-                <MessageSquare size={22} className="text-primary" /> Submit a Help Ticket
+                <MessageSquare size={22} className="text-primary" /> {t('dashboardMember.submitTicket', 'Submit a Help Ticket')}
               </h3>
-              <p className="text-gray-400 text-xs font-semibold leading-relaxed mb-6">Our dedicated support managers and local administrators are available to help you.</p>
-
+              <p className="text-gray-400 text-xs font-semibold leading-relaxed mb-6">{t('dashboardMember.supportDesc', 'Our dedicated support managers and local administrators are available to help you.')}</p>
               {supportSuccess ? (
                 <div className="py-8 text-center text-green-600 font-bold flex flex-col items-center gap-2">
                   <CheckCircle size={40} className="animate-bounce" />
-                  <span>Ticket Submitted Successfully! Redirecting...</span>
+                  <span>{t('dashboardMember.ticketSubmitted', 'Ticket Submitted Successfully! Redirecting...')}</span>
                 </div>
               ) : (
                 <form onSubmit={handleSubmitSupport} className="space-y-4">
                   <div>
-                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Subject</label>
+                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5">{t('dashboardMember.subject', 'Subject')}</label>
                     <input
                       type="text"
                       required
-                      placeholder="What do you need help with?"
+                      placeholder={t('dashboardMember.subjectPlaceholder', 'What do you need help with?')}
                       value={supportSubject}
                       onChange={(e) => setSupportSubject(e.target.value)}
                       className="w-full px-4 py-3 bg-[#f8f9fa] border-none text-secondary rounded-xl text-xs font-semibold focus:outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Detailed Message</label>
+                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5">{t('dashboardMember.detailedMessage', 'Detailed Message')}</label>
                     <textarea
                       required
                       rows={4}
-                      placeholder="Write your issue details here..."
+                      placeholder={t('dashboardMember.messagePlaceholder', 'Write your issue details here...')}
                       value={supportMessage}
                       onChange={(e) => setSupportMessage(e.target.value)}
                       className="w-full px-4 py-3 bg-[#f8f9fa] border-none text-secondary rounded-xl text-xs font-semibold focus:outline-none resize-none"
@@ -1013,7 +1012,7 @@ function MemberDashboardContent() {
                     disabled={supportLoading}
                     className="w-full py-4 bg-gradient-to-r from-primary to-secondary text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center shadow-lg"
                   >
-                    {supportLoading ? 'Submitting...' : 'Submit Support Request'}
+                    {supportLoading ? t('dashboardMember.submitting', 'Submitting...') : t('dashboardMember.submitRequest', 'Submit Support Request')}
                   </button>
                 </form>
               )}
@@ -1040,14 +1039,14 @@ function MemberDashboardContent() {
               </button>
 
               <h3 className="text-xl font-black text-secondary flex items-center gap-2 mb-2">
-                <User size={22} className="text-primary" /> Edit Profile Details
+                <User size={22} className="text-primary" /> {t('dashboardMember.editProfileDetails', 'Edit Profile Details')}
               </h3>
-              <p className="text-gray-400 text-xs font-semibold leading-relaxed mb-6">Modify details to sync on your digital membership card.</p>
+              <p className="text-gray-400 text-xs font-semibold leading-relaxed mb-6">{t('dashboardMember.editProfileDesc', 'Modify details to sync on your digital membership card.')}</p>
 
               <form onSubmit={handleUpdateProfile} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Mobile Number</label>
+                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('dashboardMember.mobileNumber', 'Mobile Number')}</label>
                     <input
                       type="text"
                       required
@@ -1057,7 +1056,7 @@ function MemberDashboardContent() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Occupation</label>
+                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('dashboardMember.occupation', 'Occupation')}</label>
                     <input
                       type="text"
                       value={profileOccupation}
@@ -1069,7 +1068,7 @@ function MemberDashboardContent() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Village</label>
+                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('dashboardMember.village', 'Village')}</label>
                     <input
                       type="text"
                       value={profileVillage}
@@ -1078,7 +1077,7 @@ function MemberDashboardContent() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Block</label>
+                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('dashboardMember.block', 'Block')}</label>
                     <input
                       type="text"
                       value={profileBlock}
@@ -1090,7 +1089,7 @@ function MemberDashboardContent() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">District</label>
+                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('dashboardMember.district', 'District')}</label>
                     <input
                       type="text"
                       value={profileDistrict}
@@ -1099,7 +1098,7 @@ function MemberDashboardContent() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Pincode</label>
+                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('dashboardMember.pincode', 'Pincode')}</label>
                     <input
                       type="text"
                       value={profilePincode}
@@ -1110,7 +1109,7 @@ function MemberDashboardContent() {
                 </div>
 
                 <div>
-                  <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Detailed Address</label>
+                  <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('dashboardMember.detailedAddress', 'Detailed Address')}</label>
                   <input
                     type="text"
                     value={profileAddress}
@@ -1124,7 +1123,7 @@ function MemberDashboardContent() {
                   disabled={profileLoading}
                   className="w-full py-4 bg-secondary hover:bg-secondary-dark text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center shadow-lg"
                 >
-                  {profileLoading ? 'Saving...' : 'Save Profile Changes'}
+                  {profileLoading ? t('dashboardMember.saving', 'Saving...') : t('dashboardMember.saveChanges', 'Save Changes')}
                 </button>
               </form>
             </motion.div>

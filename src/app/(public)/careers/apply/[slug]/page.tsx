@@ -185,7 +185,7 @@ export default function ApplyPage() {
   };
 
   if (loading) return <div className="min-h-screen pt-32 text-center"><div className="animate-spin w-8 h-8 border-4 border-pink-500 border-t-transparent rounded-full mx-auto"></div></div>;
-  if (!vacancy) return <div className="min-h-screen pt-32 text-center font-bold text-gray-500">Vacancy not found.</div>;
+  if (!vacancy) return <div className="min-h-screen pt-32 text-center font-bold text-gray-500">{t('careersPage.vacancyNotFound')}</div>;
 
   if (success) {
     return (
@@ -238,7 +238,7 @@ export default function ApplyPage() {
                     existingApp.status === 'Selected' ? 'bg-green-100 text-green-700' :
                     existingApp.status === 'Rejected' ? 'bg-rose-100 text-rose-700' :
                     'bg-blue-100 text-blue-700'
-                  }`}>{existingApp.status}</span>
+                  }`}>{t('status.' + existingApp.status.toLowerCase().replace(/\s+/g, '_'), existingApp.status)}</span>
                 </div>
               </div>
             </div>
@@ -328,9 +328,9 @@ export default function ApplyPage() {
                   <select required value={formData.experience} onChange={e => setFormData({...formData, experience: e.target.value})} className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-900 focus:outline-none focus:border-pink-500">
                     <option value="">{t('careersPage.selExp')}</option>
                     <option value="Fresher">{t('careersPage.fresher')}</option>
-                    <option value="1-2 Years">1-2 Years</option>
-                    <option value="3-5 Years">3-5 Years</option>
-                    <option value="5+ Years">5+ Years</option>
+                    <option value="1-2 Years">{t('careersPage.exp1to2', '1-2 Years')}</option>
+                    <option value="3-5 Years">{t('careersPage.exp3to5', '3-5 Years')}</option>
+                    <option value="5+ Years">{t('careersPage.exp5plus', '5+ Years')}</option>
                   </select>
                 </div>
               </div>

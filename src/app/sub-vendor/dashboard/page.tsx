@@ -14,8 +14,10 @@ import RegisterPartnerModal from "@/components/features/dashboard/RegisterPartne
 import ReferralLinkCard from "@/components/features/dashboard/ReferralLinkCard";
 import PaymentReceiptCard from "@/components/features/dashboard/PaymentReceiptCard";
 import DigitalIdWidget from "@/components/features/dashboard/DigitalIdWidget";
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function SubVendorDashboard() {
+  const { t } = useLanguage();
   const [stats, setStats] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -40,12 +42,12 @@ export default function SubVendorDashboard() {
   }, []);
 
   const statCards = [
-    { title: 'My Campaigns', value: stats?.activeCampaigns || 0, icon: Target, color: '#FF4D8C', trend: 'Active programs' },
-    { title: 'Team Employees', value: stats?.totalEmployees || 0, icon: Briefcase, color: '#6A1B9A', trend: 'Field force' },
-    { title: 'Total Members', value: stats?.totalMembers || 0, icon: Users, color: '#1565C0', trend: 'Village growth' },
-    { title: 'Groups Formed', value: stats?.totalGroups || 0, icon: ClipboardList, color: '#EF6C00', trend: 'Community groups' },
-    { title: 'Paid Members', value: stats?.paidMembers || 0, icon: CheckCircle, color: '#2E7D32', trend: 'Community reach' },
-    { title: 'Pending Tasks', value: 3, icon: Clock, color: '#D32F2F', trend: 'Action required' },
+    { title: t('dashboardCommon.myCampaigns', 'My Campaigns'), value: stats?.activeCampaigns || 0, icon: Target, color: '#FF4D8C', trend: t('dashboardCommon.activePrograms', 'Active programs') },
+    { title: t('dashboardCommon.teamEmployees', 'Team Employees'), value: stats?.totalEmployees || 0, icon: Briefcase, color: '#6A1B9A', trend: t('dashboardCommon.fieldForce', 'Field force') },
+    { title: t('dashboardCommon.totalMembers', 'Total Members'), value: stats?.totalMembers || 0, icon: Users, color: '#1565C0', trend: t('dashboardCommon.villageGrowth', 'Village growth') },
+    { title: t('dashboardCommon.groupsFormed', 'Groups Formed'), value: stats?.totalGroups || 0, icon: ClipboardList, color: '#EF6C00', trend: t('dashboardCommon.communityGroups', 'Community groups') },
+    { title: t('dashboardCommon.paidMembers', 'Paid Members'), value: stats?.paidMembers || 0, icon: CheckCircle, color: '#2E7D32', trend: t('dashboardCommon.communityReach', 'Community reach') },
+    { title: t('dashboardCommon.pendingTasks', 'Pending Tasks'), value: 3, icon: Clock, color: '#D32F2F', trend: t('dashboardCommon.actionRequired', 'Action required') },
   ];
 
   const isWorkLocationIncomplete = user && (
@@ -67,22 +69,22 @@ export default function SubVendorDashboard() {
                 <AlertCircle size={28} />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-amber-900 leading-tight">Action Required: Complete Your Work Location</h2>
+                <h2 className="text-xl font-bold text-amber-900 leading-tight">{t('onboarding.completeWorkLocation', 'Action Required: Complete Your Work Location')}</h2>
                 <p className="text-amber-700/80 mt-1 text-sm leading-relaxed">
-                  Please provide your detailed proposed work location (Tehsil, Panchayat/Area, block, district, state, pincode, and address) in your profile.
+                  {t('onboarding.completeWorkLocationDesc', 'Please provide your detailed proposed work location (Tehsil, Panchayat/Area, block, district, state, pincode, and address) in your profile.')}
                 </p>
               </div>
             </div>
             <Link href="/sub-vendor/dashboard/profile">
               <button className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-lg shadow-amber-500/20 transition-all hover:scale-105 active:scale-95 whitespace-nowrap flex items-center gap-2">
-                Edit Profile
+                {t('dashboardCommon.editProfile', 'Edit Profile')}
               </button>
             </Link>
           </motion.div>
         )}
         <header>
-          <h1 className="text-3xl md:text-4xl font-black text-secondary">Sub-Vendor Dashboard</h1>
-          <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Monitor your local field force and community operations</p>
+          <h1 className="text-3xl md:text-4xl font-black text-secondary">{t('dashboardCommon.subVendorDashboard', 'Sub-Vendor Dashboard')}</h1>
+          <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">{t('dashboardCommon.subVendorDashboardDesc', 'Monitor your local field force and community operations')}</p>
         </header>
 
         {loading ? (
@@ -136,9 +138,9 @@ export default function SubVendorDashboard() {
                       <CheckCircle size={24} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-green-800">Agreement Generated Successfully</h3>
+                      <h3 className="text-lg font-black text-green-800">{t('onboarding.agreementGenerated', 'Agreement Generated Successfully')}</h3>
                       <p className="text-xs text-green-600 font-bold mt-1">
-                        Your official appointment letter is ready.
+                        {t('onboarding.appointmentLetterReady', 'Your official appointment letter is ready.')}
                       </p>
                     </div>
                   </div>
@@ -146,7 +148,7 @@ export default function SubVendorDashboard() {
                     href="/sub-vendor/dashboard/documents" 
                     className="flex items-center gap-2 px-6 py-3 bg-white text-green-700 border border-green-200 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-green-50 transition-all shrink-0"
                   >
-                    <ClipboardList size={14} /> Open Documents
+                    <ClipboardList size={14} /> {t('onboarding.openDocuments', 'Open Documents')}
                   </a>
                 </div>
               )}
@@ -154,8 +156,8 @@ export default function SubVendorDashboard() {
                 <PaymentReceiptCard />
                 <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft flex flex-col items-center justify-center text-center min-h-[250px]">
                   <TrendingUp size={60} className="text-gray-100 mb-6" />
-                  <h3 className="text-xl font-black text-secondary">Field Activity Overview</h3>
-                  <p className="text-gray-400 font-bold text-sm max-w-xs mt-2">Visualizing your monthly growth and member activation data.</p>
+                  <h3 className="text-xl font-black text-secondary">{t('dashboardCommon.fieldActivityOverview', 'Field Activity Overview')}</h3>
+                  <p className="text-gray-400 font-bold text-sm max-w-xs mt-2">{t('dashboardCommon.fieldActivityOverviewDesc', 'Visualizing your monthly growth and member activation data.')}</p>
                 </div>
               </div>
             </div>
@@ -163,19 +165,19 @@ export default function SubVendorDashboard() {
 
           {/* Quick Actions */}
           <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
-            <h2 className="text-xl font-black text-secondary mb-8">Field Actions</h2>
+            <h2 className="text-xl font-black text-secondary mb-8">{t('dashboardCommon.fieldActions', 'Field Actions')}</h2>
             <div className="flex flex-col gap-3">
               <button 
                 onClick={() => setShowRegisterModal(true)}
                 className="flex items-center gap-4 p-5 w-full bg-gray-50 hover:bg-primary hover:text-white rounded-2xl text-secondary font-bold text-sm transition-all text-left group"
               >
                 <User size={20} className="group-hover:scale-110 transition-transform" />
-                Register Employee
+                {t('dashboardCommon.registerEmployee', 'Register Employee')}
               </button>
               {[
-                { label: 'New Group Entry', icon: ClipboardList },
-                { label: 'View Reports', icon: TrendingUp },
-                { label: 'Download IDs', icon: ShieldCheck },
+                { label: t('dashboardCommon.newGroupEntry', 'New Group Entry'), icon: ClipboardList },
+                { label: t('dashboardCommon.viewReports', 'View Reports'), icon: TrendingUp },
+                { label: t('dashboardCommon.downloadIds', 'Download IDs'), icon: ShieldCheck },
               ].map((action, i) => (
                 <button key={i} className="flex items-center gap-4 p-5 w-full bg-gray-50 hover:bg-primary hover:text-white rounded-2xl text-secondary font-bold text-sm transition-all text-left group">
                   <action.icon size={20} className="group-hover:scale-110 transition-transform" />

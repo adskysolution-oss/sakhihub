@@ -32,10 +32,10 @@ export default function EmployeeDashboard({ user }: { user: any }) {
   }, []);
 
   const stats = [
-    { label: "Groups Created", value: data?.totalGroups || "0", icon: Users, color: "#6a1b9a" },
-    { label: "Women Members", value: data?.totalMembers || "0", icon: UserPlus, color: "#e91e63" },
-    { label: "Wallet Balance", value: `₹${(data?.walletBalance || 0).toLocaleString()}`, icon: IndianRupee, color: "#2e7d32" },
-    { label: "Monthly Goal", value: `${data?.monthlyMembers || 0} / 200`, icon: Target, color: "#ef6c00" },
+    { label: t('employeeDashboard.groupsCreated', 'Groups Created'), value: data?.totalGroups || "0", icon: Users, color: "#6a1b9a" },
+    { label: t('employeeDashboard.womenMembers', 'Women Members'), value: data?.totalMembers || "0", icon: UserPlus, color: "#e91e63" },
+    { label: t('employeeDashboard.walletBalance', 'Wallet Balance'), value: `₹${(data?.walletBalance || 0).toLocaleString()}`, icon: IndianRupee, color: "#2e7d32" },
+    { label: t('employeeDashboard.monthlyGoal', 'Monthly Goal'), value: `${data?.monthlyMembers || 0} / 200`, icon: Target, color: "#ef6c00" },
   ];
 
   const isVerified = user?.isVerified;
@@ -56,15 +56,15 @@ export default function EmployeeDashboard({ user }: { user: any }) {
               <AlertCircle size={28} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-amber-900 leading-tight">Action Required: Complete Your Work Location</h2>
+              <h2 className="text-xl font-bold text-amber-900 leading-tight">{t('employeeDashboard.workLocationActionReq', 'Action Required: Complete Your Work Location')}</h2>
               <p className="text-amber-700/80 mt-1 text-sm leading-relaxed">
-                Please provide your detailed proposed work location (Tehsil, Panchayat/Area, block, district, state, pincode, and address) in your profile.
+                {t('employeeDashboard.workLocationActionDesc', 'Please provide your detailed proposed work location (Tehsil, Panchayat/Area, block, district, state, pincode, and address) in your profile.')}
               </p>
             </div>
           </div>
           <Link href="/employee/dashboard/profile">
             <button className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-lg shadow-amber-500/20 transition-all hover:scale-105 active:scale-95 whitespace-nowrap flex items-center gap-2">
-              Edit Profile
+              {t('employeeDashboard.editProfile', 'Edit Profile')}
             </button>
           </Link>
         </section>
@@ -100,9 +100,9 @@ export default function EmployeeDashboard({ user }: { user: any }) {
       <section className="relative p-6 sm:p-10 lg:p-14 bg-gradient-to-br from-primary to-secondary-dark rounded-[30px] md:rounded-[40px] text-white overflow-hidden shadow-2xl shadow-primary/20">
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="text-center md:text-left">
-            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold mb-4 leading-tight">Hello, {user?.fullName}!</h1>
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold mb-4 leading-tight">{t('employeeDashboard.helloUser', 'Hello, {{name}}!', { name: user?.fullName })}</h1>
             <p className="text-xs sm:text-lg lg:text-xl opacity-90 leading-relaxed max-w-xl">
-              You are currently assigned to <span className="font-semibold border-b-2 border-white/30">{user?.block}, {user?.district}</span> area.
+              {t('employeeDashboard.assignedArea', 'You are currently assigned to {{block}}, {{district}} area.', { block: user?.block, district: user?.district })}
             </p>
             <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-8">
               <span className="px-4 py-2 bg-white/20 backdrop-blur-md rounded-2xl text-[10px] md:text-xs font-bold tracking-widest uppercase">
@@ -185,15 +185,15 @@ export default function EmployeeDashboard({ user }: { user: any }) {
           )}
           
           <h3 className={`text-xl sm:text-2xl lg:text-3xl font-bold text-secondary mb-8 sm:mb-10 flex items-center gap-4 ${!isVerified ? 'opacity-50' : ''}`}>
-            <ClipboardList size={28} className="text-primary" /> Quick Actions
+            <ClipboardList size={28} className="text-primary" /> {t('employeeDashboard.quickActions', 'Quick Actions')}
           </h3>
           <div className={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4 md:gap-6 ${!isVerified ? 'opacity-50 pointer-events-none' : ''}`}>
             <Link href="/employee/members" className="group no-underline">
               <button className="w-full p-5 sm:p-6 rounded-[24px] sm:rounded-[32px] border border-gray-100 bg-gray-50 hover:bg-white hover:border-primary/30 hover:shadow-medium transition-all text-left h-full flex flex-col gap-4">
                 <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform shrink-0"><UserPlus size={24} /></div>
                 <div className="min-w-0">
-                  <p className="text-base sm:text-lg font-bold text-secondary leading-tight truncate">Add Member</p>
-                  <p className="text-[10px] sm:text-xs text-gray-400 font-semibold mt-1">Register a new woman</p>
+                  <p className="text-base sm:text-lg font-bold text-secondary leading-tight truncate">{t('employeeDashboard.addMember', 'Add Member')}</p>
+                  <p className="text-[10px] sm:text-xs text-gray-400 font-semibold mt-1">{t('employeeDashboard.addMemberDesc', 'Register a new woman')}</p>
                 </div>
               </button>
             </Link>
@@ -201,8 +201,8 @@ export default function EmployeeDashboard({ user }: { user: any }) {
               <button className="w-full p-5 sm:p-6 rounded-[24px] sm:rounded-[32px] border border-gray-100 bg-gray-50 hover:bg-white hover:border-primary/30 hover:shadow-medium transition-all text-left h-full flex flex-col gap-4">
                 <div className="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shrink-0"><Users size={24} /></div>
                 <div className="min-w-0">
-                  <p className="text-base sm:text-lg font-bold text-secondary leading-tight truncate">Create Group</p>
-                  <p className="text-[10px] sm:text-xs text-gray-400 font-semibold mt-1">Form a new unit</p>
+                  <p className="text-base sm:text-lg font-bold text-secondary leading-tight truncate">{t('employeeDashboard.createGroup', 'Create Group')}</p>
+                  <p className="text-[10px] sm:text-xs text-gray-400 font-semibold mt-1">{t('employeeDashboard.createGroupDesc', 'Form a new unit')}</p>
                 </div>
               </button>
             </Link>
@@ -210,8 +210,8 @@ export default function EmployeeDashboard({ user }: { user: any }) {
               <button className="w-full p-5 sm:p-6 rounded-[24px] sm:rounded-[32px] border-2 border-primary/20 bg-primary/5 hover:bg-white hover:border-primary transition-all text-left flex flex-col sm:flex-row sm:items-center gap-6">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform shrink-0"><Bell size={24} /></div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-lg sm:text-xl font-bold text-secondary leading-tight">Member Requests</p>
-                  <p className="text-xs sm:text-sm text-gray-400 font-semibold mt-1">Check pending connection requests</p>
+                  <p className="text-lg sm:text-xl font-bold text-secondary leading-tight">{t('employeeDashboard.memberRequests', 'Member Requests')}</p>
+                  <p className="text-xs sm:text-sm text-gray-400 font-semibold mt-1">{t('employeeDashboard.memberRequestsDesc', 'Check pending connection requests')}</p>
                 </div>
                 <div className="hidden sm:block sm:ml-auto"><ArrowRight className="text-primary group-hover:translate-x-2 transition-transform" /></div>
               </button>
@@ -220,8 +220,8 @@ export default function EmployeeDashboard({ user }: { user: any }) {
               <button className="w-full p-5 sm:p-6 rounded-[24px] sm:rounded-[32px] border border-gray-100 bg-gray-50 hover:bg-white hover:border-primary/30 hover:shadow-medium transition-all text-left h-full flex flex-col gap-4">
                 <div className="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform shrink-0"><IndianRupee size={24} /></div>
                 <div className="min-w-0">
-                  <p className="text-base sm:text-lg font-bold text-secondary leading-tight truncate">My Wallet</p>
-                  <p className="text-[10px] sm:text-xs text-gray-400 font-semibold mt-1">Check earnings & withdraw</p>
+                  <p className="text-base sm:text-lg font-bold text-secondary leading-tight truncate">{t('employeeDashboard.myWallet', 'My Wallet')}</p>
+                  <p className="text-[10px] sm:text-xs text-gray-400 font-semibold mt-1">{t('employeeDashboard.myWalletDesc', 'Check earnings & withdraw')}</p>
                 </div>
               </button>
             </Link>
@@ -229,8 +229,8 @@ export default function EmployeeDashboard({ user }: { user: any }) {
               <button className="w-full p-5 sm:p-6 rounded-[24px] sm:rounded-[32px] border border-gray-100 bg-gray-50 hover:bg-white hover:border-primary/30 hover:shadow-medium transition-all text-left h-full flex flex-col gap-4">
                 <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 group-hover:scale-110 transition-transform shrink-0"><TrendingUp size={24} /></div>
                 <div className="min-w-0">
-                  <p className="text-base sm:text-lg font-bold text-secondary leading-tight truncate">Daily Report</p>
-                  <p className="text-[10px] sm:text-xs text-gray-400 font-semibold mt-1">Submit summary</p>
+                  <p className="text-base sm:text-lg font-bold text-secondary leading-tight truncate">{t('employeeDashboard.dailyReport', 'Daily Report')}</p>
+                  <p className="text-[10px] sm:text-xs text-gray-400 font-semibold mt-1">{t('employeeDashboard.dailyReportDesc', 'Submit summary')}</p>
                 </div>
               </button>
             </Link>
@@ -241,12 +241,12 @@ export default function EmployeeDashboard({ user }: { user: any }) {
         <aside className="lg:col-span-5 flex flex-col gap-6 md:gap-10">
           <section className="p-6 sm:p-10 lg:p-12 bg-white rounded-[30px] md:rounded-[40px] border border-gray-100 shadow-soft">
             <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-secondary mb-8 sm:mb-10 flex items-center gap-4">
-              <Target size={28} className="text-primary" /> Targets & Score
+              <Target size={28} className="text-primary" /> {t('employeeDashboard.targetsAndScore', 'Targets & Score')}
             </h3>
             <div className="flex flex-col gap-10">
               <div>
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Monthly Members</span>
+                  <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t('employeeDashboard.monthlyMembers', 'Monthly Members')}</span>
                   <span className="text-sm font-bold text-secondary">{data?.monthlyMembers || 0} / 200</span>
                 </div>
                 <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
@@ -259,7 +259,7 @@ export default function EmployeeDashboard({ user }: { user: any }) {
               </div>
               <div>
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Group Creation</span>
+                  <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t('employeeDashboard.groupCreation', 'Group Creation')}</span>
                   <span className="text-sm font-bold text-secondary">{data?.totalGroups || 0} / 15</span>
                 </div>
                 <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
@@ -271,10 +271,12 @@ export default function EmployeeDashboard({ user }: { user: any }) {
                 </div>
               </div>
               <div className="mt-4 p-8 bg-primary/5 rounded-[32px] border border-dashed border-primary/30 text-center">
-                <p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Efficiency Score</p>
+                <p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">{t('employeeDashboard.efficiencyScore', 'Efficiency Score')}</p>
                 <h4 className="text-5xl font-bold text-secondary mb-4">{Math.round(((data?.monthlyMembers || 0) / 200) * 100)}%</h4>
                 <p className="text-xs text-gray-400 font-semibold leading-relaxed px-4">
-                  {((data?.monthlyMembers || 0) / 200) >= 0.8 ? 'You are performing exceptionally well!' : 'Keep pushing to reach your monthly targets and help more women.'}
+                  {((data?.monthlyMembers || 0) / 200) >= 0.8 
+                    ? t('employeeDashboard.perfExcellent', 'You are performing exceptionally well!') 
+                    : t('employeeDashboard.perfKeepPushing', 'Keep pushing to reach your monthly targets and help more women.')}
                 </p>
               </div>
             </div>
@@ -287,10 +289,10 @@ export default function EmployeeDashboard({ user }: { user: any }) {
                 </div>
                 <div>
                   <h3 className="text-lg font-black text-green-800">
-                    Offer Letter Generated Successfully
+                    {t('employeeDashboard.offerLetterGenerated', 'Offer Letter Generated Successfully')}
                   </h3>
                   <p className="text-xs text-green-600 font-bold mt-1">
-                    Your official offer letter is ready.
+                    {t('employeeDashboard.offerLetterReady', 'Your official offer letter is ready.')}
                   </p>
                 </div>
               </div>
@@ -298,7 +300,7 @@ export default function EmployeeDashboard({ user }: { user: any }) {
                 href="/employee/dashboard/documents" 
                 className="flex items-center gap-2 px-6 py-3 bg-white text-green-700 border border-green-200 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-green-50 transition-all shrink-0"
               >
-                <ClipboardList size={14} /> Open Documents
+                <ClipboardList size={14} /> {t('employeeDashboard.openDocuments', 'Open Documents')}
               </a>
             </div>
           )}

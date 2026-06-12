@@ -13,8 +13,10 @@ import { getDocComplianceSummary, getRequiredDocs, getDocumentViewUrl, getRequir
 import DocumentCard from "@/components/features/dashboard/DocumentCard";
 import { useDocumentFlow } from "@/hooks/useDocumentFlow";
 import { toast } from 'sonner';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function VendorDocuments() {
+  const { t } = useLanguage();
   const [documents, setDocuments] = useState<any>({});
   const [digitalCertificates, setDigitalCertificates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,7 +102,7 @@ export default function VendorDocuments() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.aadhaarNumber || formData.aadhaarNumber.length < 12) {
-      toast.error("Please enter a valid 12-digit Aadhaar Number before uploading.");
+      toast.error(t('onboarding.errAadhaar', 'Please enter a valid 12-digit Aadhaar Number before uploading.'));
       e.target.value = '';
       return;
     }
@@ -112,7 +114,7 @@ export default function VendorDocuments() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.aadhaarNumber || formData.aadhaarNumber.length < 12) {
-      toast.error("Please enter a valid 12-digit Aadhaar Number before uploading.");
+      toast.error(t('onboarding.errAadhaar', 'Please enter a valid 12-digit Aadhaar Number before uploading.'));
       e.target.value = '';
       return;
     }
@@ -124,7 +126,7 @@ export default function VendorDocuments() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.panNumber || formData.panNumber.length !== 10) {
-      toast.error("Please enter a valid 10-character PAN Number before uploading.");
+      toast.error(t('onboarding.errPan', 'Please enter a valid 10-character PAN Number before uploading.'));
       e.target.value = '';
       return;
     }
@@ -136,17 +138,17 @@ export default function VendorDocuments() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!formData.accountHolderName || !formData.ifscCode || !formData.accountNumber) {
-      toast.error("Please fill all bank details before uploading.");
+      toast.error(t('onboarding.errBankFields', 'Please fill all bank details before uploading.'));
       e.target.value = '';
       return;
     }
     if (formData.accountNumber !== formData.confirmAccountNumber) {
-      toast.error("Account numbers do not match.");
+      toast.error(t('onboarding.errBankMatch', 'Account numbers do not match.'));
       e.target.value = '';
       return;
     }
     if (!formData.bankName) {
-      toast.error("Invalid IFSC code.");
+      toast.error(t('onboarding.errIfsc', 'Invalid IFSC code.'));
       e.target.value = '';
       return;
     }
@@ -180,21 +182,21 @@ export default function VendorDocuments() {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">Uploaded</span>
-              {docInfo.status === 'approved' && <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">Approved</span>}
-              {docInfo.status === 'rejected' && <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-red-100 text-red-600">Rejected</span>}
-              {docInfo.status === 'reupload_required' && <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-red-100 text-red-600">Re-upload Required</span>}
+              <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">{t('onboarding.uploaded', 'Uploaded')}</span>
+              {docInfo.status === 'approved' && <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">{t('status.approved', 'Approved')}</span>}
+              {docInfo.status === 'rejected' && <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-red-100 text-red-600">{t('status.rejected', 'Rejected')}</span>}
+              {docInfo.status === 'reupload_required' && <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-red-100 text-red-600">{t('onboarding.reuploadRequired', 'Re-upload Required')}</span>}
             </div>
             <p className="text-sm font-black text-secondary truncate">{docInfo.fileName}</p>
             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
-              Uploaded {new Date(docInfo.uploadedAt).toLocaleString()}
+              {t('onboarding.uploadedAt', 'Uploaded {{date}}', { date: new Date(docInfo.uploadedAt).toLocaleString() })}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 mt-2 pt-3 border-t border-gray-100">
           <a href={getDocumentViewUrl(docInfo.url)} target="_blank" rel="noopener noreferrer" className="flex-1 text-center py-2.5 bg-gray-50 hover:bg-primary hover:text-white text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-            Preview
+            {t('onboarding.preview', 'Preview')}
           </a>
           {docInfo.status !== 'approved' && reuploadInput && (
             <div className="flex-1">
@@ -226,8 +228,8 @@ export default function VendorDocuments() {
     <DashboardLayout>
       <div className="flex flex-col gap-8">
         <header>
-          <h1 className="text-3xl font-black text-secondary">Document Center</h1>
-          <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Verify your identity and legal compliance</p>
+          <h1 className="text-3xl font-black text-secondary">{t('onboarding.documentsTitle', 'Document Center')}</h1>
+          <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">{t('onboarding.documentsSubtitle', 'Verify your identity and legal compliance')}</p>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -251,16 +253,16 @@ export default function VendorDocuments() {
                         <UserCheck size={24} />
                       </div>
                       <div>
-                        <h3 className="text-lg font-black text-secondary">Aadhaar Card Verification</h3>
+                        <h3 className="text-lg font-black text-secondary">{t('onboarding.aadhaarTitle', 'Aadhaar Card Verification')}</h3>
                         <p className="text-[10px] text-primary font-black uppercase tracking-widest flex items-center gap-1.5"><FileText size={12} /> PDF, JPG, PNG</p>
                       </div>
                     </div>
 
                     <div className="space-y-6">
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Aadhaar Number *</label>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t('onboarding.aadhaarNumber', 'Aadhaar Number *')}</label>
                         <input
-                          type="text" maxLength={12} placeholder="Enter 12-digit Aadhaar Number"
+                          type="text" maxLength={12} placeholder={t('onboarding.aadhaarPlaceholder', 'Enter 12-digit Aadhaar Number')}
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:border-primary focus:bg-white"
                           value={formData.aadhaarNumber}
                           onChange={(e) => setFormData({ ...formData, aadhaarNumber: e.target.value.replace(/\D/g, '') })}
@@ -271,33 +273,33 @@ export default function VendorDocuments() {
                       {isSplit ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
-                            <p className="text-xs font-black text-secondary mb-3">Front Side</p>
+                            <p className="text-xs font-black text-secondary mb-3">{t('onboarding.frontSide', 'Front Side')}</p>
                             {documents[frontType]?.url ? (
                               renderUploadedDocState(documents[frontType], (
                                 <label className="block w-full text-center py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer">
-                                  {uploading === frontType ? 'Uploading...' : 'Re-upload'}
+                                  {uploading === frontType ? t('common.uploading', 'Uploading...') : t('onboarding.reupload', 'Re-upload')}
                                   <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === frontType} onChange={(e) => submitAadhaarSplit(e, 'front', frontType)} />
                                 </label>
                               ))
                             ) : (
                               <label className="w-full py-3 mt-2 bg-primary text-white rounded-xl flex justify-center items-center gap-2 font-black text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-primary/20 hover:bg-primary-dark">
-                                {uploading === frontType ? 'Uploading...' : <><Upload size={14} /> Upload Front</>}
+                                {uploading === frontType ? t('common.uploading', 'Uploading...') : <><Upload size={14} /> {t('onboarding.uploadFront', 'Upload Front')}</>}
                                 <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === frontType} onChange={(e) => submitAadhaarSplit(e, 'front', frontType)} />
                               </label>
                             )}
                           </div>
                           <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
-                            <p className="text-xs font-black text-secondary mb-3">Back Side</p>
+                            <p className="text-xs font-black text-secondary mb-3">{t('onboarding.backSide', 'Back Side')}</p>
                             {documents[backType]?.url ? (
                               renderUploadedDocState(documents[backType], (
                                 <label className="block w-full text-center py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer">
-                                  {uploading === backType ? 'Uploading...' : 'Re-upload'}
+                                  {uploading === backType ? t('common.uploading', 'Uploading...') : t('onboarding.reupload', 'Re-upload')}
                                   <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === backType} onChange={(e) => submitAadhaarSplit(e, 'back', backType)} />
                                 </label>
                               ))
                             ) : (
                               <label className="w-full py-3 mt-2 bg-primary text-white rounded-xl flex justify-center items-center gap-2 font-black text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-primary/20 hover:bg-primary-dark">
-                                {uploading === backType ? 'Uploading...' : <><Upload size={14} /> Upload Back</>}
+                                {uploading === backType ? t('common.uploading', 'Uploading...') : <><Upload size={14} /> {t('onboarding.uploadBack', 'Upload Back')}</>}
                                 <input type="file" className="hidden" accept=".pdf,.jpg,.png" disabled={uploading === backType} onChange={(e) => submitAadhaarSplit(e, 'back', backType)} />
                               </label>
                             )}
@@ -305,17 +307,17 @@ export default function VendorDocuments() {
                         </div>
                       ) : (
                         <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
-                          <p className="text-xs font-black text-secondary mb-3">Aadhaar Document</p>
+                          <p className="text-xs font-black text-secondary mb-3">{t('onboarding.aadhaarDoc', 'Aadhaar Document')}</p>
                           {documents[aadhaarDocType]?.url ? (
                             renderUploadedDocState(documents[aadhaarDocType], (
                               <label className="block w-full text-center py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer">
-                                {uploading === aadhaarDocType ? 'Uploading...' : 'Re-upload'}
+                                {uploading === aadhaarDocType ? t('common.uploading', 'Uploading...') : t('onboarding.reupload', 'Re-upload')}
                                 <input type="file" className="hidden" accept=".pdf" disabled={uploading === aadhaarDocType} onChange={submitAadhaar} />
                               </label>
                             ))
                           ) : (
                             <label className="w-full py-3 mt-2 bg-primary text-white rounded-xl flex justify-center items-center gap-2 font-black text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-primary/20 hover:bg-primary-dark">
-                              {uploading === aadhaarDocType ? 'Uploading...' : <><Upload size={14} /> Upload Aadhaar PDF</>}
+                              {uploading === aadhaarDocType ? t('common.uploading', 'Uploading...') : <><Upload size={14} /> {t('onboarding.uploadAadhaar', 'Upload Aadhaar')}</>}
                               <input type="file" className="hidden" accept=".pdf" disabled={uploading === aadhaarDocType} onChange={submitAadhaar} />
                             </label>
                           )}
@@ -334,16 +336,16 @@ export default function VendorDocuments() {
                       <CreditCard size={24} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-secondary">PAN Card Verification</h3>
+                      <h3 className="text-lg font-black text-secondary">{t('onboarding.panTitle', 'PAN Card Verification')}</h3>
                       <p className="text-[10px] text-primary font-black uppercase tracking-widest flex items-center gap-1.5"><FileText size={12} /> PDF Only</p>
                     </div>
                   </div>
 
                   <div className="space-y-6">
                     <div>
-                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">PAN Number *</label>
+                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t('onboarding.panNumber', 'PAN Number *')}</label>
                       <input
-                        type="text" maxLength={10} placeholder="Enter 10-character PAN"
+                        type="text" maxLength={10} placeholder={t('onboarding.panPlaceholder', 'Enter 10-character PAN')}
                         className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:outline-none focus:border-primary focus:bg-white"
                         value={formData.panNumber}
                         onChange={(e) => setFormData({ ...formData, panNumber: e.target.value.toUpperCase() })}
@@ -352,17 +354,17 @@ export default function VendorDocuments() {
                     </div>
 
                     <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
-                      <p className="text-xs font-black text-secondary mb-3">PAN Document</p>
+                      <p className="text-xs font-black text-secondary mb-3">{t('onboarding.panDoc', 'PAN Document')}</p>
                       {documents[panDocType]?.url ? (
                         renderUploadedDocState(documents[panDocType], (
                           <label className="block w-full text-center py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer">
-                            {uploading === panDocType ? 'Uploading...' : 'Re-upload'}
+                            {uploading === panDocType ? t('common.uploading', 'Uploading...') : t('onboarding.reupload', 'Re-upload')}
                             <input type="file" className="hidden" accept=".pdf" disabled={uploading === panDocType} onChange={submitPan} />
                           </label>
                         ))
                       ) : (
                         <label className="w-full py-3 mt-2 bg-primary text-white rounded-xl flex justify-center items-center gap-2 font-black text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-primary/20 hover:bg-primary-dark">
-                          {uploading === panDocType ? 'Uploading...' : <><Upload size={14} /> Upload PAN PDF</>}
+                          {uploading === panDocType ? t('common.uploading', 'Uploading...') : <><Upload size={14} /> {t('onboarding.uploadPan', 'Upload PAN')}</>}
                           <input type="file" className="hidden" accept=".pdf" disabled={uploading === panDocType} onChange={submitPan} />
                         </label>
                       )}
@@ -379,17 +381,17 @@ export default function VendorDocuments() {
                       <Landmark size={24} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-secondary">Bank Details & Payout Info</h3>
-                      <p className="text-[10px] text-primary font-black uppercase tracking-widest flex items-center gap-1.5"><FileText size={12} /> Passbook or Cheque PDF</p>
+                      <h3 className="text-lg font-black text-secondary">{t('onboarding.bankTitle', 'Bank Details & Payout Info')}</h3>
+                      <p className="text-[10px] text-primary font-black uppercase tracking-widest flex items-center gap-1.5"><FileText size={12} /> {t('onboarding.passbookCheque', 'Passbook or Cheque')}</p>
                     </div>
                   </div>
 
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="md:col-span-2">
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Account Holder Name *</label>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t('onboarding.bankHolder', 'Account Holder Name *')}</label>
                         <input
-                          type="text" placeholder="Name exactly as per bank records"
+                          type="text" placeholder={t('onboarding.bankHolderPlaceholder', 'Name exactly as per bank records')}
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:outline-none focus:border-primary focus:bg-white"
                           value={formData.accountHolderName}
                           onChange={(e) => setFormData({ ...formData, accountHolderName: e.target.value.toUpperCase() })}
@@ -397,10 +399,10 @@ export default function VendorDocuments() {
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">IFSC Code *</label>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t('onboarding.ifscCode', 'IFSC Code *')}</label>
                         <div className="relative">
                           <input
-                            type="text" maxLength={11} placeholder="e.g. SBIN0001234"
+                            type="text" maxLength={11} placeholder={t('onboarding.ifscPlaceholder', 'e.g. SBIN0001234')}
                             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 uppercase focus:outline-none focus:border-primary focus:bg-white"
                             value={formData.ifscCode}
                             onChange={handleIfscChange}
@@ -410,7 +412,7 @@ export default function VendorDocuments() {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Bank & Branch</label>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t('onboarding.bankBranch', 'Bank & Branch')}</label>
                         <div className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 min-h-[46px] flex flex-col justify-center">
                           {formData.bankName ? (
                             <>
@@ -418,14 +420,14 @@ export default function VendorDocuments() {
                               <span className="text-[9px] font-bold text-gray-500 uppercase">{formData.branchName}</span>
                             </>
                           ) : (
-                            <span className="text-xs font-bold text-gray-400">Auto-fetched via IFSC</span>
+                            <span className="text-xs font-bold text-gray-400">{t('onboarding.ifscAutoFetch', 'Auto-fetched via IFSC')}</span>
                           )}
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Account Number *</label>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t('onboarding.bankAccount', 'Account Number *')}</label>
                         <input
-                          type="text" placeholder="Enter Account Number"
+                          type="text" placeholder={t('onboarding.bankAccountPlaceholder', 'Enter Account Number')}
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:border-primary focus:bg-white"
                           value={formData.accountNumber}
                           onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value.replace(/\D/g, '') })}
@@ -433,9 +435,9 @@ export default function VendorDocuments() {
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Confirm Account Number *</label>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t('onboarding.bankAccountConfirm', 'Confirm Account Number *')}</label>
                         <input
-                          type="text" placeholder="Re-enter Account Number"
+                          type="text" placeholder={t('onboarding.bankAccountConfirmPlaceholder', 'Re-enter Account Number')}
                           className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none focus:bg-white ${formData.confirmAccountNumber && formData.accountNumber !== formData.confirmAccountNumber
                             ? 'border-red-400 focus:border-red-500 focus:ring-red-500'
                             : 'border-gray-200 focus:border-primary focus:ring-primary'
@@ -448,17 +450,17 @@ export default function VendorDocuments() {
                     </div>
 
                     <div className="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200 mt-4">
-                      <p className="text-xs font-black text-secondary mb-3">Upload Passbook / Cheque</p>
+                      <p className="text-xs font-black text-secondary mb-3">{t('onboarding.uploadPassbook', 'Upload Passbook / Cheque')}</p>
                       {documents[bankDocType]?.url ? (
                         renderUploadedDocState(documents[bankDocType], (
                           <label className="block w-full text-center py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer">
-                            {uploading === bankDocType ? 'Uploading...' : 'Re-upload'}
+                            {uploading === bankDocType ? t('common.uploading', 'Uploading...') : t('onboarding.reupload', 'Re-upload')}
                             <input type="file" className="hidden" accept=".pdf" disabled={uploading === bankDocType} onChange={submitBank} />
                           </label>
                         ))
                       ) : (
                         <label className="w-full py-3 mt-2 bg-primary text-white rounded-xl flex justify-center items-center gap-2 font-black text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-primary/20 hover:bg-primary-dark">
-                          {uploading === bankDocType ? 'Uploading...' : <><Upload size={14} /> Upload Passbook PDF</>}
+                          {uploading === bankDocType ? t('common.uploading', 'Uploading...') : <><Upload size={14} /> {t('onboarding.uploadDoc', 'Upload Document')}</>}
                           <input type="file" className="hidden" accept=".pdf" disabled={uploading === bankDocType} onChange={submitBank} />
                         </label>
                       )}
@@ -471,8 +473,8 @@ export default function VendorDocuments() {
               {generalDocTypes.length > 0 && (
                 <div className="space-y-6">
                   <section>
-                    <h3 className="text-xl font-black text-secondary mb-2">Other Required Certificates</h3>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Please upload other registration and business setup documents</p>
+                    <h3 className="text-xl font-black text-secondary mb-2">{t('onboarding.otherCertificates', 'Other Required Certificates')}</h3>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{t('onboarding.otherCertificatesDesc', 'Please upload other registration and business setup documents')}</p>
                   </section>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {generalDocTypes.map((type) => (
@@ -500,11 +502,11 @@ export default function VendorDocuments() {
                   <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
                     <ShieldCheck size={28} />
                   </div>
-                  <h2 className="text-xl font-black">Verification Level</h2>
+                  <h2 className="text-xl font-black">{t('onboarding.verificationLevel', 'Verification Level')}</h2>
                 </div>
                 <div className="flex flex-col gap-4">
                   <div className="flex justify-between items-end mb-2">
-                    <span className="text-sm font-bold opacity-60 uppercase tracking-widest">Compliance</span>
+                    <span className="text-sm font-bold opacity-60 uppercase tracking-widest">{t('onboarding.compliance', 'Compliance')}</span>
                     <span className="text-2xl font-black">{Math.round((uploadedCount / docTypes.length) * 100) || 0}%</span>
                   </div>
                   <div className="h-3 bg-white/10 rounded-full overflow-hidden">
@@ -516,22 +518,22 @@ export default function VendorDocuments() {
                   <div className="grid grid-cols-2 gap-3 mt-4">
                     <div className="p-3 bg-white/10 rounded-2xl text-center">
                       <p className="text-2xl font-black">{uploadedCount}</p>
-                      <p className="text-[9px] font-bold uppercase tracking-widest opacity-60 mt-1">Uploaded</p>
+                      <p className="text-[9px] font-bold uppercase tracking-widest opacity-60 mt-1">{t('onboarding.uploaded', 'Uploaded')}</p>
                     </div>
                     <div className="p-3 bg-white/10 rounded-2xl text-center">
                       <p className="text-2xl font-black">{approvedCount}</p>
-                      <p className="text-[9px] font-bold uppercase tracking-widest opacity-60 mt-1">Approved</p>
+                      <p className="text-[9px] font-bold uppercase tracking-widest opacity-60 mt-1">{t('status.approved', 'Approved')}</p>
                     </div>
                   </div>
                 </div>
                 <p className="text-xs text-white/60 mt-8 font-medium leading-relaxed">
-                  Your account will be fully activated for operations once all mandatory documents are verified by the Admin.
+                  {t('onboarding.vendorDocsDesc', 'Your account will be fully activated for operations once all mandatory documents are verified by the Admin.')}
                 </p>
               </div>
             </div>
 
             <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
-              <h2 className="text-xl font-black text-secondary mb-6">Digital Certificates</h2>
+              <h2 className="text-xl font-black text-secondary mb-6">{t('onboarding.digitalCertificates', 'Digital Certificates')}</h2>
               <div className="flex flex-col gap-3">
                 {digitalCertificates.length > 0 ? digitalCertificates.map((cert) => (
                   <div key={cert._id} className="flex flex-col p-5 bg-gray-50 rounded-3xl border border-gray-100 mb-4">
@@ -542,12 +544,12 @@ export default function VendorDocuments() {
                         </div>
                         <div>
                           <span className="font-black text-secondary">{cert.title}</span>
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">ID: {cert.agreementId || 'N/A'}</p>
+                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">{t('members.idLabel', 'ID')}: {cert.agreementId || 'N/A'}</p>
                         </div>
                       </div>
                       <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest ${cert.status === 'approved' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
                         }`}>
-                        {cert.status === 'approved' ? 'Digitally Accepted' : 'Pending Acceptance'}
+                        {cert.status === 'approved' ? t('onboarding.digitallyAccepted', 'Digitally Accepted') : t('onboarding.pendingAcceptance', 'Pending Acceptance')}
                       </span>
                     </div>
 
@@ -555,28 +557,28 @@ export default function VendorDocuments() {
                       <div className="mb-4 p-4 bg-white border border-dashed border-gray-200 rounded-2xl">
                         <label className="flex items-start gap-3 cursor-pointer">
                           <input type="checkbox" id={`accept-${cert._id}`} className="mt-1 w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary" />
-                          <span className="text-xs font-bold text-gray-600">I have read, understood, and accept all the terms and conditions outlined in the Vendor Agreement.</span>
+                          <span className="text-xs font-bold text-gray-600">{t('onboarding.acceptTermsCheckbox', 'I have read, understood, and accept all the terms and conditions outlined in the Vendor Agreement.')}</span>
                         </label>
                         <button
                           onClick={async () => {
                             const checkbox = document.getElementById(`accept-${cert._id}`) as HTMLInputElement;
                             if (!checkbox.checked) {
-                              toast.error("Please accept the terms to continue.");
+                              toast.error(t('onboarding.errAcceptTerms', 'Please accept the terms to continue.'));
                               return;
                             }
                             try {
                               const res = await axios.post('/api/vendor/agreement/accept', { accepted: true, agreementId: cert.agreementId });
                               if (res.data.success) {
-                                toast.success("Agreement Digitally Accepted!");
+                                toast.success(t('onboarding.successAgreementAccept', 'Agreement Digitally Accepted!'));
                                 fetchDocuments();
                               }
                             } catch (err: any) {
-                              toast.error(err.response?.data?.message || "Failed to accept agreement");
+                              toast.error(err.response?.data?.message || t('onboarding.errAgreementAccept', 'Failed to accept agreement'));
                             }
                           }}
                           className="mt-4 w-full py-3 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary-dark transition-colors shadow-lg shadow-primary/20"
                         >
-                          Verify & Sign Digitally
+                          {t('onboarding.verifySignDigitally', 'Verify & Sign Digitally')}
                         </button>
                       </div>
                     )}
@@ -588,7 +590,7 @@ export default function VendorDocuments() {
                         rel="noopener noreferrer"
                         className="flex-1 text-center py-2 bg-white border border-gray-200 text-gray-600 font-black text-[9px] uppercase tracking-widest rounded-xl hover:border-primary hover:text-primary transition-all"
                       >
-                        Preview
+                        {t('onboarding.preview', 'Preview')}
                       </a>
                       <a
                         href={cert.fileUrl}
@@ -596,12 +598,12 @@ export default function VendorDocuments() {
                         target="_blank"
                         className="flex-1 text-center py-2 bg-secondary text-white font-black text-[9px] uppercase tracking-widest rounded-xl hover:bg-secondary-light transition-all"
                       >
-                        Download PDF
+                        {t('onboarding.downloadPdf', 'Download PDF')}
                       </a>
                     </div>
                   </div>
                 )) : (
-                  <p className="text-xs text-gray-400 font-bold italic text-center py-4">No certificates issued yet.</p>
+                  <p className="text-xs text-gray-400 font-bold italic text-center py-4">{t('onboarding.noCertificates', 'No certificates issued yet.')}</p>
                 )}
               </div>
             </div>

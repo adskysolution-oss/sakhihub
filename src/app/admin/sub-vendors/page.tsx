@@ -17,6 +17,7 @@ import { getDocComplianceSummary } from '@/utils/documents';
 import UnifiedFilterBar from "@/components/shared/filters/UnifiedFilterBar";
 import StatusFilterTabs from "@/components/shared/filters/StatusFilterTabs";
 import PaginationControls from "@/components/shared/filters/PaginationControls";
+import { useLanguage } from "@/context/LanguageContext";
 
 const getStatusBadge = (status: string) => {
   const map: Record<string, { label: string; className: string }> = {
@@ -35,6 +36,7 @@ const getStatusBadge = (status: string) => {
 
 
 export default function SubVendorManagement() {
+  const { t } = useLanguage();
   const [subVendors, setSubVendors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -49,7 +51,7 @@ export default function SubVendorManagement() {
   });
   const [paymentFilter, setPaymentFilter] = useState("all");
   const [page, setPage] = useState(1);
-  const limit = 50;
+  const [limit, setLimit] = useState(50);
   const [selectedSV, setSelectedSV] = useState<any>(null);
   const [hierarchyData, setHierarchyData] = useState<any>(null);
   const [loadingHierarchy, setLoadingHierarchy] = useState(false);
@@ -178,20 +180,20 @@ export default function SubVendorManagement() {
       <div className="flex flex-col gap-8">
         <div className="flex justify-between items-start flex-wrap gap-6">
           <div>
-            <h1 className="text-3xl md:text-4xl font-black text-secondary">Sub-Vendor Network</h1>
-            <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Manage secondary partners and regional field coordinators.</p>
+            <h1 className="text-3xl md:text-4xl font-black text-secondary">{t('subVendors.title', 'Sub-Vendor Network')}</h1>
+            <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">{t('subVendors.subtitle', 'Manage secondary partners and regional field coordinators.')}</p>
           </div>
           <button 
             onClick={() => setShowRegisterModal(true)}
             className="btn-primary py-4 px-8"
           >
-            <Plus size={20} /> Add Sub-Vendor
+            <Plus size={20} /> {t('subVendors.addBtn', 'Add Sub-Vendor')}
           </button>
         </div>
 
         <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
           <UnifiedFilterBar
-            search={search} setSearch={setSearch} searchPlaceholder="Search by sub-vendor name, code, or parent vendor..."
+            search={search} setSearch={setSearch} searchPlaceholder={t('subVendors.searchPlaceholder', 'Search by sub-vendor name, code, or parent vendor...')}
             dateFilter={dateFilter} setDateFilter={setDateFilter}
             startDate={startDate} setStartDate={setStartDate}
             endDate={endDate} setEndDate={setEndDate}
@@ -203,20 +205,20 @@ export default function SubVendorManagement() {
             <table className="w-full border-collapse min-w-[1000px]">
               <thead>
                 <tr className="text-left border-b-2 border-gray-50">
-                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[60px]">S.No.</th>
-                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Sub-Vendor</th>
-                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Parent Vendor</th>
-                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Document Compliance</th>
-                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Payment Status</th>
-                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
-                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[60px]">{t('subVendors.sNo', 'S.No.')}</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('subVendors.subVendor', 'Sub-Vendor')}</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('subVendors.parentVendor', 'Parent Vendor')}</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('subVendors.docCompliance', 'Document Compliance')}</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('subVendors.paymentStatus', 'Payment Status')}</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('subVendors.status', 'Status')}</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('subVendors.actions', 'Actions')}</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={7} className="p-20 text-center text-gray-400 font-bold italic">Loading partner network...</td></tr>
+                  <tr><td colSpan={7} className="p-20 text-center text-gray-400 font-bold italic">{t('subVendors.loading', 'Loading partner network...')}</td></tr>
                 ) : subVendors.length === 0 ? (
-                  <tr><td colSpan={7} className="p-20 text-center text-gray-400 font-bold italic">No sub-vendors found.</td></tr>
+                  <tr><td colSpan={7} className="p-20 text-center text-gray-400 font-bold italic">{t('subVendors.emptyState', 'No sub-vendors found.')}</td></tr>
                 ) : (
                   subVendors.map((sv, index) => (
                      <tr key={sv._id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer group" onClick={() => fetchHierarchyDetails(sv)}>
@@ -324,20 +326,20 @@ export default function SubVendorManagement() {
                       <td className="p-5" onClick={(e) => e.stopPropagation()}>
                         {sv.paymentCompleted ? (
                           <span className="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-green-100 text-green-600">
-                            Paid
+                            {t('status.paid', 'Paid')}
                           </span>
                         ) : (sv.subscriptionPaid || sv.depositPaid) ? (
                           <div className="flex flex-col gap-1">
                             <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest whitespace-nowrap ${sv.subscriptionPaid ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
-                              Sub: {sv.subscriptionPaid ? 'Paid' : 'Pending'}
+                              Sub: {sv.subscriptionPaid ? t('status.paid', 'Paid') : t('status.pending', 'Pending')}
                             </span>
                             <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest whitespace-nowrap ${sv.depositPaid ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
-                              Dep: {sv.depositPaid ? 'Paid' : 'Pending'}
+                              Dep: {sv.depositPaid ? t('status.paid', 'Paid') : t('status.pending', 'Pending')}
                             </span>
                           </div>
                         ) : (
                           <span className="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-red-100 text-red-600">
-                            Unpaid
+                            {t('status.unpaid', 'Unpaid')}
                           </span>
                         )}
                       </td>
@@ -346,7 +348,7 @@ export default function SubVendorManagement() {
                           const badge = getStatusBadge(sv.status);
                           return (
                             <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${badge.className}`}>
-                              {badge.label}
+                              {t('status.' + sv.status, badge.label)}
                             </span>
                           );
                         })()}
@@ -396,7 +398,7 @@ export default function SubVendorManagement() {
           </div>
           
           <PaginationControls 
-            page={page} setPage={setPage} limit={limit}
+            page={page} setPage={setPage} limit={limit} setLimit={setLimit}
             totalCount={status === 'paid' ? counts.payment.paid : status === 'unpaid' ? counts.payment.unpaid : (counts.status[status] || 0)}
           />
         </div>

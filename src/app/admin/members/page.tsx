@@ -9,9 +9,12 @@ import {
 import axios from "axios";
 import AssignEmployeeModal from "@/components/features/dashboard/AssignEmployeeModal";
 import { toast } from 'sonner';
+import PaginationControls from "@/components/shared/filters/PaginationControls";
 import { getProxiedImageUrl } from '@/utils/imageUrl';
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function MemberManagement() {
+  const { t } = useLanguage();
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -26,7 +29,7 @@ export default function MemberManagement() {
   });
   const [paymentFilter, setPaymentFilter] = useState("all");
   const [page, setPage] = useState(1);
-  const limit = 50;
+  const [limit, setLimit] = useState(50);
   const [assigningTo, setAssigningTo] = useState<any>(null);
 
   const fetchMembers = async () => {
@@ -76,15 +79,15 @@ export default function MemberManagement() {
         <div className="p-2 md:p-4">
           <div className="flex flex-col md:flex-row justify-between items-start mb-6 md:mb-10 gap-5">
             <div>
-              <h2 className="text-2xl md:text-4xl font-black text-secondary leading-tight">Members Directory</h2>
-              <p className="text-gray-500 text-sm md:text-lg mt-1">Global registry of all women members and their membership compliance.</p>
+              <h2 className="text-2xl md:text-4xl font-black text-secondary leading-tight">{t('members.title', 'Members Directory')}</h2>
+              <p className="text-gray-500 text-sm md:text-lg mt-1">{t('members.subtitle', 'Global registry of all women members and their membership compliance.')}</p>
             </div>
             <div className="flex flex-wrap gap-2 md:gap-3 w-full md:w-auto">
               <button className="btn-secondary py-3 px-6 text-sm flex-1 md:flex-none justify-center">
-                <Download size={16} /> Export Excel
+                <Download size={16} /> {t('members.exportExcel', 'Export Excel')}
               </button>
               <button className="btn-primary py-3 px-6 text-sm flex-1 md:flex-none justify-center">
-                <Download size={16} /> Export PDF
+                <Download size={16} /> {t('members.exportPDF', 'Export PDF')}
               </button>
             </div>
           </div>
@@ -97,7 +100,7 @@ export default function MemberManagement() {
                   type="text" 
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search by member, mobile or village..." 
+                  placeholder={t('members.searchPlaceholder', 'Search by member, mobile or village...')} 
                   className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                 />
               </div>
@@ -107,10 +110,10 @@ export default function MemberManagement() {
                   onChange={(e) => setDateFilter(e.target.value)}
                   className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                 >
-                  <option value="all">All Time</option>
-                  <option value="today">Today</option>
-                  <option value="yesterday">Yesterday</option>
-                  <option value="custom">Custom Date</option>
+                  <option value="all">{t('members.allTime', 'All Time')}</option>
+                  <option value="today">{t('members.today', 'Today')}</option>
+                  <option value="yesterday">{t('members.yesterday', 'Yesterday')}</option>
+                  <option value="custom">{t('members.customDate', 'Custom Date')}</option>
                 </select>
                 
                 {dateFilter === 'custom' && (
@@ -135,15 +138,15 @@ export default function MemberManagement() {
               <div className="flex gap-1.5 bg-gray-50 p-1.5 rounded-2xl overflow-x-auto no-scrollbar">
                  {['all', 'pending', 'documents_uploaded', 'reupload_required', 'active', 'approved', 'rejected', 'paid', 'unpaid'].map((s) => {
                    const labelMap: Record<string, string> = {
-                     all: 'All',
-                     pending: 'Pending',
-                     documents_uploaded: 'Docs Submitted',
-                     reupload_required: 'Re-upload',
-                     active: 'Active',
-                     approved: 'Approved',
-                     rejected: 'Rejected',
-                     paid: 'Paid',
-                     unpaid: 'Unpaid/Free'
+                     all: t('status.all', 'All'),
+                     pending: t('status.pending', 'Pending'),
+                     documents_uploaded: t('status.documents_uploaded', 'Docs Submitted'),
+                     reupload_required: t('status.reupload_required', 'Re-upload'),
+                     active: t('status.active', 'Active'),
+                     approved: t('status.approved', 'Approved'),
+                     rejected: t('status.rejected', 'Rejected'),
+                     paid: t('status.paid', 'Paid'),
+                     unpaid: t('status.unpaid', 'Unpaid/Free')
                    };
                    const countColorMap: Record<string, string> = {
                      all: 'text-primary',
@@ -181,19 +184,19 @@ export default function MemberManagement() {
               <table className="w-full border-collapse min-w-[1000px]">
                 <thead>
                   <tr style={{ textAlign: 'left', borderBottom: '2px solid #f8f9fa' }}>
-                    <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase', width: '60px' }}>S.No.</th>
-                    <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Member Details</th>
-                    <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Contact & Location</th>
-                    <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Assigned Employee</th>
-                    <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Status & Group</th>
-                    <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Actions</th>
+                    <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase', width: '60px' }}>{t('members.sNo', 'S.No.')}</th>
+                    <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>{t('members.details', 'Member Details')}</th>
+                    <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>{t('members.contact', 'Contact & Location')}</th>
+                    <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>{t('members.assigned', 'Assigned Employee')}</th>
+                    <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>{t('members.statusGroup', 'Status & Group')}</th>
+                    <th style={{ padding: '15px 20px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>{t('members.actions', 'Actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loading ? (
-                    <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: '#999' }}>Loading members from database...</td></tr>
+                    <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: '#999' }}>{t('members.loading', 'Loading members from database...')}</td></tr>
                   ) : members.length === 0 ? (
-                    <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: '#999' }}>No members found in the platform registry.</td></tr>
+                    <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: '#999' }}>{t('members.noMembers', 'No members found in the platform registry.')}</td></tr>
                   ) : (
                     members.map((member, index) => (
                       <tr key={member._id} style={{ borderBottom: '1px solid #f8f9fa' }}>
@@ -207,7 +210,7 @@ export default function MemberManagement() {
                             </div>
                             <div>
                               <p style={{ fontWeight: '800', fontSize: '1rem', color: 'var(--secondary)', margin: 0 }}>{member.name}</p>
-                              <p style={{ fontSize: '0.75rem', color: '#999', margin: '2px 0 0' }}>ID: {member.membershipId || 'N/A'}</p>
+                              <p style={{ fontSize: '0.75rem', color: '#999', margin: '2px 0 0' }}>{t('members.idLabel', 'ID')}: {member.membershipId || 'N/A'}</p>
                             </div>
                           </div>
                         </td>
@@ -223,11 +226,11 @@ export default function MemberManagement() {
                           {member.assignedEmployeeId && typeof member.assignedEmployeeId === 'object' && member.assignedEmployeeId.fullName ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                               <p style={{ fontWeight: '700', fontSize: '0.9rem', color: 'var(--secondary)', margin: 0 }}>{member.assignedEmployeeId.fullName}</p>
-                              <p style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: '700', margin: 0 }}>ID: {member.assignedEmployeeId.employeeId || 'N/A'}</p>
+                              <p style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: '700', margin: 0 }}>{t('members.idLabel', 'ID')}: {member.assignedEmployeeId.employeeId || 'N/A'}</p>
                             </div>
                           ) : (
                             <span style={{ fontSize: '0.8rem', color: '#999', fontStyle: 'italic' }}>
-                              {member.assignedEmployeeId && typeof member.assignedEmployeeId === 'string' ? `ID: ${member.assignedEmployeeId}` : 'Unassigned'}
+                              {member.assignedEmployeeId && typeof member.assignedEmployeeId === 'string' ? `${t('members.idLabel', 'ID')}: ${member.assignedEmployeeId}` : t('members.unassigned', 'Unassigned')}
                             </span>
                           )}
                         </td>
@@ -239,10 +242,10 @@ export default function MemberManagement() {
                               color: member.accountStatus === 'active' ? '#059669' : member.accountStatus === 'pending' ? '#d97706' : '#dc2626',
                               width: 'fit-content', textTransform: 'uppercase'
                             }}>
-                              {member.accountStatus || 'pending'}
+                              {t('status.' + (member.accountStatus || 'pending'), member.accountStatus || 'pending')}
                             </span>
                             <span style={{ fontSize: '0.85rem', fontWeight: '700', color: member.groupId ? 'var(--secondary)' : '#999' }}>
-                              {member.groupId?.groupName || 'No Group'}
+                              {member.groupId?.groupName || t('members.noGroup', 'No Group')}
                             </span>
                           </div>
                         </td>
@@ -252,7 +255,7 @@ export default function MemberManagement() {
                               <button 
                                 onClick={() => handleStatusUpdate(member._id, 'active')}
                                 className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-all shadow-sm"
-                                title="Approve Member"
+                                title={t('members.approveTitle', 'Approve Member')}
                               >
                                 <CheckCircle size={18} />
                               </button>
@@ -261,7 +264,7 @@ export default function MemberManagement() {
                               <button 
                                 onClick={() => handleStatusUpdate(member._id, 'suspended')}
                                 className="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-all shadow-sm"
-                                title="Suspend Member"
+                                title={t('members.suspendTitle', 'Suspend Member')}
                               >
                                 <Clock size={18} />
                               </button>
@@ -270,7 +273,7 @@ export default function MemberManagement() {
                               <button 
                                 onClick={() => handleStatusUpdate(member._id, 'active')}
                                 className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all shadow-sm"
-                                title="Restore Member"
+                                title={t('members.restoreTitle', 'Restore Member')}
                               >
                                 <ShieldCheck size={18} />
                               </button>
@@ -279,7 +282,7 @@ export default function MemberManagement() {
                               <button 
                                 onClick={() => handleStatusUpdate(member._id, 'active')}
                                 className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-all shadow-sm"
-                                title="Reactivate Member"
+                                title={t('members.reactivateTitle', 'Reactivate Member')}
                               >
                                 <CheckCircle size={18} />
                               </button>
@@ -288,7 +291,7 @@ export default function MemberManagement() {
                               <button 
                                 onClick={() => handleStatusUpdate(member._id, 'rejected')}
                                 className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all shadow-sm"
-                                title="Reject Member"
+                                title={t('members.rejectTitle', 'Reject Member')}
                               >
                                 <X size={18} />
                               </button>
@@ -296,7 +299,7 @@ export default function MemberManagement() {
                             <button 
                               onClick={() => setAssigningTo(member)}
                               className="p-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-all shadow-sm"
-                              title="Assign Employee"
+                              title={t('members.assignTitle', 'Assign Employee')}
                             >
                               <UserCircle size={18} />
                             </button>
@@ -310,38 +313,13 @@ export default function MemberManagement() {
             </div>
             
             {/* Pagination Controls */}
-            {(() => {
-              const totalCount = status === 'paid' ? counts.payment.paid : status === 'unpaid' ? counts.payment.unpaid : (counts.status[status] || 0);
-              const startEntry = totalCount === 0 ? 0 : (page - 1) * limit + 1;
-              const endEntry = Math.min(page * limit, totalCount);
-              const totalPages = Math.ceil(totalCount / limit);
-              
-              if (totalCount === 0) return null;
-              
-              return (
-                <div className="flex justify-between items-center mt-6 pt-6 border-t border-gray-100 flex-wrap gap-4">
-                  <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">
-                    Showing {startEntry} to {endEntry} of {totalCount} entries
-                  </span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setPage(prev => Math.max(prev - 1, 1))}
-                      disabled={page === 1}
-                      className="px-4 py-2 border border-gray-100 rounded-xl text-xs font-black uppercase tracking-wider text-secondary disabled:opacity-50 hover:bg-gray-50 transition-all"
-                    >
-                      Previous
-                    </button>
-                    <button
-                      onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
-                      disabled={page === totalPages || totalPages === 0}
-                      className="px-4 py-2 border border-gray-100 rounded-xl text-xs font-black uppercase tracking-wider text-secondary disabled:opacity-50 hover:bg-gray-50 transition-all"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              );
-            })()}
+            <PaginationControls
+              page={page}
+              setPage={setPage}
+              limit={limit}
+              setLimit={setLimit}
+              totalCount={status === 'paid' ? counts.payment.paid : status === 'unpaid' ? counts.payment.unpaid : (counts.status[status] || 0)}
+            />
           </div>
         </div>
       </DashboardLayout>

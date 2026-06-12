@@ -28,7 +28,7 @@ const AboutPage = () => {
       }}>
         {/* Background Decorative Elements */}
         <div style={{ position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', opacity: 0.1, zIndex: 1 }}>
-          <Image src="/assets/register-hero.png" alt="Mission" fill style={{ objectFit: 'cover' }} />
+          <Image src="/assets/register-hero.png" alt={t('nav.mission', 'Mission')} fill style={{ objectFit: 'cover' }} />
         </div>
         <div style={{ position: 'absolute', top: '-10%', right: '-5%', width: '500px', height: '500px', background: 'rgba(233, 30, 99, 0.2)', borderRadius: '50%', filter: 'blur(120px)', zIndex: 1 }}></div>
 

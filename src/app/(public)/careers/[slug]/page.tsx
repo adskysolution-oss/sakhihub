@@ -102,7 +102,7 @@ export default function VacancyDetailsPage() {
                     existingApp.status === 'Selected' ? 'bg-green-100 text-green-700' :
                     existingApp.status === 'Rejected' ? 'bg-rose-100 text-rose-700' :
                     'bg-blue-100 text-blue-700'
-                  }`}>{t('careersPage.statusLabel')} {existingApp.status}</span>
+                  }`}>{t('careersPage.statusLabel')} {t('status.' + existingApp.status.toLowerCase().replace(/\s+/g, '_'), existingApp.status)}</span>
                 </div>
                 <Link href={`/careers/track?appId=${existingApp.applicationId}`} className="text-xs font-bold text-gray-500 hover:text-blue-600 text-center transition-colors">
                   <span dangerouslySetInnerHTML={{ __html: t('careersPage.trackApp') }} />
@@ -114,7 +114,7 @@ export default function VacancyDetailsPage() {
               </Link>
             ) : (
               <div className="shrink-0 bg-gray-200 text-gray-500 px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest text-center cursor-not-allowed">
-                {vacancy.status}
+                {t('status.' + vacancy.status.toLowerCase().replace(/\s+/g, '_'), vacancy.status)}
               </div>
             )}
           </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface StatusFilterTabsProps {
   status: string;
@@ -38,6 +39,8 @@ export const COUNT_COLOR_MAP: Record<string, string> = {
 };
 
 export default function StatusFilterTabs({ status, setStatus, counts }: StatusFilterTabsProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="flex gap-1.5 bg-gray-50 p-1.5 rounded-2xl overflow-x-auto no-scrollbar mb-8">
       {STATUS_FILTERS.map((s) => {
@@ -58,7 +61,7 @@ export default function StatusFilterTabs({ status, setStatus, counts }: StatusFi
               status === s ? 'bg-white text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'
             }`}
           >
-            {LABEL_MAP[s] || s} <span className={`ml-1 font-bold ${COUNT_COLOR_MAP[s] || 'text-gray-400'}`}>({count})</span>
+            {t('status.' + s, LABEL_MAP[s] || s)} <span className={`ml-1 font-bold ${COUNT_COLOR_MAP[s] || 'text-gray-400'}`}>({count})</span>
           </button>
         );
       })}

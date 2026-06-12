@@ -4,8 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { Mail, Clock, CheckCircle, AlertCircle, Search, RefreshCw, User, Trash2, Eye, X, MessageSquare, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function SupportRequestsPage() {
+  const { t } = useLanguage();
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -57,8 +59,8 @@ export default function SupportRequestsPage() {
     setUpdating(true);
     try {
       const res = await axios.patch('/api/admin/support-requests', { 
-        id: selectedRequest._id, 
-        adminNotes 
+         id: selectedRequest._id, 
+         adminNotes 
       });
       if (res.data.success) {
         setSelectedRequest({ ...selectedRequest, adminNotes });
@@ -72,7 +74,7 @@ export default function SupportRequestsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this query?')) return;
+    if (!confirm(t('adminSupport.confirmDelete', 'Are you sure you want to delete this query?'))) return;
     try {
       const res = await axios.delete(`/api/admin/support-requests?id=${id}`);
       if (res.data.success) {
@@ -98,8 +100,8 @@ export default function SupportRequestsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
           <div>
-            <h1 className="text-3xl font-black text-secondary">Support Queries</h1>
-            <p className="text-gray-500 font-bold mt-1">Manage and respond to user messages</p>
+            <h1 className="text-3xl font-black text-secondary">{t('adminSupport.title', 'Support Queries')}</h1>
+            <p className="text-gray-500 font-bold mt-1">{t('adminSupport.subtitle', 'Manage and respond to user messages')}</p>
           </div>
           <button 
             onClick={fetchRequests}
@@ -114,7 +116,7 @@ export default function SupportRequestsPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
             <input 
               type="text" 
-              placeholder="Search by name, email or subject..."
+              placeholder={t('adminSupport.searchPlaceholder', 'Search by name, email or subject...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all font-bold text-secondary"
@@ -127,7 +129,7 @@ export default function SupportRequestsPage() {
                 onClick={() => setFilter(s)}
                 className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${filter === s ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-400 hover:text-secondary'}`}
               >
-                {s.replace('_', ' ')}
+                {t('status.' + s, s.replace('_', ' '))}
               </button>
             ))}
           </div>
@@ -158,7 +160,7 @@ export default function SupportRequestsPage() {
                     <User size={24} />
                   </div>
                   <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusColor(req.status)}`}>
-                    {req.status.replace('_', ' ')}
+                    {t('status.' + req.status, req.status.replace('_', ' '))}
                   </span>
                 </div>
 
@@ -173,7 +175,7 @@ export default function SupportRequestsPage() {
                 </div>
 
                 <div className="bg-gray-50/50 p-4 rounded-2xl mb-6 flex-1 border border-gray-50">
-                  <h4 className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-2">Subject: {req.subject}</h4>
+                  <h4 className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-2">{t('adminSupport.subject', 'Subject')}: {req.subject}</h4>
                   <p className="text-sm font-medium text-secondary leading-relaxed line-clamp-3">
                     {req.message}
                   </p>
@@ -186,7 +188,7 @@ export default function SupportRequestsPage() {
                   }}
                   className="w-full py-3 bg-white border border-gray-100 text-secondary rounded-xl text-xs font-black uppercase tracking-widest hover:bg-primary hover:text-white hover:border-primary transition-all flex items-center justify-center gap-2 group/btn"
                 >
-                  <Eye size={14} /> View Details
+                  <Eye size={14} /> {t('adminSupport.viewDetails', 'View Details')}
                   <ChevronRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                 </button>
               </motion.div>
@@ -199,8 +201,8 @@ export default function SupportRequestsPage() {
             <div className="w-20 h-20 bg-gray-50 text-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
               <Search size={40} />
             </div>
-            <h3 className="text-xl font-bold text-gray-400">No support queries found</h3>
-            <p className="text-gray-300 font-medium mt-1">Try adjusting your filters or search term</p>
+            <h3 className="text-xl font-bold text-gray-400">{t('adminSupport.noQueries', 'No support queries found')}</h3>
+            <p className="text-gray-300 font-medium mt-1">{t('adminSupport.noQueriesDesc', 'Try adjusting your filters or search term')}</p>
           </div>
         )}
       </div>
@@ -243,27 +245,27 @@ export default function SupportRequestsPage() {
 
                 <div className="grid grid-cols-2 gap-4 mb-8">
                   <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                    <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest block mb-1">Status</span>
+                    <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest block mb-1">{t('adminSupport.status', 'Status')}</span>
                     <select 
                       value={selectedRequest.status}
                       onChange={(e) => handleStatusUpdate(selectedRequest._id, e.target.value)}
                       disabled={updating}
                       className="bg-transparent text-sm font-bold text-secondary outline-none w-full"
                     >
-                      <option value="new">New</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="resolved">Resolved</option>
+                      <option value="new">{t('status.new', 'New')}</option>
+                      <option value="in_progress">{t('status.in_progress', 'In Progress')}</option>
+                      <option value="resolved">{t('status.resolved', 'Resolved')}</option>
                     </select>
                   </div>
                   <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                    <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest block mb-1">Role</span>
-                    <span className="text-sm font-bold text-secondary uppercase tracking-wider">{selectedRequest.userRole || 'Guest'}</span>
+                    <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest block mb-1">{t('adminSupport.role', 'Role')}</span>
+                    <span className="text-sm font-bold text-secondary uppercase tracking-wider">{selectedRequest.userRole ? t('roles.' + selectedRequest.userRole, selectedRequest.userRole) : t('adminSupport.guest', 'Guest')}</span>
                   </div>
                 </div>
 
                 <div className="mb-8">
                   <h4 className="text-[10px] font-black text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <MessageSquare size={14} /> Subject: {selectedRequest.subject}
+                    <MessageSquare size={14} /> {t('adminSupport.subject', 'Subject')}: {selectedRequest.subject}
                   </h4>
                   <div className="bg-[#FFF5F8] p-6 rounded-3xl border border-primary/5">
                     <p className="text-secondary font-medium leading-relaxed">
@@ -273,11 +275,11 @@ export default function SupportRequestsPage() {
                 </div>
 
                 <div className="mb-8">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-3 ml-1">Admin Remarks / Notes</label>
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-3 ml-1">{t('adminSupport.adminRemarks', 'Admin Remarks / Notes')}</label>
                   <textarea 
                     value={adminNotes}
                     onChange={(e) => setAdminNotes(e.target.value)}
-                    placeholder="Add notes about this query..."
+                    placeholder={t('adminSupport.adminRemarksPlaceholder', 'Add notes about this query...')}
                     rows={3}
                     className="w-full p-5 bg-gray-50 rounded-3xl border border-gray-100 focus:bg-white focus:border-primary outline-none transition-all text-secondary font-medium resize-none"
                   />
@@ -289,14 +291,14 @@ export default function SupportRequestsPage() {
                     disabled={updating}
                     className="flex-1 py-4 bg-primary text-white rounded-2xl text-sm font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-70"
                   >
-                    {updating ? 'Saving...' : 'Save Remarks'}
+                    {updating ? t('adminSupport.saving', 'Saving...') : t('adminSupport.saveRemarks', 'Save Remarks')}
                   </button>
                   <button 
                     onClick={() => handleStatusUpdate(selectedRequest._id, 'resolved')}
                     disabled={updating || selectedRequest.status === 'resolved'}
                     className="flex-1 py-4 bg-green-500 text-white rounded-2xl text-sm font-black uppercase tracking-widest shadow-xl shadow-green-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
                   >
-                    {selectedRequest.status === 'resolved' ? 'Already Resolved' : 'Mark as Resolved'}
+                    {selectedRequest.status === 'resolved' ? t('adminSupport.alreadyResolved', 'Already Resolved') : t('adminSupport.markAsResolved', 'Mark as Resolved')}
                   </button>
                 </div>
               </div>

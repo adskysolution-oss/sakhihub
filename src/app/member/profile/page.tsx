@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import axios from "axios";
+import { useLanguage } from "@/context/LanguageContext";
 import { 
   User as UserIcon, Phone, MapPin, 
   ShieldCheck, Calendar, Camera, 
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 
 export default function MemberProfilePage() {
+  const { t } = useLanguage();
   const { user: authUser } = useAuth();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -52,7 +54,7 @@ export default function MemberProfilePage() {
     }
   };
 
-  if (loading) return <DashboardLayout><div style={{ padding: '40px', textAlign: 'center' }}>Loading Profile...</div></DashboardLayout>;
+  if (loading) return <DashboardLayout><div style={{ padding: '40px', textAlign: 'center' }}>{t('memberProfile.loading', 'Loading Profile...')}</div></DashboardLayout>;
 
   const profile = data.user;
   const field = data.fieldRecord;
@@ -75,22 +77,22 @@ export default function MemberProfilePage() {
             </div>
             <div>
               <h1 style={{ fontSize: '2.5rem', fontWeight: '900', color: 'var(--secondary)' }}>{profile.fullName}</h1>
-              <p style={{ color: 'var(--primary)', fontWeight: '800', marginTop: '5px' }}>Member ID: {membership?.membershipId || 'Generating...'}</p>
+              <p style={{ color: 'var(--primary)', fontWeight: '800', marginTop: '5px' }}>{t('memberProfile.memberId', 'Member ID')}: {membership?.membershipId || 'Generating...'}</p>
               <div style={{ display: 'flex', gap: '15px', marginTop: '15px' }}>
                 {membership?.paymentStatus === 'Paid' ? (
                   <span style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', background: '#ecfdf5', color: '#059669', borderRadius: '100px', fontSize: '0.8rem', fontWeight: '800' }}>
-                    <ShieldCheck size={14} /> ACTIVE MEMBER
+                    <ShieldCheck size={14} /> {t('status.active', 'ACTIVE MEMBER')}
                   </span>
                 ) : (
                   <span style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', background: '#fffbeb', color: '#d97706', borderRadius: '100px', fontSize: '0.8rem', fontWeight: '800' }}>
-                    <ShieldCheck size={14} /> PENDING
+                    <ShieldCheck size={14} /> {t('status.pending', 'PENDING')}
                   </span>
                 )}
               </div>
             </div>
             {!isEditing ? (
               <button onClick={() => setIsEditing(true)} style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 25px', background: 'white', border: '1px solid #ddd', borderRadius: '15px', fontWeight: '800', cursor: 'pointer' }}>
-                <Edit3 size={18} /> Edit Profile
+                <Edit3 size={18} /> {t('memberProfile.editProfile', 'Edit Profile')}
               </button>
             ) : (
               <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px' }}>
@@ -98,7 +100,7 @@ export default function MemberProfilePage() {
                   <X size={18} />
                 </button>
                 <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 25px', background: 'var(--grad-primary)', color: 'white', border: 'none', borderRadius: '15px', fontWeight: '800', cursor: 'pointer' }}>
-                  {saving ? 'Saving...' : <><Save size={18} /> Save Changes</>}
+                  {saving ? t('memberProfile.saving', 'Saving...') : <><Save size={18} /> {t('memberProfile.saveChanges', 'Save Changes')}</>}
                 </button>
               </div>
             )}
@@ -108,16 +110,16 @@ export default function MemberProfilePage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
           {/* Contact Details */}
           <section className="glass-card" style={{ background: 'white', padding: '35px', borderRadius: '30px', border: '1px solid #eee' }}>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '900', color: 'var(--secondary)', marginBottom: '25px' }}>Contact Information</h3>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '900', color: 'var(--secondary)', marginBottom: '25px' }}>{t('memberProfile.contactInfo', 'Contact Information')}</h3>
             <div style={{ display: 'grid', gap: '20px' }}>
               <div style={{ padding: '15px', background: '#f8f9fa', borderRadius: '15px' }}>
-                <label style={{ fontSize: '0.75rem', color: '#999', fontWeight: '800', textTransform: 'uppercase' }}>Mobile Number</label>
+                <label style={{ fontSize: '0.75rem', color: '#999', fontWeight: '800', textTransform: 'uppercase' }}>{t('memberProfile.mobileNumber', 'Mobile Number')}</label>
                 <p style={{ margin: '5px 0 0', fontWeight: '700', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <Phone size={18} color="var(--primary)" /> {profile.mobile}
                 </p>
               </div>
               <div style={{ padding: '15px', background: '#f8f9fa', borderRadius: '15px' }}>
-                <label style={{ fontSize: '0.75rem', color: '#999', fontWeight: '800', textTransform: 'uppercase' }}>Current Address</label>
+                <label style={{ fontSize: '0.75rem', color: '#999', fontWeight: '800', textTransform: 'uppercase' }}>{t('memberProfile.currentAddress', 'Current Address')}</label>
                 {isEditing ? (
                   <input 
                     value={formData.address} 
@@ -135,24 +137,24 @@ export default function MemberProfilePage() {
 
           {/* Group & Regional Details */}
           <section className="glass-card" style={{ background: 'white', padding: '35px', borderRadius: '30px', border: '1px solid #eee' }}>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '900', color: 'var(--secondary)', marginBottom: '25px' }}>Community Assignment</h3>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '900', color: 'var(--secondary)', marginBottom: '25px' }}>{t('memberProfile.communityAssignment', 'Community Assignment')}</h3>
             <div style={{ display: 'grid', gap: '20px' }}>
               <div style={{ padding: '15px', background: '#f8f9fa', borderRadius: '15px' }}>
-                <label style={{ fontSize: '0.75rem', color: '#999', fontWeight: '800', textTransform: 'uppercase' }}>Assigned Group</label>
+                <label style={{ fontSize: '0.75rem', color: '#999', fontWeight: '800', textTransform: 'uppercase' }}>{t('memberProfile.assignedGroup', 'Assigned Group')}</label>
                 <p style={{ margin: '5px 0 0', fontWeight: '700', fontSize: '1.1rem' }}>{field?.groupId?.groupName || 'Direct Member'}</p>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                  <div style={{ padding: '15px', background: '#f8f9fa', borderRadius: '15px' }}>
-                    <label style={{ fontSize: '0.75rem', color: '#999', fontWeight: '800', textTransform: 'uppercase' }}>Village</label>
+                    <label style={{ fontSize: '0.75rem', color: '#999', fontWeight: '800', textTransform: 'uppercase' }}>{t('memberProfile.village', 'Village')}</label>
                     <p style={{ margin: '5px 0 0', fontWeight: '700' }}>{field?.village || profile.area}</p>
                  </div>
                  <div style={{ padding: '15px', background: '#f8f9fa', borderRadius: '15px' }}>
-                    <label style={{ fontSize: '0.75rem', color: '#999', fontWeight: '800', textTransform: 'uppercase' }}>District</label>
+                    <label style={{ fontSize: '0.75rem', color: '#999', fontWeight: '800', textTransform: 'uppercase' }}>{t('memberProfile.district', 'District')}</label>
                     <p style={{ margin: '5px 0 0', fontWeight: '700' }}>{field?.groupId?.district || profile.district}</p>
                  </div>
               </div>
               <div style={{ padding: '15px', background: '#f8f9fa', borderRadius: '15px' }}>
-                <label style={{ fontSize: '0.75rem', color: '#999', fontWeight: '800', textTransform: 'uppercase' }}>Registration Date</label>
+                <label style={{ fontSize: '0.75rem', color: '#999', fontWeight: '800', textTransform: 'uppercase' }}>{t('memberProfile.regDate', 'Registration Date')}</label>
                 <p style={{ margin: '5px 0 0', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <Calendar size={18} color="#666" /> {new Date(profile.createdAt).toLocaleDateString()}
                 </p>

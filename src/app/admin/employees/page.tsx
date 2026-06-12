@@ -21,8 +21,10 @@ import UnifiedFilterBar from "@/components/shared/filters/UnifiedFilterBar";
 import StatusFilterTabs from "@/components/shared/filters/StatusFilterTabs";
 import PaginationControls from "@/components/shared/filters/PaginationControls";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function EmployeeManagement() {
+  const { t } = useLanguage();
   const { user: currentUser } = useAuth();
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,7 @@ export default function EmployeeManagement() {
   });
   const [paymentFilter, setPaymentFilter] = useState("all");
   const [page, setPage] = useState(1);
-  const limit = 50;
+  const [limit, setLimit] = useState(50);
   const [selectedEmp, setSelectedEmp] = useState<any>(null);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [offerLetterFilter, setOfferLetterFilter] = useState("all");
@@ -86,7 +88,7 @@ export default function EmployeeManagement() {
 
   const fetchPartners = async () => {
     try {
-      const res = await axios.get('/api/admin/partners/list');
+      const res = await axios.get('/api/admin/partners');
       if (res.data.success) setAllPartners(res.data.data);
     } catch (err) {
       console.error(err);
@@ -304,20 +306,20 @@ export default function EmployeeManagement() {
       <div className="flex flex-col gap-8">
         <div className="flex justify-between items-start flex-wrap gap-6">
           <div>
-            <h1 className="text-3xl md:text-4xl font-black text-secondary">Employee Force</h1>
-            <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Verify credentials and manage regional field staff hierarchy.</p>
+            <h1 className="text-3xl md:text-4xl font-black text-secondary">{t('employees.title', 'Employee Force')}</h1>
+            <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">{t('employees.subtitle', 'Verify credentials and manage regional field staff hierarchy.')}</p>
           </div>
           <button 
             onClick={() => setShowRegisterModal(true)}
             className="btn-primary py-4 px-8"
           >
-            <Plus size={20} /> Add New Employee
+            <Plus size={20} /> {t('employees.addBtn', 'Add New Employee')}
           </button>
         </div>
 
         <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
           <UnifiedFilterBar
-            search={search} setSearch={setSearch} searchPlaceholder="Search by name, ID, mobile..."
+            search={search} setSearch={setSearch} searchPlaceholder={t('employees.searchPlaceholder', 'Search by name, ID, mobile...')}
             dateFilter={dateFilter} setDateFilter={setDateFilter}
             startDate={startDate} setStartDate={setStartDate}
             endDate={endDate} setEndDate={setEndDate}
@@ -329,22 +331,22 @@ export default function EmployeeManagement() {
             <table className="w-full border-collapse min-w-[900px]">
               <thead>
                 <tr className="text-left border-b-2 border-gray-50">
-                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[60px]">S.No.</th>
-                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Employee Profile</th>
-                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Parent Network</th>
-                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Compliance</th>
-                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Payment Status</th>
-                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
-                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[60px]">{t('employees.sNo', 'S.No.')}</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('employees.profile', 'Employee Profile')}</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('employees.parentNetwork', 'Parent Network')}</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('employees.compliance', 'Compliance')}</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('employees.paymentStatus', 'Payment Status')}</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('employees.status', 'Status')}</th>
+                  <th className="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('employees.actions', 'Actions')}</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                   <tr><td colSpan={7} className="p-20 text-center text-gray-400 font-bold italic">Syncing field records...</td></tr>
+                   <tr><td colSpan={7} className="p-20 text-center text-gray-400 font-bold italic">{t('employees.loading', 'Syncing field records...')}</td></tr>
                 ) : employees.length === 0 ? (
-                   <tr><td colSpan={7} className="p-20 text-center text-gray-400 font-bold italic">No employees found.</td></tr>
+                   <tr><td colSpan={7} className="p-20 text-center text-gray-400 font-bold italic">{t('employees.emptyState', 'No employees found.')}</td></tr>
                 ) : (
-                    employees.map((emp, index) => {
+                  employees.map((emp, index) => {
                      const empComp = getDocComplianceSummary(emp.documents, 'employee', undefined, emp.designation);
                       return (
                         <tr key={emp._id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer group" onClick={() => setSelectedEmp(emp)}>
@@ -455,21 +457,21 @@ export default function EmployeeManagement() {
                         <td className="p-5">
                           {emp.paymentCompleted ? (
                             <span className="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-green-100 text-green-600">
-                              Paid
+                              {t('status.paid', 'Paid')}
                             </span>
                           ) : emp.subscriptionPaid ? (
                             <span className="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-100 text-amber-600">
-                              Sub Paid
+                              {t('status.subPaid', 'Sub Paid')}
                             </span>
                           ) : (
                             <span className="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-red-100 text-red-600">
-                              Unpaid
+                              {t('status.unpaid', 'Unpaid')}
                             </span>
                           )}
                         </td>
                         <td className="p-5">
                           <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${emp.status === 'active' ? 'bg-green-100 text-green-600' : emp.status === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-600'}`}>
-                            {emp.status}
+                            {t('status.' + emp.status, emp.status)}
                           </span>
                         </td>
                         <td className="p-5">
@@ -490,7 +492,7 @@ export default function EmployeeManagement() {
           </div>
           
           <PaginationControls 
-            page={page} setPage={setPage} limit={limit}
+            page={page} setPage={setPage} limit={limit} setLimit={setLimit}
             totalCount={status === 'paid' ? counts.payment.paid : status === 'unpaid' ? counts.payment.unpaid : (counts.status[status] || 0)}
           />
         </div>
@@ -528,7 +530,7 @@ export default function EmployeeManagement() {
                       <div className="flex flex-wrap gap-4 items-center">
                         <span className="px-4 py-1.5 bg-primary rounded-full text-[10px] font-black uppercase tracking-[0.2em]">Employee Profile</span>
                         <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border ${selectedEmp.status === 'active' ? 'border-green-500 text-green-500' : 'border-amber-500 text-amber-500'}`}>
-                          {selectedEmp.status}
+                          {t('status.' + selectedEmp.status, selectedEmp.status)}
                         </span>
                         <div className="h-4 w-px bg-white/20" />
                         <p className="flex items-center gap-2 text-white/60 font-bold text-sm">

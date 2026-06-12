@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface UnifiedFilterBarProps {
   search: string;
@@ -33,6 +34,8 @@ export default function UnifiedFilterBar({
   offerLetterFilter,
   setOfferLetterFilter
 }: UnifiedFilterBarProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="flex gap-4 mb-8 flex-wrap">
       <div className="relative flex-1 min-w-[300px]">
@@ -52,36 +55,36 @@ export default function UnifiedFilterBar({
           onChange={(e) => setDateFilter(e.target.value)}
           className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
         >
-          <option value="all">All Time</option>
-          <option value="today">Today</option>
-          <option value="yesterday">Yesterday</option>
-          <option value="custom">Custom Date</option>
+          <option value="all">{t('members.allTime', 'All Time')}</option>
+          <option value="today">{t('members.today', 'Today')}</option>
+          <option value="yesterday">{t('members.yesterday', 'Yesterday')}</option>
+          <option value="custom">{t('members.customDate', 'Custom Date')}</option>
         </select>
-
+ 
         {setAgreementFilter && agreementFilter !== undefined && (
           <select
             value={agreementFilter}
             onChange={(e) => setAgreementFilter(e.target.value)}
             className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
           >
-            <option value="all">Agreement: All</option>
-            <option value="generated">Generated</option>
-            <option value="not_generated">Not Generated</option>
+            <option value="all">{t('filters.agreementAll', 'Agreement: All')}</option>
+            <option value="generated">{t('filters.generated', 'Generated')}</option>
+            <option value="not_generated">{t('filters.notGenerated', 'Not Generated')}</option>
           </select>
         )}
-
+ 
         {setOfferLetterFilter && offerLetterFilter !== undefined && (
           <select
             value={offerLetterFilter}
             onChange={(e) => setOfferLetterFilter(e.target.value)}
             className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
           >
-            <option value="all">Offer Letter: All</option>
-            <option value="generated">Generated</option>
-            <option value="not_generated">Not Generated</option>
+            <option value="all">{t('filters.offerLetterAll', 'Offer Letter: All')}</option>
+            <option value="generated">{t('filters.generated', 'Generated')}</option>
+            <option value="not_generated">{t('filters.notGenerated', 'Not Generated')}</option>
           </select>
         )}
-
+ 
         {dateFilter === 'custom' && (
           <div className="flex gap-2 items-center">
             <input

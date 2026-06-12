@@ -157,7 +157,7 @@ function TrackingForm() {
                   <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">{t('careersPage.currentStatus')}</h3>
                   <div className={`inline-flex items-center gap-3 px-6 py-4 rounded-2xl border ${getStatusColor(application.status)}`}>
                     {getStatusIcon(application.status)}
-                    <span className="font-black uppercase tracking-widest text-sm">{application.status}</span>
+                    <span className="font-black uppercase tracking-widest text-sm">{t('status.' + application.status.toLowerCase().replace(/\s+/g, '_'), application.status)}</span>
                   </div>
                 </div>
 
