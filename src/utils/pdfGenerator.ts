@@ -1,5 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import React from 'react';
+import ReactDOMServer from 'react-dom/server';
+import { DocumentHeader } from '../components/shared/DocumentHeader';
 
 export const generateAgreementHtml = (data: any) => {
   const currentDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -16,6 +19,19 @@ export const generateAgreementHtml = (data: any) => {
   } catch (e) {
     console.error('Signature image not found:', e);
   }
+
+  let logoBase64 = '';
+  try {
+    const logoPath = path.join(process.cwd(), 'public', 'logo.png');
+    const logoData = fs.readFileSync(logoPath);
+    logoBase64 = `data:image/png;base64,${logoData.toString('base64')}`;
+  } catch (e) {
+    console.error('Logo image not found:', e);
+  }
+
+  const headerHtml = ReactDOMServer.renderToStaticMarkup(
+    React.createElement(DocumentHeader, { logoSrc: logoBase64 })
+  );
 
   // 55 Clauses definition
   const clauses = [
@@ -566,13 +582,32 @@ export const generateAgreementHtml = (data: any) => {
           text-transform: uppercase;
           white-space: nowrap;
         }
+        .print-header {
+          display: table-header-group;
+        }
+        tr, li, tbody, table {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
       </style>
     </head>
     <body>
       <div class="watermark">SakhiHub Official</div>
 
-      <!-- TITLE -->
-      <h1>${headingTitle}</h1>
+      <table style="width: 100%; border: none; border-collapse: collapse; padding: 0; margin: 0;">
+        <thead class="print-header">
+          <tr>
+            <td>
+              ${headerHtml}
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding: 0;">
+
+              <!-- TITLE -->
+              <h1>${headingTitle}</h1>
 
       <!-- INTRO -->
       <div class="intro-statement">
@@ -676,6 +711,11 @@ export const generateAgreementHtml = (data: any) => {
         </div>
       </div>
 
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
     </body>
     </html>
   `;
@@ -712,6 +752,10 @@ export const generateOfferLetterHtml = (data: any) => {
   }
 
   const programName = data.programName || "Women Health & Awareness Campaign";
+
+  const headerHtml = ReactDOMServer.renderToStaticMarkup(
+    React.createElement(DocumentHeader, { logoSrc: logoBase64 })
+  );
 
   return `
   <!DOCTYPE html>
@@ -1259,7 +1303,7 @@ export const generateOfferLetterHtml = (data: any) => {
         <thead class="print-header">
           <tr>
             <td>
-              <div class="print-header-space"></div>
+              ${headerHtml}
             </td>
           </tr>
         </thead>
@@ -1268,12 +1312,8 @@ export const generateOfferLetterHtml = (data: any) => {
             <td class="content-cell">
               
               <!-- Header -->
-              <div class="header-container">
-                ${logoBase64 ? `<img src="${logoBase64}" class="logo-img" alt="SakhiHub Logo" />` : ''}
-                <p class="program-name">${programName}</p>
-                <p class="program-tagline">"Empowering Women Through Awareness, Support & Community Action"</p>
-                
-                <div class="meta-row">
+              <div class="header-container" style="border-bottom: none; margin-bottom: 15px; padding-bottom: 0;">
+                <div class="meta-row" style="border-top: none; padding-top: 0; margin-top: 0;">
                   <p>Status: <span class="status-badge">${(data.documentStatus || 'GENERATED').toUpperCase()}</span></p>
                   <p>Offer Letter ID: <span class="meta-id">${data.offerLetterId}</span></p>
                   <p>Date: ${formatDate(data.generatedDate)}</p>

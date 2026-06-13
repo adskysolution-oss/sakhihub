@@ -1,4 +1,5 @@
 import React from 'react';
+import DocumentHeader from './DocumentHeader';
 
 export interface EmployeeOfferLetterData {
   companyName?: string;
@@ -123,7 +124,7 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
         <thead className="hidden print:table-header-group">
           <tr>
             <td>
-              <div className="h-[12mm]" />
+              <DocumentHeader logoSrc="/logo.png" />
             </td>
           </tr>
         </thead>
@@ -131,13 +132,13 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
           <tr>
             <td className="p-0 print:px-[12mm]">
               {/* Header */}
-              <div className="flex flex-col items-center border-b-2 border-[#D91656] pb-4 mb-6 text-center">
-                <img src="/logo.png" alt="SakhiHub Logo" className="h-20 w-auto object-contain mb-3" />
-                <p className="text-sm font-bold text-gray-500 uppercase tracking-widest">{programName}</p>
-                <p className="text-xs text-gray-400 italic mt-1">"Empowering Women Through Awareness, Support & Community Action"</p>
+              <div className="flex flex-col items-center border-b-2 border-[#D91656] pb-4 mb-6 text-center print:border-none print:pb-0 print:mb-4">
+                <img src="/logo.png" alt="SakhiHub Logo" className="h-20 w-auto object-contain mb-3 print:hidden" />
+                <p className="text-sm font-bold text-gray-500 uppercase tracking-widest print:hidden">{programName}</p>
+                <p className="text-xs text-gray-400 italic mt-1 print:hidden">"Empowering Women Through Awareness, Support & Community Action"</p>
                 
                 {/* Status and metadata */}
-                <div className="w-full flex justify-between items-center mt-4 text-[11px] text-gray-500 font-bold border-t border-gray-100 pt-2.5">
+                <div className="w-full flex justify-between items-center mt-4 text-[11px] text-gray-500 font-bold border-t border-gray-100 pt-2.5 print:mt-0 print:border-t-0 print:pt-0">
                   <p>Status: <span className="text-[#D91656] uppercase font-black">{data.documentStatus || 'GENERATED'}</span></p>
                   <p>Offer Letter ID: <span className="font-mono text-gray-800 font-bold">{data.offerLetterId}</span></p>
                   <p>Date: {formatDate(data.generatedDate)}</p>

@@ -17,7 +17,8 @@ import {
   Clock,
   Calendar,
   Building,
-  Users
+  Users,
+  AlertTriangle
 } from 'lucide-react';
 
 export interface PaymentSlipProps {
@@ -374,9 +375,16 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
                     <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest block">{config.amountLabel}</span>
                     <p className={`text-xl font-black ${config.accentText} mt-0.5`}>₹{data.amount}</p>
                   </div>
-                  <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-white border border-gray-100 text-secondary shadow-sm`}>
-                    {config.extraLabel}
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-white border border-gray-100 text-secondary shadow-sm`}>
+                      {config.extraLabel}
+                    </span>
+                    {type !== 'deposit' && (
+                      <span className="text-[8px] font-black text-red-500 uppercase tracking-wider">
+                        NON-REFUNDABLE
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -392,9 +400,40 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
             <h4 className="text-[11px] font-black text-secondary uppercase tracking-wider">Payment Successful</h4>
             <p className="text-[10px] text-gray-500 leading-relaxed font-semibold mt-0.5">
               This digital receipt serves as official proof of payment. The transaction has been securely recorded, reconciled, and audited in the SakhiHub distributed ledger database.
+              {type !== 'deposit' && (
+                <span className="text-red-500 font-bold block mt-1">
+                  Please note: This payment is strictly non-refundable.
+                </span>
+              )}
             </p>
           </div>
         </div>
+
+        {/* SECURITY DEPOSIT IMPORTANT NOTICE */}
+        {type === 'deposit' && (
+          <div className="mt-3 bg-amber-50/40 border border-amber-200/50 rounded-xl p-3 flex gap-3 relative z-10 text-[9.5px]">
+            <AlertTriangle size={15} className="text-amber-600 shrink-0 mt-0.5" />
+            <div className="space-y-1 text-amber-900">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase bg-amber-600 text-white tracking-wide">
+                  IMPORTANT
+                </span>
+                <strong className="text-amber-950 uppercase font-black text-[9px] tracking-wide">
+                  SECURITY DEPOSIT NOTICE
+                </strong>
+                <span className="text-gray-400">•</span>
+                <span className="font-extrabold text-amber-950">Refund Eligibility: 90 Days (3 Months) of Continuous Service</span>
+              </div>
+              <p className="leading-relaxed font-semibold">
+                The Security Deposit shall become refundable only after successful completion of 90 days (3 months) of continuous service with SakhiHub.
+                If the employee resigns, leaves voluntarily, abandons duties, remains inactive, violates company policies, or is terminated before completion of 90 days from the joining date, the Security Deposit shall not be refundable.
+              </p>
+              <p className="text-[8.5px] text-amber-800/80 italic font-bold">
+                * The refund eligibility shall be determined solely based on SakhiHub records and compliance status.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Middle Line Divider */}
         <div className="h-px bg-gray-100 my-4 relative z-10" />
