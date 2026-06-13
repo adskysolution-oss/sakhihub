@@ -6,8 +6,10 @@ import CreateGroupForm from "@/components/features/dashboard/CreateGroupForm";
 import { Users, Plus, MapPin, Calendar, Search, Filter, ArrowRight } from "lucide-react";
 import axios from "axios";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function EmployeeGroupsPage() {
+  const { t } = useLanguage();
   const [showCreate, setShowCreate] = useState(false);
   const [search, setSearch] = useState("");
   const [groups, setGroups] = useState<any[]>([]);
@@ -45,11 +47,15 @@ export default function EmployeeGroupsPage() {
     <DashboardLayout>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
         <div>
-          <h2 style={{ fontSize: '2rem', fontWeight: '900', color: 'var(--secondary)' }}>My Groups</h2>
-          <p style={{ color: 'var(--text-muted)' }}>Manage and view all women groups created by you.</p>
+          <h2 style={{ fontSize: '2rem', fontWeight: '900', color: 'var(--secondary)' }}>
+            {t('employeeGroups.title', 'My Groups')}
+          </h2>
+          <p style={{ color: 'var(--text-muted)' }}>
+            {t('employeeGroups.subtitle', 'Manage and view all women groups created by you.')}
+          </p>
         </div>
         <button onClick={() => setShowCreate(true)} className="btn-primary" style={{ gap: '10px' }}>
-          <Plus size={20} /> Create New Group
+          <Plus size={20} /> {t('employeeGroups.createBtn', 'Create New Group')}
         </button>
       </div>
 
@@ -58,7 +64,7 @@ export default function EmployeeGroupsPage() {
             <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
             <input 
               type="text" 
-              placeholder="Search groups by name or village..." 
+              placeholder={t('employeeGroups.searchPlaceholder', 'Search groups by name or village...')} 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '12px', border: '1px solid #eee', outline: 'none' }} 
@@ -67,7 +73,7 @@ export default function EmployeeGroupsPage() {
       </div>
 
       {loading ? (
-        <p>Loading groups...</p>
+        <p>{t('employeeGroups.loading', 'Loading groups...')}</p>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '20px' }}>
           {filteredGroups.map((group) => (
@@ -76,7 +82,9 @@ export default function EmployeeGroupsPage() {
                 <div style={{ width: '50px', height: '50px', borderRadius: '14px', background: 'rgba(106, 27, 154, 0.1)', color: '#6a1b9a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Users size={24} />
                 </div>
-                <span style={{ padding: '5px 12px', borderRadius: '100px', background: '#f0fdf4', color: '#10b981', fontSize: '0.75rem', fontWeight: '800' }}>Active</span>
+                <span style={{ padding: '5px 12px', borderRadius: '100px', background: '#f0fdf4', color: '#10b981', fontSize: '0.75rem', fontWeight: '800' }}>
+                  {t('employeeGroups.active', 'Active')}
+                </span>
               </div>
               <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '15px' }}>{group.groupName}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
@@ -84,15 +92,15 @@ export default function EmployeeGroupsPage() {
                   <MapPin size={16} /> {group.village}, {group.block}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#666', fontSize: '0.9rem' }}>
-                  <Calendar size={16} /> Next Meeting: {new Date(group.meetingDate).toLocaleDateString()}
+                  <Calendar size={16} /> {t('employeeGroups.nextMeeting', 'Next Meeting')}: {new Date(group.meetingDate).toLocaleDateString()}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#666', fontSize: '0.9rem' }}>
-                  <Users size={16} /> Leader: {group.leaderName}
+                  <Users size={16} /> {t('employeeGroups.leader', 'Leader')}: {group.leaderName}
                 </div>
               </div>
               <Link href={`/employee/groups/${group._id}`} style={{ width: '100%' }}>
                 <button style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid var(--primary)', background: 'none', color: 'var(--primary)', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                  View Members <ArrowRight size={16} />
+                  {t('employeeGroups.viewMembers', 'View Members')} <ArrowRight size={16} />
                 </button>
               </Link>
             </div>
@@ -100,7 +108,9 @@ export default function EmployeeGroupsPage() {
           {groups.length === 0 && (
             <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '100px 20px', background: 'white', borderRadius: '30px' }}>
                <Users size={60} color="#eee" style={{ marginBottom: '20px' }} />
-               <h3 style={{ color: '#999' }}>No groups found. Create your first group today!</h3>
+               <h3 style={{ color: '#999' }}>
+                 {t('employeeGroups.noGroups', 'No groups found. Create your first group today!')}
+               </h3>
             </div>
           )}
         </div>

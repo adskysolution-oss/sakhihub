@@ -5,8 +5,10 @@ import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
 import { User, Phone, MapPin, Check, X, Clock, AlertCircle } from "lucide-react";
 import axios from "axios";
 import { toast } from 'sonner';
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function EmployeeRequestsPage() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'received' | 'sent'>('received');
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,8 +52,12 @@ export default function EmployeeRequestsPage() {
   return (
     <DashboardLayout>
       <div className="mb-8 md:mb-14">
-        <h2 className="text-3xl md:text-5xl font-black text-secondary tracking-tight">Member Requests</h2>
-        <p className="mt-4 text-gray-500 font-bold text-sm md:text-lg">Manage your connections and approvals with community members.</p>
+        <h2 className="text-3xl md:text-5xl font-black text-secondary tracking-tight">
+          {t('employeeRequests.title', 'Member Requests')}
+        </h2>
+        <p className="mt-4 text-gray-500 font-bold text-sm md:text-lg">
+          {t('employeeRequests.subtitle', 'Manage your connections and approvals with community members.')}
+        </p>
       </div>
 
       {/* Tabs */}
@@ -62,7 +68,7 @@ export default function EmployeeRequestsPage() {
             activeTab === 'received' ? 'text-primary border-b-4 border-primary' : 'text-gray-400 hover:text-gray-600'
           }`}
         >
-          Incoming <span className="hidden sm:inline">(From Members)</span>
+          {t('employeeRequests.incoming', 'Incoming (From Members)')}
         </button>
         <button 
           onClick={() => setActiveTab('sent')}
@@ -70,20 +76,28 @@ export default function EmployeeRequestsPage() {
             activeTab === 'sent' ? 'text-primary border-b-4 border-primary' : 'text-gray-400 hover:text-gray-600'
           }`}
         >
-          Outgoing <span className="hidden sm:inline">(Sent to Members)</span>
+          {t('employeeRequests.outgoing', 'Outgoing (Sent to Members)')}
         </button>
       </div>
 
       {loading ? (
         <div className="p-20 text-center">
-          <div className="animate-pulse text-xl font-black text-gray-300 uppercase tracking-widest">Loading Requests...</div>
+          <div className="animate-pulse text-xl font-black text-gray-300 uppercase tracking-widest">
+            {t('employeeRequests.loading', 'Loading Requests...')}
+          </div>
         </div>
       ) : displayRequests.length === 0 ? (
         <div className="p-16 md:p-24 text-center bg-white rounded-[40px] border-2 border-dashed border-gray-100 shadow-soft">
           <Clock size={64} className="mx-auto text-gray-200 mb-6" />
-          <h3 className="text-xl md:text-2xl font-black text-secondary mb-3">No {activeTab} Requests</h3>
+          <h3 className="text-xl md:text-2xl font-black text-secondary mb-3">
+            {activeTab === 'received' 
+              ? t('employeeRequests.noIncomingRequests', 'No Incoming Requests') 
+              : t('employeeRequests.noOutgoingRequests', 'No Outgoing Requests')}
+          </h3>
           <p className="text-gray-400 font-bold text-sm md:text-base max-w-sm mx-auto">
-            {activeTab === 'received' ? 'When members near you request to connect, they will appear here.' : 'Members you have sent connection requests to will be listed here.'}
+            {activeTab === 'received' 
+              ? t('employeeRequests.incomingDesc', 'When members near you request to connect, they will appear here.') 
+              : t('employeeRequests.outgoingDesc', 'Members you have sent connection requests to will be listed here.')}
           </p>
         </div>
       ) : (
@@ -103,7 +117,7 @@ export default function EmployeeRequestsPage() {
                       <Phone size={16} className="text-primary" /> {request.memberId?.mobile}
                     </span>
                     <span className="flex items-center gap-2 text-sm font-black text-gray-400">
-                      <MapPin size={16} className="text-primary" /> {request.memberId?.area || 'Area N/A'}
+                      <MapPin size={16} className="text-primary" /> {request.memberId?.area || t('employeeRequests.areaNa', 'Area N/A')}
                     </span>
                   </div>
                 </div>
@@ -117,19 +131,21 @@ export default function EmployeeRequestsPage() {
                       disabled={!!actionLoading}
                       className="flex-1 sm:flex-none px-8 py-4 rounded-2xl bg-gray-50 text-gray-400 font-black text-xs uppercase tracking-widest hover:bg-red-50 hover:text-red-500 transition-all flex items-center justify-center gap-2 border border-transparent hover:border-red-100"
                     >
-                      <X size={18} /> Reject
+                      <X size={18} /> {t('employeeRequests.reject', 'Reject')}
                     </button>
                     <button 
                       onClick={() => handleAction(request._id, 'approved')}
                       disabled={!!actionLoading}
                       className="flex-1 sm:flex-none px-10 py-4 rounded-2xl bg-primary text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all flex items-center justify-center gap-2"
                     >
-                      {actionLoading === request._id ? 'Processing...' : <><Check size={18} /> Approve & Connect</>}
+                      {actionLoading === request._id 
+                        ? t('employeeRequests.processing', 'Processing...') 
+                        : <><Check size={18} /> {t('employeeRequests.approveAndConnect', 'Approve & Connect')}</>}
                     </button>
                   </>
                 ) : (
                   <div className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 font-black text-xs uppercase tracking-widest">
-                    <Clock size={18} /> Pending Member Response
+                    <Clock size={18} /> {t('employeeRequests.pendingResponse', 'Pending Member Response')}
                   </div>
                 )}
               </div>

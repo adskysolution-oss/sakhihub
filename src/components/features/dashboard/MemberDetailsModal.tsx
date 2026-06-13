@@ -7,16 +7,17 @@ import {
   Clock, IndianRupee, CheckCircle2, ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
+import { toast } from 'sonner';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface MemberDetailsModalProps {
   member: any;
   onClose: () => void;
 }
 
-import axios from 'axios';
-import { toast } from 'sonner';
-
 export default function MemberDetailsModal({ member, onClose }: MemberDetailsModalProps) {
+  const { t } = useLanguage();
   const [groups, setGroups] = React.useState<any[]>([]);
   const [selectedGroup, setSelectedGroup] = React.useState("");
   const [loading, setLoading] = React.useState(false);
@@ -78,7 +79,7 @@ export default function MemberDetailsModal({ member, onClose }: MemberDetailsMod
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight mb-4 break-words">{member.name}</h2>
               <div className="flex flex-wrap justify-center md:justify-start gap-3">
                 <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-2xl text-[10px] md:text-xs font-semibold tracking-widest uppercase flex items-center gap-2 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
-                  <Users size={14} className="shrink-0" /> {member.groupId?.groupName || 'No Group'}
+                  <Users size={14} className="shrink-0" /> {member.groupId?.groupName || t('employeeMembers.unassigned', 'Unassigned')}
                 </span>
                 <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-2xl text-[10px] md:text-xs font-semibold tracking-widest uppercase flex items-center gap-2 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
                   <MapPin size={14} className="shrink-0" /> {member.village}
@@ -95,20 +96,20 @@ export default function MemberDetailsModal({ member, onClose }: MemberDetailsMod
             {/* Left Column: Profile Details */}
             <div className="flex flex-col gap-10 md:gap-14">
               <div className="bg-white rounded-3xl">
-                <SectionTitle icon={User} title="Personal Information" />
+                <SectionTitle icon={User} title={t('employeeForms.detailsPersonalTitle', 'Personal Information')} />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8 mt-8">
-                  <InfoItem label="Full Name" value={member.name} />
-                  <InfoItem label="Mobile" value={member.mobile} />
-                  <InfoItem label="Age" value={member.age ? `${member.age} Years` : 'N/A'} />
-                  <InfoItem label="Marital Status" value={member.maritalStatus} />
+                  <InfoItem label={t('employeeForms.namePlaceholder', 'Full Name')} value={member.name} />
+                  <InfoItem label={t('employeeForms.mobileLabel', 'Mobile')} value={member.mobile} />
+                  <InfoItem label={t('employeeForms.ageLabel', 'Age')} value={member.age ? `${member.age} ${t('employeeForms.ageLabel', 'Age')}` : 'N/A'} />
+                  <InfoItem label={t('employeeForms.maritalLabel', 'Marital Status')} value={member.maritalStatus} />
                   <div className="sm:col-span-2">
-                    <InfoItem label="Occupation" value={member.occupation} />
+                    <InfoItem label={t('employeeForms.occupationLabel', 'Occupation')} value={member.occupation} />
                   </div>
                 </div>
               </div>
 
               <div className="bg-white rounded-3xl">
-                <SectionTitle icon={Heart} title="Interests" />
+                <SectionTitle icon={Heart} title={t('employeeForms.detailsInterestTitle', 'Interests')} />
                 <div className="flex flex-wrap gap-2 md:gap-3 mt-8">
                   {member.interests && member.interests.length > 0 ? (
                     member.interests.map((interest: string, i: number) => (
@@ -117,7 +118,7 @@ export default function MemberDetailsModal({ member, onClose }: MemberDetailsMod
                       </span>
                     ))
                   ) : (
-                    <p className="text-xs font-bold text-gray-300 italic pl-2">No interests listed</p>
+                    <p className="text-xs font-bold text-gray-300 italic pl-2">{t('employeeForms.noInterests', 'No interests listed')}</p>
                   )}
                 </div>
               </div>
@@ -126,27 +127,27 @@ export default function MemberDetailsModal({ member, onClose }: MemberDetailsMod
             {/* Right Column: Location & Status */}
             <div className="flex flex-col gap-10 md:gap-14">
               <div className="bg-white rounded-3xl">
-                <SectionTitle icon={MapPin} title="Geography" />
+                <SectionTitle icon={MapPin} title={t('employeeForms.detailsGeographyTitle', 'Geography')} />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8 mt-8">
-                  <InfoItem label="Village" value={member.village} />
-                  <InfoItem label="Block" value={member.block} />
+                  <InfoItem label={t('employeeForms.villagePlaceholder', 'Village')} value={member.village} />
+                  <InfoItem label={t('employeeForms.blockPlaceholder', 'Block')} value={member.block} />
                   <div className="sm:col-span-2">
-                    <InfoItem label="District" value={member.district} />
+                    <InfoItem label={t('employeeForms.districtPlaceholder', 'District')} value={member.district} />
                   </div>
                 </div>
               </div>
 
               <div className="bg-white rounded-3xl">
-                <SectionTitle icon={ShieldCheck} title="Membership Status" />
+                <SectionTitle icon={ShieldCheck} title={t('employeeForms.detailsStatusTitle', 'Membership Status')} />
                 <div className={`mt-8 p-8 rounded-[32px] border-2 flex flex-col gap-6 transition-all ${member.membershipStatus === 'paid'
                     ? 'bg-green-50/50 border-green-100 text-green-700'
                     : 'bg-amber-50/50 border-amber-100 text-amber-700'
                   }`}>
                   <div className="flex justify-between items-start gap-4">
                     <div className="flex-1">
-                      <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">Activation Status</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">{t('employeeForms.activationStatus', 'Activation Status')}</p>
                       <h4 className="text-xl md:text-2xl font-black leading-tight break-words">
-                        {member.membershipStatus === 'paid' ? 'Verified Member' : 'Pending Verification'}
+                        {member.membershipStatus === 'paid' ? t('employeeForms.detailsStatusPaid', 'Verified Member') : t('employeeForms.detailsStatusPending', 'Pending Verification')}
                       </h4>
                     </div>
                     <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${member.membershipStatus === 'paid' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
@@ -156,25 +157,25 @@ export default function MemberDetailsModal({ member, onClose }: MemberDetailsMod
                   </div>
                   <p className="text-xs font-bold leading-relaxed opacity-90 border-t border-current/10 pt-4">
                     {member.membershipStatus === 'paid'
-                      ? 'This member has completed the registration and paid the required fee. They are now an active part of the SakhiHub community.'
-                      : 'Initial registration is complete. Please collect and verify the ₹100 membership fee to activate their account features.'}
+                      ? t('employeeForms.detailsDescPaid', 'This member has completed the registration and paid the required fee. They are now an active part of the SakhiHub community.')
+                      : t('employeeForms.detailsDescPending', 'Initial registration is complete. Please collect and verify the ₹100 membership fee to activate their account features.')}
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3 py-6 border-y border-gray-100">
                 <div className="flex items-center gap-3 text-xs font-semibold text-gray-400">
-                  <Calendar size={14} className="text-primary" /> Joined on {new Date(member.createdAt).toLocaleDateString()}
+                  <Calendar size={14} className="text-primary" /> {t('employeeForms.detailsJoined', 'Joined on')} {new Date(member.createdAt).toLocaleDateString()}
                 </div>
                 <div className="flex items-center gap-3 text-xs font-semibold text-gray-400">
-                  <Users size={14} className="text-primary" /> Created By: <span className="text-secondary font-semibold">{member.createdBy?.fullName || 'Self Registration'}</span>
+                  <Users size={14} className="text-primary" /> {t('employeeForms.detailsCreatedBy', 'Created By:')} <span className="text-secondary font-semibold">{member.createdBy?.fullName || t('employeeForms.detailsSelfReg', 'Self Registration')}</span>
                 </div>
               </div>
 
               {!member.groupId && (
                 <div className="p-8 bg-secondary/5 rounded-[32px] border border-dashed border-secondary/30">
-                  <SectionTitle icon={Users} title="Assign to Group" />
-                  <p className="text-xs font-semibold text-gray-400 mt-4 leading-relaxed">This member is not assigned to any group. Select a group to connect them.</p>
+                  <SectionTitle icon={Users} title={t('employeeForms.detailsAssignTitle', 'Assign to Group')} />
+                  <p className="text-xs font-semibold text-gray-400 mt-4 leading-relaxed">{t('employeeForms.detailsAssignDesc', 'This member is not assigned to any group. Select a group to connect them.')}</p>
                   <div className="flex flex-col sm:flex-row gap-4 mt-8">
                     <div className="relative flex-1">
                       <select
@@ -182,7 +183,7 @@ export default function MemberDetailsModal({ member, onClose }: MemberDetailsMod
                         onChange={(e) => setSelectedGroup(e.target.value)}
                         className="w-full p-4 rounded-2xl bg-white border border-secondary/20 font-semibold text-xs text-secondary appearance-none focus:outline-none focus:ring-2 focus:ring-secondary/20"
                       >
-                        <option value="">Select a Group...</option>
+                        <option value="">{t('employeeForms.detailsChooseGroup', 'Select a Group...')}</option>
                         {groups.map(g => (
                           <option key={g._id} value={g._id}>
                             {g.groupName} ({g.village})
@@ -196,23 +197,23 @@ export default function MemberDetailsModal({ member, onClose }: MemberDetailsMod
                       disabled={!selectedGroup || assigning}
                       className="btn-primary py-4 px-10 text-[10px] font-semibold uppercase tracking-widest shadow-xl shadow-primary/20 disabled:opacity-50"
                     >
-                      {assigning ? 'Assigning...' : 'Assign'}
+                      {assigning ? t('employeeForms.detailsAssigningBtn', 'Assigning...') : t('employeeForms.detailsAssignBtn', 'Assign')}
                     </button>
                   </div>
                 </div>
               )}
 
               <div className="mt-4">
-                <SectionTitle icon={IndianRupee} title="Payment Details" />
+                <SectionTitle icon={IndianRupee} title={t('employeeForms.detailsPaymentTitle', 'Payment Details')} />
                 <div className="mt-6 p-6 bg-gray-50 rounded-3xl flex justify-between items-center border border-gray-100">
                   <div>
-                    <p className="text-sm font-bold text-secondary">Membership Fee</p>
-                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mt-1">One-time Registration</p>
+                    <p className="text-sm font-bold text-secondary">{t('employeeForms.detailsFeeLabel', 'Membership Fee')}</p>
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mt-1">{t('employeeForms.detailsFeeSub', 'One-time Registration')}</p>
                   </div>
                   <div className="text-right">
                     <p className={`text-2xl font-bold ${member.membershipStatus === 'paid' ? 'text-green-600' : 'text-secondary'}`}>₹100.00</p>
                     <p className={`text-[10px] font-bold tracking-widest uppercase mt-1 ${member.membershipStatus === 'paid' ? 'text-green-600' : 'text-amber-500'}`}>
-                      {member.membershipStatus === 'paid' ? 'PAID' : 'PENDING'}
+                      {member.membershipStatus === 'paid' ? t('employeeForms.detailsStatusPaidBadge', 'PAID') : t('employeeForms.detailsStatusPendingBadge', 'PENDING')}
                     </p>
                   </div>
                 </div>

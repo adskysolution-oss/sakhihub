@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { X, User, Phone, MapPin, Briefcase, Heart, Calendar } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface AddMemberModalProps {
   groupId: string;
@@ -13,6 +14,7 @@ interface AddMemberModalProps {
 }
 
 export default function AddMemberModal({ groupId, groupName, onClose, onSuccess }: AddMemberModalProps) {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -62,8 +64,12 @@ export default function AddMemberModal({ groupId, groupName, onClose, onSuccess 
       <div style={{ position: 'relative', background: 'white', width: '100%', maxWidth: '600px', borderRadius: '30px', overflow: 'hidden', boxShadow: '0 25px 50px rgba(0,0,0,0.1)' }}>
         <div style={{ background: 'var(--grad-primary)', padding: '25px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>Add New Member</h3>
-            <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.9 }}>Registering to group: {groupName}</p>
+            <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>
+              {t('employeeForms.addMemberTitle', 'Add New Member')}
+            </h3>
+            <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.9 }}>
+              {t('employeeForms.addMemberSub', 'Registering to group:')} {groupName}
+            </p>
           </div>
           <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '35px', height: '35px', color: 'white', cursor: 'pointer' }}><X size={20} /></button>
         </div>
@@ -71,34 +77,34 @@ export default function AddMemberModal({ groupId, groupName, onClose, onSuccess 
         <form onSubmit={handleSubmit} style={{ padding: '30px', maxHeight: '70vh', overflowY: 'auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
             <div style={{ gridColumn: '1/-1' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#666', marginBottom: '8px' }}>Full Name</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#666', marginBottom: '8px' }}>{t('employeeForms.namePlaceholder', 'Full Name')}</label>
               <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #eee' }} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#666', marginBottom: '8px' }}>Mobile Number</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#666', marginBottom: '8px' }}>{t('employeeForms.mobileLabel', 'Mobile Number')}</label>
               <input required value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #eee' }} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#666', marginBottom: '8px' }}>Age</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#666', marginBottom: '8px' }}>{t('employeeForms.ageLabel', 'Age')}</label>
               <input required type="number" value={formData.age} onChange={e => setFormData({...formData, age: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #eee' }} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#666', marginBottom: '8px' }}>Village</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#666', marginBottom: '8px' }}>{t('employeeForms.villagePlaceholder', 'Village')}</label>
               <input required value={formData.village} onChange={e => setFormData({...formData, village: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #eee' }} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#666', marginBottom: '8px' }}>Occupation</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#666', marginBottom: '8px' }}>{t('employeeForms.occupationLabel', 'Occupation')}</label>
               <input required value={formData.occupation} onChange={e => setFormData({...formData, occupation: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #eee' }} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#666', marginBottom: '8px' }}>Marital Status</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#666', marginBottom: '8px' }}>{t('employeeForms.maritalLabel', 'Marital Status')}</label>
               <select value={formData.maritalStatus} onChange={e => setFormData({...formData, maritalStatus: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #eee' }}>
-                <option value="Married">Married</option>
-                <option value="Unmarried">Unmarried</option>
+                <option value="Married">{t('employeeForms.married', 'Married')}</option>
+                <option value="Unmarried">{t('employeeForms.unmarried', 'Unmarried')}</option>
               </select>
             </div>
             <div style={{ gridColumn: '1/-1' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#666', marginBottom: '10px' }}>Interests</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#666', marginBottom: '10px' }}>{t('employeeForms.interestsLabel', 'Interests')}</label>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                 {['Health Awareness', 'Sakhi Care Pads', 'Employment', 'Education', 'Self-Help'].map(interest => (
                   <button 
@@ -117,9 +123,9 @@ export default function AddMemberModal({ groupId, groupName, onClose, onSuccess 
             </div>
           </div>
           <div style={{ marginTop: '30px', display: 'flex', gap: '15px' }}>
-            <button type="button" onClick={onClose} style={{ flex: 1, padding: '15px', borderRadius: '15px', border: '1px solid #eee', background: 'white', fontWeight: '800', cursor: 'pointer' }}>Cancel</button>
+            <button type="button" onClick={onClose} style={{ flex: 1, padding: '15px', borderRadius: '15px', border: '1px solid #eee', background: 'white', fontWeight: '800', cursor: 'pointer' }}>{t('common.cancel', 'Cancel')}</button>
             <button type="submit" disabled={loading} style={{ flex: 1, padding: '15px', borderRadius: '15px', border: 'none', background: 'var(--grad-primary)', color: 'white', fontWeight: '800', cursor: 'pointer' }}>
-              {loading ? 'Registering...' : 'Register Member'}
+              {loading ? t('employeeForms.registering', 'Registering...') : t('employeeForms.completeBtn', 'Register Member')}
             </button>
           </div>
         </form>

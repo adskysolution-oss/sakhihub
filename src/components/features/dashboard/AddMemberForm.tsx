@@ -8,11 +8,13 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import { useLanguage } from '@/context/LanguageContext';
 
 const occupations = ["Housewife", "Self Employed", "Labor", "Student", "Farmer", "Other"];
 const interestOptions = ["Health Awareness", "Sakhi Care Pads", "Employment", "Training", "Volunteer"];
 
 export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () => void, onSuccess: () => void }) {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [groups, setGroups] = useState<any[]>([]);
   const [formData, setFormData] = useState({
@@ -72,39 +74,39 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
         onClick={onCancel} 
         className="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors font-black text-xs uppercase tracking-widest mb-8 group"
       >
-        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back to Members
+        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> {t('employeeForms.backToMembers', 'Back to Members')}
       </button>
 
       <div className="bg-white p-8 md:p-14 rounded-[40px] shadow-2xl shadow-black/5 border border-gray-50">
         <div className="mb-10 md:mb-14">
-          <h2 className="text-3xl md:text-5xl font-black text-secondary tracking-tight">Add New Member</h2>
+          <h2 className="text-3xl md:text-5xl font-black text-secondary tracking-tight">{t('employeeForms.addMemberTitle', 'Add New Member')}</h2>
           <p className="mt-4 text-primary font-bold text-sm md:text-lg flex items-center gap-2">
-            <Sparkles size={18} /> Register a community member under a group
+            <Sparkles size={18} /> {t('employeeForms.addMemberSub', 'Register a community member under a group')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="grid gap-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-3">
-              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Member Name</label>
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">{t('employeeForms.nameLabel', 'Member Name')}</label>
               <input 
                 required 
                 name="name" 
                 value={formData.name} 
                 onChange={handleChange} 
-                placeholder="Full Name" 
+                placeholder={t('employeeForms.namePlaceholder', 'Full Name')} 
                 className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" 
               />
             </div>
             <div className="flex flex-col gap-3">
-              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Mobile Number</label>
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">{t('employeeForms.mobileLabel', 'Mobile Number')}</label>
               <input 
                 required 
                 type="tel" 
                 name="mobile" 
                 value={formData.mobile} 
                 onChange={handleChange} 
-                placeholder="10 Digit Number" 
+                placeholder={t('employeeForms.mobilePlaceholder', '10 Digit Number')} 
                 className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" 
               />
             </div>
@@ -112,19 +114,19 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
              <div className="flex flex-col gap-3">
-              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Age</label>
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">{t('employeeForms.ageLabel', 'Age')}</label>
               <input 
                 required 
                 type="number" 
                 name="age" 
                 value={formData.age} 
                 onChange={handleChange} 
-                placeholder="Age" 
+                placeholder={t('employeeForms.ageLabel', 'Age')} 
                 className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" 
               />
             </div>
             <div className="flex flex-col gap-3">
-              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Marital Status</label>
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">{t('employeeForms.maritalLabel', 'Marital Status')}</label>
               <div className="relative">
                 <select 
                   name="maritalStatus" 
@@ -132,14 +134,14 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
                   onChange={handleChange} 
                   className="w-full p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary appearance-none"
                 >
-                  <option value="Married">Married</option>
-                  <option value="Unmarried">Unmarried</option>
+                  <option value="Married">{t('employeeForms.married', 'Married')}</option>
+                  <option value="Unmarried">{t('employeeForms.unmarried', 'Unmarried')}</option>
                 </select>
                 <ChevronDown size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               </div>
             </div>
             <div className="flex flex-col gap-3">
-              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Occupation</label>
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">{t('employeeForms.occupationLabel', 'Occupation')}</label>
               <div className="relative">
                 <select 
                   required 
@@ -148,7 +150,7 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
                   onChange={handleChange} 
                   className="w-full p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary appearance-none"
                 >
-                  <option value="">Select Occupation</option>
+                  <option value="">{t('employeeForms.selectOccupation', 'Select Occupation')}</option>
                   {occupations.map(o => <option key={o} value={o}>{o}</option>)}
                 </select>
                 <ChevronDown size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -157,7 +159,7 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
           </div>
 
           <div className="flex flex-col gap-3">
-            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Select Group</label>
+            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">{t('employeeForms.selectGroupLabel', 'Select Group')}</label>
             <div className="relative">
               <select 
                 required 
@@ -166,7 +168,7 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
                 onChange={handleChange} 
                 className="w-full p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary appearance-none"
               >
-                <option value="">Choose a Group</option>
+                <option value="">{t('employeeForms.chooseGroup', 'Choose a Group')}</option>
                 {groups.map(g => <option key={g._id} value={g._id}>{g.groupName} ({g.village})</option>)}
               </select>
               <Users size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -174,13 +176,13 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <input required name="village" value={formData.village} onChange={handleChange} placeholder="Village" className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
-            <input required name="block" value={formData.block} onChange={handleChange} placeholder="Block" className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
-            <input required name="district" value={formData.district} onChange={handleChange} placeholder="District" className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
+            <input required name="village" value={formData.village} onChange={handleChange} placeholder={t('employeeForms.villagePlaceholder', 'Village')} className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
+            <input required name="block" value={formData.block} onChange={handleChange} placeholder={t('employeeForms.blockPlaceholder', 'Block')} className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
+            <input required name="district" value={formData.district} onChange={handleChange} placeholder={t('employeeForms.districtPlaceholder', 'District')} className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
           </div>
 
           <div className="flex flex-col gap-6">
-            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Interested In (Multiple Selection)</label>
+            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">{t('employeeForms.interestsLabel', 'Interested In (Multiple Selection)')}</label>
             <div className="flex flex-wrap gap-3">
               {interestOptions.map(option => (
                 <button
@@ -205,7 +207,7 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
             type="submit" 
             className="btn-primary w-full py-5 rounded-[24px] text-lg font-black mt-4 shadow-2xl shadow-primary/30 disabled:opacity-50 disabled:transform-none"
           >
-            {loading ? "Registering..." : "Complete Registration"} <Sparkles size={22} className="ml-2" />
+            {loading ? t('employeeForms.registering', 'Registering...') : t('employeeForms.completeBtn', 'Complete Registration')} <Sparkles size={22} className="ml-2" />
           </button>
         </form>
       </div>

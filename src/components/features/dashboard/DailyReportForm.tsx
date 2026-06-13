@@ -8,8 +8,10 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import { useLanguage } from '@/context/LanguageContext';
  
 export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () => void, onSuccess: () => void }) {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -83,9 +85,9 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
           <div className="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-sm">
             <CheckCircle size={48} />
           </div>
-          <h2 className="text-3xl font-black text-secondary mb-4">Report Submitted!</h2>
-          <p className="text-gray-500 mb-10 font-semibold">Your daily activity report has been saved to the database successfully.</p>
-          <button onClick={onSuccess} className="btn-primary w-full py-4 rounded-2xl justify-center shadow-xl shadow-primary/20">Return to Dashboard</button>
+          <h2 className="text-3xl font-black text-secondary mb-4">{t('employeeReports.submittedTitle', 'Report Submitted!')}</h2>
+          <p className="text-gray-500 mb-10 font-semibold">{t('employeeReports.submittedDesc', 'Your daily activity report has been saved to the database successfully.')}</p>
+          <button onClick={onSuccess} className="btn-primary w-full py-4 rounded-2xl justify-center shadow-xl shadow-primary/20">{t('employeeReports.returnBtn', 'Return to Dashboard')}</button>
         </div>
       </motion.div>
     );
@@ -94,14 +96,14 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
   return (
     <div className="max-w-[800px] mx-auto w-full px-4">
       <button onClick={onCancel} className="flex items-center gap-2 bg-transparent border-none text-gray-500 cursor-pointer mb-8 font-bold hover:text-primary transition-colors">
-        <ArrowLeft size={18} /> Back to Dashboard
+        <ArrowLeft size={18} /> {t('employeeReports.backToDashboard', 'Back to Dashboard')}
       </button>
  
       <div className="bg-white p-6 sm:p-10 lg:p-12 rounded-[30px] md:rounded-[40px] shadow-2xl border border-gray-50">
         <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <h2 className="text-2xl md:text-4xl font-black text-secondary leading-tight">Daily Activity Report</h2>
-            <p className="text-primary font-bold mt-2 uppercase tracking-widest text-xs">Submit today's field summary</p>
+            <h2 className="text-2xl md:text-4xl font-black text-secondary leading-tight">{t('employeeReports.formTitle', 'Daily Activity Report')}</h2>
+            <p className="text-primary font-bold mt-2 uppercase tracking-widest text-xs">{t('employeeReports.formSubtitle', "Submit today's field summary")}</p>
           </div>
           <div className="flex items-center gap-3 px-6 py-3 bg-gray-50 rounded-2xl border border-gray-100">
             <Calendar size={20} className="text-primary" />
@@ -117,7 +119,7 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
         <form onSubmit={handleSubmit} className="flex flex-col gap-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="flex flex-col gap-3">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Active Campaign</label>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">{t('employeeReports.campaignLabel', 'Active Campaign')}</label>
               <div className="relative">
                 <Target size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
                 <select 
@@ -126,20 +128,20 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
                   value={formData.campaignId}
                   onChange={e => setFormData({...formData, campaignId: e.target.value})}
                 >
-                  <option value="">Select Campaign</option>
+                  <option value="">{t('employeeReports.selectCampaign', 'Select Campaign')}</option>
                   {campaigns.map(c => <option key={c._id} value={c._id}>{c.title}</option>)}
                 </select>
               </div>
             </div>
  
             <div className="flex flex-col gap-3">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Village Visited</label>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">{t('employeeReports.villageLabel', 'Village Visited')}</label>
               <div className="relative">
                 <MapPin size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input 
                   type="text" 
                   required
-                  placeholder="Enter village name"
+                  placeholder={t('employeeReports.enterVillage', 'Enter village name')}
                   className="pl-14 pr-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 w-full focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary"
                   value={formData.villageVisited}
                   onChange={e => setFormData({...formData, villageVisited: e.target.value})}
@@ -150,7 +152,7 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
  
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
              <div className="flex flex-col gap-3">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Meetings</label>
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">{t('employeeReports.meetingsLabel', 'Meetings')}</label>
                 <input 
                   type="number" 
                   required
@@ -160,7 +162,7 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
                 />
               </div>
               <div className="flex flex-col gap-3">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Groups</label>
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">{t('employeeReports.groupsLabel', 'Groups')}</label>
                 <input 
                   type="number" 
                   required
@@ -170,7 +172,7 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
                 />
               </div>
               <div className="flex flex-col gap-3">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Members</label>
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">{t('employeeReports.membersLabel', 'Members')}</label>
                 <input 
                   type="number" 
                   required
@@ -180,7 +182,7 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
                 />
               </div>
               <div className="flex flex-col gap-3">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Collection</label>
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">{t('employeeReports.collectionLabel', 'Collection')}</label>
                 <input 
                   type="number" 
                   required
@@ -192,12 +194,12 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
           </div>
  
           <div className="flex flex-col gap-3">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Field Remarks & Observations</label>
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">{t('employeeReports.remarksLabel', 'Field Remarks & Observations')}</label>
             <div className="relative">
               <MessageSquare size={20} className="absolute left-5 top-6 text-gray-400" />
               <textarea 
                 rows={4}
-                placeholder="Share your feedback, challenges, or village status..."
+                placeholder={t('employeeReports.remarksPlaceholder', 'Share your feedback, challenges, or village status...')}
                 className="pl-14 pr-6 py-5 rounded-3xl border border-gray-100 bg-gray-50 w-full focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary resize-none"
                 value={formData.remarks}
                 onChange={e => setFormData({...formData, remarks: e.target.value})}
@@ -217,10 +219,10 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
               disabled={loading}
               className="btn-primary w-full py-5 rounded-[24px] justify-center text-lg font-black shadow-2xl shadow-primary/20 hover:scale-[1.02] transition-all group"
             >
-              {loading ? "Submitting..." : (
+              {loading ? t('employeeReports.submitting', 'Submitting...') : (
                 <>
                   <Send size={22} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" /> 
-                  Submit Daily Report
+                  {t('employeeReports.submitReportBtn', 'Submit Daily Report')}
                 </>
               )}
             </button>

@@ -4,6 +4,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, X, ChevronDown, CheckCircle2, AlertCircle, MapPin, Search } from 'lucide-react';
 import axios from 'axios';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface GroupAssignModalProps {
   member: any;
@@ -11,6 +12,7 @@ interface GroupAssignModalProps {
 }
 
 export default function GroupAssignModal({ member, onClose }: GroupAssignModalProps) {
+  const { t } = useLanguage();
   const [groups, setGroups] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [assigning, setAssigning] = React.useState(false);
@@ -79,8 +81,10 @@ export default function GroupAssignModal({ member, onClose }: GroupAssignModalPr
               <Users size={32} />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-secondary">Assign Group</h2>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">FOR {member.name}</p>
+              <h2 className="text-2xl font-black text-secondary">{t('employeeForms.assignModalTitle', 'Assign Group')}</h2>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">
+                {t('employeeForms.assignModalSub', 'FOR {{name}}', { name: member.name })}
+              </p>
             </div>
           </div>
 
@@ -96,7 +100,7 @@ export default function GroupAssignModal({ member, onClose }: GroupAssignModalPr
               <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
                 type="text"
-                placeholder="Search group name or village..."
+                placeholder={t('employeeForms.assignModalSearch', 'Search group name or village...')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm font-semibold transition-all"
@@ -104,7 +108,7 @@ export default function GroupAssignModal({ member, onClose }: GroupAssignModalPr
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Select Available Group</label>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">{t('employeeForms.assignModalSelectLabel', 'Select Available Group')}</label>
               <div className="relative group">
                 <select
                   value={selectedGroupId}
@@ -112,7 +116,9 @@ export default function GroupAssignModal({ member, onClose }: GroupAssignModalPr
                   disabled={loading}
                   className="w-full pl-4 pr-12 py-5 rounded-[24px] border-2 border-gray-100 bg-gray-50 focus:outline-none focus:border-primary focus:bg-white transition-all appearance-none font-bold text-secondary text-sm cursor-pointer disabled:opacity-50 shadow-sm"
                 >
-                  <option value="">{loading ? "Loading groups..." : "Choose a group from list..."}</option>
+                  <option value="">
+                    {loading ? t('employeeForms.assignModalLoading', 'Loading groups...') : t('employeeForms.assignModalChoose', 'Choose a group from list...')}
+                  </option>
                   {filteredGroups.map((g) => (
                     <option key={g._id} value={g._id}>
                       {g.groupName} ({g.village})
@@ -123,7 +129,7 @@ export default function GroupAssignModal({ member, onClose }: GroupAssignModalPr
               </div>
               {!loading && filteredGroups.length === 0 && (
                 <p className="text-[10px] text-amber-500 font-bold italic mt-2 pl-2 flex items-center gap-1">
-                   <AlertCircle size={12} /> No matching groups found in your area.
+                   <AlertCircle size={12} /> {t('employeeForms.assignModalNoGroups', 'No matching groups found in your area.')}
                 </p>
               )}
             </div>
@@ -138,7 +144,7 @@ export default function GroupAssignModal({ member, onClose }: GroupAssignModalPr
                   <MapPin size={20} />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Selected Group Location</p>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('employeeForms.assignModalLocationLabel', 'Selected Group Location')}</p>
                   <p className="text-sm font-bold text-secondary mt-1">
                     {groups.find(g => g._id === selectedGroupId)?.village}, {groups.find(g => g._id === selectedGroupId)?.block}
                   </p>
@@ -152,14 +158,14 @@ export default function GroupAssignModal({ member, onClose }: GroupAssignModalPr
                 disabled={!selectedGroupId || assigning || loading}
                 className="btn-primary w-full py-5 justify-center text-sm shadow-2xl shadow-primary/25 active:scale-[0.98] transition-all disabled:opacity-50"
               >
-                {assigning ? "Assigning Member..." : "Confirm Assignment"}
+                {assigning ? t('employeeForms.assignModalAssigning', 'Assigning Member...') : t('employeeForms.assignModalConfirm', 'Confirm Assignment')}
                 {!assigning && <CheckCircle2 size={18} className="ml-2" />}
               </button>
               <button
                 onClick={() => onClose()}
                 className="w-full py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-secondary transition-colors"
               >
-                Cancel and Go Back
+                {t('employeeForms.assignModalCancel', 'Cancel and Go Back')}
               </button>
             </div>
           </div>
