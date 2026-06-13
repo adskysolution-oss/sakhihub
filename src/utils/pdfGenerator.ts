@@ -1,8 +1,126 @@
 import fs from 'fs';
 import path from 'path';
-import React from 'react';
-import ReactDOMServer from 'react-dom/server';
-import { DocumentHeader } from '../components/shared/DocumentHeader';
+
+// Generate raw HTML for DocumentHeader to avoid react-dom/server Turbopack build errors
+const generateDocumentHeaderHtml = (logoSrc: string) => {
+  return `
+    <div class="w-full font-sans select-none" style="box-sizing: border-box; padding-top: 15px; font-family: sans-serif;">
+      
+      <!-- 1. Main Letterhead Content Container -->
+      <div style="width: 100%; padding: 0 12mm; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;">
+        
+        <!-- Left Branding Area -->
+        <div style="display: flex; align-items: center;">
+          <!-- Logo -->
+          <img 
+            src="${logoSrc}" 
+            alt="SakhiHub Logo" 
+            style="height: 52px; width: auto; object-fit: contain;" 
+          />
+          
+          <!-- Vertical Separator Line -->
+          <div 
+            style="width: 2.5px; height: 48px; background-color: #D91656; margin: 0 16px; border-radius: 1px;" 
+          />
+          
+          <!-- Brand Info -->
+          <div style="display: flex; flex-direction: column; justify-content: center; line-height: 1.2;">
+            <span style="font-size: 24px; font-weight: 800; color: #D91656; letter-spacing: 0.2px;">
+              SakhiHub
+            </span>
+            <span style="font-size: 11.5px; color: #6A1B9A; font-weight: bold; font-style: italic; margin-top: 3px;">
+              Empowering Women Across India
+            </span>
+            <span style="font-size: 9px; color: #374151; font-weight: 500; margin-top: 5px;">
+              Reg No :- IND26S02588604481
+            </span>
+          </div>
+        </div>
+
+        <!-- Right Contact Info Area with Icons -->
+        <div style="display: flex; flex-direction: column; gap: 5px; font-size: 11px; color: #374151;">
+          
+          <!-- Row 1: Website -->
+          <div style="display: flex; align-items: center; justify-content: flex-start;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6A1B9A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; flex-shrink: 0;">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            <span style="font-weight: bold; color: #6A1B9A; margin-right: 4px;">Website :</span>
+            <a href="https://www.sakhihub.com" target="_blank" rel="noopener noreferrer" style="color: #D91656; font-weight: bold; text-decoration: none;">
+              www.sakhihub.com
+            </a>
+          </div>
+
+          <!-- Row 2: Email -->
+          <div style="display: flex; align-items: center; justify-content: flex-start;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6A1B9A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; flex-shrink: 0;">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <span style="font-weight: bold; color: #6A1B9A; margin-right: 4px;">Email :</span>
+            <a href="mailto:info@sakhihub.com" style="color: #6A1B9A; text-decoration: none;">
+              info@sakhihub.com
+            </a>
+          </div>
+
+          <!-- Row 3: Contact -->
+          <div style="display: flex; align-items: center; justify-content: flex-start;">
+            <div style="width: 14px; height: 14px; border-radius: 50%; background-color: #6A1B9A; display: flex; align-items: center; justify-content: center; margin-right: 8px; flex-shrink: 0;">
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </div>
+            <span style="font-weight: bold; color: #6A1B9A; margin-right: 4px;">Contact :</span>
+            <span style="font-weight: bold; color: #6A1B9A;">+91 8062179122</span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- 2. Address Pill with Decorative Skewed Ribbons -->
+      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 15px; padding: 0 12mm; box-sizing: border-box;">
+        
+        <!-- Left Decorative Ribbon -->
+        <div style="display: flex; transform: skewX(-25deg); height: 18px; overflow: hidden; flex-shrink: 0;">
+          <div style="width: 28px; height: 100%; background-color: #D91656;" />
+          <div style="width: 18px; height: 100%; background-color: #6A1B9A;" />
+          <div style="width: 6px; height: 100%; background-color: #D91656;" />
+        </div>
+
+        <!-- Center Rounded Address Pill -->
+        <div 
+          style="flex-grow: 1; margin: 0 12px; background: linear-gradient(to right, #FFF2F6, #F9F0FF); border: 1px solid #FBCFE8; border-radius: 25px; padding: 4px 14px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 9.5px; color: #374151; font-weight: 500; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); box-sizing: border-box; white-space: nowrap; overflow: hidden;"
+        >
+          <!-- Map Pin SVG Icon inside a solid purple circle -->
+          <div style="width: 14px; height: 14px; border-radius: 50%; background-color: #6A1B9A; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="8" height="8" viewBox="0 0 12 15" fill="none" style="color: #FFFFFF; flex-shrink: 0;">
+              <path d="M6 0C2.69 0 0 2.69 0 6C0 10.5 6 15 6 15C6 15 12 10.5 12 6C12 2.69 9.31 0 6 0ZM6 8.25C4.76 8.25 3.75 7.24 3.75 6C3.75 4.76 4.76 3.75 6 3.75C7.24 3.75 8.25 4.76 8.25 6C8.25 7.24 7.24 8.25 6 8.25Z" fill="currentColor"/>
+            </svg>
+          </div>
+          <span>
+            <span style="font-weight: bold; color: #6A1B9A; margin-right: 4px;">Address :</span> Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010
+          </span>
+        </div>
+
+        <!-- Right Decorative Ribbon -->
+        <div style="display: flex; transform: skewX(25deg); height: 18px; overflow: hidden; flex-shrink: 0;">
+          <div style="width: 6px; height: 100%; background-color: #D91656;" />
+          <div style="width: 18px; height: 100%; background-color: #6A1B9A;" />
+          <div style="width: 28px; height: 100%; background-color: #D91656;" />
+        </div>
+
+      </div>
+
+      <!-- 3. Bottom Gradient Divider Line -->
+      <div 
+        style="height: 4px; width: 100%; background: linear-gradient(to right, #D91656, #6A1B9A); margin-top: 15px; margin-bottom: 20px;" 
+      />
+    </div>
+  `;
+};
 
 export const generateAgreementHtml = (data: any) => {
   const currentDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -20,18 +138,7 @@ export const generateAgreementHtml = (data: any) => {
     console.error('Signature image not found:', e);
   }
 
-  let logoBase64 = '';
-  try {
-    const logoPath = path.join(process.cwd(), 'public', 'logo.png');
-    const logoData = fs.readFileSync(logoPath);
-    logoBase64 = `data:image/png;base64,${logoData.toString('base64')}`;
-  } catch (e) {
-    console.error('Logo image not found:', e);
-  }
 
-  const headerHtml = ReactDOMServer.renderToStaticMarkup(
-    React.createElement(DocumentHeader, { logoSrc: logoBase64 })
-  );
 
   // 55 Clauses definition
   const clauses = [
@@ -582,32 +689,13 @@ export const generateAgreementHtml = (data: any) => {
           text-transform: uppercase;
           white-space: nowrap;
         }
-        .print-header {
-          display: table-header-group;
-        }
-        tr, li, tbody, table {
-          break-inside: avoid;
-          page-break-inside: avoid;
-        }
       </style>
     </head>
     <body>
       <div class="watermark">SakhiHub Official</div>
 
-      <table style="width: 100%; border: none; border-collapse: collapse; padding: 0; margin: 0;">
-        <thead class="print-header">
-          <tr>
-            <td>
-              ${headerHtml}
-            </td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="padding: 0;">
-
-              <!-- TITLE -->
-              <h1>${headingTitle}</h1>
+      <!-- TITLE -->
+      <h1>${headingTitle}</h1>
 
       <!-- INTRO -->
       <div class="intro-statement">
@@ -711,10 +799,6 @@ export const generateAgreementHtml = (data: any) => {
         </div>
       </div>
 
-            </td>
-          </tr>
-        </tbody>
-      </table>
 
     </body>
     </html>
@@ -753,9 +837,7 @@ export const generateOfferLetterHtml = (data: any) => {
 
   const programName = data.programName || "Women Health & Awareness Campaign";
 
-  const headerHtml = ReactDOMServer.renderToStaticMarkup(
-    React.createElement(DocumentHeader, { logoSrc: logoBase64 })
-  );
+  const headerHtml = generateDocumentHeaderHtml(logoBase64);
 
   return `
   <!DOCTYPE html>

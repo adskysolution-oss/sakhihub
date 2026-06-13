@@ -1,5 +1,4 @@
 import React from 'react';
-import DocumentHeader from './DocumentHeader';
 
 export interface AppointmentLetterData {
   companyName?: string;
@@ -33,60 +32,31 @@ const AppointmentLetterPreview: React.FC<{ data: AppointmentLetterData }> = ({ d
   const displayRole = data.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
 
   return (
-    <div className="bg-white w-[210mm] min-h-[297mm] mx-auto shadow-2xl p-[15mm] text-gray-800 font-serif print:shadow-none print:p-0 print:w-full print:h-auto">
+    <div className="bg-white w-[210mm] min-h-[297mm] mx-auto shadow-2xl p-[15mm] text-gray-800 font-serif print:shadow-none print:p-[15mm] print:w-full print:h-auto">
       <style>{`
         @media print {
           @page {
             size: A4;
-            margin: 0;
+            margin: 15mm 12mm 15mm 12mm;
           }
           body {
-            margin: 0;
-            padding: 0;
             background: #fff;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-          h2, h3, h4 {
-            break-after: avoid;
-            page-break-after: avoid;
-          }
-          tr, li, tbody, table {
-            break-inside: avoid;
-            page-break-inside: avoid;
-          }
-          .print-footer-content, .print-footer-content a, .print-footer-content span {
-            color: #2563eb !important;
-          }
-          .print-footer-content a {
-            text-decoration: underline !important;
           }
         }
       `}</style>
       
-      <table className="w-full border-none border-collapse p-0 m-0">
-        <thead className="hidden print:table-header-group">
-          <tr>
-            <td>
-              <DocumentHeader logoSrc="/logo.png" />
-            </td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="p-0 print:px-[12mm]">
-              {/* Header */}
-              <div className="flex justify-between items-start border-b-2 border-[#D91656] pb-4 mb-8 print:border-none print:pb-0 print:mb-4">
-                <div className="print:hidden">
-                  <h1 className="text-3xl font-black text-[#D91656] tracking-tight">{companyName}</h1>
-                  <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mt-1">{programName}</p>
-                </div>
-                <div className="text-right print:text-left print:w-full print:flex print:justify-between print:items-center text-xs text-gray-500 font-bold print:mt-0 print:border-t-0 print:pt-0">
-                  <p>Document Status: <span className="text-[#D91656] uppercase">{data.documentStatus || 'GENERATED'}</span></p>
-                  <p>Agreement ID: <span className="font-mono text-gray-800">{data.agreementId}</span></p>
-                  <p>Date: {formatDate(data.generatedDate)}</p>
-                </div>
-              </div>
+      {/* Header */}
+      <div className="flex justify-between items-start border-b-2 border-[#D91656] pb-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-black text-[#D91656] tracking-tight">{companyName}</h1>
+          <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mt-1">{programName}</p>
+        </div>
+        <div className="text-right text-xs text-gray-500 font-bold">
+          <p>Document Status: <span className="text-[#D91656] uppercase">{data.documentStatus || 'GENERATED'}</span></p>
+          <p>Agreement ID: <span className="font-mono text-gray-800">{data.agreementId}</span></p>
+          <p>Date: {formatDate(data.generatedDate)}</p>
+        </div>
+      </div>
 
               <div className="text-center mb-10">
                 <h2 className="text-xl font-black text-gray-900 uppercase underline underline-offset-4">Vendor Agreement</h2>
@@ -182,25 +152,6 @@ const AppointmentLetterPreview: React.FC<{ data: AppointmentLetterData }> = ({ d
               <div className="mt-16 pt-4 border-t border-gray-200 text-center text-[10px] text-gray-400 uppercase tracking-widest">
                 This is a system generated document and does not require a physical signature for digital validity.
               </div>
-            </td>
-          </tr>
-        </tbody>
-        <tfoot className="hidden print:table-footer-group">
-          <tr>
-            <td>
-              {/* Running Print Footer: email | sakhihub | address */}
-              <div className="h-[12mm] border-t border-gray-200 flex items-center text-[10px] font-sans px-[12mm] mt-2 gap-2 print-footer-content">
-                <span>Address: Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010</span>
-                <span className="text-gray-300">|</span>
-                <span>Email: <a href="mailto:support@sakhihub.com">support@sakhihub.com</a></span>
-                <span className="text-gray-300">|</span>
-                <span>Website: <a href="https://www.sakhihub.com" target="_blank" rel="noopener noreferrer" className="font-bold uppercase tracking-wider">www.sakhihub.com</a></span>
-              </div>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
-
     </div>
   );
 };
