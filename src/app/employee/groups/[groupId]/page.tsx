@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
-import { 
-  Users, UserPlus, MapPin, Calendar, 
-  Search, Filter, ArrowLeft, ShieldCheck, 
+import {
+  Users, UserPlus, MapPin, Calendar,
+  Search, Filter, ArrowLeft, ShieldCheck,
   Phone, Briefcase, Heart, IndianRupee,
   CheckCircle, Clock, ChevronRight
 } from "lucide-react";
@@ -30,7 +30,7 @@ export default function GroupDetailsPage() {
         axios.get(`/api/groups/${groupId}`),
         axios.get(`/api/members?groupId=${groupId}`)
       ]);
-      
+
       if (groupRes.data.success) setGroup(groupRes.data.data);
       if (membersRes.data.success) setMembers(membersRes.data.data);
     } catch (err) {
@@ -44,7 +44,7 @@ export default function GroupDetailsPage() {
     if (groupId) fetchData();
   }, [groupId]);
 
-  const filteredMembers = members.filter(m => 
+  const filteredMembers = members.filter(m =>
     m.name.toLowerCase().includes(search.toLowerCase()) ||
     m.mobile.includes(search)
   );
@@ -74,11 +74,11 @@ export default function GroupDetailsPage() {
       </div>
 
       {showAddMember && (
-        <AddMemberModal 
-          groupId={groupId as string} 
-          groupName={group.groupName} 
-          onClose={() => setShowAddMember(false)} 
-          onSuccess={() => { setShowAddMember(false); fetchData(); }} 
+        <AddMemberModal
+          groupId={groupId as string}
+          groupName={group.groupName}
+          onClose={() => setShowAddMember(false)}
+          onSuccess={() => { setShowAddMember(false); fetchData(); }}
         />
       )}
 
@@ -89,12 +89,12 @@ export default function GroupDetailsPage() {
             <div style={{ display: 'flex', gap: '15px', marginBottom: '25px' }}>
               <div style={{ flex: 1, position: 'relative' }}>
                 <Search size={18} style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-                <input 
-                  type="text" 
-                  placeholder={t('employeeGroups.searchMembers', 'Search members by name or mobile...')} 
+                <input
+                  type="text"
+                  placeholder={t('employeeGroups.searchMembers', 'Search members by name or mobile...')}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  style={{ width: '100%', padding: '14px 14px 14px 45px', borderRadius: '15px', border: '1px solid #eee', fontSize: '1rem' }} 
+                  style={{ width: '100%', padding: '14px 14px 14px 45px', borderRadius: '15px', border: '1px solid #eee', fontSize: '1rem' }}
                 />
               </div>
             </div>
@@ -129,10 +129,10 @@ export default function GroupDetailsPage() {
                         </p>
                       </td>
                       <td style={{ padding: '15px' }}>
-                        <span style={{ 
-                          padding: '6px 12px', 
-                          borderRadius: '8px', 
-                          fontSize: '0.7rem', 
+                        <span style={{
+                          padding: '6px 12px',
+                          borderRadius: '8px',
+                          fontSize: '0.7rem',
                           fontWeight: '800',
                           background: member.membershipStatus === 'paid' ? '#ecfdf5' : '#fffbeb',
                           color: member.membershipStatus === 'paid' ? '#059669' : '#d97706',
@@ -189,7 +189,7 @@ export default function GroupDetailsPage() {
               )}
             </div>
           </div>
-          
+
           <div style={{ background: 'var(--grad-primary)', padding: '25px', borderRadius: '25px', color: 'white' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
               <CheckCircle size={24} />
@@ -209,4 +209,5 @@ export default function GroupDetailsPage() {
         </div>
       </div>
     </DashboardLayout>
-  );}
+  );
+}

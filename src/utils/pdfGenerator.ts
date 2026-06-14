@@ -2,116 +2,134 @@ import fs from 'fs';
 import path from 'path';
 
 // Generate raw HTML for DocumentHeader to avoid react-dom/server Turbopack build errors
-const generateDocumentHeaderHtml = (logoSrc: string) => {
+const generateDocumentHeaderHtml = (logoSrc: string, noPadding: boolean = false) => {
+  const paddingVal = noPadding ? '0' : '0 12mm';
   return `
-    <div class="w-full font-sans select-none" style="box-sizing: border-box; padding-top: 15px; font-family: sans-serif;">
+    <div class="w-full font-sans select-none" style="width: 100%; box-sizing: border-box; padding-top: 15px; font-family: sans-serif;">
       
       <!-- 1. Main Letterhead Content Container -->
-      <div style="width: 100%; padding: 0 12mm; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;">
-        
-        <!-- Left Branding Area -->
-        <div style="display: flex; align-items: center;">
-          <!-- Logo -->
-          <img 
-            src="${logoSrc}" 
-            alt="SakhiHub Logo" 
-            style="height: 52px; width: auto; object-fit: contain;" 
-          />
-          
-          <!-- Vertical Separator Line -->
-          <div 
-            style="width: 2.5px; height: 48px; background-color: #D91656; margin: 0 16px; border-radius: 1px;" 
-          />
-          
-          <!-- Brand Info -->
-          <div style="display: flex; flex-direction: column; justify-content: center; line-height: 1.2;">
-            <span style="font-size: 24px; font-weight: 800; color: #D91656; letter-spacing: 0.2px;">
-              SakhiHub
-            </span>
-            <span style="font-size: 11.5px; color: #6A1B9A; font-weight: bold; font-style: italic; margin-top: 3px;">
-              Empowering Women Across India
-            </span>
-            <span style="font-size: 9px; color: #374151; font-weight: 500; margin-top: 5px;">
-              Reg No :- IND26S02588604481
-            </span>
-          </div>
-        </div>
+      <div style="padding: ${paddingVal}; box-sizing: border-box; width: 100%;">
+        <table style="width: 100%; border-collapse: collapse; border: none; margin: 0; padding: 0; table-layout: fixed;">
+          <tr>
+            <!-- Left Branding Area -->
+            <td style="width: 55%; padding: 0; border: none; vertical-align: middle; text-align: left;">
+              <table style="border-collapse: collapse; border: none; margin: 0; padding: 0; width: auto;">
+                <tr>
+                  <td style="padding: 0; border: none; vertical-align: middle;">
+                    <img 
+                      src="${logoSrc}" 
+                      alt="SakhiHub Logo" 
+                      style="height: 52px; width: auto; object-fit: contain; display: block;" 
+                    />
+                  </td>
+                  <td style="padding: 0; border: none; vertical-align: middle;">
+                    <div 
+                      style="width: 2.5px; height: 48px; background-color: #D91656; margin: 0 16px; border-radius: 1px;" 
+                    ></div>
+                  </td>
+                  <td style="padding: 0; border: none; vertical-align: middle; text-align: left; line-height: 1.2;">
+                    <span style="font-size: 24px; font-weight: 800; color: #D91656; letter-spacing: 0.2px; display: block;">
+                      SakhiHub
+                    </span>
+                    <span style="font-size: 11.5px; color: #6A1B9A; font-weight: bold; font-style: italic; margin-top: 3px; display: block;">
+                      Empowering Women Across India
+                    </span>
+                    <span style="font-size: 9px; color: #374151; font-weight: 500; margin-top: 5px; display: block;">
+                      Reg No :- IND26S02588604481
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </td>
 
-        <!-- Right Contact Info Area with Icons -->
-        <div style="display: flex; flex-direction: column; gap: 5px; font-size: 11px; color: #374151;">
-          
-          <!-- Row 1: Website -->
-          <div style="display: flex; align-items: center; justify-content: flex-start;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6A1B9A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; flex-shrink: 0;">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="2" y1="12" x2="22" y2="12"/>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </svg>
-            <span style="font-weight: bold; color: #6A1B9A; margin-right: 4px;">Website :</span>
-            <a href="https://www.sakhihub.com" target="_blank" rel="noopener noreferrer" style="color: #D91656; font-weight: bold; text-decoration: none;">
-              www.sakhihub.com
-            </a>
-          </div>
-
-          <!-- Row 2: Email -->
-          <div style="display: flex; align-items: center; justify-content: flex-start;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6A1B9A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; flex-shrink: 0;">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-              <polyline points="22,6 12,13 2,6"/>
-            </svg>
-            <span style="font-weight: bold; color: #6A1B9A; margin-right: 4px;">Email :</span>
-            <a href="mailto:info@sakhihub.com" style="color: #6A1B9A; text-decoration: none;">
-              info@sakhihub.com
-            </a>
-          </div>
-
-          <!-- Row 3: Contact -->
-          <div style="display: flex; align-items: center; justify-content: flex-start;">
-            <div style="width: 14px; height: 14px; border-radius: 50%; background-color: #6A1B9A; display: flex; align-items: center; justify-content: center; margin-right: 8px; flex-shrink: 0;">
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
-            </div>
-            <span style="font-weight: bold; color: #6A1B9A; margin-right: 4px;">Contact :</span>
-            <span style="font-weight: bold; color: #6A1B9A;">+91 8062179122</span>
-          </div>
-
-        </div>
-
+            <!-- Right Contact Info Area -->
+            <td style="width: 45%; padding: 0; border: none; vertical-align: middle; text-align: right;">
+              <table style="border-collapse: collapse; border: none; margin: 0; padding: 0; width: 100%;">
+                <!-- Row 1: Website -->
+                <tr>
+                  <td style="padding: 2px 0; border: none; text-align: right; font-size: 11px; color: #374151; vertical-align: middle;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6A1B9A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="2" y1="12" x2="22" y2="12"/>
+                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
+                    <span style="font-weight: bold; color: #6A1B9A; margin-right: 4px; display: inline-block; vertical-align: middle;">Website :</span>
+                    <a href="https://www.sakhihub.com" target="_blank" rel="noopener noreferrer" style="color: #D91656; font-weight: bold; text-decoration: none; display: inline-block; vertical-align: middle;">
+                      www.sakhihub.com
+                    </a>
+                  </td>
+                </tr>
+                <!-- Row 2: Email -->
+                <tr>
+                  <td style="padding: 2px 0; border: none; text-align: right; font-size: 11px; color: #374151; vertical-align: middle;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6A1B9A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                      <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                    <span style="font-weight: bold; color: #6A1B9A; margin-right: 4px; display: inline-block; vertical-align: middle;">Email :</span>
+                    <a href="mailto:info@sakhihub.com" style="color: #6A1B9A; text-decoration: none; display: inline-block; vertical-align: middle;">
+                      info@sakhihub.com
+                    </a>
+                  </td>
+                </tr>
+                <!-- Row 3: Contact -->
+                <tr>
+                  <td style="padding: 2px 0; border: none; text-align: right; font-size: 11px; color: #374151; vertical-align: middle;">
+                    <div style="width: 14px; height: 14px; border-radius: 50%; background-color: #6A1B9A; display: inline-block; vertical-align: middle; margin-right: 8px; text-align: center; line-height: 14px;">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-top: -3px;">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                      </svg>
+                    </div>
+                    <span style="font-weight: bold; color: #6A1B9A; margin-right: 4px; display: inline-block; vertical-align: middle;">Contact :</span>
+                    <span style="font-weight: bold; color: #6A1B9A; display: inline-block; vertical-align: middle;">+91 8062179122</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
       </div>
 
       <!-- 2. Address Pill with Decorative Skewed Ribbons -->
-      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 15px; padding: 0 12mm; box-sizing: border-box;">
-        
-        <!-- Left Decorative Ribbon -->
-        <div style="display: flex; transform: skewX(-25deg); height: 18px; overflow: hidden; flex-shrink: 0;">
-          <div style="width: 28px; height: 100%; background-color: #D91656;" />
-          <div style="width: 18px; height: 100%; background-color: #6A1B9A;" />
-          <div style="width: 6px; height: 100%; background-color: #D91656;" />
-        </div>
+      <div style="padding: ${paddingVal}; box-sizing: border-box; width: 100%;">
+        <table style="width: 100%; border-collapse: collapse; border: none; margin-top: 15px; padding: 0; table-layout: fixed;">
+          <tr>
+            <!-- Left Decorative Ribbon -->
+            <td style="width: 52px; padding: 0; border: none; vertical-align: middle; text-align: left;">
+              <div style="display: flex; transform: skewX(-25deg); height: 18px; overflow: hidden; width: 52px;">
+                <div style="width: 28px; height: 100%; background-color: #D91656; flex-shrink: 0;" ></div>
+                <div style="width: 18px; height: 100%; background-color: #6A1B9A; flex-shrink: 0;" ></div>
+                <div style="width: 6px; height: 100%; background-color: #D91656; flex-shrink: 0;" ></div>
+              </div>
+            </td>
 
-        <!-- Center Rounded Address Pill -->
-        <div 
-          style="flex-grow: 1; margin: 0 12px; background: linear-gradient(to right, #FFF2F6, #F9F0FF); border: 1px solid #FBCFE8; border-radius: 25px; padding: 4px 14px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 9.5px; color: #374151; font-weight: 500; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); box-sizing: border-box; white-space: nowrap; overflow: hidden;"
-        >
-          <!-- Map Pin SVG Icon inside a solid purple circle -->
-          <div style="width: 14px; height: 14px; border-radius: 50%; background-color: #6A1B9A; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="8" height="8" viewBox="0 0 12 15" fill="none" style="color: #FFFFFF; flex-shrink: 0;">
-              <path d="M6 0C2.69 0 0 2.69 0 6C0 10.5 6 15 6 15C6 15 12 10.5 12 6C12 2.69 9.31 0 6 0ZM6 8.25C4.76 8.25 3.75 7.24 3.75 6C3.75 4.76 4.76 3.75 6 3.75C7.24 3.75 8.25 4.76 8.25 6C8.25 7.24 7.24 8.25 6 8.25Z" fill="currentColor"/>
-            </svg>
-          </div>
-          <span>
-            <span style="font-weight: bold; color: #6A1B9A; margin-right: 4px;">Address :</span> Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010
-          </span>
-        </div>
+            <!-- Center Rounded Address Pill -->
+            <td style="padding: 0 12px; border: none; vertical-align: middle; text-align: center;">
+              <div 
+                style="background: linear-gradient(to right, #FFF2F6, #F9F0FF); border: 1px solid #FBCFE8; border-radius: 25px; padding: 4px 14px; display: block; font-size: 9.5px; color: #374151; font-weight: 500; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); box-sizing: border-box; white-space: nowrap; overflow: hidden; text-align: center;"
+              >
+                <!-- Map Pin SVG Icon inside a solid purple circle -->
+                <div style="width: 14px; height: 14px; border-radius: 50%; background-color: #6A1B9A; display: inline-block; vertical-align: middle; margin-right: 8px; text-align: center; line-height: 14px;">
+                  <svg width="8" height="8" viewBox="0 0 12 15" fill="none" style="color: #FFFFFF; display: inline-block; vertical-align: middle; margin-top: -3px;">
+                    <path d="M6 0C2.69 0 0 2.69 0 6C0 10.5 6 15 6 15C6 15 12 10.5 12 6C12 2.69 9.31 0 6 0ZM6 8.25C4.76 8.25 3.75 7.24 3.75 6C3.75 4.76 4.76 3.75 6 3.75C7.24 3.75 8.25 4.76 8.25 6C8.25 7.24 7.24 8.25 6 8.25Z" fill="currentColor"/>
+                  </svg>
+                </div>
+                <span style="display: inline-block; vertical-align: middle;">
+                  <span style="font-weight: bold; color: #6A1B9A; margin-right: 4px;">Address :</span> Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010
+                </span>
+              </div>
+            </td>
 
-        <!-- Right Decorative Ribbon -->
-        <div style="display: flex; transform: skewX(25deg); height: 18px; overflow: hidden; flex-shrink: 0;">
-          <div style="width: 6px; height: 100%; background-color: #D91656;" />
-          <div style="width: 18px; height: 100%; background-color: #6A1B9A;" />
-          <div style="width: 28px; height: 100%; background-color: #D91656;" />
-        </div>
-
+            <!-- Right Decorative Ribbon -->
+            <td style="width: 52px; padding: 0; border: none; vertical-align: middle; text-align: right;">
+              <div style="display: flex; transform: skewX(25deg); height: 18px; overflow: hidden; width: 52px; float: right;">
+                <div style="width: 6px; height: 100%; background-color: #D91656; flex-shrink: 0;" ></div>
+                <div style="width: 18px; height: 100%; background-color: #6A1B9A; flex-shrink: 0;" ></div>
+                <div style="width: 28px; height: 100%; background-color: #D91656; flex-shrink: 0;" ></div>
+              </div>
+            </td>
+          </tr>
+        </table>
       </div>
 
       <!-- 3. Bottom Gradient Divider Line -->
@@ -128,6 +146,17 @@ export const generateAgreementHtml = (data: any) => {
   const companyAddress = "PU-4, Behind C21 Mall, Scheme No. 54, Indore, Madhya Pradesh – 452010";
   const headingTitle = data.partnerType || "VENDOR / NGO PARTNERSHIP AGREEMENT";
   const isSubVendor = data.role === 'sub_vendor' || (data.partnerType && data.partnerType.toUpperCase().includes('SUB VENDOR'));
+
+  let logoBase64 = '';
+  try {
+    const logoPath = path.join(process.cwd(), 'public', 'logo.png');
+    const logoData = fs.readFileSync(logoPath);
+    logoBase64 = `data:image/png;base64,${logoData.toString('base64')}`;
+  } catch (e) {
+    console.error('Logo image not found:', e);
+  }
+
+  const headerHtml = generateDocumentHeaderHtml(logoBase64, true);
 
   let signatureBase64 = '';
   try {
@@ -542,7 +571,7 @@ export const generateAgreementHtml = (data: any) => {
         
         @page {
           size: A4;
-          margin: 22mm 20mm 22mm 20mm;
+          margin: 15mm 12mm 15mm 12mm;
         }
 
         body {
@@ -554,6 +583,34 @@ export const generateAgreementHtml = (data: any) => {
           font-size: 11px;
           line-height: 1.45;
           text-align: justify;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        .agreement-table,
+        .agreement-table > tbody,
+        .agreement-table > tbody > tr,
+        .agreement-table > tbody > tr > td,
+        .agreement-table > thead,
+        .agreement-table > thead > tr,
+        .agreement-table > thead > tr > td {
+          width: 100%;
+          table-layout: fixed;
+          border: none;
+          border-collapse: collapse;
+          padding: 0;
+          margin: 0;
+          break-inside: auto !important;
+          page-break-inside: auto !important;
+        }
+
+        .agreement-content-cell {
+          padding-bottom: 22mm;
+          padding-top: 10px;
+        }
+
+        .print-header {
+          display: table-header-group;
         }
         
         h1 {
@@ -694,8 +751,20 @@ export const generateAgreementHtml = (data: any) => {
     <body>
       <div class="watermark">SakhiHub Official</div>
 
-      <!-- TITLE -->
-      <h1>${headingTitle}</h1>
+      <table class="agreement-table">
+        <thead class="print-header">
+          <tr>
+            <td style="width: 100%;">
+              ${headerHtml}
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="agreement-content-cell">
+
+              <!-- TITLE -->
+              <h1>${headingTitle}</h1>
 
       <!-- INTRO -->
       <div class="intro-statement">

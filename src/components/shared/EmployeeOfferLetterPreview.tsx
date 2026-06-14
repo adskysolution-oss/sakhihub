@@ -119,7 +119,7 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
           }
         }
       `}</style>
-      
+
       <table className="w-full border-none border-collapse p-0 m-0">
         <thead className="hidden print:table-header-group">
           <tr>
@@ -136,7 +136,7 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
                 <img src="/logo.png" alt="SakhiHub Logo" className="h-20 w-auto object-contain mb-3 print:hidden" />
                 <p className="text-sm font-bold text-gray-500 uppercase tracking-widest print:hidden">{programName}</p>
                 <p className="text-xs text-gray-400 italic mt-1 print:hidden">"Empowering Women Through Awareness, Support & Community Action"</p>
-                
+
                 {/* Status and metadata */}
                 <div className="w-full flex justify-between items-center mt-4 text-[11px] text-gray-500 font-bold border-t border-gray-100 pt-2.5 print:mt-0 print:border-t-0 print:pt-0">
                   <p>Status: <span className="text-[#D91656] uppercase font-black">{data.documentStatus || 'GENERATED'}</span></p>

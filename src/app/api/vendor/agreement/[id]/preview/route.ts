@@ -42,8 +42,8 @@ export async function GET(
 
     const regenerate = request.nextUrl.searchParams.get('regenerate') === 'true';
 
-    // If it's already approved and has a real fileUrl (from Cloudinary), redirect to it
-    if (!regenerate && agreement.status === 'approved' && agreement.fileUrl && agreement.fileUrl.startsWith('http')) {
+    // If it's already approved and has a real fileUrl (from Cloudinary), redirect to it (only in production)
+    if (process.env.NODE_ENV === 'production' && !regenerate && agreement.status === 'approved' && agreement.fileUrl && agreement.fileUrl.startsWith('http')) {
       return NextResponse.redirect(agreement.fileUrl);
     }
 

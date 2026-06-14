@@ -1,4 +1,5 @@
 import React from 'react';
+import DocumentHeader from './DocumentHeader';
 
 export interface AppointmentLetterData {
   companyName?: string;
@@ -32,7 +33,7 @@ const AppointmentLetterPreview: React.FC<{ data: AppointmentLetterData }> = ({ d
   const displayRole = data.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
 
   return (
-    <div className="bg-white w-[210mm] min-h-[297mm] mx-auto shadow-2xl p-[15mm] text-gray-800 font-serif print:shadow-none print:p-[15mm] print:w-full print:h-auto">
+    <div className="bg-white w-[210mm] min-h-[297mm] mx-auto shadow-2xl p-[15mm] text-gray-800 font-serif print:shadow-none print:p-0 print:w-full print:h-auto">
       <style>{`
         @media print {
           @page {
@@ -40,23 +41,43 @@ const AppointmentLetterPreview: React.FC<{ data: AppointmentLetterData }> = ({ d
             margin: 15mm 12mm 15mm 12mm;
           }
           body {
+            margin: 0;
+            padding: 0;
             background: #fff;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          tr, li, tbody, table {
+            break-inside: avoid;
+            page-break-inside: avoid;
           }
         }
       `}</style>
-      
-      {/* Header */}
-      <div className="flex justify-between items-start border-b-2 border-[#D91656] pb-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-black text-[#D91656] tracking-tight">{companyName}</h1>
-          <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mt-1">{programName}</p>
-        </div>
-        <div className="text-right text-xs text-gray-500 font-bold">
-          <p>Document Status: <span className="text-[#D91656] uppercase">{data.documentStatus || 'GENERATED'}</span></p>
-          <p>Agreement ID: <span className="font-mono text-gray-800">{data.agreementId}</span></p>
-          <p>Date: {formatDate(data.generatedDate)}</p>
-        </div>
-      </div>
+
+      <table className="w-full border-none border-collapse p-0 m-0">
+        <thead className="hidden print:table-header-group">
+          <tr>
+            <td>
+              <DocumentHeader logoSrc="/logo.png" noPadding={true} />
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="p-0">
+              {/* Header */}
+              <div className="flex flex-col items-center border-b-2 border-[#D91656] pb-4 mb-6 text-center print:border-none print:pb-0 print:mb-4">
+                <img src="/logo.png" alt="SakhiHub Logo" className="h-20 w-auto object-contain mb-3 print:hidden" />
+                <p className="text-sm font-bold text-gray-500 uppercase tracking-widest print:hidden">{programName}</p>
+                <p className="text-xs text-gray-400 italic mt-1 print:hidden">"Empowering Women Through Awareness, Support & Community Action"</p>
+
+                {/* Status and metadata */}
+                <div className="w-full flex justify-between items-center mt-4 text-[11px] text-gray-500 font-bold border-t border-gray-100 pt-2.5 print:mt-0 print:border-t-0 print:pt-0">
+                  <p>Document Status: <span className="text-[#D91656] uppercase font-black">{data.documentStatus || 'GENERATED'}</span></p>
+                  <p>Agreement ID: <span className="font-mono text-gray-800 font-bold">{data.agreementId}</span></p>
+                  <p>Date: {formatDate(data.generatedDate)}</p>
+                </div>
+              </div>
 
               <div className="text-center mb-10">
                 <h2 className="text-xl font-black text-gray-900 uppercase underline underline-offset-4">Vendor Agreement</h2>
@@ -74,7 +95,7 @@ const AppointmentLetterPreview: React.FC<{ data: AppointmentLetterData }> = ({ d
               <div className="mb-6">
                 <h3 className="text-sm font-black uppercase text-gray-800 mb-2">Official Partner Onboarding</h3>
                 <p className="text-justify leading-relaxed text-sm">
-                  Dear <span className="font-bold">{data.ownerName}</span>,<br/><br/>
+                  Dear <span className="font-bold">{data.ownerName}</span>,<br /><br />
                   Welcome to <span className="font-bold">{companyName}</span>. We are pleased to formally appoint your partner organization as an Authorized <span className="font-bold">{displayRole}</span> for the <span className="font-bold">{programName}</span>. Based on your application, we are authorizing you to commence campaign operations in your assigned operational region.
                 </p>
               </div>
@@ -142,16 +163,20 @@ const AppointmentLetterPreview: React.FC<{ data: AppointmentLetterData }> = ({ d
                   <p className="font-bold border-t border-gray-400 pt-2 px-8 uppercase text-sm">Official Company Details</p>
                   <p className="text-xs text-gray-500 mt-1">Authorized Signatory For {companyName}</p>
                 </div>
-                
+
                 <div className="text-center">
                   <p className="font-bold border-t border-gray-400 pt-2 px-8 uppercase text-sm">Vendor / Partner Signature</p>
                   <p className="text-xs text-gray-500 mt-1">{data.ownerName}</p>
                 </div>
               </div>
-              
+
               <div className="mt-16 pt-4 border-t border-gray-200 text-center text-[10px] text-gray-400 uppercase tracking-widest">
                 This is a system generated document and does not require a physical signature for digital validity.
               </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 };
