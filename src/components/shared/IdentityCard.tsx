@@ -253,10 +253,10 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
         </div>
 
         {/* Content Container (No Logo here) */}
-        <div className="relative z-10 flex-1 flex flex-col pt-[85px]">
+        <div className="relative z-10 flex-1 flex flex-col pt-[55px]">
 
           {/* Detailed Address Table */}
-          <div className="px-10 w-full flex flex-col gap-4 text-[11.5px] mb-6 mt-4">
+          <div className="px-10 w-full flex flex-col gap-2 text-[10px] mb-2 mt-2">
             {[
               { label: 'Organization', value: user.organizationName || 'SakhiHub', icon: Building },
               { label: 'State', value: user.state, icon: MapPin },
@@ -266,7 +266,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
             ].filter(item => item.value).map((item, idx) => (
               <div key={idx} className="flex items-center">
                 <div className="w-6 flex justify-center text-[#E91E63] mr-2">
-                  <item.icon size={15} strokeWidth={2.5} />
+                  <item.icon size={13} strokeWidth={2.5} />
                 </div>
                 <span className="w-[85px] font-semibold text-gray-700">{item.label}</span>
                 <span className="px-2 text-gray-400">:</span>
@@ -276,10 +276,10 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
           </div>
 
           {/* Terms & Conditions Header */}
-          <div className="mt-6 mb-4 flex items-center justify-center">
+          <div className="mt-2.5 mb-1.5 flex items-center justify-center">
             <div className="h-[1px] w-12 bg-gray-300"></div>
             <div className="w-1.5 h-1.5 rounded-full bg-[#E91E63] mx-2 shadow-sm opacity-80"></div>
-            <span className="text-[10px] font-black text-[#E91E63] uppercase tracking-widest mx-1">
+            <span className="text-[9.5px] font-black text-[#E91E63] uppercase tracking-widest mx-1">
               Terms & Conditions
             </span>
             <div className="w-1.5 h-1.5 rounded-full bg-[#E91E63] mx-2 shadow-sm opacity-80"></div>
@@ -287,17 +287,41 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
           </div>
 
           {/* T&C List */}
-          <div className="px-10 mb-8">
-            <ul className="text-[10px] text-gray-700 list-disc pl-3 space-y-2 font-medium leading-relaxed tracking-tight">
-              <li>This card is non-transferable.</li>
-              <li>Use of this card is strictly for official SakhiHub work only.</li>
-              <li>This card must be carried while on official duty.</li>
-              <li>If found, please return to the nearest SakhiHub office.</li>
+          <div className="px-10 mb-2.5">
+            <ul className="text-[9px] text-gray-700 list-disc pl-3 space-y-1 font-medium leading-tight tracking-tight">
+              <li>This card is non-transferable and for official work only.</li>
+              <li>Must be carried while on official duty.</li>
+              <li>If found, please return to the address below.</li>
             </ul>
           </div>
 
+          {/* Company Information Box */}
+          <div className="mx-10 mb-2 p-2.5 bg-pink-50/40 rounded-xl border border-pink-100/50 flex flex-col gap-1 text-[9px]">
+            <span className="font-extrabold text-[#E91E63] uppercase tracking-wider text-[9.5px] mb-0.5">Company Information</span>
+            <div className="flex items-start text-gray-700 leading-tight">
+              <Building size={11} strokeWidth={2.5} className="text-[#E91E63] mr-2 shrink-0 mt-0.5" />
+              <span className="font-bold text-gray-900">Sakhi Hub</span>
+            </div>
+            <div className="flex items-start text-gray-700 leading-snug">
+              <MapPin size={11} strokeWidth={2.5} className="text-[#E91E63] mr-2 shrink-0 mt-0.5" />
+              <span className="font-semibold text-gray-900">Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010</span>
+            </div>
+            <div className="flex items-center text-gray-700 leading-tight">
+              <Globe size={11} strokeWidth={2.5} className="text-[#E91E63] mr-2 shrink-0" />
+              <span className="font-semibold text-gray-900">https://www.sakhihub.com</span>
+            </div>
+            <div className="flex items-center text-gray-700 leading-tight">
+              <Mail size={11} strokeWidth={2.5} className="text-[#E91E63] mr-2 shrink-0" />
+              <span className="font-semibold text-gray-900">info@sakhihub.com</span>
+            </div>
+            <div className="flex items-center text-gray-700 leading-tight">
+              <Phone size={11} strokeWidth={2.5} className="text-[#E91E63] mr-2 shrink-0" />
+              <span className="font-semibold text-gray-900">Contact number: +91 8062179122</span>
+            </div>
+          </div>
+
           {/* Signatures & Seal Area */}
-          <div className="flex justify-between items-end px-10 mt-auto pb-8 z-10">
+          <div className="flex justify-between items-end px-10 mt-auto pb-4 z-10">
             <div className="flex flex-col items-center">
               <img
                 src={user.role === 'employee' ? "/manager-signature.png" : "/signature-placeholder.png"}
@@ -327,10 +351,10 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
           </div>
 
           {/* Bottom Footer Section */}
-          <div className="relative w-full h-[60px] z-10 flex flex-col justify-end overflow-hidden rounded-b-[24px] mt-2">
+          <div className="relative w-full h-[50px] z-10 flex flex-col justify-end overflow-hidden rounded-b-[24px] mt-2">
             {/* Bottom Wave Background */}
-            <svg viewBox="0 0 340 60" className="absolute bottom-0 left-0 w-full h-full" preserveAspectRatio="none">
-              <path d="M0,35 C100,55 240,-10 340,25 L340,60 L0,60 Z" fill="url(#back-bottom-grad)" />
+            <svg viewBox="0 0 340 50" className="absolute bottom-0 left-0 w-full h-full" preserveAspectRatio="none">
+              <path d="M0,12 C100,2 240,22 340,10 L340,50 L0,50 Z" fill="url(#back-bottom-grad)" />
               <defs>
                 <linearGradient id="back-bottom-grad" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#E91E63" />
@@ -340,7 +364,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
             </svg>
 
             {/* Footer Content */}
-            <div className="absolute bottom-4 w-full flex justify-center items-center gap-3.5 text-white/95">
+            <div className="absolute bottom-3.5 w-full flex justify-center items-center gap-3.5 text-white/95">
               <div className="flex items-center gap-1.5">
                 <Globe size={11.5} />
                 <span className="text-[9.5px] font-semibold tracking-wider">www.sakhihub.com</span>
