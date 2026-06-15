@@ -30,7 +30,7 @@ try {
   }
 
   connection = new IORedis(redisOptions);
-  
+
   // Test connection
   connection.connect()
     .then(() => {
@@ -100,7 +100,7 @@ function initializeQueue() {
 export function resolveMergeTags(content: string, user: any): string {
   if (!content) return '';
   let resolved = content;
-  
+
   const joiningDateFormatted = (user.joiningDate || user.createdAt)
     ? new Date(user.joiningDate || user.createdAt).toLocaleDateString('en-IN')
     : 'N/A';
@@ -133,18 +133,18 @@ async function dispatchCampaignJobs(campaignId: string) {
 
   // Query matching audience using unified extraction service
   const recipients = await getCampaignRecipients(campaign.filters);
-  
+
   // Find successful logs to skip (Fix 3 - Campaign Recovery)
   const successEmails = await EmailLog.find({
     campaignId: campaign._id,
     status: { $in: ['success', 'delivered', 'opened', 'clicked'] }
   }).distinct('recipient');
-  
+
   const successSet = new Set(successEmails);
   const remainingRecipients = recipients.filter(user => !successSet.has(user.email));
 
   console.log(`[QUEUE] Dispatching campaign "${campaign.name}". Total: ${recipients.length}, Sent: ${successSet.size}, Remaining: ${remainingRecipients.length}`);
-  
+
   if (campaign.status !== 'sending') {
     campaign.status = 'sending';
   }
@@ -198,8 +198,9 @@ async function sendCampaignEmail(
   try {
     const fetched = await User.findById(userId).lean();
     if (fetched) userObj = fetched;
-  } catch {}
+  } catch { }
 
+  // Resolve merge tags for this user
   const customizedContent = resolveMergeTags(content, userObj);
   const customizedSubject = resolveMergeTags(subject, userObj);
 
@@ -215,6 +216,27 @@ async function sendCampaignEmail(
     sentAt: new Date()
   });
 
+  // 1. Rewrite links in Customized HTML for click tracking
+  const trackingClickPrefix = `https://sakhihub.com/api/email/click/${log._id}?redirect=`;
+  let trackedContent = customizedContent;
+
+  trackedContent = trackedContent.replace(/<a\s+([^>]*?)href=["'](https?:\/\/[^"']+)["']([^>]*?)>/gi, (match, before, url, after) => {
+    if (url.includes('/api/email/click/')) {
+      return match;
+    }
+    const trackedUrl = `${trackingClickPrefix}${encodeURIComponent(url)}`;
+    return `<a ${before}href="${trackedUrl}"${after}>`;
+  });
+
+  // 2. Inject open tracking pixel at the end of the body
+  const trackingOpenUrl = `https://sakhihub.com/api/email/open/${log._id}`;
+  const trackingPixel = `<img src="${trackingOpenUrl}" width="1" height="1" style="display:none" alt="" />`;
+  if (trackedContent.includes('</body>')) {
+    trackedContent = trackedContent.replace('</body>', `${trackingPixel}</body>`);
+  } else {
+    trackedContent = trackedContent + trackingPixel;
+  }
+
   // Call Email Provider Abstraction
   const formattedAttachments = attachments?.map(att => ({
     filename: att.filename,
@@ -222,7 +244,7 @@ async function sendCampaignEmail(
     contentType: 'application/octet-stream' // fallback
   }));
 
-  const result = await EmailService.send(email, customizedSubject, customizedContent, formattedAttachments);
+  const result = await EmailService.send(email, customizedSubject, trackedContent, formattedAttachments);
 
   // Update Log and Campaign counts
   if (result.success) {
@@ -265,7 +287,7 @@ async function checkCampaignCompletion(campaignId: string) {
 // Fallback sequential processor using MongoDB database (runs asynchronously on node thread)
 async function processCampaignDbFallback(campaignId: string, recipients: any[]) {
   console.log(`[QUEUE-FALLBACK] Starting db fallback sequential processor for campaign: ${campaignId}`);
-  
+
   const campaign = await EmailCampaign.findById(campaignId);
   if (!campaign) return;
 
@@ -380,26 +402,26 @@ export const CampaignQueue = {
   detectAndRecoverStuckCampaigns: async () => {
     await dbConnect();
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    
+
     // Find campaigns in 'sending' state
     const activeCampaigns = await EmailCampaign.find({ status: 'sending' });
     const recovered = [];
-    
+
     for (const campaign of activeCampaigns) {
       // Check the last sent email log
       const lastLog = await EmailLog.findOne({ campaignId: campaign._id })
         .sort({ sentAt: -1 })
         .select('sentAt');
-        
+
       const lastActivity = lastLog ? lastLog.sentAt : campaign.sentAt;
-      
+
       if (lastActivity && new Date(lastActivity) < fiveMinutesAgo) {
         console.warn(`[STUCK-CAMPAIGN-DETECTION] Campaign "${campaign.name}" (${campaign._id}) is stalled. Last activity was at ${lastActivity}.`);
-        
+
         // Update status to stalled, log the error, and retry
         campaign.status = 'stalled';
         await campaign.save();
-        
+
         // Log the recovery attempt to EmailLog
         await EmailLog.create({
           recipient: 'system@sakhihub.com',
@@ -411,14 +433,14 @@ export const CampaignQueue = {
           sentAt: new Date(),
           timestamp: new Date()
         });
-        
+
         // Change status to sending and retry
         campaign.status = 'sending';
         await campaign.save();
-        
+
         // Trigger execution (which will skip already-sent recipients!)
         await CampaignQueue.addCampaign(campaign._id.toString());
-        
+
         recovered.push({
           campaignId: campaign._id.toString(),
           name: campaign.name,
