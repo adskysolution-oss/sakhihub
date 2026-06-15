@@ -146,6 +146,25 @@ function HistoryPageContent() {
     }
   };
 
+  const handleResumeCampaign = async (id: string) => {
+    if (!confirm('Are you sure you want to resume sending this campaign? This will queue the remaining unsent emails.')) return;
+    try {
+      const res = await axios.patch(`/api/admin/communication/campaigns/${id}`, { status: 'resume' });
+      if (res.data.success) {
+        toast.success('Campaign resumed successfully');
+        fetchCampaigns(campaignsPage);
+        // Refresh campaign details on UI
+        const resDetail = await axios.get(`/api/admin/communication/campaigns/${id}`);
+        if (resDetail.data.success) {
+          setSelectedCampaign(resDetail.data.data);
+        }
+        fetchDeliveryLogs(id, 1, logsSearch, logsStatusFilter);
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to resume campaign');
+    }
+  };
+
   const handleLogsSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedCampaignId) {
@@ -307,14 +326,24 @@ function HistoryPageContent() {
 
                   <div className="flex justify-between items-center text-[10px] text-gray-400 font-semibold">
                     <span className="flex items-center gap-1"><User size={13} /> Created by: {selectedCampaign.createdBy?.fullName}</span>
-                    {['scheduled', 'sending'].includes(selectedCampaign.status) && (
-                      <button
-                        onClick={() => handleCancelCampaign(selectedCampaign._id)}
-                        className="px-3.5 py-1.5 text-rose-500 bg-rose-50 border border-rose-100 hover:bg-rose-100 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors flex items-center gap-1.5"
-                      >
-                        <Ban size={12} /> Abort Run
-                      </button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {['sending', 'cancelled', 'failed'].includes(selectedCampaign.status) && (
+                        <button
+                          onClick={() => handleResumeCampaign(selectedCampaign._id)}
+                          className="px-3.5 py-1.5 text-green-600 bg-green-50 border border-green-100 hover:bg-green-100 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors flex items-center gap-1.5"
+                        >
+                          <RefreshCw size={12} /> Resume Run
+                        </button>
+                      )}
+                      {['scheduled', 'sending'].includes(selectedCampaign.status) && (
+                        <button
+                          onClick={() => handleCancelCampaign(selectedCampaign._id)}
+                          className="px-3.5 py-1.5 text-rose-500 bg-rose-50 border border-rose-100 hover:bg-rose-100 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors flex items-center gap-1.5"
+                        >
+                          <Ban size={12} /> Abort Run
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}

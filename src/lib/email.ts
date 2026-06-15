@@ -116,6 +116,9 @@ function getSmtpTransporter(provider: string) {
     port,
     secure,
     auth,
+    connectionTimeout: 10000,
+    socketTimeout: 10000,
+    greetingTimeout: 10000
   });
 }
 

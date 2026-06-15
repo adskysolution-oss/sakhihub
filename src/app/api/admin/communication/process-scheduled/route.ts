@@ -28,6 +28,10 @@ export async function POST(req: NextRequest) {
 
     await dbConnect();
 
+    // Stuck Campaign Detection & Pending Log Recovery (Fix 4 & Fix 7)
+    const recoveredCampaigns = await CampaignQueue.detectAndRecoverStuckCampaigns();
+    const recoveredLogsCount = await CampaignQueue.recoverPendingLogs();
+
     // Query pending scheduled campaigns that should have run by now
     const now = new Date();
     const pending = await ScheduledCampaign.find({
@@ -60,7 +64,9 @@ export async function POST(req: NextRequest) {
 
     return successResponse({
       message: `Processed ${processed.length} scheduled campaigns`,
-      processedCampaigns: processed
+      processedCampaigns: processed,
+      recoveredCampaigns,
+      recoveredLogsCount
     });
   } catch (error: any) {
     console.error('[CRON_PROCESS_SCHEDULED] Error:', error);

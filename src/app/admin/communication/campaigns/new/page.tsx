@@ -234,7 +234,14 @@ export default function NewCampaignPage() {
         filters: { condition, rules },
         recipientCount,
         status: sendType === 'scheduled' ? 'scheduled' : 'sending',
-        scheduledAt: sendType === 'scheduled' ? scheduledDate : undefined
+        scheduledAt: sendType === 'scheduled' ? (() => {
+          if (!scheduledDate) return undefined;
+          const d = new Date(scheduledDate);
+          const offset = -d.getTimezoneOffset();
+          const sign = offset >= 0 ? '+' : '-';
+          const pad = (n: number) => String(Math.floor(Math.abs(n))).padStart(2, '0');
+          return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00${sign}${pad(offset / 60)}:${pad(offset % 60)}`;
+        })() : undefined
       };
 
       const res = await axios.post('/api/admin/communication/campaigns', payload);

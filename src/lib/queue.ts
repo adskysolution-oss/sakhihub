@@ -131,27 +131,39 @@ async function dispatchCampaignJobs(campaignId: string) {
   const campaign = await EmailCampaign.findById(campaignId);
   if (!campaign || campaign.status === 'cancelled') return;
 
-  campaign.status = 'sending';
-  campaign.sentAt = new Date();
-  await campaign.save();
-
   // Query matching audience using unified extraction service
   const recipients = await getCampaignRecipients(campaign.filters);
   
-  console.log(`[QUEUE] Dispatching campaign "${campaign.name}" to ${recipients.length} recipients`);
+  // Find successful logs to skip (Fix 3 - Campaign Recovery)
+  const successEmails = await EmailLog.find({
+    campaignId: campaign._id,
+    status: { $in: ['success', 'delivered', 'opened', 'clicked'] }
+  }).distinct('recipient');
+  
+  const successSet = new Set(successEmails);
+  const remainingRecipients = recipients.filter(user => !successSet.has(user.email));
+
+  console.log(`[QUEUE] Dispatching campaign "${campaign.name}". Total: ${recipients.length}, Sent: ${successSet.size}, Remaining: ${remainingRecipients.length}`);
+  
+  if (campaign.status !== 'sending') {
+    campaign.status = 'sending';
+  }
+  if (!campaign.sentAt) {
+    campaign.sentAt = new Date();
+  }
   campaign.recipientCount = recipients.length;
   await campaign.save();
 
-  if (recipients.length === 0) {
+  if (remainingRecipients.length === 0) {
     campaign.status = 'completed';
-    campaign.completedAt = new Date();
+    campaign.completedAt = campaign.completedAt || new Date();
     await campaign.save();
     return;
   }
 
   if (isRedisAvailable && emailQueue) {
     // BullMQ bulk addition
-    const jobs = recipients.map(user => ({
+    const jobs = remainingRecipients.map(user => ({
       name: 'email-sender',
       data: {
         campaignId: campaign._id.toString(),
@@ -167,7 +179,7 @@ async function dispatchCampaignJobs(campaignId: string) {
   } else {
     // Fallback: Dispatch via background DB processor asynchronously
     // Start background process without blocking
-    processCampaignDbFallback(campaignId, recipients);
+    processCampaignDbFallback(campaignId, remainingRecipients);
   }
 }
 
@@ -250,18 +262,16 @@ async function checkCampaignCompletion(campaignId: string) {
   }
 }
 
-// Fallback Batch processor using MongoDB database (runs asynchronously on node thread)
+// Fallback sequential processor using MongoDB database (runs asynchronously on node thread)
 async function processCampaignDbFallback(campaignId: string, recipients: any[]) {
-  console.log(`[QUEUE-FALLBACK] Starting db fallback batch processor for campaign: ${campaignId}`);
+  console.log(`[QUEUE-FALLBACK] Starting db fallback sequential processor for campaign: ${campaignId}`);
   
   const campaign = await EmailCampaign.findById(campaignId);
   if (!campaign) return;
 
-  // Process in batches of 10 to avoid server blocking and rate limit bans
-  const batchSize = 10;
-  const delayBetweenBatchesMs = 2000;
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-  for (let i = 0; i < recipients.length; i += batchSize) {
+  for (let i = 0; i < recipients.length; i++) {
     // Check if campaign was cancelled in the middle
     const currentCampaignStatus = await EmailCampaign.findById(campaignId).select('status');
     if (currentCampaignStatus?.status === 'cancelled') {
@@ -269,37 +279,37 @@ async function processCampaignDbFallback(campaignId: string, recipients: any[]) 
       break;
     }
 
-    const batch = recipients.slice(i, i + batchSize);
-    
-    // Process batch concurrently
-    await Promise.all(
-      batch.map(user =>
-        sendCampaignEmail(
-          campaignId,
-          user.email,
-          user.fullName,
-          user._id.toString(),
-          campaign.subject,
-          campaign.content,
-          campaign.attachments
-        ).catch(err => {
-          console.error(`[QUEUE-FALLBACK] Error processing email in fallback:`, err);
-        })
-      )
-    );
+    const user = recipients[i];
+    try {
+      await sendCampaignEmail(
+        campaignId,
+        user.email,
+        user.fullName,
+        user._id.toString(),
+        campaign.subject,
+        campaign.content,
+        campaign.attachments
+      );
+    } catch (err) {
+      console.error(`[QUEUE-FALLBACK] Error processing email for ${user.email} in fallback:`, err);
+    }
 
-    // Rate-limit batch delay
-    if (i + batchSize < recipients.length) {
-      await new Promise(resolve => setTimeout(resolve, delayBetweenBatchesMs));
+    // Add 1000ms delay between sends (Fix 2)
+    if (i < recipients.length - 1) {
+      await delay(1000);
     }
   }
 
   // Ensure status updates to completed if fallback finished everything
   const finalCampaign = await EmailCampaign.findById(campaignId);
   if (finalCampaign && finalCampaign.status === 'sending') {
-    finalCampaign.status = 'completed';
-    finalCampaign.completedAt = new Date();
-    await finalCampaign.save();
+    const pendingCount = await EmailLog.countDocuments({ campaignId, status: 'pending' });
+    if (pendingCount === 0) {
+      finalCampaign.status = 'completed';
+      finalCampaign.completedAt = new Date();
+      await finalCampaign.save();
+      console.log(`[QUEUE-FALLBACK] Completed campaign: ${campaignId}`);
+    }
   }
 }
 
@@ -365,5 +375,145 @@ export const CampaignQueue = {
 
   isRedisActive: () => {
     return isRedisAvailable;
+  },
+
+  detectAndRecoverStuckCampaigns: async () => {
+    await dbConnect();
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    
+    // Find campaigns in 'sending' state
+    const activeCampaigns = await EmailCampaign.find({ status: 'sending' });
+    const recovered = [];
+    
+    for (const campaign of activeCampaigns) {
+      // Check the last sent email log
+      const lastLog = await EmailLog.findOne({ campaignId: campaign._id })
+        .sort({ sentAt: -1 })
+        .select('sentAt');
+        
+      const lastActivity = lastLog ? lastLog.sentAt : campaign.sentAt;
+      
+      if (lastActivity && new Date(lastActivity) < fiveMinutesAgo) {
+        console.warn(`[STUCK-CAMPAIGN-DETECTION] Campaign "${campaign.name}" (${campaign._id}) is stalled. Last activity was at ${lastActivity}.`);
+        
+        // Update status to stalled, log the error, and retry
+        campaign.status = 'stalled';
+        await campaign.save();
+        
+        // Log the recovery attempt to EmailLog
+        await EmailLog.create({
+          recipient: 'system@sakhihub.com',
+          subject: `Stalled campaign recovery: ${campaign.name}`,
+          type: 'system',
+          campaignId: campaign._id.toString(),
+          status: 'failed',
+          error: `Campaign detected as stalled. Last activity: ${lastActivity}. Initiating automatic retry.`,
+          sentAt: new Date(),
+          timestamp: new Date()
+        });
+        
+        // Change status to sending and retry
+        campaign.status = 'sending';
+        await campaign.save();
+        
+        // Trigger execution (which will skip already-sent recipients!)
+        await CampaignQueue.addCampaign(campaign._id.toString());
+        
+        recovered.push({
+          campaignId: campaign._id.toString(),
+          name: campaign.name,
+          lastActivity
+        });
+      }
+    }
+    return recovered;
+  },
+
+  recoverPendingLogs: async () => {
+    await dbConnect();
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const pendingLogs = await EmailLog.find({
+      status: 'pending',
+      createdAt: { $lt: fiveMinutesAgo }
+    });
+
+    let updatedCount = 0;
+
+    for (const log of pendingLogs) {
+      if (!log.campaignId) {
+        log.status = 'failed';
+        log.failed = true;
+        log.error = 'Pending timeout (no campaign link)';
+        await log.save();
+        updatedCount++;
+        continue;
+      }
+
+      const campaign = await EmailCampaign.findById(log.campaignId);
+      if (!campaign) {
+        log.status = 'failed';
+        log.failed = true;
+        log.error = 'Campaign not found';
+        await log.save();
+        updatedCount++;
+        continue;
+      }
+
+      // Based on campaign state:
+      if (['completed', 'cancelled'].includes(campaign.status)) {
+        log.status = 'failed';
+        log.failed = true;
+        log.error = 'Pending timeout (campaign ended)';
+        await log.save();
+      } else {
+        // Campaign is 'sending', 'stalled', or 'scheduled'.
+        // Mark as failed with retry note so campaign recovery can pick it up.
+        log.status = 'failed';
+        log.failed = true;
+        log.error = 'Connection timeout - scheduled for retry';
+        await log.save();
+      }
+      updatedCount++;
+    }
+
+    return updatedCount;
+  },
+
+  getQueueMetrics: async () => {
+    if (isRedisAvailable && emailQueue) {
+      try {
+        const counts = await emailQueue.getJobCounts();
+        return {
+          active: true,
+          mode: 'bullmq',
+          counts
+        };
+      } catch (err: any) {
+        return {
+          active: true,
+          mode: 'bullmq',
+          error: err.message
+        };
+      }
+    } else {
+      return {
+        active: false,
+        mode: 'database-fallback'
+      };
+    }
+  },
+
+  getWorkerMetrics: async () => {
+    if (isRedisAvailable && queueWorker) {
+      return {
+        active: queueWorker.isRunning(),
+        concurrency: (queueWorker as any).opts?.concurrency || 5,
+        name: queueWorker.name
+      };
+    }
+    return {
+      active: false,
+      mode: 'database-fallback'
+    };
   }
 };

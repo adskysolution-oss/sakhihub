@@ -73,6 +73,27 @@ export async function PATCH(req: NextRequest, props: { params: Promise<{ id: str
       return successResponse({ message: 'Campaign cancelled successfully' });
     }
 
+    // Handle resumption
+    if (status === 'resume') {
+      if (campaign.status === 'completed') {
+        return errorResponse('Completed campaigns cannot be resumed.', 400);
+      }
+
+      // Explicitly change status to sending
+      campaign.status = 'sending';
+      await campaign.save();
+
+      // Trigger resumption via queue
+      await CampaignQueue.addCampaign(id);
+
+      await logActivity('resume_campaign', session.id, undefined, ipAddress, {
+        campaignId: id,
+        name: campaign.name
+      });
+
+      return successResponse({ message: 'Campaign resumed successfully' });
+    }
+
     // Generic update
     const updated = await EmailCampaign.findByIdAndUpdate(id, body, { new: true });
     return successResponse(updated);
