@@ -5,7 +5,7 @@ import path from 'path';
 const generateDocumentHeaderHtml = (logoSrc: string, noPadding: boolean = false) => {
   const paddingVal = noPadding ? '0' : '0 12mm';
   return `
-    <div class="w-full font-sans select-none" style="width: 100%; box-sizing: border-box; padding-top: 15px; font-family: sans-serif;">
+    <div class="w-full font-sans select-none" style="width: 100%; box-sizing: border-box; padding-top: 0px; font-family: sans-serif;">
       
       <!-- 1. Main Letterhead Content Container -->
       <div style="padding: ${paddingVal}; box-sizing: border-box; width: 100%;">
@@ -92,7 +92,7 @@ const generateDocumentHeaderHtml = (logoSrc: string, noPadding: boolean = false)
 
       <!-- 2. Address Pill with Decorative Skewed Ribbons -->
       <div style="padding: ${paddingVal}; box-sizing: border-box; width: 100%;">
-        <table style="width: 100%; border-collapse: collapse; border: none; margin-top: 15px; padding: 0; table-layout: fixed;">
+        <table style="width: 100%; border-collapse: collapse; border: none; margin-top: 6px; padding: 0; table-layout: fixed;">
           <tr>
             <!-- Left Decorative Ribbon -->
             <td style="width: 52px; padding: 0; border: none; vertical-align: middle; text-align: left;">
@@ -134,7 +134,7 @@ const generateDocumentHeaderHtml = (logoSrc: string, noPadding: boolean = false)
 
       <!-- 3. Bottom Gradient Divider Line -->
       <div 
-        style="height: 4px; width: 100%; background: linear-gradient(to right, #D91656, #6A1B9A); margin-top: 15px; margin-bottom: 20px;" 
+        style="height: 4px; width: 100%; background: linear-gradient(to right, #D91656, #6A1B9A); margin-top: 6px; margin-bottom: 8px;" 
       />
     </div>
   `;
@@ -571,9 +571,9 @@ export const generateAgreementHtml = (data: any) => {
         
         @page {
           size: A4;
-          margin: 15mm 12mm 15mm 12mm;
+          margin: 8mm 12mm 15mm 12mm;
         }
-
+ 
         body {
           font-family: 'Times New Roman', Times, serif;
           margin: 0;
@@ -586,31 +586,41 @@ export const generateAgreementHtml = (data: any) => {
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
         }
-
-        .agreement-table,
-        .agreement-table > tbody,
-        .agreement-table > tbody > tr,
-        .agreement-table > tbody > tr > td,
-        .agreement-table > thead,
-        .agreement-table > thead > tr,
-        .agreement-table > thead > tr > td {
+ 
+        .agreement-document {
           width: 100%;
           table-layout: fixed;
           border: none;
           border-collapse: collapse;
           padding: 0;
           margin: 0;
+        }
+ 
+        .agreement-document > tbody,
+        .agreement-document > tbody > tr,
+        .agreement-document > tbody > tr > td {
           break-inside: auto !important;
           page-break-inside: auto !important;
         }
-
-        .agreement-content-cell {
-          padding-bottom: 22mm;
-          padding-top: 10px;
+ 
+        .agreement-document > thead,
+        .agreement-document > thead > tr,
+        .agreement-document > thead > tr > td {
+          break-inside: avoid !important;
+          page-break-inside: avoid !important;
         }
-
-        .print-header {
-          display: table-header-group;
+ 
+        .agreement-content-cell {
+          padding-bottom: 4px;
+          padding-top: 3px;
+        }
+ 
+        thead {
+          display: table-header-group !important;
+        }
+        
+        tfoot {
+          display: table-footer-group !important;
         }
         
         h1 {
@@ -619,59 +629,59 @@ export const generateAgreementHtml = (data: any) => {
           text-decoration: underline;
           text-transform: uppercase;
           margin-top: 5px;
-          margin-bottom: 15px;
+          margin-bottom: 8px;
           font-weight: 700;
           line-height: 1.3;
         }
-
+ 
         .section-title {
           font-size: 12px;
           text-transform: uppercase;
           font-weight: 700;
-          margin-top: 15px;
-          margin-bottom: 6px;
+          margin-top: 8px;
+          margin-bottom: 4px;
           border-bottom: 1px solid #111;
           padding-bottom: 2px;
           page-break-after: avoid;
         }
-
+ 
         .details-table {
           width: 100%;
           border-collapse: collapse;
-          margin-bottom: 15px;
+          margin-bottom: 8px;
         }
-
+ 
         .details-table td {
-          padding: 5px 8px;
+          padding: 3px 6px;
           border: 1px solid #aaa;
           font-size: 10.5px;
         }
-
+ 
         .parties-section {
           margin-bottom: 12px;
         }
-
+ 
         .party-block {
           margin-bottom: 8px;
           font-size: 11px;
           line-height: 1.4;
         }
-
+ 
         .clause-header {
           font-size: 13px;
           text-align: center;
           text-transform: uppercase;
           text-decoration: underline;
           font-weight: 700;
-          margin-top: 15px;
-          margin-bottom: 12px;
+          margin-top: 8px;
+          margin-bottom: 6px;
         }
-
+ 
         .clause-container {
           page-break-inside: auto;
-          margin-bottom: 8px;
+          margin-bottom: 4px;
         }
-
+ 
         .clause-title {
           font-weight: 700;
           margin-bottom: 3px;
@@ -680,59 +690,58 @@ export const generateAgreementHtml = (data: any) => {
           page-break-after: avoid;
           break-after: avoid;
         }
-
+ 
         .clause {
           text-align: justify;
-          margin-bottom: 6px;
+          margin-bottom: 3px;
           font-size: 11px;
           line-height: 1.35;
         }
-
+ 
         .bullet-list {
           margin-left: 15px;
           margin-top: 3px;
           margin-bottom: 3px;
           line-height: 1.35;
         }
-
+ 
         .text-underline {
           text-decoration: underline;
         }
-
+ 
         .bold {
           font-weight: 700;
         }
-
+ 
         .intro-statement {
           margin-bottom: 10px;
           line-height: 1.4;
           page-break-after: avoid;
         }
-
+ 
         .signatures-grid {
-          margin-top: 20px;
-          page-break-inside: avoid;
+          margin-top: 10px;
         }
-
+ 
         .sig-row {
           display: flex;
           justify-content: space-between;
-          margin-bottom: 30px;
+          margin-bottom: 15px;
           page-break-inside: avoid;
         }
-
+ 
         .signature-box {
           width: 45%;
           text-align: left;
           font-size: 11px;
         }
-
+ 
         .line {
           border-bottom: 1px solid #111;
-          height: 35px;
+          height: 24px;
           margin-bottom: 6px;
         }
-
+ 
         .watermark {
           position: fixed;
           top: 50%;
@@ -751,8 +760,8 @@ export const generateAgreementHtml = (data: any) => {
     <body>
       <div class="watermark">SakhiHub Official</div>
 
-      <table class="agreement-table">
-        <thead class="print-header">
+      <table class="agreement-document">
+        <thead>
           <tr>
             <td style="width: 100%;">
               ${headerHtml}
@@ -760,115 +769,143 @@ export const generateAgreementHtml = (data: any) => {
           </tr>
         </thead>
         <tbody>
+          <!-- ROW 1: TITLE & INTRO -->
           <tr>
             <td class="agreement-content-cell">
-
-              <!-- TITLE -->
               <h1>${headingTitle}</h1>
+              <div class="intro-statement">
+                THIS ${headingTitle} (the "Agreement") is executed and made effective as of the Date of Execution specified below, by and between the following parties:
+              </div>
+            </td>
+          </tr>
 
-      <!-- INTRO -->
-      <div class="intro-statement">
-        THIS ${headingTitle} (the "Agreement") is executed and made effective as of the Date of Execution specified below, by and between the following parties:
-      </div>
+          <!-- ROW 2: PARTIES -->
+          <tr>
+            <td class="agreement-content-cell" style="padding-top: 0;">
+              <div class="section-title">PARTIES TO THE AGREEMENT</div>
+              <table class="details-table">
+                <tr>
+                  <td class="bold" style="width: 25%;">First Party (The Company)</td>
+                  <td>
+                    <strong>SakhiHub</strong>, having its principal place of business at PU-4, Behind C21 Mall, Scheme No. 54, Indore, Madhya Pradesh – 452010 (hereinafter referred to as the <strong>"Company"</strong>).
+                  </td>
+                </tr>
+                <tr>
+                  <td class="bold">Second Party (The Vendor / Partner)</td>
+                  <td>
+                    <strong>${data.vendorName}</strong>, having its address at ${data.address}${data.district ? ', ' + data.district : ''}${data.state ? ', ' + data.state : ''} (Authorized Representative: ${data.vendorName}, Mobile: ${data.mobile || 'N/A'}, Email: ${data.email || 'N/A'}) (hereinafter referred to as the <strong>"Vendor"</strong>).
+                  </td>
+                </tr>
+              </table>
+              <div class="intro-statement" style="margin-top: 10px;">
+                The Company and the Vendor shall collectively be referred to as the <strong>"Parties"</strong> and individually as a <strong>"Party"</strong>.
+              </div>
+            </td>
+          </tr>
 
-      <!-- PARTIES -->
-      <div class="section-title">PARTIES TO THE AGREEMENT</div>
-      <table class="details-table">
-        <tr>
-          <td class="bold" style="width: 25%;">First Party (The Company)</td>
-          <td>
-            <strong>SakhiHub</strong>, having its principal place of business at PU-4, Behind C21 Mall, Scheme No. 54, Indore, Madhya Pradesh – 452010 (hereinafter referred to as the <strong>"Company"</strong>).
-          </td>
-        </tr>
-        <tr>
-          <td class="bold">Second Party (The Vendor / Partner)</td>
-          <td>
-            <strong>${data.vendorName}</strong>, having its address at ${data.address}${data.district ? ', ' + data.district : ''}${data.state ? ', ' + data.state : ''} (Authorized Representative: ${data.vendorName}, Mobile: ${data.mobile || 'N/A'}, Email: ${data.email || 'N/A'}) (hereinafter referred to as the <strong>"Vendor"</strong>).
-          </td>
-        </tr>
+          <!-- ROW 3: AGREEMENT DETAILS -->
+          <tr>
+            <td class="agreement-content-cell" style="padding-top: 0;">
+              <div class="section-title">AGREEMENT DETAILS</div>
+              <table class="details-table">
+                <tr>
+                  <td class="bold" style="width: 25%;">Agreement ID</td>
+                  <td style="width: 25%;">${data.agreementId}</td>
+                  <td class="bold" style="width: 25%;">Vendor Code</td>
+                  <td style="width: 25%;">${data.vendorCode}</td>
+                </tr>
+                <tr>
+                  <td class="bold">Date of Execution</td>
+                  <td>${data.joiningDate}</td>
+                  <td class="bold">Agreement Validity</td>
+                  <td>${data.agreementValidity || '3 Years'}</td>
+                </tr>
+                <tr>
+                  <td class="bold">Partner Assignment</td>
+                  <td>${data.coordinatorType || 'N/A'}</td>
+                  <td class="bold">Assigned Region(s)</td>
+                  <td>${data.assignedRegions || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td class="bold">QR Verification Code</td>
+                  <td colspan="3">${data.qrVerificationCode}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ROW 4: TERMS HEADER -->
+          <tr>
+            <td class="agreement-content-cell" style="padding-top: 0;">
+              <div class="clause-header">TERMS AND CONDITIONS</div>
+            </td>
+          </tr>
+
+          <!-- ROWS 5 to 5+N: CLAUSES -->
+          ${clauses.map(clause => `
+          <tr>
+            <td class="agreement-content-cell" style="padding-top: 0; padding-bottom: 8px;">
+              <div class="clause-container">
+                <div class="clause-title">${clause.title}</div>
+                <div class="clause">${clause.content}</div>
+              </div>
+            </td>
+          </tr>
+          `).join('\n')}
+
+          <!-- ROW LAST: SIGNATURES -->
+          <tr>
+            <td class="agreement-content-cell" style="padding-top: 0;">
+              <div class="signatures-grid">
+                <div style="break-inside: avoid; page-break-inside: avoid;">
+                  <div class="section-title">EXECUTION & SIGNATURES</div>
+                  <div class="intro-statement" style="text-align: center; font-style: italic; margin-top: 6px; margin-bottom: 12px;">
+                    IN WITNESS WHEREOF, the Parties hereto have executed this ${headingTitle} on the day, month, and year first above written.
+                  </div>
+
+                  <div class="sig-row">
+                    <div class="signature-box" style="position: relative;">
+                      ${signatureBase64 ? `<img src="${signatureBase64}" alt="Signature" style="height: 45px; position: absolute; top: -15px; left: 10px; opacity: 0.85;" />` : ''}
+                      <div class="line"></div>
+                      <strong>For SakhiHub</strong><br/>
+                      Authorized Signatory<br/>
+                      Date: ${data.acceptanceTimestamp ? data.acceptanceTimestamp.split(',')[0] : currentDate}
+                    </div>
+                    <div class="signature-box">
+                      <div class="line"></div>
+                      <strong>For Vendor</strong><br/>
+                      Authorized Representative: ${data.vendorName}<br/>
+                      Date: ${data.acceptanceTimestamp ? data.acceptanceTimestamp.split(',')[0] : currentDate}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sig-row" style="margin-top: 10px;">
+                  <div class="signature-box">
+                    <div class="line"></div>
+                    <strong>Witness 1</strong><br/>
+                    Name:<br/>
+                    Signature:
+                  </div>
+                  <div class="signature-box">
+                    <div class="line"></div>
+                    <strong>Witness 2</strong><br/>
+                    Name:<br/>
+                    Signature:
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td style="width: 100%;">
+              <div style="height: 15mm; width: 100%;"></div>
+            </td>
+          </tr>
+        </tfoot>
       </table>
-
-      <div class="intro-statement" style="margin-top: 10px;">
-        The Company and the Vendor shall collectively be referred to as the <strong>"Parties"</strong> and individually as a <strong>"Party"</strong>.
-      </div>
-
-      <!-- AGREEMENT METADATA -->
-      <div class="section-title">AGREEMENT DETAILS</div>
-      <table class="details-table">
-        <tr>
-          <td class="bold" style="width: 25%;">Agreement ID</td>
-          <td style="width: 25%;">${data.agreementId}</td>
-          <td class="bold" style="width: 25%;">Vendor Code</td>
-          <td style="width: 25%;">${data.vendorCode}</td>
-        </tr>
-        <tr>
-          <td class="bold">Date of Execution</td>
-          <td>${data.joiningDate}</td>
-          <td class="bold">Agreement Validity</td>
-          <td>${data.agreementValidity || '3 Years'}</td>
-        </tr>
-        <tr>
-          <td class="bold">Partner Assignment</td>
-          <td>${data.coordinatorType || 'N/A'}</td>
-          <td class="bold">Assigned Region(s)</td>
-          <td>${data.assignedRegions || 'N/A'}</td>
-        </tr>
-        <tr>
-          <td class="bold">QR Verification Code</td>
-          <td colspan="3">${data.qrVerificationCode}</td>
-        </tr>
-      </table>
-
-      <!-- CLAUSES -->
-      <div class="clause-header">TERMS AND CONDITIONS</div>
-      
-      ${clauses.map(clause => `
-        <div class="clause-container">
-          <div class="clause-title">${clause.title}</div>
-          <div class="clause">${clause.content}</div>
-        </div>
-      `).join('\n')}
-
-      <!-- SIGNATURES -->
-      <div class="signatures-grid">
-        <div class="section-title">EXECUTION & SIGNATURES</div>
-        <div class="intro-statement" style="text-align: center; font-style: italic; margin-top: 10px; margin-bottom: 25px;">
-          IN WITNESS WHEREOF, the Parties hereto have executed this ${headingTitle} on the day, month, and year first above written.
-        </div>
-
-        <div class="sig-row">
-          <div class="signature-box" style="position: relative;">
-            ${signatureBase64 ? `<img src="${signatureBase64}" alt="Signature" style="height: 45px; position: absolute; top: -15px; left: 10px; opacity: 0.85;" />` : ''}
-            <div class="line"></div>
-            <strong>For SakhiHub</strong><br/>
-            Authorized Signatory<br/>
-            Date: ${data.acceptanceTimestamp ? data.acceptanceTimestamp.split(',')[0] : currentDate}
-          </div>
-          <div class="signature-box">
-            <div class="line"></div>
-            <strong>For Vendor</strong><br/>
-            Authorized Representative: ${data.vendorName}<br/>
-            Date: ${data.acceptanceTimestamp ? data.acceptanceTimestamp.split(',')[0] : currentDate}
-          </div>
-        </div>
-
-        <div class="sig-row" style="margin-top: 20px;">
-          <div class="signature-box">
-            <div class="line"></div>
-            <strong>Witness 1</strong><br/>
-            Name:<br/>
-            Signature:
-          </div>
-          <div class="signature-box">
-            <div class="line"></div>
-            <strong>Witness 2</strong><br/>
-            Name:<br/>
-            Signature:
-          </div>
-        </div>
-      </div>
-
-
     </body>
     </html>
   `;
