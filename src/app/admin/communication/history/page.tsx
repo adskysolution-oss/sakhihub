@@ -17,7 +17,8 @@ import {
   ExternalLink,
   Ban,
   Clock,
-  ArrowRight
+  ArrowRight,
+  Play
 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -45,6 +46,7 @@ function HistoryPageContent() {
   const [logsLoading, setLogsLoading] = useState(false);
   const [logsSearch, setLogsSearch] = useState('');
   const [logsStatusFilter, setLogsStatusFilter] = useState('');
+  const [processingScheduled, setProcessingScheduled] = useState(false);
 
   // Fetch campaigns
   const fetchCampaigns = async (page = 1) => {
@@ -165,6 +167,47 @@ function HistoryPageContent() {
     }
   };
 
+  const handleRetryFailedCampaign = async (id: string) => {
+    if (!confirm('Are you sure you want to retry sending to all failed recipients? This will re-queue only the failed addresses.')) return;
+    try {
+      const res = await axios.patch(`/api/admin/communication/campaigns/${id}`, { status: 'retry_failed' });
+      if (res.data.success) {
+        toast.success('Campaign retry initiated successfully');
+        fetchCampaigns(campaignsPage);
+        // Refresh campaign details on UI
+        const resDetail = await axios.get(`/api/admin/communication/campaigns/${id}`);
+        if (resDetail.data.success) {
+          setSelectedCampaign(resDetail.data.data);
+        }
+        fetchDeliveryLogs(id, 1, logsSearch, logsStatusFilter);
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to retry campaign');
+    }
+  };
+
+  const handleProcessScheduled = async () => {
+    setProcessingScheduled(true);
+    try {
+      const res = await axios.post('/api/admin/communication/process-scheduled');
+      if (res.data.success) {
+        toast.success(res.data.data.message || 'Scheduled campaigns processed successfully');
+        fetchCampaigns(campaignsPage);
+        if (selectedCampaignId) {
+          const resDetail = await axios.get(`/api/admin/communication/campaigns/${selectedCampaignId}`);
+          if (resDetail.data.success) {
+            setSelectedCampaign(resDetail.data.data);
+          }
+          fetchDeliveryLogs(selectedCampaignId, 1, logsSearch, logsStatusFilter);
+        }
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to process scheduled campaigns');
+    } finally {
+      setProcessingScheduled(false);
+    }
+  };
+
   const handleLogsSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedCampaignId) {
@@ -201,17 +244,27 @@ function HistoryPageContent() {
             <h2 className="text-3xl font-black text-secondary">Campaign Execution History</h2>
             <p className="text-gray-400 font-bold mt-1">Audit detailed delivery records and logs of all email campaigns.</p>
           </div>
-          <button
-            onClick={() => {
-              fetchCampaigns(campaignsPage);
-              if (selectedCampaignId) {
-                fetchDeliveryLogs(selectedCampaignId, logsPage, logsSearch, logsStatusFilter);
-              }
-            }}
-            className="flex items-center justify-center gap-2 px-5 py-3 bg-white text-secondary border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:scale-105 transition-all"
-          >
-            <RefreshCw size={14} className={campaignsLoading || logsLoading ? 'animate-spin' : ''} /> Refresh Feed
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={handleProcessScheduled}
+              disabled={processingScheduled}
+              className="flex items-center justify-center gap-2 px-5 py-3 bg-amber-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:scale-105 transition-all disabled:opacity-50"
+            >
+              <Clock size={14} className={processingScheduled ? 'animate-spin' : ''} />
+              {processingScheduled ? 'Processing...' : 'Run Scheduled Cron'}
+            </button>
+            <button
+              onClick={() => {
+                fetchCampaigns(campaignsPage);
+                if (selectedCampaignId) {
+                  fetchDeliveryLogs(selectedCampaignId, logsPage, logsSearch, logsStatusFilter);
+                }
+              }}
+              className="flex items-center justify-center gap-2 px-5 py-3 bg-white text-secondary border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:scale-105 transition-all"
+            >
+              <RefreshCw size={14} className={campaignsLoading || logsLoading ? 'animate-spin' : ''} /> Refresh Feed
+            </button>
+          </div>
         </div>
 
         {/* Master Details Split View */}
@@ -327,6 +380,22 @@ function HistoryPageContent() {
                   <div className="flex justify-between items-center text-[10px] text-gray-400 font-semibold">
                     <span className="flex items-center gap-1"><User size={13} /> Created by: {selectedCampaign.createdBy?.fullName}</span>
                     <div className="flex items-center gap-2">
+                      {selectedCampaign.status === 'scheduled' && (
+                        <button
+                          onClick={() => handleResumeCampaign(selectedCampaign._id)}
+                          className="px-3.5 py-1.5 text-blue-600 bg-blue-50 border border-blue-100 hover:bg-blue-100 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors flex items-center gap-1.5 hover:scale-105 transition-all duration-200"
+                        >
+                          <Play size={12} /> Send Now
+                        </button>
+                      )}
+                      {['completed', 'cancelled', 'failed'].includes(selectedCampaign.status) && selectedCampaign.failedCount > 0 && (
+                        <button
+                          onClick={() => handleRetryFailedCampaign(selectedCampaign._id)}
+                          className="px-3.5 py-1.5 text-amber-600 bg-amber-50 border border-amber-100 hover:bg-amber-100 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors flex items-center gap-1.5 hover:scale-105 transition-all duration-200"
+                        >
+                          <RefreshCw size={12} /> Retry Failed ({selectedCampaign.failedCount})
+                        </button>
+                      )}
                       {['sending', 'cancelled', 'failed'].includes(selectedCampaign.status) && (
                         <button
                           onClick={() => handleResumeCampaign(selectedCampaign._id)}

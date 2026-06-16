@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import EmailCampaign from '@/models/EmailCampaign';
 import ScheduledCampaign from '@/models/ScheduledCampaign';
+import EmailLog from '@/models/EmailLog';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 import { logActivity } from '@/utils/authHelpers';
@@ -17,7 +18,32 @@ export async function GET(req: NextRequest, props: { params: Promise<{ id: strin
     const { id } = await props.params;
     await dbConnect();
 
-    const campaign = await EmailCampaign.findById(id)
+    // Dynamically calculate actual counts from EmailLog to prevent out-of-sync stats
+    const [actualDelivered, actualFailed, actualOpened] = await Promise.all([
+      EmailLog.countDocuments({
+        campaignId: id,
+        status: { $in: ['success', 'delivered', 'opened', 'clicked'] }
+      }),
+      EmailLog.countDocuments({
+        campaignId: id,
+        status: 'failed'
+      }),
+      EmailLog.countDocuments({
+        campaignId: id,
+        opened: true
+      })
+    ]);
+
+    // Update the database document so the campaign document counts are always correct
+    const campaign = await EmailCampaign.findByIdAndUpdate(
+      id,
+      {
+        deliveredCount: actualDelivered,
+        failedCount: actualFailed,
+        openedCount: actualOpened
+      },
+      { new: true }
+    )
       .populate('createdBy', 'fullName email')
       .lean();
 
@@ -92,6 +118,32 @@ export async function PATCH(req: NextRequest, props: { params: Promise<{ id: str
       });
 
       return successResponse({ message: 'Campaign resumed successfully' });
+    }
+
+    // Handle retrying failed recipients
+    if (status === 'retry_failed') {
+      if (campaign.failedCount === 0) {
+        return errorResponse('No failed recipients to retry.', 400);
+      }
+
+      // Delete old failed logs for this campaign so they are not skipped in the recovery check
+      await EmailLog.deleteMany({ campaignId: id, status: 'failed' });
+
+      // Reset the failed count, update status to sending, and clear completedAt
+      campaign.failedCount = 0;
+      campaign.status = 'sending';
+      campaign.completedAt = undefined;
+      await campaign.save();
+
+      // Trigger the queue run (this automatically filters to remaining/failed recipients)
+      await CampaignQueue.addCampaign(id);
+
+      await logActivity('retry_failed_campaign', session.id, undefined, ipAddress, {
+        campaignId: id,
+        name: campaign.name
+      });
+
+      return successResponse({ message: 'Campaign retry initiated successfully for failed recipients' });
     }
 
     // Generic update
