@@ -126,12 +126,14 @@ export default function AdminReportsPage() {
   const [format, setFormat] = useState<'pdf' | 'excel' | 'csv'>('pdf');
   const [saveTemplateName, setSaveTemplateName] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [designation, setDesignation] = useState('');
 
   // Set default selected fields based on selected entity type
   useEffect(() => {
     setSelectedFields(FIELD_OPTIONS[entityType].map(f => f.value));
     setStatus([]);
     setPaymentStatus([]);
+    setDesignation('');
   }, [entityType]);
 
   const fetchOverview = async () => {
@@ -203,6 +205,7 @@ export default function AdminReportsPage() {
           status: status.length > 0 ? status : undefined,
           paymentStatus: paymentStatus.length > 0 ? paymentStatus : undefined,
           location: (location.state || location.district || location.block) ? location : undefined,
+          designation: designation || undefined,
           selectedFields,
           format,
           saveTemplateName: saveTemplateName || undefined
@@ -256,6 +259,7 @@ export default function AdminReportsPage() {
           status: template.filters?.status,
           paymentStatus: template.filters?.paymentStatus,
           location: template.filters?.location,
+          designation: template.filters?.designation,
           selectedFields: template.selectedFields,
           format: template.format
         },
@@ -296,6 +300,7 @@ export default function AdminReportsPage() {
     setStatus(template.filters?.status || []);
     setPaymentStatus(template.filters?.paymentStatus || []);
     setLocation(template.filters?.location || { state: '', district: '', block: '' });
+    setDesignation(template.filters?.designation || '');
     setSelectedFields(template.selectedFields);
     setFormat(template.format);
     setActiveTab('builder');
@@ -577,6 +582,29 @@ export default function AdminReportsPage() {
             </div>
           </div>
 
+          {/* Designation Filter Grid (Conditional) */}
+          {(entityType === 'employees' || entityType === 'compliance') && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '25px', borderTop: '1px solid #f1f5f9', paddingTop: '30px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: '8px' }}>Designation Filter (Optional)</label>
+                <select
+                  value={designation}
+                  onChange={(e) => setDesignation(e.target.value)}
+                  style={{ width: '100%', padding: '14px 20px', borderRadius: '16px', border: '1px solid #cbd5e1', fontWeight: '700', color: 'var(--secondary)', fontSize: '0.95rem', cursor: 'pointer', outline: 'none' }}
+                >
+                  <option value="">All Designations</option>
+                  <option value="Block Employee">Block Employee</option>
+                  <option value="District Coordinator">District Coordinator</option>
+                  <option value="Trainer">Trainer</option>
+                  <option value="Volunteer">Volunteer</option>
+                  <option value="Delivery Partner">Delivery Partner</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div />
+            </div>
+          )}
+
           {/* Status and Payment Status Filters */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '25px', borderTop: '1px solid #f1f5f9', paddingTop: '30px' }}>
             <div>
@@ -735,6 +763,7 @@ export default function AdminReportsPage() {
                       <td style={{ padding: '18px 15px', color: '#64748b', fontSize: '0.8rem' }}>
                         {t.filters?.startDate || t.filters?.endDate ? 'Date range applied' : 'No dates'}
                         {t.filters?.location?.district ? ` • ${t.filters.location.district}` : ''}
+                        {t.filters?.designation ? ` • ${t.filters.designation}` : ''}
                       </td>
                       <td style={{ padding: '18px 15px', fontWeight: '700', color: '#475569' }}>{t.selectedFields?.length || 0} Fields</td>
                       <td style={{ padding: '18px 15px', fontWeight: '800', textTransform: 'uppercase', color: t.format === 'pdf' ? '#7c3aed' : '#059669' }}>{t.format}</td>

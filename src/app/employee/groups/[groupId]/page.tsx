@@ -102,7 +102,7 @@ export default function GroupDetailsPage() {
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ textLeft: 'left', borderBottom: '2px solid #f8f9fa' }}>
+                  <tr style={{ textAlign: 'left', borderBottom: '2px solid #f8f9fa' }}>
                     <th style={{ padding: '15px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>{t('employeeGroups.memberNameCol', 'Member Name')}</th>
                     <th style={{ padding: '15px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>{t('employeeGroups.contactCol', 'Contact')}</th>
                     <th style={{ padding: '15px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>{t('employeeGroups.statusCol', 'Status')}</th>

@@ -13,6 +13,7 @@ export interface IReportTemplate extends Document {
       district?: string;
       block?: string;
     };
+    designation?: string;
   };
   selectedFields: string[];
   format: 'pdf' | 'excel' | 'csv';
@@ -38,7 +39,8 @@ const ReportTemplateSchema: Schema = new Schema(
         state: { type: String },
         district: { type: String },
         block: { type: String }
-      }
+      },
+      designation: { type: String }
     },
     selectedFields: [{ type: String, required: true }],
     format: { type: String, enum: ['pdf', 'excel', 'csv'], default: 'pdf' },

@@ -35,7 +35,8 @@ export async function POST(req: NextRequest) {
       location, // { state, district, block }
       selectedFields, // Array
       format, // 'pdf' | 'excel' | 'csv'
-      saveTemplateName
+      saveTemplateName,
+      designation
     } = body;
 
     if (!entityType || !format || !selectedFields || selectedFields.length === 0) {
@@ -52,7 +53,8 @@ export async function POST(req: NextRequest) {
           endDate: endDate ? new Date(endDate) : undefined,
           status,
           paymentStatus,
-          location
+          location,
+          designation
         },
         selectedFields,
         format,
@@ -78,6 +80,11 @@ export async function POST(req: NextRequest) {
       if (location.state) queryFilters.state = location.state;
       if (location.district) queryFilters.district = location.district;
       if (location.block) queryFilters.block = location.block;
+    }
+
+    // Apply Designation filter
+    if (designation) {
+      queryFilters.designation = designation;
     }
 
     let records: any[] = [];
@@ -239,6 +246,9 @@ export async function POST(req: NextRequest) {
       if (status && status.length > 0) {
         complianceFilter.status = { $in: status };
       }
+      if (designation) {
+        complianceFilter.designation = designation;
+      }
 
       const users = await User.find(complianceFilter)
         .select('fullName role status documents documentsVerified parentVendorId createdAt')
@@ -297,7 +307,8 @@ export async function POST(req: NextRequest) {
       endDate,
       status,
       paymentStatus,
-      location
+      location,
+      designation
     };
     const fileName = `report_${entityType}_${Date.now()}.${format === 'excel' ? 'xls' : format}`;
 
