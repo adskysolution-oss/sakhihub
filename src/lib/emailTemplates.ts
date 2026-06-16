@@ -103,7 +103,6 @@ export const getMemberRequestTemplate = (data: any) => getBaseTemplate(`
     <div style="background: #f8f9fa; border: 1px solid #eee; border-radius: 15px; padding: 25px; margin: 25px 0;">
         <table style="width: 100%; font-size: 14px;">
             <tr><td style="color: #777; padding: 5px 0;">Member Name:</td><td style="font-weight: 700; text-align: right;">${data.memberName}</td></tr>
-            <tr><td style="color: #777; padding: 5px 0;">Mobile:</td><td style="font-weight: 700; text-align: right;">${data.memberMobile}</td></tr>
             <tr><td style="color: #777; padding: 5px 0;">District/Block:</td><td style="font-weight: 700; text-align: right;">${data.memberLocation}</td></tr>
             <tr><td style="color: #777; padding: 5px 0;">Timestamp:</td><td style="font-weight: 700; text-align: right;">${data.timestamp}</td></tr>
         </table>
