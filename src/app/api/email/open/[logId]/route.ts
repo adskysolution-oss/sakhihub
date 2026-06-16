@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import EmailLog from '@/models/EmailLog';
-import EmailCampaign from '@/models/EmailCampaign';
+import { recalculateCampaignCounts } from '@/lib/queue';
 
 export async function GET(req: NextRequest, props: { params: Promise<{ logId: string }> }) {
   try {
@@ -18,9 +18,7 @@ export async function GET(req: NextRequest, props: { params: Promise<{ logId: st
       await log.save();
 
       if (log.campaignId) {
-        await EmailCampaign.findByIdAndUpdate(log.campaignId, {
-          $inc: { openedCount: 1 }
-        });
+        await recalculateCampaignCounts(log.campaignId.toString());
       }
     }
   } catch (error) {

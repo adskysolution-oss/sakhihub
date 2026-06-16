@@ -134,16 +134,16 @@ async function dispatchCampaignJobs(campaignId: string) {
   // Query matching audience using unified extraction service
   const recipients = await getCampaignRecipients(campaign.filters);
 
-  // Find successful logs to skip (Fix 3 - Campaign Recovery)
+  // Find successful or pending logs to skip (Fix 3 - Campaign Recovery)
   const successEmails = await EmailLog.find({
     campaignId: campaign._id,
-    status: { $in: ['success', 'delivered', 'opened', 'clicked'] }
+    status: { $in: ['success', 'delivered', 'opened', 'clicked', 'pending'] }
   }).distinct('recipient');
 
-  const successSet = new Set(successEmails);
-  const remainingRecipients = recipients.filter(user => !successSet.has(user.email));
+  const successSet = new Set(successEmails.map((e: string) => e.toLowerCase().trim()));
+  const remainingRecipients = recipients.filter(user => !successSet.has(user.email.toLowerCase().trim()));
 
-  console.log(`[QUEUE] Dispatching campaign "${campaign.name}". Total: ${recipients.length}, Sent: ${successSet.size}, Remaining: ${remainingRecipients.length}`);
+  console.log(`[QUEUE] Dispatching campaign "${campaign.name}". Total: ${recipients.length}, Sent/In-flight: ${successSet.size}, Remaining: ${remainingRecipients.length}`);
 
   if (campaign.status !== 'sending') {
     campaign.status = 'sending';
@@ -204,19 +204,54 @@ async function sendCampaignEmail(
   const customizedContent = resolveMergeTags(content, userObj);
   const customizedSubject = resolveMergeTags(subject, userObj);
 
-  // Initialize pending log
-  const log = await EmailLog.create({
-    recipient: email,
-    recipientUser: userId,
-    recipientName: name,
-    subject: customizedSubject,
-    type: 'campaign',
-    campaignId,
-    status: 'pending',
-    sentAt: new Date()
-  });
+  const lowercaseEmail = email.toLowerCase().trim();
 
-  // 1. Rewrite links in Customized HTML for click tracking
+  // 1. Safety Check: Check whether any successful EmailLog already exists for this recipient + campaign
+  const existingLog = await EmailLog.findOne({ campaignId, recipient: lowercaseEmail });
+  if (existingLog) {
+    if (['success', 'delivered', 'opened', 'clicked'].includes(existingLog.status)) {
+      console.log(`[QUEUE] Email to ${lowercaseEmail} for campaign ${campaignId} skipped: already successfully delivered.`);
+      return;
+    }
+    // Soft distributed lock: if status is pending and updated within the last 1 minute, skip sending to avoid race condition
+    if (existingLog.status === 'pending') {
+      const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
+      if (existingLog.updatedAt > oneMinuteAgo) {
+        console.log(`[QUEUE] Email to ${lowercaseEmail} for campaign ${campaignId} skipped: already in-flight (pending).`);
+        return;
+      }
+    }
+  }
+
+  // 2. Initialize or Update pending log (Updates existing log instead of creating a new one)
+  let log;
+  if (existingLog) {
+    existingLog.status = 'pending';
+    existingLog.recipient = lowercaseEmail;
+    existingLog.recipientUser = userId;
+    existingLog.recipientName = name;
+    existingLog.subject = customizedSubject;
+    existingLog.sentAt = new Date();
+    existingLog.error = undefined;
+    existingLog.failed = false;
+    existingLog.delivered = false;
+    existingLog.opened = false;
+    existingLog.clicked = false;
+    log = await existingLog.save();
+  } else {
+    log = await EmailLog.create({
+      recipient: lowercaseEmail,
+      recipientUser: userId,
+      recipientName: name,
+      subject: customizedSubject,
+      type: 'campaign',
+      campaignId,
+      status: 'pending',
+      sentAt: new Date()
+    });
+  }
+
+  // 3. Rewrite links in Customized HTML for click tracking
   const trackingClickPrefix = `https://sakhihub.com/api/email/click/${log._id}?redirect=`;
   let trackedContent = customizedContent;
 
@@ -228,7 +263,7 @@ async function sendCampaignEmail(
     return `<a ${before}href="${trackedUrl}"${after}>`;
   });
 
-  // 2. Inject open tracking pixel at the end of the body
+  // 4. Inject open tracking pixel at the end of the body
   const trackingOpenUrl = `https://sakhihub.com/api/email/open/${log._id}`;
   const trackingPixel = `<img src="${trackingOpenUrl}" width="1" height="1" style="display:none" alt="" />`;
   if (trackedContent.includes('</body>')) {
@@ -244,30 +279,62 @@ async function sendCampaignEmail(
     contentType: 'application/octet-stream' // fallback
   }));
 
-  const result = await EmailService.send(email, customizedSubject, trackedContent, formattedAttachments);
+  const result = await EmailService.send(lowercaseEmail, customizedSubject, trackedContent, formattedAttachments);
 
   // Update Log and Campaign counts
   if (result.success) {
     log.status = 'success';
     log.delivered = true;
     await log.save();
-
-    await EmailCampaign.findByIdAndUpdate(campaignId, {
-      $inc: { deliveredCount: 1 }
-    });
   } else {
     log.status = 'failed';
     log.failed = true;
     log.error = result.error;
     await log.save();
-
-    await EmailCampaign.findByIdAndUpdate(campaignId, {
-      $inc: { failedCount: 1 }
-    });
   }
+
+  // Recalculate unique counts for metrics
+  await recalculateCampaignCounts(campaignId);
 
   // Check if campaign is finished
   await checkCampaignCompletion(campaignId);
+}
+
+// Recalculates dynamic counts for a campaign based on unique recipients to prevent duplicate tracking
+export async function recalculateCampaignCounts(campaignId: string) {
+  const [deliveredEmails, failedEmails, openedEmails, clickedEmails] = await Promise.all([
+    EmailLog.find({
+      campaignId,
+      status: { $in: ['success', 'delivered', 'opened', 'clicked'] }
+    }).distinct('recipient'),
+    EmailLog.find({
+      campaignId,
+      status: 'failed'
+    }).distinct('recipient'),
+    EmailLog.find({
+      campaignId,
+      opened: true
+    }).distinct('recipient'),
+    EmailLog.find({
+      campaignId,
+      clicked: true
+    }).distinct('recipient')
+  ]);
+
+  const deliveredSet = new Set(deliveredEmails);
+  const uniqueFailedEmails = failedEmails.filter(email => !deliveredSet.has(email));
+
+  const uniqueDeliveredCount = deliveredEmails.length;
+  const uniqueFailedCount = uniqueFailedEmails.length;
+  const uniqueOpenedCount = openedEmails.length;
+  const uniqueClickedCount = clickedEmails.length;
+
+  await EmailCampaign.findByIdAndUpdate(campaignId, {
+    deliveredCount: uniqueDeliveredCount,
+    failedCount: uniqueFailedCount,
+    openedCount: uniqueOpenedCount,
+    clickedCount: uniqueClickedCount
+  });
 }
 
 // Checks if all emails for a campaign have been sent and updates the campaign status
@@ -284,54 +351,66 @@ async function checkCampaignCompletion(campaignId: string) {
   }
 }
 
+const activeDbFallbacks = new Set<string>();
+
 // Fallback sequential processor using MongoDB database (runs asynchronously on node thread)
 async function processCampaignDbFallback(campaignId: string, recipients: any[]) {
-  console.log(`[QUEUE-FALLBACK] Starting db fallback sequential processor for campaign: ${campaignId}`);
-
-  const campaign = await EmailCampaign.findById(campaignId);
-  if (!campaign) return;
-
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-  for (let i = 0; i < recipients.length; i++) {
-    // Check if campaign was cancelled in the middle
-    const currentCampaignStatus = await EmailCampaign.findById(campaignId).select('status');
-    if (currentCampaignStatus?.status === 'cancelled') {
-      console.log(`[QUEUE-FALLBACK] Campaign ${campaignId} cancelled during run.`);
-      break;
-    }
-
-    const user = recipients[i];
-    try {
-      await sendCampaignEmail(
-        campaignId,
-        user.email,
-        user.fullName,
-        user._id.toString(),
-        campaign.subject,
-        campaign.content,
-        campaign.attachments
-      );
-    } catch (err) {
-      console.error(`[QUEUE-FALLBACK] Error processing email for ${user.email} in fallback:`, err);
-    }
-
-    // Add 1000ms delay between sends (Fix 2)
-    if (i < recipients.length - 1) {
-      await delay(1000);
-    }
+  if (activeDbFallbacks.has(campaignId)) {
+    console.log(`[QUEUE-FALLBACK] Db fallback already running for campaign: ${campaignId}. Skipping duplicate launch.`);
+    return;
   }
 
-  // Ensure status updates to completed if fallback finished everything
-  const finalCampaign = await EmailCampaign.findById(campaignId);
-  if (finalCampaign && finalCampaign.status === 'sending') {
-    const pendingCount = await EmailLog.countDocuments({ campaignId, status: 'pending' });
-    if (pendingCount === 0) {
-      finalCampaign.status = 'completed';
-      finalCampaign.completedAt = new Date();
-      await finalCampaign.save();
-      console.log(`[QUEUE-FALLBACK] Completed campaign: ${campaignId}`);
+  activeDbFallbacks.add(campaignId);
+  console.log(`[QUEUE-FALLBACK] Starting db fallback sequential processor for campaign: ${campaignId}`);
+
+  try {
+    const campaign = await EmailCampaign.findById(campaignId);
+    if (!campaign) return;
+
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+    for (let i = 0; i < recipients.length; i++) {
+      // Check if campaign was cancelled in the middle
+      const currentCampaignStatus = await EmailCampaign.findById(campaignId).select('status');
+      if (currentCampaignStatus?.status === 'cancelled') {
+        console.log(`[QUEUE-FALLBACK] Campaign ${campaignId} cancelled during run.`);
+        break;
+      }
+
+      const user = recipients[i];
+      try {
+        await sendCampaignEmail(
+          campaignId,
+          user.email,
+          user.fullName,
+          user._id.toString(),
+          campaign.subject,
+          campaign.content,
+          campaign.attachments
+        );
+      } catch (err) {
+        console.error(`[QUEUE-FALLBACK] Error processing email for ${user.email} in fallback:`, err);
+      }
+
+      // Add 1000ms delay between sends (Fix 2)
+      if (i < recipients.length - 1) {
+        await delay(1000);
+      }
     }
+
+    // Ensure status updates to completed if fallback finished everything
+    const finalCampaign = await EmailCampaign.findById(campaignId);
+    if (finalCampaign && finalCampaign.status === 'sending') {
+      const pendingCount = await EmailLog.countDocuments({ campaignId, status: 'pending' });
+      if (pendingCount === 0) {
+        finalCampaign.status = 'completed';
+        finalCampaign.completedAt = new Date();
+        await finalCampaign.save();
+        console.log(`[QUEUE-FALLBACK] Completed campaign: ${campaignId}`);
+      }
+    }
+  } finally {
+    activeDbFallbacks.delete(campaignId);
   }
 }
 

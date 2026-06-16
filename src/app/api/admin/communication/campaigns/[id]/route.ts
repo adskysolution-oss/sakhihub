@@ -18,21 +18,33 @@ export async function GET(req: NextRequest, props: { params: Promise<{ id: strin
     const { id } = await props.params;
     await dbConnect();
 
-    // Dynamically calculate actual counts from EmailLog to prevent out-of-sync stats
-    const [actualDelivered, actualFailed, actualOpened] = await Promise.all([
-      EmailLog.countDocuments({
+    // Dynamically calculate actual counts from EmailLog using unique recipients to prevent out-of-sync stats
+    const [deliveredEmails, failedEmails, openedEmails, clickedEmails] = await Promise.all([
+      EmailLog.find({
         campaignId: id,
         status: { $in: ['success', 'delivered', 'opened', 'clicked'] }
-      }),
-      EmailLog.countDocuments({
+      }).distinct('recipient'),
+      EmailLog.find({
         campaignId: id,
         status: 'failed'
-      }),
-      EmailLog.countDocuments({
+      }).distinct('recipient'),
+      EmailLog.find({
         campaignId: id,
         opened: true
-      })
+      }).distinct('recipient'),
+      EmailLog.find({
+        campaignId: id,
+        clicked: true
+      }).distinct('recipient')
     ]);
+
+    const deliveredSet = new Set(deliveredEmails);
+    const uniqueFailedEmails = failedEmails.filter(email => !deliveredSet.has(email));
+
+    const actualDelivered = deliveredEmails.length;
+    const actualFailed = uniqueFailedEmails.length;
+    const actualOpened = openedEmails.length;
+    const actualClicked = clickedEmails.length;
 
     // Update the database document so the campaign document counts are always correct
     const campaign = await EmailCampaign.findByIdAndUpdate(
@@ -40,7 +52,8 @@ export async function GET(req: NextRequest, props: { params: Promise<{ id: strin
       {
         deliveredCount: actualDelivered,
         failedCount: actualFailed,
-        openedCount: actualOpened
+        openedCount: actualOpened,
+        clickedCount: actualClicked
       },
       { new: true }
     )
@@ -126,8 +139,7 @@ export async function PATCH(req: NextRequest, props: { params: Promise<{ id: str
         return errorResponse('No failed recipients to retry.', 400);
       }
 
-      // Delete old failed logs for this campaign so they are not skipped in the recovery check
-      await EmailLog.deleteMany({ campaignId: id, status: 'failed' });
+      // Keep existing failed logs for this campaign (they will be updated to pending on actual dispatch/send)
 
       // Reset the failed count, update status to sending, and clear completedAt
       campaign.failedCount = 0;

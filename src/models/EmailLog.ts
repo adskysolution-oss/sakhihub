@@ -55,4 +55,16 @@ EmailLogSchema.index({ status: 1 });
 EmailLogSchema.index({ timestamp: -1 });
 EmailLogSchema.index({ sentAt: -1 });
 
+// Compound partial unique index to prevent duplicate successful sends for the same campaign/recipient
+EmailLogSchema.index(
+  { campaignId: 1, recipient: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      campaignId: { $exists: true },
+      status: { $in: ['success', 'delivered', 'opened', 'clicked'] }
+    }
+  }
+);
+
 export default mongoose.models.EmailLog || mongoose.model<IEmailLog>('EmailLog', EmailLogSchema);

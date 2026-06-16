@@ -1,0 +1,1372 @@
+[
+  {
+    "email": "saru84990@gmail.com",
+    "count": 4,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:21:01.148Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:21:31.740Z",
+        "error": null
+      },
+      {
+        "status": "failed",
+        "sentAt": "2026-06-16T16:25:53.190Z",
+        "error": "Timeout"
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:33:12.551Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "satyalammajanni@gmail.com",
+    "count": 4,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:21:06.094Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:21:42.296Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:28:49.292Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:33:16.822Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "satyavathiadireddi5@gmail.com",
+    "count": 4,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:21:15.996Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:21:48.467Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:30:01.893Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:33:32.343Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "shilpappa1201@gmail.com",
+    "count": 4,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:22:01.335Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:23:29.781Z",
+        "error": null
+      },
+      {
+        "status": "failed",
+        "sentAt": "2026-06-16T16:31:59.502Z",
+        "error": "Timeout"
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:33:49.961Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "sikhalavanya7@gmail.com",
+    "count": 4,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:22:07.665Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:23:34.098Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:32:24.496Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:33:56.831Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "siri.b.karthik@gmail.com",
+    "count": 4,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:22:21.142Z",
+        "error": null
+      },
+      {
+        "status": "failed",
+        "sentAt": "2026-06-16T16:23:40.828Z",
+        "error": "Timeout"
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:32:28.269Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:33:59.767Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "sivajyothimalluru13@gmail.com",
+    "count": 4,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:22:24.571Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:24:07.797Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:34:06.009Z",
+        "error": null
+      },
+      {
+        "status": "failed",
+        "sentAt": "2026-06-16T16:34:09.300Z",
+        "error": "Timeout"
+      }
+    ]
+  },
+  {
+    "email": "sravaninethi81@gmail.com",
+    "count": 4,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:22:31.325Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:24:20.102Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:34:11.016Z",
+        "error": null
+      },
+      {
+        "status": "pending",
+        "sentAt": "2026-06-16T16:35:14.415Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "botsasrinu777@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:52:15.076Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:52:18.743Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:57:07.686Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "boyaharikrushna1995@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T12:52:20.844Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T12:52:24.655Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T12:57:21.939Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "challgowr@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T12:52:26.500Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:52:31.112Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:57:26.924Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "chandrakalachinta52@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T12:52:34.223Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:52:38.343Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:57:36.888Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "chinnamadulakala@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T12:52:40.278Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:52:44.580Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:57:43.824Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "chinniampolu9@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T12:52:46.556Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:52:50.797Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:57:52.903Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "chintakayalarani24@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:52:52.119Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:52:56.286Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:58:23.296Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "dhanalakshmibhukya24@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T12:52:57.299Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:53:01.713Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:58:32.244Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "dummeparani123@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T12:53:02.748Z",
+        "error": null
+      },
+      {
+        "status": "pending",
+        "sentAt": "2026-06-16T12:53:06.596Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T12:58:40.775Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "prathapbathula86@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T16:18:09.871Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T16:20:02.794Z",
+        "error": null
+      },
+      {
+        "status": "failed",
+        "sentAt": "2026-06-16T16:25:53.576Z",
+        "error": "Timeout"
+      }
+    ]
+  },
+  {
+    "email": "preethibathula82@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:18:15.953Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:20:11.454Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:27:13.551Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "pullaguragirija12@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:18:29.578Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:21:22.842Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:27:57.828Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "rakisankar@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:18:35.553Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:21:31.721Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:28:06.258Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "ramramanji1@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T16:18:45.245Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T16:21:38.692Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T16:28:16.270Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "ramukorada490@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:18:55.259Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T16:22:58.017Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T16:28:24.096Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "rukminisembi1@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:19:00.886Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:23:01.334Z",
+        "error": null
+      },
+      {
+        "status": "failed",
+        "sentAt": "2026-06-16T16:31:15.404Z",
+        "error": "Timeout"
+      }
+    ]
+  },
+  {
+    "email": "salapuposiyya@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T16:19:13.570Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T16:23:05.431Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T16:32:09.418Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "samatharaveen@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T16:19:25.960Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:23:13.802Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:32:21.463Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "sandhyaamar2020@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:19:35.676Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:23:26.221Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:32:33.799Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "sandhyaraniarevati@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:20:36.831Z",
+        "error": null
+      },
+      {
+        "status": "failed",
+        "sentAt": "2026-06-16T16:24:01.755Z",
+        "error": "Timeout"
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:33:04.114Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "sandhyananitalari@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:20:55.577Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:23:29.802Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T16:32:37.489Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "seelamprincy03@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T16:21:54.140Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T16:31:15.785Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:33:42.114Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "subhashinigangavarapu@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T16:22:37.630Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T16:24:46.520Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:34:14.271Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "suddilankeli123@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:22:46.491Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:24:56.526Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:34:34.093Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "sujii2623@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:23:30.085Z",
+        "error": null
+      },
+      {
+        "status": "failed",
+        "sentAt": "2026-06-16T16:24:08.248Z",
+        "error": "Timeout"
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:26:57.329Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "suhasinimarupalle@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:23:40.097Z",
+        "error": null
+      },
+      {
+        "status": "failed",
+        "sentAt": "2026-06-16T16:25:57.743Z",
+        "error": "Timeout"
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:34:59.087Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "surivandu766@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:23:51.272Z",
+        "error": null
+      },
+      {
+        "status": "failed",
+        "sentAt": "2026-06-16T16:25:53.192Z",
+        "error": "Timeout"
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:27:30.719Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "susmithachakali041@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:24:01.746Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:27:36.274Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:28:49.290Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "sweetydarla24@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T16:24:25.879Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T16:27:46.255Z",
+        "error": null
+      },
+      {
+        "status": "failed",
+        "sentAt": "2026-06-16T16:30:01.897Z",
+        "error": "Timeout"
+      }
+    ]
+  },
+  {
+    "email": "tazbegegum333@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:27:54.478Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:28:28.293Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:31:45.751Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "thandavaa5656@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "failed",
+        "sentAt": "2026-06-16T16:28:27.896Z",
+        "error": "Unexpected socket close"
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:28:37.447Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:32:12.621Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "thummalakavitha25@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:28:46.760Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:31:19.470Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:32:26.898Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "tirumala8809@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:29:01.363Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:31:34.473Z",
+        "error": null
+      },
+      {
+        "status": "failed",
+        "sentAt": "2026-06-16T16:34:04.356Z",
+        "error": "Timeout"
+      }
+    ]
+  },
+  {
+    "email": "tparvathi89783@gmail.com",
+    "count": 3,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:29:11.735Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:32:33.757Z",
+        "error": null
+      },
+      {
+        "status": "pending",
+        "sentAt": "2026-06-16T16:35:14.413Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "ammulumodugu77@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T12:50:53.908Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:54:06.681Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "anupamaedadala1992@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T12:51:01.669Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T12:54:23.544Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "arunarobba5@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T12:51:07.506Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:54:30.541Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "aswiniraj99@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T12:51:15.771Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:54:34.800Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "atchutapaluri19@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:51:22.152Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:54:40.351Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "balabrahmi@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:51:33.929Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:54:54.980Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "balachandra283@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T12:51:39.526Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T12:55:05.341Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "bandlanagaprapulla@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T12:51:44.857Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:55:15.516Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "bhanusri33@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T12:51:50.815Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T12:55:21.958Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "billalakshmidevi51@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T12:51:58.725Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T12:55:30.686Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "botchajagan@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T12:52:06.073Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T12:55:33.981Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "gayab792@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T15:31:40.423Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T15:33:06.347Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "gudurusudarsana@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T15:31:58.453Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T15:33:21.214Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "kanakapudiraja85670@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "clicked",
+        "sentAt": "2026-06-16T15:32:12.806Z",
+        "error": null
+      },
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T15:36:00.084Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "madhavimiriyala1994@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:05:20.268Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:06:35.765Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "munnathukaram8764@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:16:17.166Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:19:48.470Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "pandukarthu@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:16:29.375Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:19:55.559Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "patanaliya955@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:16:53.954Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:23:39.962Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "peetalagowthami8@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:17:39.202Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:23:46.200Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "poojarisandhya144@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:17:51.254Z",
+        "error": null
+      },
+      {
+        "status": "failed",
+        "sentAt": "2026-06-16T16:24:20.525Z",
+        "error": "Timeout"
+      }
+    ]
+  },
+  {
+    "email": "prameeela32@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:18:01.325Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:25:18.104Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "premaavula561@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:18:23.598Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:27:21.336Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "tpushpavathi19@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "opened",
+        "sentAt": "2026-06-16T16:29:21.732Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:32:42.257Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "ushadandusena@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:29:31.098Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:32:55.909Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "vajraanilkumar@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:29:44.091Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:32:59.499Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "velpularajeswari573@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:29:54.473Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:33:06.826Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "vijayapallikala513@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:30:03.691Z",
+        "error": null
+      },
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:33:17.929Z",
+        "error": null
+      }
+    ]
+  },
+  {
+    "email": "vkavya021995@gmail.com",
+    "count": 2,
+    "logs": [
+      {
+        "status": "success",
+        "sentAt": "2026-06-16T16:30:14.741Z",
+        "error": null
+      },
+      {
+        "status": "failed",
+        "sentAt": "2026-06-16T16:34:04.120Z",
+        "error": "Timeout"
+      }
+    ]
+  }
+]
