@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
       }
 
       const ol = await EmployeeOfferLetter.findOne({
-        $or: [{ fileUrl: url }, { signedFileUrl: url }]
+        $or: [{ pdfUrl: url }, { uploadedDocumentUrl: url }]
       }).lean();
       if (ol) {
         if (!ownerId) ownerId = ol.employeeId.toString();
@@ -81,7 +81,9 @@ export async function GET(req: NextRequest) {
         targetUser = await User.findById(ownerId).lean();
       }
 
-      if (['operations_admin', 'staff'].includes(sessionUser.role)) {
+      if (ownerId && sessionUser.id === ownerId) {
+        isAuthorized = true;
+      } else if (['operations_admin', 'staff'].includes(sessionUser.role)) {
         const { hasPermission, checkRegionalScope } = await import('@/utils/authHelpers');
         
         let requiredPermission = 'documents.view';
@@ -104,10 +106,6 @@ export async function GET(req: NextRequest) {
           } else {
             isAuthorized = true;
           }
-        }
-      } else {
-        if (ownerId && sessionUser.id === ownerId) {
-          isAuthorized = true;
         }
       }
     }
