@@ -34,10 +34,11 @@ const Navbar = () => {
   }, []);
 
   const getDashboardLink = (role: string) => {
-    if (role === 'super_admin') return '/admin/dashboard';
+    if (role === 'super_admin' || role === 'operations_admin') return '/admin/dashboard';
     if (role === 'employee') return '/employee/dashboard';
     if (role === 'vendor') return '/vendor/dashboard';
     if (role === 'sub_vendor') return '/sub-vendor/dashboard';
+    if (role === 'staff') return '/portal/dashboard';
     return '/member/dashboard';
   };
 
