@@ -15,7 +15,8 @@ import {
   AlertCircle,
   ChevronDown,
   LayoutDashboard,
-  BookOpen
+  BookOpen,
+  FileText
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -195,8 +196,9 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
         items.push({ section: 'Operations', name: 'Support Queries', icon: findIcon('Support Queries'), href: '/portal/support-requests' });
       }
 
-      // Always include Profile
+      // Always include Profile and Documents
       items.push({ section: 'Account', name: 'Profile', icon: User, href: '/portal/profile' });
+      items.push({ section: 'Account', name: 'Documents', icon: FileText, href: '/portal/documents' });
       items.push({ section: 'Core', name: 'Training', icon: BookOpen, href: '/portal/training' });
 
       return items;

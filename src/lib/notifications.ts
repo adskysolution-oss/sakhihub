@@ -403,7 +403,7 @@ export const NotificationService = {
           // Generate Offer Letter PDF
           const letterData = {
             employeeName: user.fullName,
-            employeeId: user.employeeId || 'PENDING-ID',
+            employeeId: user.employeeId || user.staffId || 'PENDING-ID',
             role: user.designation || user.role,
             mobile: user.mobile,
             joiningDate: offerLetter.joiningDate,
@@ -419,7 +419,8 @@ export const NotificationService = {
             generatedDate: offerLetter.generatedDate,
             offerLetterId: offerLetter.offerLetterId,
             documentStatus: offerLetter.status,
-            depositAmount
+            depositAmount,
+            offerLetterType: user.role === 'staff' ? 'staff' : 'employee' as const
           };
 
           const htmlContent = generateOfferLetterHtml(letterData);

@@ -7,12 +7,12 @@ import {
   ShieldCheck, ShieldAlert, Phone, Mail, Calendar, 
   Filter, X, Briefcase, CheckCircle2, Clock, 
   AlertCircle, FileText, UserCheck, RefreshCw, ChevronRight, Save,
-  Upload, FileCheck, FileX
+  Upload, FileCheck, FileX, ExternalLink
 } from "lucide-react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import DocumentReviewCard from "@/components/features/dashboard/DocumentReviewCard";
-import { getDocComplianceSummary, getRequiredDocsForUser } from "@/utils/documents";
+import { getDocComplianceSummary, getRequiredDocsForUser, getDocumentViewUrl } from "@/utils/documents";
 import { toast } from 'sonner';
 import UnifiedFilterBar from "@/components/shared/filters/UnifiedFilterBar";
 import StatusFilterTabs from "@/components/shared/filters/StatusFilterTabs";
@@ -54,6 +54,18 @@ export default function StaffManagement() {
   const [limit, setLimit] = useState(50);
   const [selectedStaff, setSelectedStaff] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // Appointment Letter State
+  const [joiningDate, setJoiningDate] = useState('');
+  const [salary, setSalary] = useState('');
+  const [travelAllowance, setTravelAllowance] = useState('');
+  const [performanceIncentives, setPerformanceIncentives] = useState('');
+  const [membershipIncentives, setMembershipIncentives] = useState('');
+  const [coordinatorType, setCoordinatorType] = useState('');
+  const [assignedRegions, setAssignedRegions] = useState('');
+  const [isGeneratingAppt, setIsGeneratingAppt] = useState(false);
+  const [signedDocRemarks, setSignedDocRemarks] = useState('');
+  const [signedDocActionLoading, setSignedDocActionLoading] = useState<string | null>(null);
 
   // Permission Assign States
   const [allPermissions, setAllPermissions] = useState<any[]>([]);
@@ -208,6 +220,25 @@ export default function StaffManagement() {
       setAssignedDistricts(selectedStaff.assignedDistricts || []);
       setAssignedBlocks(selectedStaff.assignedBlocks || []);
       setActiveTab('overview');
+
+      if (selectedStaff.offerLetterDetails) {
+        const ol = selectedStaff.offerLetterDetails;
+        setJoiningDate(ol.joiningDate ? new Date(ol.joiningDate).toISOString().split('T')[0] : '');
+        setSalary(ol.salary || '');
+        setTravelAllowance(ol.travelAllowance || '');
+        setPerformanceIncentives(ol.performanceIncentives || '');
+        setMembershipIncentives(ol.membershipIncentives || '');
+        setCoordinatorType(ol.coordinatorType || '');
+        setAssignedRegions(ol.assignedRegions || '');
+      } else {
+        setJoiningDate('');
+        setSalary('');
+        setTravelAllowance('');
+        setPerformanceIncentives('');
+        setMembershipIncentives('');
+        setCoordinatorType('');
+        setAssignedRegions('');
+      }
     }
   }, [selectedStaff?._id]);
 
@@ -270,6 +301,74 @@ export default function StaffManagement() {
     acc[val.module].push(val);
     return acc;
   }, {});
+
+  const canViewDoc = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('documents.view'));
+  const canVerifyDoc = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('documents.verify'));
+  const hasOfferLetterView = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('offer_letters.view'));
+  const hasOfferLetterGenerate = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('offer_letters.generate'));
+
+  const generateOfferLetter = async () => {
+    if (!joiningDate || !salary) {
+      toast.error("Please enter both Joining Date and Salary.");
+      return;
+    }
+    setIsGeneratingAppt(true);
+    try {
+      const res = await axios.post(`/api/admin/users/${selectedStaff._id}/offer-letter`, {
+        joiningDate,
+        salary,
+        travelAllowance,
+        performanceIncentives,
+        membershipIncentives,
+        coordinatorType,
+        assignedRegions
+      });
+      if (res.data.success) {
+        toast.success("Offer letter generated successfully!");
+        const freshRes = await axios.get(`/api/admin/employees?role=staff&search=${selectedStaff.mobile}`);
+        if (freshRes.data.success && freshRes.data.data.length > 0) {
+          setSelectedStaff(freshRes.data.data[0]);
+        }
+        fetchStaff();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to generate offer letter");
+    } finally {
+      setIsGeneratingAppt(false);
+    }
+  };
+
+  const updateDocumentLock = async (
+    empId: string,
+    docId: string,
+    isLocked: boolean,
+    isApproved: boolean,
+    adminRemarks?: string,
+    newStatus?: string
+  ) => {
+    try {
+      const res = await axios.post(`/api/admin/users/${empId}/documents/${docId}/lock`, {
+        isLocked,
+        isApproved,
+        adminRemarks,
+        newStatus
+      });
+      if (res.data.success && selectedStaff) {
+        toast.success("Document status updated successfully");
+        const freshRes = await axios.get(`/api/admin/employees?role=staff&search=${selectedStaff.mobile}`);
+        if (freshRes.data.success && freshRes.data.data.length > 0) {
+          setSelectedStaff(freshRes.data.data[0]);
+        }
+        fetchStaff();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to update document status');
+    }
+  };
 
   const requiredDocs = selectedStaff ? getRequiredDocsForUser('staff', selectedStaff.documents, undefined, selectedStaff.designation, selectedStaff.currentAddressSameAsAadhaar) : [];
   const compliance = selectedStaff ? getDocComplianceSummary(selectedStaff.documents, 'staff', undefined, selectedStaff.designation, selectedStaff.currentAddressSameAsAadhaar) : null;
@@ -443,7 +542,7 @@ export default function StaffManagement() {
 
               {/* Drawer Tab Headers */}
               <div className="flex border-b border-gray-100 px-8 bg-white shrink-0">
-                {['overview', 'compliance', 'permissions', 'territory'].map((tab) => (
+                {['overview', 'compliance', 'permissions', 'territory', 'agreement'].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -651,6 +750,344 @@ export default function StaffManagement() {
                             </div>
                           ))
                         )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'agreement' && (
+                  <div className="max-w-2xl mx-auto space-y-8 py-8">
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl mx-auto flex items-center justify-center mb-4">
+                        <FileText size={32} />
+                      </div>
+                      <h3 className="text-2xl font-black text-secondary tracking-tight">Staff Offer Letter</h3>
+                      <p className="text-sm text-gray-500 font-bold mt-2">
+                        Generate the official offer letter for this staff member.
+                      </p>
+                    </div>
+
+                    {selectedStaff.offerLetterDetails && (
+                      <>
+                      <div className="bg-green-50 border border-green-200 rounded-[32px] p-8 text-center relative overflow-hidden mb-8">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-green-200/50 rounded-full blur-2xl -mr-16 -mt-16" />
+                        <div className="relative z-10">
+                          <CheckCircle2 size={48} className="text-green-500 mx-auto mb-4" />
+                          <h4 className="text-xl font-black text-green-800">Staff Offer Letter Generated Successfully</h4>
+                          <p className="text-sm text-green-700 font-bold mt-2 mb-6">
+                            Offer Letter ID: <span className="font-mono bg-white px-2 py-1 rounded">{selectedStaff.offerLetterDetails.offerLetterId}</span>
+                          </p>
+                          <a 
+                            href={`/employee-offer-letter/${selectedStaff._id}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-colors shadow-lg shadow-green-200"
+                          >
+                            <ExternalLink size={16} /> Preview & Print Letter
+                          </a>
+                        </div>
+                      </div>
+
+                      {/* Signed Document Review Panel */}
+                      {(() => {
+                        const ol = selectedStaff.offerLetterDetails;
+                        const docStatus = ol.status || 'generated';
+                        const isDocLocked = ol.isLocked;
+
+                        const statusConfig = {
+                          generated: { label: 'Generated — Awaiting Signed Copy', cls: 'bg-blue-100 text-blue-700' },
+                          uploaded:  { label: 'Signed Copy Uploaded — Pending Review', cls: 'bg-amber-100 text-amber-700' },
+                          under_review: { label: 'Under Review', cls: 'bg-amber-100 text-amber-700' },
+                          approved:  { label: 'Approved & Locked', cls: 'bg-green-100 text-green-700' },
+                          rejected:  { label: 'Rejected', cls: 'bg-red-100 text-red-700' },
+                          reupload_required: { label: 'Re-upload Requested', cls: 'bg-orange-100 text-orange-700' },
+                        };
+                        const meta = (statusConfig as any)[docStatus] || statusConfig.generated;
+
+                        return (
+                          <div className="bg-white border border-gray-100 shadow-soft rounded-[32px] p-8 space-y-6">
+                            {/* Header */}
+                            <div className="flex items-start justify-between gap-4">
+                              <div>
+                                <h4 className="text-lg font-black text-secondary">
+                                  Offer Letter — Signed Copy Review
+                                </h4>
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
+                                  ID: {ol.offerLetterId}
+                                </p>
+                              </div>
+                              <span className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shrink-0 ${meta.cls}`}>
+                                {meta.label}
+                              </span>
+                            </div>
+
+                            {/* Signed copy actions / preview */}
+                            {ol.uploadedDocumentUrl ? (
+                              <div className="space-y-4">
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                  {canViewDoc ? (
+                                    <a
+                                      href={getDocumentViewUrl(ol.uploadedDocumentUrl)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-secondary border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-100 transition-colors"
+                                    >
+                                      <ExternalLink size={14} /> View Signed Document
+                                    </a>
+                                  ) : (
+                                    <div className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-gray-400 border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest cursor-not-allowed">
+                                      <AlertCircle size={14} /> Viewing Restricted
+                                    </div>
+                                  )}
+                                  {!isDocLocked && (
+                                    canViewDoc ? (
+                                      <a
+                                        href={`/employee-offer-letter/${selectedStaff._id}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-secondary border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-100 transition-colors"
+                                      >
+                                        <ExternalLink size={14} /> View Generated Copy
+                                      </a>
+                                    ) : (
+                                      <div className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-gray-400 border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest cursor-not-allowed">
+                                        <AlertCircle size={14} /> Viewing Restricted
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+
+                                {canVerifyDoc ? (
+                                  <>
+                                    {/* Admin Remarks Input */}
+                                    {!isDocLocked && (
+                                      <div>
+                                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1.5">
+                                          Admin Remarks (required for rejection / reupload request)
+                                        </label>
+                                        <textarea
+                                          value={signedDocRemarks}
+                                          onChange={e => setSignedDocRemarks(e.target.value)}
+                                          placeholder="Enter remarks for the staff..."
+                                          rows={2}
+                                          className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-xs font-bold placeholder:text-gray-300 focus:outline-none focus:border-primary resize-none"
+                                        />
+                                      </div>
+                                    )}
+
+                                    {/* Display previously saved remarks */}
+                                    {ol.adminRemarks && (docStatus === 'rejected' || docStatus === 'reupload_required') && (
+                                      <div className="p-4 bg-orange-50 border border-orange-100 rounded-2xl flex items-start gap-3">
+                                        <AlertCircle size={16} className="text-orange-500 shrink-0 mt-0.5" />
+                                        <div>
+                                          <p className="text-[9px] font-black text-orange-700 uppercase tracking-widest mb-1">Previous Remarks</p>
+                                          <p className="text-xs font-bold text-orange-800">{ol.adminRemarks}</p>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Action Buttons */}
+                                    <div className="flex flex-col sm:flex-row gap-2">
+                                      {isDocLocked ? (
+                                        <button
+                                          onClick={async () => {
+                                            setSignedDocActionLoading('unlock');
+                                            await updateDocumentLock(selectedStaff._id, ol._id, false, false, undefined, 'uploaded');
+                                            setSignedDocActionLoading(null);
+                                          }}
+                                          disabled={!!signedDocActionLoading}
+                                          className="flex-1 px-4 py-3 bg-amber-50 text-amber-700 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-amber-100 transition-colors flex items-center justify-center gap-2"
+                                        >
+                                          <AlertCircle size={14} /> {signedDocActionLoading === 'unlock' ? 'Unlocking...' : 'Unlock Document'}
+                                        </button>
+                                      ) : (
+                                        <>
+                                          <button
+                                            onClick={async () => {
+                                              setSignedDocActionLoading('approve');
+                                              await updateDocumentLock(selectedStaff._id, ol._id, true, true, signedDocRemarks || undefined, 'approved');
+                                              setSignedDocRemarks('');
+                                              setSignedDocActionLoading(null);
+                                            }}
+                                            disabled={!!signedDocActionLoading}
+                                            className={`flex-1 px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
+                                              docStatus === 'approved' ? 'bg-green-500 text-white shadow-lg shadow-green-200' : 'bg-green-50 text-green-700 hover:bg-green-100'
+                                            }`}
+                                          >
+                                            <ShieldCheck size={14} /> {signedDocActionLoading === 'approve' ? 'Approving...' : 'Approve & Lock'}
+                                          </button>
+                                          <button
+                                            onClick={async () => {
+                                              if (!signedDocRemarks.trim()) {
+                                                toast.error('Please enter remarks before requesting a reupload.');
+                                                return;
+                                              }
+                                              setSignedDocActionLoading('reupload');
+                                              await updateDocumentLock(selectedStaff._id, ol._id, false, false, signedDocRemarks, 'reupload_required');
+                                              setSignedDocRemarks('');
+                                              setSignedDocActionLoading(null);
+                                            }}
+                                            disabled={!!signedDocActionLoading}
+                                            className={`flex-1 px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
+                                              docStatus === 'reupload_required' ? 'bg-amber-500 text-white shadow-lg shadow-amber-200' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                                            }`}
+                                          >
+                                            <RefreshCw size={14} /> {signedDocActionLoading === 'reupload' ? 'Requesting...' : 'Request Reupload'}
+                                          </button>
+                                          <button
+                                            onClick={async () => {
+                                              if (!signedDocRemarks.trim()) {
+                                                toast.error('Please enter a reason for rejection.');
+                                                return;
+                                              }
+                                              setSignedDocActionLoading('reject');
+                                              await updateDocumentLock(selectedStaff._id, ol._id, false, false, signedDocRemarks, 'rejected');
+                                              setSignedDocRemarks('');
+                                              setSignedDocActionLoading(null);
+                                            }}
+                                            disabled={!!signedDocActionLoading}
+                                            className={`flex-1 px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
+                                              docStatus === 'rejected' ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-red-50 text-red-700 hover:bg-red-100'
+                                            }`}
+                                          >
+                                            <X size={14} /> {signedDocActionLoading === 'reject' ? 'Rejecting...' : 'Reject'}
+                                          </button>
+                                        </>
+                                      )}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-2xl flex items-center gap-3 text-gray-500 mt-4">
+                                    <AlertCircle size={16} />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Verification Restricted</span>
+                                  </div>
+                                )}
+
+                                {isDocLocked && (
+                                  <p className="text-[10px] text-green-600 font-bold uppercase tracking-widest flex items-center justify-center gap-1">
+                                    <CheckCircle2 size={12} /> Document is verified and locked
+                                  </p>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center justify-center bg-gray-50 rounded-2xl border border-dashed border-gray-200 p-8 text-center">
+                                <FileText size={32} className="text-gray-200 mb-3" />
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                  Signed copy not yet uploaded
+                                </p>
+                                <p className="text-[10px] text-gray-400 font-bold mt-2">
+                                  The staff member must download, sign, and upload the document from their dashboard.
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </>
+                  )}
+                    
+                    <div className="bg-gray-50 p-8 rounded-[32px] border border-gray-100">
+                      <div className="space-y-6">
+                        {!hasOfferLetterGenerate && (
+                          <div className="p-4 bg-orange-50 border border-orange-200 text-orange-800 rounded-2xl flex items-center gap-3 text-sm font-bold">
+                            <AlertCircle size={18} /> You do not have permission to generate or update offer letters.
+                          </div>
+                        )}
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Joining Date</label>
+                          <input 
+                            type="date" 
+                            value={joiningDate}
+                            onChange={(e) => setJoiningDate(e.target.value)}
+                            disabled={!hasOfferLetterGenerate}
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-60 disabled:bg-gray-100"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Fixed Remuneration (Salary)</label>
+                          <div className="relative">
+                            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
+                            <input 
+                              type="number" 
+                              value={salary}
+                              onChange={(e) => setSalary(e.target.value)}
+                              placeholder="e.g. 15000"
+                              disabled={!hasOfferLetterGenerate}
+                              className="w-full pl-10 pr-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-60 disabled:bg-gray-100"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Coordinator Assignment</label>
+                          <select 
+                            value={coordinatorType} 
+                            onChange={(e) => setCoordinatorType(e.target.value)} 
+                            disabled={!hasOfferLetterGenerate}
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary cursor-pointer disabled:opacity-60 disabled:bg-gray-100"
+                          >
+                            <option value="">Select Coordinator Type...</option>
+                            <option value="Block Coordinator">Block Coordinator</option>
+                            <option value="District Coordinator">District Coordinator</option>
+                            <option value="State Coordinator">State Coordinator</option>
+                            <option value="National Coordinator">National Coordinator</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assigned Block(s) / District(s)</label>
+                          <input 
+                            type="text" 
+                            value={assignedRegions} 
+                            onChange={(e) => setAssignedRegions(e.target.value)} 
+                            placeholder="e.g. State-wide, District X (comma-separated)" 
+                            disabled={!hasOfferLetterGenerate}
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-60 disabled:bg-gray-100" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Petrol / Travel Allowance</label>
+                          <input 
+                            type="text" 
+                            value={travelAllowance}
+                            onChange={(e) => setTravelAllowance(e.target.value)}
+                            placeholder="e.g. ₹2000/month or N/A"
+                            disabled={!hasOfferLetterGenerate}
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-60 disabled:bg-gray-100"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Performance Incentives</label>
+                          <input 
+                            type="text" 
+                            value={performanceIncentives}
+                            onChange={(e) => setPerformanceIncentives(e.target.value)}
+                            placeholder="e.g. Up to ₹5000 based on targets"
+                            disabled={!hasOfferLetterGenerate}
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-60 disabled:bg-gray-100"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Membership Incentives</label>
+                          <input 
+                            type="text" 
+                            value={membershipIncentives}
+                            onChange={(e) => setMembershipIncentives(e.target.value)}
+                            placeholder="e.g. ₹50 per successful membership"
+                            disabled={!hasOfferLetterGenerate}
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-60 disabled:bg-gray-100"
+                          />
+                        </div>
+                        <div className="flex gap-4">
+                          <button
+                            onClick={generateOfferLetter}
+                            disabled={isGeneratingAppt || !hasOfferLetterGenerate}
+                            className="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary/90 transition-colors disabled:opacity-50"
+                          >
+                            {isGeneratingAppt ? 'Saving...' : (selectedStaff.offerLetterDetails ? 'Update Offer Letter' : 'Generate Offer Letter')}
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-gray-400 font-bold text-center uppercase tracking-widest">
+                          * Other details will be auto-filled from the staff profile.
+                        </p>
                       </div>
                     </div>
                   </div>

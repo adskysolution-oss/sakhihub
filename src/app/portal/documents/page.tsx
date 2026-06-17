@@ -1,0 +1,403 @@
+'use client';
+
+import React, { useState, useEffect } from "react";
+import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
+import Link from "next/link";
+import { 
+  FileText, ShieldCheck, Download, AlertCircle, CheckCircle, ChevronRight, Upload, BadgeCheck, Heart
+} from "lucide-react";
+import axios from "axios";
+import { motion } from "framer-motion";
+import { getDocComplianceSummary, getRequiredDocsForUser, getDocumentViewUrl } from '@/utils/documents';
+import DocumentCard from '@/components/features/dashboard/DocumentCard';
+import { useDocumentFlow } from '@/hooks/useDocumentFlow';
+
+export default function StaffDocuments() {
+  const [documents, setDocuments] = useState<any>({});
+  const [digitalCertificates, setDigitalCertificates] = useState<any[]>([]);
+  const [designation, setDesignation] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [uploadingDocId, setUploadingDocId] = useState<string | null>(null);
+
+  const { uploading, uploadDocument, handleExceptionRequest, handleExceptionReply } = useDocumentFlow({
+    onSuccess: async () => { await fetchDocuments(); }
+  });
+
+  const handleSignedDocumentUpload = async (file: File, documentId: string) => {
+    setUploadingDocId(documentId);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'signed_document');
+      formData.append('documentId', documentId);
+      
+      const res = await axios.post('/api/vendor/documents', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      if (res.data.success) {
+        await fetchDocuments();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUploadingDocId(null);
+    }
+  };
+
+  const fetchDocuments = async () => {
+    try {
+      const res = await axios.get('/api/vendor/documents');
+      if (res.data.success) {
+        setDocuments(res.data.data.documents || {});
+        setDigitalCertificates(res.data.data.digitalCertificates || []);
+        setDesignation(res.data.data.designation || '');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
+
+  const compliance = getDocComplianceSummary(documents, 'staff', undefined, designation);
+  const docTypes = getRequiredDocsForUser('staff', documents, undefined, designation);
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="flex flex-col gap-8">
+        <header>
+          <h1 className="text-3xl font-black text-secondary">Document Center</h1>
+          <p className="text-gray-400 font-bold mt-1 uppercase tracking-widest text-xs">Verify your identity and legal compliance</p>
+        </header>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            {docTypes.map((type) => (
+              <motion.div 
+                key={type}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <DocumentCard 
+                  type={type}
+                  docInfo={documents?.[type]}
+                  uploading={uploading === type}
+                  onUpload={(file) => uploadDocument(file, type)}
+                  onExceptionRequest={handleExceptionRequest}
+                  onExceptionReply={handleExceptionReply}
+                />
+              </motion.div>
+            ))}
+
+            {/* ──────────────── Offer Letter / Signed Upload Section ──────────────── */}
+            {(() => {
+              const offerLetter = digitalCertificates.find(c => c.type === 'employee_offer_letter');
+
+              if (!offerLetter) {
+                return (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-6 rounded-[32px] border-2 border-gray-100 bg-white relative overflow-hidden"
+                  >
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 bg-gray-50 text-gray-400 shadow-sm">
+                      <FileText size={24} />
+                    </div>
+                    <h3 className="text-lg font-black text-secondary mb-1">Staff Offer Letter</h3>
+                    <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                      Awaiting Generation
+                    </p>
+                    <p className="text-xs text-gray-400 font-bold leading-relaxed mb-4">
+                      Your official staff offer letter will be generated by the Admin after initial KYC review. Once ready, you can download and upload the signed copy here.
+                    </p>
+                    <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-start gap-3">
+                      <AlertCircle size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-[10px] text-amber-700 font-black uppercase tracking-widest mb-1">
+                          Generation Pending
+                        </p>
+                        <p className="text-[10px] text-amber-600 font-bold leading-relaxed">
+                          Your offer letter is currently awaiting generation by the administrator. Once generated, you will be able to review, download, and upload the signed copy here.
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              }
+
+              const isLocked = offerLetter.isLocked;
+              const hasUploaded = !!offerLetter.uploadedDocumentUrl;
+              const status = offerLetter.status || 'generated';
+
+              return (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`p-6 rounded-[32px] border-2 transition-all relative overflow-hidden group ${
+                    isLocked || status === 'approved' ? 'border-green-100 bg-green-50/30' :
+                    status === 'rejected' || status === 'reupload_required' ? 'border-red-100 bg-red-50/30' :
+                    hasUploaded ? 'border-primary/20 bg-primary/5' : 'border-gray-100 bg-white hover:border-primary/20'
+                  }`}
+                >
+                  {(isLocked || status === 'approved') && (
+                    <div className="absolute top-4 right-4 text-green-500">
+                      <ShieldCheck size={24} />
+                    </div>
+                  )}
+
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 shadow-sm ${
+                    isLocked || status === 'approved' ? 'bg-green-500 text-white' :
+                    status === 'rejected' || status === 'reupload_required' ? 'bg-red-500 text-white' :
+                    hasUploaded ? 'bg-primary text-white' : 'bg-gray-50 text-gray-400'
+                  }`}>
+                    <FileText size={24} />
+                  </div>
+
+                  <h3 className="text-lg font-black text-secondary mb-1">Staff Offer Letter</h3>
+                  <p className="text-[10px] text-primary font-black uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                    Letter ID: {offerLetter.agreementId || 'N/A'}
+                  </p>
+                  <p className="text-xs text-gray-400 font-bold leading-relaxed mb-4">
+                    Your official employment offer letter. Please download the document, sign it physically or digitally, and upload the signed copy for record.
+                  </p>
+
+                  <div className="flex flex-col gap-4">
+                    {/* Download original */}
+                    <div className="p-4 bg-white/70 rounded-2xl border border-gray-100 flex items-center justify-between gap-3 shadow-sm">
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-600">
+                          Ready for download
+                        </span>
+                        <p className="text-sm font-black text-secondary mt-2 truncate">Staff Offer Letter (Generated Copy)</p>
+                        {offerLetter.createdAt && (
+                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
+                            Generated {new Date(offerLetter.createdAt).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                      <a
+                        href={offerLetter.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-3 bg-primary text-white rounded-2xl shadow-md hover:bg-primary/95 transition-all shrink-0 flex items-center gap-2 text-xs font-black uppercase tracking-widest"
+                        title="Download Offer Letter"
+                      >
+                        <Download size={14} /> Download
+                      </a>
+                    </div>
+
+                    {/* Uploaded signed copy preview */}
+                    {hasUploaded && (
+                      <div className="flex flex-col gap-3 bg-white/70 p-3 rounded-2xl border border-gray-100">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600">
+                                Signed Copy Uploaded
+                              </span>
+                              <span className={`text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${
+                                isLocked || status === 'approved' ? 'bg-green-100 text-green-600' :
+                                status === 'rejected' || status === 'reupload_required' ? 'bg-red-100 text-red-600' :
+                                'bg-amber-100 text-amber-600'
+                              }`}>
+                                {isLocked || status === 'approved' ? 'Approved & Locked' :
+                                 status === 'rejected' ? 'Rejected' :
+                                 status === 'reupload_required' ? 'Re-upload Required' : 'Under Review'}
+                              </span>
+                            </div>
+                            <p className="text-sm font-black text-secondary truncate">Signed_Offer_Letter.pdf</p>
+                          </div>
+                          <a
+                            href={getDocumentViewUrl(offerLetter.uploadedDocumentUrl)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-3 bg-white rounded-2xl text-primary border border-gray-100 shadow-sm hover:bg-primary hover:text-white transition-all shrink-0"
+                            title="Open signed document"
+                          >
+                            <ChevronRight size={14} />
+                          </a>
+                        </div>
+                        <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-100">
+                          <a href={getDocumentViewUrl(offerLetter.uploadedDocumentUrl)} target="_blank" rel="noopener noreferrer" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline flex items-center gap-2">
+                            Preview / Open Signed PDF <ChevronRight size={14} />
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Upload button — hidden when locked/approved */}
+                    {!isLocked && status !== 'approved' && (
+                      <label className={`w-full py-3 rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest cursor-pointer transition-all ${
+                        uploadingDocId === offerLetter._id ? 'bg-gray-100 text-gray-400 cursor-wait' :
+                        hasUploaded ? 'bg-white border-2 border-gray-100 text-gray-400 hover:border-primary/20 hover:text-primary' : 
+                        'bg-primary text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95'
+                      }`}>
+                        {uploadingDocId === offerLetter._id ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                            <span>Uploading...</span>
+                          </div>
+                        ) : (
+                          <><Upload size={16} /> {hasUploaded ? 'Replace Signed Document' : 'Upload Signed Copy'}</>
+                        )}
+                        <input 
+                          type="file" 
+                          className="hidden" 
+                          accept=".pdf,.jpg,.jpeg,.png,.webp" 
+                          disabled={uploadingDocId === offerLetter._id}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleSignedDocumentUpload(file, offerLetter._id);
+                            e.target.value = '';
+                          }} 
+                          onClick={(e: any) => { e.stopPropagation(); }}
+                        />
+                      </label>
+                    )}
+                  </div>
+
+                  {/* Admin remarks on rejection */}
+                  {offerLetter.adminRemarks && ['rejected', 'reupload_required'].includes(status) && (
+                    <div className="w-full p-4 bg-white/50 rounded-2xl border border-red-100 flex items-start gap-3 mt-4">
+                      <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-[10px] text-red-500 font-black uppercase tracking-widest mb-1">
+                          {status === 'reupload_required' ? 'Re-upload Instructions' : 'Reason for Rejection'}
+                        </p>
+                        <p className="text-[10px] text-red-500 font-bold leading-relaxed">{offerLetter.adminRemarks}</p>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })()}
+          </div>
+
+          <div className="space-y-8">
+            <div className="bg-secondary p-8 rounded-[40px] text-white shadow-2xl relative overflow-hidden">
+              <div className="absolute top-[-30px] right-[-30px] w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+                    <ShieldCheck size={28} />
+                  </div>
+                  <h2 className="text-xl font-black">Verification Level</h2>
+                </div>
+                <div className="flex flex-col gap-4">
+                  <div className="flex justify-between items-end mb-2">
+                    <span className="text-sm font-bold opacity-60 uppercase tracking-widest">Compliance Progress</span>
+                    <span className="text-2xl font-black">{Math.round((compliance.uploaded / compliance.total) * 100) || 0}%</span>
+                  </div>
+                  <div className="h-3 bg-white/10 rounded-full overflow-hidden">
+                    <div 
+                       className="h-full bg-gradient-to-r from-primary to-secondary-light transition-all duration-1000"
+                       style={{ width: `${(compliance.uploaded / compliance.total) * 100 || 0}%` }}
+                    ></div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 mt-4">
+                    <div className="p-3 bg-white/10 rounded-2xl text-center">
+                      <p className="text-2xl font-black">{compliance.uploaded}</p>
+                      <p className="text-[9px] font-bold uppercase tracking-widest opacity-60 mt-1">Uploaded</p>
+                    </div>
+                    <div className="p-3 bg-white/10 rounded-2xl text-center">
+                      <p className="text-2xl font-black">{compliance.approved}</p>
+                      <p className="text-[9px] font-bold uppercase tracking-widest opacity-60 mt-1">Approved</p>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-white/60 mt-8 font-medium leading-relaxed">
+                  Your account will be fully activated for operations once all mandatory documents are verified by the Admin.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
+              <h5 className="text-sm font-black text-secondary uppercase tracking-widest mb-4 flex items-center gap-2">
+                <AlertCircle size={16} className="text-primary" /> Security Note
+              </h5>
+              <p className="text-xs text-gray-400 font-bold leading-relaxed">
+                Your data is stored securely using enterprise-grade encryption. We only use these documents for government compliance and NGO verification purposes.
+              </p>
+            </div>
+
+            <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
+              <h2 className="text-xl font-black text-secondary mb-6">Digital Certificates</h2>
+              <div className="flex flex-col gap-3">
+                {[
+                  { id: 'employee_offer_letter', title: 'Staff Offer Letter', icon: FileText }
+                ].map((expectedCert, idx) => {
+                  const certData = digitalCertificates.find(c => c.type === expectedCert.id);
+                  if (certData && certData.visibleToEmployee !== false) {
+                    return (
+                      <a 
+                        key={idx}
+                        href={certData.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-5 bg-green-50 hover:bg-green-600 hover:text-white rounded-3xl transition-all group text-left border border-green-100"
+                      >
+                        <div className="flex items-center gap-4">
+                          <expectedCert.icon size={20} className="text-green-600 group-hover:text-white" />
+                          <span className="font-bold text-sm">{certData.title || expectedCert.title}</span>
+                        </div>
+                        <Download size={18} className="opacity-40 group-hover:opacity-100" />
+                      </a>
+                    );
+                  } else {
+                    return (
+                      <div key={idx} className="flex items-center justify-between p-5 bg-red-50 rounded-3xl border border-red-100 text-left opacity-75 cursor-not-allowed">
+                        <div className="flex items-center gap-4">
+                          <expectedCert.icon size={20} className="text-red-400" />
+                          <div>
+                            <span className="font-bold text-sm text-red-800 line-through decoration-red-300">{expectedCert.title}</span>
+                            <p className="text-[10px] text-red-600 font-bold uppercase tracking-widest mt-1 flex items-center gap-1">
+                              <AlertCircle size={12} /> Not Generated Yet
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                })}
+              </div>
+            </div>
+
+            {digitalCertificates.some(c => c.type === 'employee_offer_letter' && c.status === 'approved') && (
+              <div className="bg-green-50 p-6 rounded-[32px] border border-green-100 flex flex-col sm:flex-row justify-between items-center text-left shadow-sm gap-4 mt-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-green-500 text-white flex items-center justify-center shrink-0">
+                    <CheckCircle size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-green-800">Offer Letter Approved</h3>
+                    <p className="text-xs text-green-600 font-bold mt-1">
+                      ID: {digitalCertificates.find(c => c.type === 'employee_offer_letter')?.agreementId || 'N/A'} • {new Date(digitalCertificates.find(c => c.type === 'employee_offer_letter')?.createdAt || Date.now()).toLocaleDateString()}
+                    </p>
+                    <p className="text-[10px] text-green-700 font-bold uppercase tracking-widest mt-2 flex items-center gap-1">
+                      <ShieldCheck size={12} /> Verified & Locked by Admin
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+}

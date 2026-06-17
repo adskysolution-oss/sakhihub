@@ -22,12 +22,53 @@ export interface EmployeeOfferLetterData {
   generatedDate: string | Date;
   documentStatus?: string;
   depositAmount?: string;
+  offerLetterType?: 'employee' | 'staff';
 }
+
+const getDynamicNatureOfWork = (role: string) => {
+  const roleUpper = (role || '').toUpperCase();
+  if (roleUpper.includes('RECRUITER') && roleUpper.includes('TRAINER')) {
+    return [
+      "Sourcing, screening, and recruiting candidate coordinators and staff members.",
+      "Conducting online training and webinars for district and block level team members.",
+      "Facilitating orientation, onboarding, and project induction sessions.",
+      "Preparing recruitment pipelines and delivering candidate evaluation reports.",
+      "Monitoring training quality, employee compliance, and ground-level performance.",
+      "Delivering Women Health, Hygiene, Awareness, and Empowerment training modules.",
+      "Submitting daily, weekly, and monthly recruitment and training progress reports.",
+      "Any other work assigned by the Company related to HR, recruitment, training, operations, or project development."
+    ];
+  } else if (roleUpper.includes('RECRUITER')) {
+    return [
+      "Sourcing, screening, interviewing, and recruiting candidates for field and coordinator roles.",
+      "Managing the end-to-end recruitment process and coordinator pipelines.",
+      "Conducting onboarding, document verification, and orientation of new employees.",
+      "Coordinating with state and district heads to fulfill hiring requirements.",
+      "Maintaining recruitment databases, tracking compliance, and managing candidate communication.",
+      "Submitting daily, weekly, and monthly recruitment activity reports.",
+      "Any other work assigned by the Company related to HR, talent acquisition, admin, or project coordination."
+    ];
+  } else { // Trainer, Senior Trainer, Training Coordinator
+    return [
+      "Conducting Online Training Sessions through Google Meet, Zoom, Webinar Platforms.",
+      "Training District Coordinators, Block Coordinators and Project Teams.",
+      "Delivering Women Health, Hygiene, Awareness and Empowerment Training.",
+      "Training employees on existing and future SakhiHub campaigns.",
+      "Orientation and induction of newly joined employees.",
+      "Preparing and delivering presentations, SOPs, manuals and training materials.",
+      "Monitoring training quality and employee performance.",
+      "Supporting field operations through virtual guidance.",
+      "Conducting awareness webinars and motivational sessions.",
+      "Submitting daily, weekly and monthly training reports.",
+      "Any other work assigned by the Company related to training, awareness, operations, monitoring or project development."
+    ];
+  }
+};
 
 const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = ({ data }) => {
   const companyName = "SakhiHub";
   const programName = data.programName || "Women Health & Awareness Campaign";
-  const isTrainer = data.role === 'Trainer';
+  const isStaff = data.offerLetterType === 'staff';
 
   const formatDate = (d: string | Date) => {
     return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -147,11 +188,11 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
 
               <div className="text-center mb-8">
                 <h2 className="text-xl font-black text-gray-900 uppercase tracking-wide">
-                  {isTrainer ? 'OFFICIAL OFFER LETTER' : 'OFFER LETTER'}
+                  {isStaff ? 'OFFICIAL OFFER LETTER' : 'OFFER LETTER'}
                 </h2>
-                {isTrainer && (
+                {isStaff && (
                   <p className="text-sm font-black text-gray-600 mt-1 uppercase tracking-wide">
-                    STATE LEVEL FEMALE TRAINER (PAN INDIA)
+                    {displayRole.toUpperCase()} (PAN INDIA)
                   </p>
                 )}
               </div>
@@ -159,9 +200,9 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
               {/* Salutation & Intro */}
               <div className="text-sm space-y-4 mb-6 leading-relaxed text-justify">
                 <p className="font-bold">Dear Ms. {data.employeeName},</p>
-                {isTrainer ? (
+                {isStaff ? (
                   <p>
-                    We are pleased to offer you the position of <strong>State Level Female Trainer</strong> with <strong>SakhiHub Women Health & Awareness Campaign</strong>, subject to the terms and conditions mentioned below.
+                    We are pleased to offer you the position of <strong>{displayRole}</strong> with <strong>SakhiHub Women Health & Awareness Campaign</strong>, subject to the terms and conditions mentioned below.
                   </p>
                 ) : (
                   <>
@@ -181,13 +222,13 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
                 </p>
               </div>
 
-              {isTrainer ? (
+              {isStaff ? (
                 <>
                   {/* 1. DESIGNATION */}
                   <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">1. DESIGNATION</h3>
                   <div className="text-xs mb-6 text-justify leading-relaxed">
                     <p className="mb-2">You are appointed as:</p>
-                    <p className="font-bold text-gray-900 mb-2">State Level Female Trainer (PAN India Women Health & Awareness Program)</p>
+                    <p className="font-bold text-gray-900 mb-2">{displayRole} (PAN India Women Health & Awareness Program)</p>
                     <p className="font-bold text-gray-900">Reporting To:</p>
                     <p className="text-gray-700">Project Head – PAN India Operations or any authorized officer nominated by the Company from time to time.</p>
                   </div>
@@ -197,17 +238,9 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
                   <div className="text-xs mb-6 text-justify leading-relaxed">
                     <p className="mb-2 font-bold">Your role shall include, but not be limited to:</p>
                     <ul className="space-y-1.5 list-none pl-1 mb-3">
-                      <li className="flex items-start gap-1.5">• <span className="text-gray-700">Conducting Online Training Sessions through Google Meet, Zoom, Webinar Platforms.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="text-gray-700">Training District Coordinators, Block Coordinators and Project Teams.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="text-gray-700">Delivering Women Health, Hygiene, Awareness and Empowerment Training.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="text-gray-700">Training employees on existing and future SakhiHub campaigns.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="text-gray-700">Orientation and induction of newly joined employees.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="text-gray-700">Preparing and delivering presentations, SOPs, manuals and training materials.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="text-gray-700">Monitoring training quality and employee performance.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="text-gray-700">Supporting field operations through virtual guidance.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="text-gray-700">Conducting awareness webinars and motivational sessions.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="text-gray-700">Submitting daily, weekly and monthly training reports.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="text-gray-700">Any other work assigned by the Company related to training, awareness, operations, monitoring or project development.</span></li>
+                      {getDynamicNatureOfWork(data.role).map((item, index) => (
+                        <li key={index} className="flex items-start gap-1.5">• <span className="text-gray-700">{item}</span></li>
+                      ))}
                     </ul>
                   </div>
 
@@ -283,7 +316,7 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
                   <div className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
                     <ul className="space-y-1.5 list-none pl-1">
                       <li className="flex items-start gap-1.5">• <span className="flex-1">Portal credentials must remain confidential.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="flex-1">Trainer shall not share login access with any third party.</span></li>
+                      <li className="flex items-start gap-1.5">• <span className="flex-1">{displayRole} shall not share login access with any third party.</span></li>
                       <li className="flex items-start gap-1.5">• <span className="flex-1">Employee, Vendor, Member and Organizational data shall remain protected.</span></li>
                       <li className="flex items-start gap-1.5">• <span className="flex-1">Downloading, copying, exporting or distributing data without authorization is prohibited.</span></li>
                       <li className="flex items-start gap-1.5">• <span className="flex-1">Any unauthorized access or misuse of data will be treated as misconduct.</span></li>
@@ -295,17 +328,17 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
                   <div className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
                     <ul className="space-y-1.5 list-none pl-1">
                       <li className="flex items-start gap-1.5">• <span className="flex-1">All presentations, SOPs, manuals, webinar recordings, videos, assessments, training modules, course materials and educational content created, modified or delivered during engagement shall remain exclusive property of SakhiHub.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="flex-1">Trainer shall not claim ownership over such materials.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="flex-1">Trainer shall not distribute, sell or reuse company training materials without written permission.</span></li>
+                      <li className="flex items-start gap-1.5">• <span className="flex-1">{displayRole} shall not claim ownership over such materials.</span></li>
+                      <li className="flex items-start gap-1.5">• <span className="flex-1">{displayRole} shall not distribute, sell or reuse company training materials without written permission.</span></li>
                     </ul>
                   </div>
 
-                  {/* 11. NON-COMPETE TRAINING */}
-                  <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">11. NON-COMPETE TRAINING</h3>
+                  {/* 11. NON-COMPETE OBLIGATION */}
+                  <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">11. NON-COMPETE OBLIGATION</h3>
                   <div className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
                     <ul className="space-y-1.5 list-none pl-1">
-                      <li className="flex items-start gap-1.5">• <span className="flex-1">Trainer shall not independently conduct commercial training programs using SakhiHub materials, methodologies, participant databases, SOPs or course structures.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="flex-1">Trainer shall not represent SakhiHub training programs outside authorized engagements.</span></li>
+                      <li className="flex items-start gap-1.5">• <span className="flex-1">{displayRole} shall not independently conduct commercial training or operations programs using SakhiHub materials, methodologies, participant databases, SOPs or course structures.</span></li>
+                      <li className="flex items-start gap-1.5">• <span className="flex-1">{displayRole} shall not represent SakhiHub training programs outside authorized engagements.</span></li>
                       <li className="flex items-start gap-1.5">• <span className="flex-1">Violation may result in termination and legal action.</span></li>
                     </ul>
                   </div>
@@ -315,12 +348,12 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
                   <div className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
                     <p className="mb-2 font-bold">Performance may be assessed based on:</p>
                     <ul className="space-y-1.5 list-none pl-1 mb-2">
-                      <li className="flex items-start gap-1.5">• <span className="flex-1">Number of trainings conducted.</span></li>
+                      <li className="flex items-start gap-1.5">• <span className="flex-1">Number of tasks/trainings conducted.</span></li>
                       <li className="flex items-start gap-1.5">• <span className="flex-1">Attendance percentage.</span></li>
                       <li className="flex items-start gap-1.5">• <span className="flex-1">Participant engagement.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="flex-1">Training completion rate.</span></li>
+                      <li className="flex items-start gap-1.5">• <span className="flex-1">Task completion rate.</span></li>
                       <li className="flex items-start gap-1.5">• <span className="flex-1">Feedback ratings.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="flex-1">Quality of training delivery.</span></li>
+                      <li className="flex items-start gap-1.5">• <span className="flex-1">Quality of delivery.</span></li>
                       <li className="flex items-start gap-1.5">• <span className="flex-1">Reporting compliance.</span></li>
                       <li className="flex items-start gap-1.5">• <span className="flex-1">Program impact and outcomes.</span></li>
                       <li className="flex items-start gap-1.5">• <span className="flex-1">Support provided to field teams.</span></li>
@@ -341,8 +374,8 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
                   <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">14. TRANSFER & ASSIGNMENT</h3>
                   <div className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
                     <ul className="space-y-1.5 list-none pl-1">
-                      <li className="flex items-start gap-1.5">• <span className="flex-1">The Company may assign the Trainer to any state, district, project, campaign, department or training initiative based on organizational requirements.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="flex-1">Trainer agrees to cooperate with such assignments.</span></li>
+                      <li className="flex items-start gap-1.5">• <span className="flex-1">The Company may assign the {displayRole} to any state, district, project, campaign, department or training initiative based on organizational requirements.</span></li>
+                      <li className="flex items-start gap-1.5">• <span className="flex-1">{displayRole} agrees to cooperate with such assignments.</span></li>
                     </ul>
                   </div>
 
@@ -365,11 +398,11 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
                     </ul>
                   </div>
 
-                  {/* 17. TRAINER REPRESENTATION & BRAND PROTECTION */}
-                  <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">17. TRAINER REPRESENTATION & BRAND PROTECTION</h3>
+                  {/* 17. REPRESENTATION & BRAND PROTECTION */}
+                  <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">17. REPRESENTATION & BRAND PROTECTION</h3>
                   <div className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
                     <ul className="space-y-1.5 list-none pl-1">
-                      <li className="flex items-start gap-1.5">• <span className="flex-1">Trainer shall represent SakhiHub professionally during all online and offline engagements.</span></li>
+                      <li className="flex items-start gap-1.5">• <span className="flex-1">{displayRole} shall represent SakhiHub professionally during all online and offline engagements.</span></li>
                       <li className="flex items-start gap-1.5">• <span className="flex-1">No public statement, media interaction, social media announcement or external communication may be made on behalf of SakhiHub without authorization.</span></li>
                       <li className="flex items-start gap-1.5">• <span className="flex-1">Misrepresentation of organizational policies or programs shall be treated as misconduct.</span></li>
                     </ul>
@@ -378,14 +411,14 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
                   {/* 18. CONFIDENTIALITY */}
                   <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">18. CONFIDENTIALITY</h3>
                   <div className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
-                    <p className="mb-2">You shall maintain complete confidentiality regarding: Training Materials, Employee Data, Vendor Data, Member Data, Business Plans, Project Strategies, Pricing Models, Internal Reports, Software & Portal Access, and Future Campaign Information.</p>
+                    <p className="mb-2">You shall maintain complete confidentiality regarding: Campaign/Training Materials, Employee Data, Vendor Data, Member Data, Business Plans, Project Strategies, Pricing Models, Internal Reports, Software & Portal Access, and Future Campaign Information.</p>
                     <p className="mb-2">No information shall be disclosed without written approval from the Company. This obligation shall continue even after resignation or termination.</p>
                   </div>
 
                   {/* 19. INTELLECTUAL PROPERTY */}
                   <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">19. INTELLECTUAL PROPERTY</h3>
                   <p className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
-                    Any Training Material, Presentation, SOP, Video, Webinar Recording, Manual, Content, Process, or Documentation created, developed or used during employment shall remain the sole property of the Company. No ownership rights shall vest with the employee.
+                    Any Training/Campaign Material, Presentation, SOP, Video, Webinar Recording, Manual, Content, Process, or Documentation created, developed or used during employment shall remain the sole property of the Company. No ownership rights shall vest with the employee.
                   </p>
 
                   {/* 20. NON-SOLICITATION */}
@@ -401,7 +434,7 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
                     <ul className="space-y-1.5 list-none pl-1 text-gray-700">
                       <li className="flex items-start gap-1.5">• <span className="flex-1">Make unauthorized public statements.</span></li>
                       <li className="flex items-start gap-1.5">• <span className="flex-1">Misrepresent Company policies.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="flex-1">Create unofficial training programs in Company name.</span></li>
+                      <li className="flex items-start gap-1.5">• <span className="flex-1">Create unofficial programs in Company name.</span></li>
                       <li className="flex items-start gap-1.5">• <span className="flex-1">Use Company branding without permission.</span></li>
                     </ul>
                     <p className="mt-2">All public communication shall require authorization.</p>
@@ -410,7 +443,7 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
                   {/* 22. COMPANY PROPERTY */}
                   <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">22. COMPANY PROPERTY</h3>
                   <p className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
-                    Any login credentials, documents, ID cards, software access, training materials, devices or resources provided by the Company shall remain Company property and must be returned immediately upon demand.
+                    Any login credentials, documents, ID cards, software access, training/campaign materials, devices or resources provided by the Company shall remain Company property and must be returned immediately upon demand.
                   </p>
 
                   {/* 23. TERMINATION */}

@@ -924,24 +924,66 @@ export const generateOfferLetterHtml = (data: any) => {
     return "Block Level Women Employee / Coordinator";
   };
 
+  const getDynamicNatureOfWork = (role: string) => {
+    const roleUpper = (role || '').toUpperCase();
+    if (roleUpper.includes('RECRUITER') && roleUpper.includes('TRAINER')) {
+      return [
+        "Sourcing, screening, and recruiting candidate coordinators and staff members.",
+        "Conducting online training and webinars for district and block level team members.",
+        "Facilitating orientation, onboarding, and project induction sessions.",
+        "Preparing recruitment pipelines and delivering candidate evaluation reports.",
+        "Monitoring training quality, employee compliance, and ground-level performance.",
+        "Delivering Women Health, Hygiene, Awareness, and Empowerment training modules.",
+        "Submitting daily, weekly, and monthly recruitment and training progress reports.",
+        "Any other work assigned by the Company related to HR, recruitment, training, operations, or project development."
+      ];
+    } else if (roleUpper.includes('RECRUITER')) {
+      return [
+        "Sourcing, screening, interviewing, and recruiting candidates for field and coordinator roles.",
+        "Managing the end-to-end recruitment process and coordinator pipelines.",
+        "Conducting onboarding, document verification, and orientation of new employees.",
+        "Coordinating with state and district heads to fulfill hiring requirements.",
+        "Maintaining recruitment databases, tracking compliance, and managing candidate communication.",
+        "Submitting daily, weekly, and monthly recruitment activity reports.",
+        "Any other work assigned by the Company related to HR, talent acquisition, admin, or project coordination."
+      ];
+    } else { // Trainer, Senior Trainer, Training Coordinator
+      return [
+        "Conducting Online Training Sessions through Google Meet, Zoom, Webinar Platforms.",
+        "Training District Coordinators, Block Coordinators and Project Teams.",
+        "Delivering Women Health, Hygiene, Awareness and Empowerment Training.",
+        "Training employees on existing and future SakhiHub campaigns.",
+        "Orientation and induction of newly joined employees.",
+        "Preparing and delivering presentations, SOPs, manuals and training materials.",
+        "Monitoring training quality and employee performance.",
+        "Supporting field operations through virtual guidance.",
+        "Conducting awareness webinars and motivational sessions.",
+        "Submitting daily, weekly and monthly training reports.",
+        "Any other work assigned by the Company related to training, awareness, operations, monitoring or project development."
+      ];
+    }
+  };
+
   let logoBase64 = '';
   let sigBase64 = '';
   try {
     const logoPath = path.join(process.cwd(), 'public', 'logo.png');
     const logoData = fs.readFileSync(logoPath);
-    logoBase64 = `data:image/png;base64,${logoData.toString('base64')}`;
+    logoBase64 = 'data:image/png;base64,' + logoData.toString('base64');
   } catch (e) {
     console.error('Logo image not found:', e);
   }
   try {
     const sigPath = path.join(process.cwd(), 'public', 'manager-signature.png');
     const sigData = fs.readFileSync(sigPath);
-    sigBase64 = `data:image/png;base64,${sigData.toString('base64')}`;
+    sigBase64 = 'data:image/png;base64,' + sigData.toString('base64');
   } catch (e) {
     console.error('Signature image not found:', e);
   }
 
   const programName = data.programName || "Women Health & Awareness Campaign";
+  const isStaff = data.offerLetterType === 'staff';
+  const displayRole = (data.role || '').replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
 
   const headerHtml = generateDocumentHeaderHtml(logoBase64);
 
@@ -950,7 +992,7 @@ export const generateOfferLetterHtml = (data: any) => {
   <html>
   <head>
     <meta charset="utf-8">
-    <title>Employee Offer Letter</title>
+    <title>${isStaff ? 'Official Staff Offer Letter' : 'Employee Offer Letter'}</title>
     <style>
       @page {
         size: A4;
@@ -1508,19 +1550,257 @@ export const generateOfferLetterHtml = (data: any) => {
                 </div>
               </div>
 
-              <div class="title-container">
-                <h2 class="title-text">OFFER LETTER</h2>
+              <div class="title-container" style="${isStaff ? 'margin-bottom: 16px;' : ''}">
+                <h2 class="title-text">${isStaff ? 'OFFICIAL OFFER LETTER' : 'OFFER LETTER'}</h2>
+                ${isStaff ? `<p class="program-tagline" style="font-size: 13px; font-weight: 900; color: #4b5563; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; margin-bottom: 0;">${displayRole.toUpperCase()} (PAN INDIA)</p>` : ''}
               </div>
 
               <!-- Salutation & Intro -->
               <div class="intro-container">
-                <p class="font-bold">Dear ${data.employeeName},</p>
+                <p class="font-bold">Dear Ms. ${data.employeeName},</p>
+                ${isStaff ? `
+                <p>We are pleased to offer you the position of <strong>${displayRole}</strong> with <strong>SakhiHub Women Health & Awareness Campaign</strong>, subject to the terms and conditions mentioned below.</p>
+                ` : `
                 <p>We are pleased to offer you the position under the <strong>SakhiHub Women Health & Awareness Campaign Program</strong>.</p>
                 <p>SakhiHub is a women-focused awareness and empowerment initiative working towards health awareness, hygiene education, women support systems, community engagement, and empowerment activities across India.</p>
                 <p>Your selection has been made based on your application, communication ability, interest in social awareness activities, and organizational requirements.</p>
+                `}
                 <p>This Offer Letter is being issued digitally through the SakhiHub Employee Portal and shall be considered valid after digital acceptance, declaration confirmation and online signature completion by the candidate.</p>
               </div>
 
+              ${isStaff ? `
+              <!-- 1. DESIGNATION -->
+              <h3 class="section-title">1. DESIGNATION</h3>
+              <div class="clause-text">
+                <p style="margin-bottom: 6px;">You are appointed as:</p>
+                <p class="font-bold" style="color: #111827; margin-bottom: 6px;">${displayRole} (PAN India Women Health & Awareness Program)</p>
+                <p class="font-bold" style="color: #111827; margin-bottom: 2px;">Reporting To:</p>
+                <p style="margin: 0;">Project Head – PAN India Operations or any authorized officer nominated by the Company from time to time.</p>
+              </div>
+
+              <!-- 2. NATURE OF WORK -->
+              <h3 class="section-title">2. NATURE OF WORK</h3>
+              <div class="clause-text">
+                <p style="margin-bottom: 8px;" class="font-bold">Your role shall include, but not be limited to:</p>
+                <ul class="bullet-list-responsibilities">
+                  ${getDynamicNatureOfWork(data.role).map(item => `<li>• <span>${item}</span></li>`).join('\n')}
+                </ul>
+              </div>
+
+              <!-- 3. PLACE OF WORK -->
+              <h3 class="section-title">3. PLACE OF WORK</h3>
+              <p class="clause-text">
+                The position is primarily Work From Home / Online. The Company may require you to travel within your assigned State or other locations as per project requirements.
+              </p>
+
+              <!-- 4. COMPENSATION -->
+              <h3 class="section-title">4. COMPENSATION</h3>
+              <div class="clause-text">
+                <p style="margin-bottom: 8px;">Your compensation shall be communicated separately through salary structure, HR communication or company policy.</p>
+                <p style="margin-bottom: 12px;">The Company reserves the right to revise compensation, incentives, reimbursements and benefits based on performance, project requirements and organizational policies.</p>
+                ${data.salary ? `
+                <ul class="salary-list" style="background-color: #f9fafb; padding: 14px; border: 1px solid #e5e7eb; border-radius: 16px;">
+                  <li>• <span>Fixed Monthly Salary: <span class="text-green-700">₹${data.salary} / Month</span></span></li>
+                  ${data.travelAllowance ? `<li>• <span>Petrol / Travel Allowance: <span class="text-green-700">${data.travelAllowance}</span></span></li>` : ''}
+                  ${data.performanceIncentives ? `<li>• <span>Performance Incentives: <span class="text-green-700">${data.performanceIncentives}</span></span></li>` : ''}
+                  ${data.membershipIncentives ? `<li>• <span>Membership Incentives (if applicable): <span class="text-green-700">${data.membershipIncentives}</span></span></li>` : ''}
+                </ul>` : ''}
+              </div>
+
+              <!-- 5. PROBATION PERIOD -->
+              <h3 class="section-title">5. PROBATION PERIOD</h3>
+              <div class="clause-text">
+                <p style="margin-bottom: 6px;">You shall remain on probation for an initial period of <strong>Six (6) Months</strong>.</p>
+                <p style="margin-bottom: 6px;">During probation: Performance shall be continuously reviewed. Company may extend probation if required.</p>
+                <p style="margin: 0;">Confirmation is solely at Company discretion.</p>
+              </div>
+
+              <!-- 6. PERFORMANCE REQUIREMENTS -->
+              <h3 class="section-title">6. PERFORMANCE REQUIREMENTS</h3>
+              <div class="clause-text">
+                <p style="margin-bottom: 8px;" class="font-bold">You shall:</p>
+                <ul class="conduct-list">
+                  <li>• <span>Attend all official meetings.</span></li>
+                  <li>• <span>Conduct assigned training sessions timely.</span></li>
+                  <li>• <span>Maintain professional conduct.</span></li>
+                  <li>• <span>Submit reports within prescribed timelines.</span></li>
+                  <li>• <span>Follow all SOPs, policies and instructions.</span></li>
+                  <li>• <span>Maintain training quality standards.</span></li>
+                </ul>
+                <p class="text-red-600">Failure to meet performance standards may lead to warning, suspension, withholding of incentives or termination.</p>
+              </div>
+
+              <!-- 7. ATTENDANCE & REPORTING COMPLIANCE -->
+              <h3 class="section-title">7. ATTENDANCE & REPORTING COMPLIANCE</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>Daily, weekly and monthly reporting is mandatory.</span></li>
+                <li>• <span>Training attendance records must be maintained accurately.</span></li>
+                <li>• <span>Webinar attendance and participation reports must be submitted.</span></li>
+                <li>• <span>Training completion reports must be uploaded within prescribed timelines.</span></li>
+                <li>• <span>Salary, incentives, reimbursements and performance benefits may be linked to reporting compliance.</span></li>
+              </ul>
+
+              <!-- 8. BACKGROUND VERIFICATION -->
+              <h3 class="section-title">8. BACKGROUND VERIFICATION</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>SakhiHub reserves the right to verify educational qualifications.</span></li>
+                <li>• <span>Experience certificates may be verified.</span></li>
+                <li>• <span>Identity and address documents may be verified.</span></li>
+                <li>• <span>Any false information, forged document, fake experience, misrepresentation or concealment of facts may result in immediate termination without notice.</span></li>
+              </ul>
+
+              <!-- 9. DATA PROTECTION & PORTAL ACCESS -->
+              <h3 class="section-title">9. DATA PROTECTION & PORTAL ACCESS</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>Portal credentials must remain confidential.</span></li>
+                <li>• <span>${displayRole} shall not share login access with any third party.</span></li>
+                <li>• <span>Employee, Vendor, Member and Organizational data shall remain protected.</span></li>
+                <li>• <span>Downloading, copying, exporting or distributing data without authorization is prohibited.</span></li>
+                <li>• <span>Any unauthorized access or misuse of data will be treated as misconduct.</span></li>
+              </ul>
+
+              <!-- 10. TRAINING MATERIAL & INTELLECTUAL PROPERTY OWNERSHIP -->
+              <h3 class="section-title">10. TRAINING MATERIAL & INTELLECTUAL PROPERTY OWNERSHIP</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>All presentations, SOPs, manuals, webinar recordings, videos, assessments, training modules, course materials and educational content created, modified or delivered during engagement shall remain exclusive property of SakhiHub.</span></li>
+                <li>• <span>${displayRole} shall not claim ownership over such materials.</span></li>
+                <li>• <span>${displayRole} shall not distribute, sell or reuse company training materials without written permission.</span></li>
+              </ul>
+
+              <!-- 11. NON-COMPETE OBLIGATION -->
+              <h3 class="section-title">11. NON-COMPETE OBLIGATION</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>${displayRole} shall not independently conduct commercial training or operations programs using SakhiHub materials, methodologies, participant databases, SOPs or course structures.</span></li>
+                <li>• <span>${displayRole} shall not represent SakhiHub training programs outside authorized engagements.</span></li>
+                <li>• <span>Violation may result in termination and legal action.</span></li>
+              </ul>
+
+              <!-- 12. PERFORMANCE KPI EVALUATION -->
+              <h3 class="section-title">12. PERFORMANCE KPI EVALUATION</h3>
+              <div class="clause-text">
+                <p style="margin-bottom: 8px;" class="font-bold">Performance may be assessed based on:</p>
+                <ul class="conduct-list">
+                  <li>• <span>Number of tasks/trainings conducted.</span></li>
+                  <li>• <span>Attendance percentage.</span></li>
+                  <li>• <span>Participant engagement.</span></li>
+                  <li>• <span>Task completion rate.</span></li>
+                  <li>• <span>Feedback ratings.</span></li>
+                  <li>• <span>Quality of delivery.</span></li>
+                  <li>• <span>Reporting compliance.</span></li>
+                  <li>• <span>Program impact and outcomes.</span></li>
+                  <li>• <span>Support provided to field teams.</span></li>
+                </ul>
+                <p class="font-bold" style="margin-top: 8px;">Continuation of engagement may depend on satisfactory performance.</p>
+              </div>
+
+              <!-- 13. RECOVERY & FINANCIAL LIABILITY -->
+              <h3 class="section-title">13. RECOVERY & FINANCIAL LIABILITY</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>Any financial loss caused due to fraud, negligence, unauthorized commitments, policy violations or misuse of resources may result in recovery proceedings.</span></li>
+                <li>• <span>The Company may withhold incentives, reimbursements or pending benefits until investigation is completed.</span></li>
+              </ul>
+
+              <!-- 14. TRANSFER & ASSIGNMENT -->
+              <h3 class="section-title">14. TRANSFER & ASSIGNMENT</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>The Company may assign the ${displayRole} to any state, district, project, campaign, department or training initiative based on organizational requirements.</span></li>
+                <li>• <span>${displayRole} agrees to cooperate with such assignments.</span></li>
+              </ul>
+
+              <!-- 15. DIGITAL LEARNING & AI CONTENT PROTECTION -->
+              <h3 class="section-title">15. DIGITAL LEARNING & AI CONTENT PROTECTION</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>AI-generated training content, digital learning resources, assessment frameworks, webinar content, presentations and educational systems developed for SakhiHub shall remain proprietary assets of the organization.</span></li>
+                <li>• <span>Unauthorized copying, redistribution or commercial use is prohibited.</span></li>
+              </ul>
+
+              <!-- 16. POST-EMPLOYMENT RESTRICTIONS -->
+              <h3 class="section-title">16. POST-EMPLOYMENT RESTRICTIONS</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>Confidentiality obligations shall continue after resignation or termination.</span></li>
+                <li>• <span>Training materials, participant databases and internal resources must not be retained or reused after separation.</span></li>
+                <li>• <span>Non-solicitation restrictions shall remain effective as per company policy.</span></li>
+              </ul>
+
+              <!-- 17. REPRESENTATION & BRAND PROTECTION -->
+              <h3 class="section-title">17. REPRESENTATION & BRAND PROTECTION</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span>${displayRole} shall represent SakhiHub professionally during all online and offline engagements.</span></li>
+                <li>• <span>No public statement, media interaction, social media announcement or external communication may be made on behalf of SakhiHub without authorization.</span></li>
+                <li>• <span>Misrepresentation of organizational policies or programs shall be treated as misconduct.</span></li>
+              </ul>
+
+              <!-- 18. CONFIDENTIALITY -->
+              <h3 class="section-title">18. CONFIDENTIALITY</h3>
+              <div class="clause-text">
+                <p style="margin-bottom: 8px;">You shall maintain complete confidentiality regarding: Campaign/Training Materials, Employee Data, Vendor Data, Member Data, Business Plans, Project Strategies, Pricing Models, Internal Reports, Software & Portal Access, and Future Campaign Information.</p>
+                <p>No information shall be disclosed without written approval from the Company. This obligation shall continue even after resignation or termination.</p>
+              </div>
+
+              <!-- 19. INTELLECTUAL PROPERTY -->
+              <h3 class="section-title">19. INTELLECTUAL PROPERTY</h3>
+              <p class="clause-text">
+                Any Training/Campaign Material, Presentation, SOP, Video, Webinar Recording, Manual, Content, Process, or Documentation created, developed or used during employment shall remain the sole property of the Company. No ownership rights shall vest with the employee.
+              </p>
+
+              <!-- 20. NON-SOLICITATION -->
+              <h3 class="section-title">20. NON-SOLICITATION</h3>
+              <p class="clause-text">
+                During employment and for a period of 24 months after separation, you shall not directly or indirectly recruit Company employees, influence employees to leave, divert vendors or partners, or approach Company members for personal business. Violation shall invite legal action and damages.
+              </p>
+
+              <!-- 21. SOCIAL MEDIA & PUBLIC REPRESENTATION -->
+              <h3 class="section-title">21. SOCIAL MEDIA & PUBLIC REPRESENTATION</h3>
+              <div class="clause-text">
+                <p style="margin-bottom: 8px;" class="font-bold">You shall not:</p>
+                <ul class="conduct-list">
+                  <li>• <span>Make unauthorized public statements.</span></li>
+                  <li>• <span>Misrepresent Company policies.</span></li>
+                  <li>• <span>Create unofficial programs in Company name.</span></li>
+                  <li>• <span>Use Company branding without permission.</span></li>
+                </ul>
+                <p style="margin-top: 8px;">All public communication shall require authorization.</p>
+              </div>
+
+              <!-- 22. COMPANY PROPERTY -->
+              <h3 class="section-title">22. COMPANY PROPERTY</h3>
+              <p class="clause-text">
+                Any login credentials, documents, ID cards, software access, training/campaign materials, devices or resources provided by the Company shall remain Company property and must be returned immediately upon demand.
+              </p>
+
+              <!-- 23. TERMINATION -->
+              <h3 class="section-title">23. TERMINATION</h3>
+              <div class="clause-text">
+                <p style="margin-bottom: 8px;">The Company reserves the right to terminate employment immediately without notice in case of: Misconduct, Fraud, Data Theft, Misrepresentation, False Reporting, Harassment, Policy Violation, Unauthorized Collection of Money, Brand Damage, Confidentiality Breach, Non-Performance, Absenteeism, or Conflict of Interest.</p>
+                <p>For normal separation, either party may provide notice as per Company policy.</p>
+              </div>
+
+              <!-- 24. NO PERMANENT EMPLOYMENT GUARANTEE -->
+              <h3 class="section-title">24. NO PERMANENT EMPLOYMENT GUARANTEE</h3>
+              <p class="clause-text">
+                This appointment does not create any guarantee of permanent employment. Continuation shall depend upon performance, project requirement, funding availability, organizational requirement, and compliance with Company policies.
+              </p>
+
+              <!-- 25. COMPLIANCE -->
+              <h3 class="section-title">25. COMPLIANCE</h3>
+              <p class="clause-text">
+                You agree to comply with Company Rules, HR Policies, Operational Guidelines, Project SOPs, Data Protection Requirements, and Legal and Regulatory Requirements as amended from time to time.
+              </p>
+
+              <!-- 26. SECURITY DEPOSIT & REFUND POLICY -->
+              <h3 class="section-title">26. SECURITY DEPOSIT & REFUND POLICY</h3>
+              <ul class="clause-bullet-list">
+                <li>• <span><strong>Security Deposit Amount:</strong> ₹${data.depositAmount || '2,000'}</span></li>
+                <li>• <span><strong>Refund Eligibility Period:</strong> 90 Days (3 Months) of continuous service.</span></li>
+                <li>• <span><strong>Refund Policy & Conditions:</strong> The employee security deposit shall become refundable only after successful completion of 90 days (3 months) of continuous service. If the employee leaves, resigns, abandons duties, or is terminated before completion of 90 days, the security deposit shall not be refundable.</span></li>
+              </ul>
+
+              <!-- 27. JURISDICTION -->
+              <h3 class="section-title">27. JURISDICTION</h3>
+              <p class="clause-text">
+                Any dispute arising out of this employment shall be subject exclusively to the jurisdiction of courts situated in Indore, Madhya Pradesh, India.
+              </p>
+              ` : `
               <!-- 1. POSITION DETAILS -->
               <h3 class="section-title">1. POSITION DETAILS</h3>
               <table class="details-table">
@@ -1785,6 +2065,7 @@ export const generateOfferLetterHtml = (data: any) => {
                 <li>• <span><strong>Refund Eligibility Period:</strong> 90 Days (3 Months) of continuous service.</span></li>
                 <li>• <span><strong>Refund Policy & Conditions:</strong> The employee security deposit shall become refundable only after successful completion of 90 days (3 months) of continuous service. If the employee leaves, resigns, abandons duties, or is terminated before completion of 90 days, the security deposit shall not be refundable.</span></li>
               </ul>
+              `}
 
               <!-- Keep notice and signatures together in print -->
               <div class="keep-together">
@@ -1860,6 +2141,7 @@ export const generateOfferLetterHtml = (data: any) => {
   </html>
   `;
 };
+
 
 export const generatePdfBuffer = async (
   htmlContent: string,

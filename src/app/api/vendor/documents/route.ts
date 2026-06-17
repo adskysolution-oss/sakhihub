@@ -392,7 +392,7 @@ export async function GET() {
           visibleToVendor: true
         }))
       ];
-    } else if (user.role === 'employee') {
+    } else if (user.role === 'employee' || user.role === 'staff') {
       const offerLetters = await EmployeeOfferLetter.find({ employeeId: user._id }).lean();
       const certs = await EmployeeCertificate.find({ employeeId: user._id }).lean();
 
