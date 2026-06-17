@@ -251,9 +251,16 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     const { id, accountStatus, connectionStatus, assignedEmployeeId } = body;
     if (!id) return errorResponse('Member ID required', 400);
-
     await dbConnect();
     
+    const memberToUpdate = await WomenMember.findById(id);
+    if (!memberToUpdate) return errorResponse('Member not found', 404);
+
+    const { checkRegionalScope } = await import('@/utils/authHelpers');
+    if (!(session.role === 'super_admin' || session.role === 'admin' || await checkRegionalScope(memberToUpdate, session))) {
+      return errorResponse('Forbidden: Member is out of regional scope', 403);
+    }
+
     const updateData: any = {};
     if (accountStatus) {
       updateData.accountStatus = accountStatus === 'active' ? 'active' : 'inactive';
@@ -268,7 +275,6 @@ export async function PATCH(req: NextRequest) {
     updateData.updatedAt = new Date();
 
     const member = await WomenMember.findByIdAndUpdate(id, { $set: updateData }, { new: true });
-    if (!member) return errorResponse('Member not found', 404);
 
     // Finalize hierarchy if employee is assigned
     if (assignedEmployeeId) {

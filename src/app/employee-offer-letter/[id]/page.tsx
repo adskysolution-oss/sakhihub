@@ -1,11 +1,12 @@
 import React from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import EmployeeOfferLetter from '@/models/EmployeeOfferLetter';
 import PaymentConfig from '@/models/PaymentConfig';
 import EmployeeOfferLetterPreview, { EmployeeOfferLetterData } from '@/components/shared/EmployeeOfferLetterPreview';
 import PrintButton from '@/components/shared/PrintButton';
+import { getAuthSession } from '@/lib/auth';
 
 export default async function EmployeeOfferLetterPage({ params }: { params: Promise<{ id: string }> }) {
   await dbConnect();
@@ -16,6 +17,36 @@ export default async function EmployeeOfferLetterPage({ params }: { params: Prom
   
   if (!user || !offerLetter || user.role !== 'employee') {
     notFound();
+  }
+
+  const session = (await getAuthSession()) as any;
+  if (!session) {
+    redirect(`/login?callbackUrl=/employee-offer-letter/${id}`);
+  }
+
+  // Super Admin Bypass
+  if (session.role === 'super_admin') {
+    // Allowed
+  } else {
+    // Ownership check (Enhancement 2): verify logged-in user is the owner of the offer letter
+    const isSelf = session.role === 'employee' && offerLetter.employeeId.toString() === session.id;
+
+    if (isSelf) {
+      // Allowed
+    } else {
+      // Check offer_letters.view permission
+      const hasPermission = Array.isArray(session.permissions) && session.permissions.includes('offer_letters.view');
+      if (!hasPermission) {
+        redirect('/unauthorized');
+      }
+
+      // Check regional scope
+      const { checkRegionalScope } = await import('@/utils/authHelpers');
+      const hasScope = await checkRegionalScope(user, session);
+      if (!hasScope) {
+        redirect('/unauthorized');
+      }
+    }
   }
 
   const config = await PaymentConfig.findOne({ key: 'default' }).lean();

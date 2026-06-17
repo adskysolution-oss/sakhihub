@@ -17,47 +17,66 @@ export default function OnboardingStepper({ user }: OnboardingStepperProps) {
   if (!user) return null;
 
   const isVendor = user.role === 'vendor';
+  const isStaff = user.role === 'staff';
 
-  // Base Steps
-  let steps = [
-    { id: 1, name: 'Registration', status: 'completed' },
-    { 
-      id: 2, 
-      name: 'Verification', 
-      status: user.documentsVerified ? 'completed' : 'current' 
-    },
-    { 
-      id: 3, 
-      name: 'Payment', 
-      status: !user.documentsVerified ? 'upcoming' 
-             : user.paymentCompleted ? 'completed' 
-             : 'current' 
-    }
-  ];
+  let steps = [];
 
-  if (!isVendor) {
-    // Sub-Vendor / Employee specific step
-    steps.push({
-      id: 4,
-      name: 'Hierarchy Mapping',
-      status: !user.paymentCompleted ? 'upcoming'
-             : user.assignmentStatus === 'completed' ? 'completed'
-             : 'current'
-    });
-    
-    // Final Step
-    steps.push({
-      id: 5,
-      name: 'Dashboard Access',
-      status: user.dashboardAccess ? 'completed' : 'upcoming'
-    });
+  if (isStaff) {
+    steps = [
+      { id: 1, name: 'Registration', status: 'completed' },
+      { 
+        id: 2, 
+        name: 'Verification', 
+        status: user.documentsVerified ? 'completed' : 'current' 
+      },
+      { 
+        id: 3, 
+        name: 'Dashboard Access', 
+        status: user.dashboardAccess ? 'completed' : 'upcoming' 
+      }
+    ];
   } else {
-    // Vendor Final Step
-    steps.push({
-      id: 4,
-      name: 'Dashboard Access',
-      status: user.dashboardAccess ? 'completed' : 'upcoming'
-    });
+    // Base Steps
+    steps = [
+      { id: 1, name: 'Registration', status: 'completed' },
+      { 
+        id: 2, 
+        name: 'Verification', 
+        status: user.documentsVerified ? 'completed' : 'current' 
+      },
+      { 
+        id: 3, 
+        name: 'Payment', 
+        status: !user.documentsVerified ? 'upcoming' 
+               : user.paymentCompleted ? 'completed' 
+               : 'current' 
+      }
+    ];
+
+    if (!isVendor) {
+      // Sub-Vendor / Employee specific step
+      steps.push({
+        id: 4,
+        name: 'Hierarchy Mapping',
+        status: !user.paymentCompleted ? 'upcoming'
+               : user.assignmentStatus === 'completed' ? 'completed'
+               : 'current'
+      });
+      
+      // Final Step
+      steps.push({
+        id: 5,
+        name: 'Dashboard Access',
+        status: user.dashboardAccess ? 'completed' : 'upcoming'
+      });
+    } else {
+      // Vendor Final Step
+      steps.push({
+        id: 4,
+        name: 'Dashboard Access',
+        status: user.dashboardAccess ? 'completed' : 'upcoming'
+      });
+    }
   }
 
   return (

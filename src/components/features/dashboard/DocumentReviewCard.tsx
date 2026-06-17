@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import { 
   FileText, ExternalLink, ShieldCheck, 
-  XCircle, RotateCcw, MessageSquare, Clock, AlertCircle
+  XCircle, RotateCcw, MessageSquare, Clock, AlertCircle, ShieldAlert
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   DOC_CONFIG, 
   DOCUMENT_STATUS_MAP, 
@@ -26,6 +27,13 @@ export default function DocumentReviewCard({
   const [remarks, setRemarks] = useState(docInfo?.remarks || '');
   const [loading, setLoading] = useState<string | null>(null);
   const [validationError, setValidationError] = useState(false);
+  const { user: currentUser } = useAuth();
+
+  const canViewDoc = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('documents.view'));
+
+  const canVerifyDoc = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('documents.verify'));
   
   const config = DOC_CONFIG[type];
   if (!config) return null;
@@ -127,21 +135,32 @@ export default function DocumentReviewCard({
 
           {isUploaded && (
             <div className="mt-6 flex gap-3">
-              <a 
-                href={viewUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex-1 bg-secondary text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-secondary-light transition-all shadow-lg shadow-secondary/10"
-              >
-                <ExternalLink size={14} /> View Document
-              </a>
+              {canViewDoc ? (
+                <a 
+                  href={viewUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex-1 bg-secondary text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-secondary-light transition-all shadow-lg shadow-secondary/10"
+                >
+                  <ExternalLink size={14} /> View Document
+                </a>
+              ) : (
+                <div className="flex-1 bg-gray-100 text-gray-400 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-gray-200 cursor-not-allowed">
+                  <ShieldAlert size={14} className="text-gray-300" /> Viewing Restricted
+                </div>
+              )}
             </div>
           )}
         </div>
 
         {/* Right: Review Actions */}
         <div className="flex-1 flex flex-col gap-4">
-          {isAvailableForReview ? (
+          {!canVerifyDoc ? (
+            <div className="h-full flex flex-col items-center justify-center bg-gray-50 rounded-2xl border border-dashed border-gray-200 p-8">
+              <ShieldAlert size={32} className="text-gray-300 mb-2" />
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Verification Restricted</p>
+            </div>
+          ) : isAvailableForReview ? (
             <>
               <div className="relative">
                 <div className={`absolute top-3 left-4 ${validationError ? 'text-red-500' : 'text-gray-400'}`}>

@@ -87,7 +87,13 @@ export async function GET(req: NextRequest) {
       vendorAgreementDetails: agreementMap[v._id.toString()] || null
     }));
 
-    const sanitizedData = sanitizeUserListForClient(enrichedVendors, true);
+    const sessionUser = session as any;
+    const hasCredentialsView = sessionUser.role === 'super_admin' || 
+      (Array.isArray(sessionUser.permissions) && sessionUser.permissions.includes('credentials.view'));
+    const hasDocumentsView = sessionUser.role === 'super_admin' || 
+      (Array.isArray(sessionUser.permissions) && sessionUser.permissions.includes('documents.view'));
+
+    const sanitizedData = sanitizeUserListForClient(enrichedVendors, hasCredentialsView, hasDocumentsView);
 
     return Response.json({
       success: true,

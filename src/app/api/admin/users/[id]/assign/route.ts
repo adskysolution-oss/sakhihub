@@ -12,9 +12,18 @@ export async function PATCH(
   try {
     const { id } = await params;
     const session = await getAuthSession();
-    
-    if (!session || (session as any).role !== 'super_admin') {
-      return errorResponse('Unauthorized. Admin access required.', 403);
+    if (!session) {
+      return errorResponse('Unauthorized', 401);
+    }
+
+    const sessionUser = session as any;
+    const { hasPermission, checkRegionalScope } = await import('@/utils/authHelpers');
+    const isAuthorized = sessionUser.role === 'super_admin' || 
+      sessionUser.role === 'admin' ||
+      await hasPermission(sessionUser.id, sessionUser.role, 'employees.update');
+
+    if (!isAuthorized) {
+      return errorResponse('Forbidden: Insufficient Permissions', 403);
     }
 
     const body = await req.json();
@@ -25,6 +34,10 @@ export async function PATCH(
     const userToUpdate = await User.findById(id);
     if (!userToUpdate) {
       return errorResponse('User not found', 404);
+    }
+
+    if (!(sessionUser.role === 'super_admin' || sessionUser.role === 'admin' || await checkRegionalScope(userToUpdate, session))) {
+      return errorResponse('Forbidden: Target user is out of regional scope', 403);
     }
 
     const updateData: any = {

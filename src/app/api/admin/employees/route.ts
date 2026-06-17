@@ -44,7 +44,8 @@ export async function GET(req: NextRequest) {
     const statusFilterQuery = buildStatusQuery(activeStatus);
     const paymentFilterQuery = buildPaymentQuery(activePaymentStatus);
 
-    let baseMatch: any = { role: 'employee', ...dateQuery };
+    const targetRole = searchParams.get('role') === 'staff' ? 'staff' : 'employee';
+    let baseMatch: any = { role: targetRole, ...dateQuery };
     await applyRegionalFilter(baseMatch, session);
     if (district && district !== 'all') baseMatch.district = district;
     if (vendorCode) baseMatch.vendorCode = vendorCode;
@@ -121,7 +122,13 @@ export async function GET(req: NextRequest) {
       appointmentDetails: offerLetterMap[emp._id.toString()] || null
     }));
 
-    const sanitizedData = sanitizeUserListForClient(enrichedEmployees, true);
+    const sessionUser = session as any;
+    const hasCredentialsView = sessionUser.role === 'super_admin' || 
+      (Array.isArray(sessionUser.permissions) && sessionUser.permissions.includes('credentials.view'));
+    const hasDocumentsView = sessionUser.role === 'super_admin' || 
+      (Array.isArray(sessionUser.permissions) && sessionUser.permissions.includes('documents.view'));
+
+    const sanitizedData = sanitizeUserListForClient(enrichedEmployees, hasCredentialsView, hasDocumentsView);
 
     return Response.json({
       success: true,

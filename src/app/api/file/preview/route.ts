@@ -3,6 +3,8 @@ import { getAuthSession } from '@/lib/auth';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
+import dbConnect from '@/lib/mongodb';
+
 const s3Client = new S3Client({
   region: process.env.AWS_REGION || 'ap-south-1',
   credentials: {
@@ -23,6 +25,95 @@ export async function GET(req: NextRequest) {
 
     if (!url) {
       return NextResponse.json({ success: false, message: 'No URL provided' }, { status: 400 });
+    }
+
+    await dbConnect();
+    const sessionUser = session as any;
+    let isAuthorized = false;
+
+    if (sessionUser.role === 'super_admin') {
+      isAuthorized = true;
+    } else {
+      // Find target user from associated collections to verify owner or regional scoping
+      const [Document, VendorAgreement, EmployeeOfferLetter, User, FileRecord] = await Promise.all([
+        import('@/models/Document').then(m => m.default),
+        import('@/models/VendorAgreement').then(m => m.default),
+        import('@/models/EmployeeOfferLetter').then(m => m.default),
+        import('@/models/User').then(m => m.default),
+        import('@/models/FileRecord').then(m => m.default),
+      ]);
+
+      let ownerId: string | null = null;
+      let targetUser: any = null;
+
+      const fileRecord = await FileRecord.findOne({ url }).lean();
+      if (fileRecord && fileRecord.uploadedBy) {
+        ownerId = fileRecord.uploadedBy.toString();
+      }
+
+      const doc = await Document.findOne({
+        $or: [{ fileUrl: url }, { uploadedDocumentUrl: url }]
+      }).lean();
+      if (doc && !ownerId) {
+        ownerId = doc.userId.toString();
+      }
+
+      const va = await VendorAgreement.findOne({
+        $or: [{ fileUrl: url }, { uploadedDocumentUrl: url }]
+      }).lean();
+      if (va) {
+        if (!ownerId) ownerId = va.vendorId.toString();
+      }
+
+      const ol = await EmployeeOfferLetter.findOne({
+        $or: [{ fileUrl: url }, { signedFileUrl: url }]
+      }).lean();
+      if (ol) {
+        if (!ownerId) ownerId = ol.employeeId.toString();
+      }
+
+      if (!ownerId) {
+        const u = await User.findOne({ profileImage: url }).lean();
+        if (u) ownerId = u._id.toString();
+      }
+
+      if (ownerId) {
+        targetUser = await User.findById(ownerId).lean();
+      }
+
+      if (['operations_admin', 'staff'].includes(sessionUser.role)) {
+        const { hasPermission, checkRegionalScope } = await import('@/utils/authHelpers');
+        
+        let requiredPermission = 'documents.view';
+        const isOfferLetter = url.toLowerCase().includes('offer-letter') || url.toLowerCase().includes('offer_letter') || !!ol;
+        const isAgreement = url.toLowerCase().includes('agreement') || !!va;
+
+        if (isOfferLetter) {
+          requiredPermission = 'offer_letters.download';
+        } else if (isAgreement) {
+          requiredPermission = 'agreements.view';
+        }
+
+        const hasPerm = await hasPermission(sessionUser.id, sessionUser.role, requiredPermission);
+        if (hasPerm) {
+          if (targetUser) {
+            const withinScope = await checkRegionalScope(targetUser, session);
+            if (withinScope) {
+              isAuthorized = true;
+            }
+          } else {
+            isAuthorized = true;
+          }
+        }
+      } else {
+        if (ownerId && sessionUser.id === ownerId) {
+          isAuthorized = true;
+        }
+      }
+    }
+
+    if (!isAuthorized) {
+      return NextResponse.json({ success: false, message: 'Forbidden: Insufficient Permissions or Regional Scope Violation' }, { status: 403 });
     }
 
     // If it's a Cloudinary URL, just redirect to it

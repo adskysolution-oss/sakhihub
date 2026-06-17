@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export type UserRole = 'super_admin' | 'operations_admin' | 'vendor' | 'sub_vendor' | 'employee' | 'member';
-export type UserStatus = 'pending' | 'documents_uploaded' | 'under_review' | 'reupload_required' | 'approved' | 'active' | 'rejected' | 'suspended';
+export type UserRole = 'super_admin' | 'operations_admin' | 'staff' | 'vendor' | 'sub_vendor' | 'employee' | 'member';
+export type UserStatus = 'pending' | 'pending_registration' | 'documents_pending' | 'documents_uploaded' | 'under_review' | 'reupload_required' | 'approved' | 'active' | 'rejected' | 'suspended';
 export type VendorDocumentStatus = 'uploaded' | 'pending' | 'under_review' | 'approved' | 'rejected' | 'reupload_required' | 'exception_requested' | 'exception_responded' | 'exception_approved' | 'on_hold';
 
 export interface IVendorDocumentEntry {
@@ -91,6 +91,7 @@ export interface IUser extends Document {
     resume?: IVendorDocumentEntry;
     certificate12th?: IVendorDocumentEntry;
     graduationCertificate?: IVendorDocumentEntry;
+    experienceCertificate?: IVendorDocumentEntry;
     [key: string]: IVendorDocumentEntry | undefined;
   };
   joiningDate?: Date;
@@ -120,9 +121,10 @@ export interface IUser extends Document {
   paymentStatus?: 'pending' | 'completed';
   verificationStatus?: 'pending' | 'verified';
   permissions?: string[];
-  assignedScope?: 'all' | 'regional';
+  assignedScope?: 'all' | 'regional' | 'all_india' | 'state' | 'district' | 'block';
   assignedStates?: string[];
   assignedDistricts?: string[];
+  assignedBlocks?: string[];
   assignedRegions?: string[];
   createdAt: Date;
   updatedAt: Date;
@@ -159,7 +161,7 @@ const UserSchema: Schema = new Schema(
     password: { type: String },
     role: {
       type: String,
-      enum: ['super_admin', 'operations_admin', 'vendor', 'sub_vendor', 'employee', 'member'],
+      enum: ['super_admin', 'operations_admin', 'staff', 'vendor', 'sub_vendor', 'employee', 'member'],
       default: 'member'
     },
     vendorType: {
@@ -184,7 +186,7 @@ const UserSchema: Schema = new Schema(
     assignedCampaigns: [{ type: Schema.Types.ObjectId, ref: 'Campaign' }],
     status: {
       type: String,
-      enum: ['pending', 'documents_uploaded', 'under_review', 'reupload_required', 'approved', 'active', 'rejected', 'suspended'],
+      enum: ['pending', 'pending_registration', 'documents_pending', 'documents_uploaded', 'under_review', 'reupload_required', 'approved', 'active', 'rejected', 'suspended'],
       default: 'pending',
       required: true,
       trim: true,
@@ -235,7 +237,8 @@ const UserSchema: Schema = new Schema(
       ngoLogo: { type: DocumentEntrySchema },
       certificate12th: { type: DocumentEntrySchema },
       graduationCertificate: { type: DocumentEntrySchema },
-      resume: { type: DocumentEntrySchema }
+      resume: { type: DocumentEntrySchema },
+      experienceCertificate: { type: DocumentEntrySchema }
     },
     lastOtpSentAt: { type: Date },
     otpAttempts: { type: Number, default: 0 },
@@ -264,13 +267,18 @@ const UserSchema: Schema = new Schema(
     paymentStatus: { type: String, enum: ['pending', 'completed'], default: 'pending' },
     verificationStatus: { type: String, enum: ['pending', 'verified'], default: 'pending' },
     permissions: { type: [String], default: [] },
-    assignedScope: { type: String, enum: ['all', 'regional'], default: 'all' },
+    assignedScope: { type: String, enum: ['all', 'regional', 'all_india', 'state', 'district', 'block'], default: 'all' },
     assignedStates: { type: [String], default: [] },
     assignedDistricts: { type: [String], default: [] },
-    assignedRegions: { type: [String], default: [] },
+    assignedBlocks: { type: [String], default: [] },
+    assignedRegions: { type: [String], default: [] }
   },
   { timestamps: true }
 );
 
 // Prevent model recompilation in development while ensuring schema updates are picked up
+if (process.env.NODE_ENV !== 'production' && mongoose.models && mongoose.models.User) {
+  delete (mongoose.models as any).User;
+}
+
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

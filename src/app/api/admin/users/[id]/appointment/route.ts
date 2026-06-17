@@ -13,11 +13,13 @@ export async function POST(
     if (!session) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
+
+
     const currentUserId = session.id || session.userId;
-    const { hasPermission } = await import('@/utils/authHelpers');
+    const { hasPermission, checkRegionalScope } = await import('@/utils/authHelpers');
     const isAuthorized = session.role === 'super_admin' || 
       session.role === 'admin' ||
-      await hasPermission(currentUserId, session.role, 'agreements.generate');
+      await hasPermission(currentUserId, session.role, 'offer_letters.generate');
 
     if (!isAuthorized) {
       return NextResponse.json({ success: false, message: 'Forbidden: Insufficient Permissions' }, { status: 403 });
@@ -36,6 +38,10 @@ export async function POST(
     const user = await User.findById(id);
     if (!user) {
       return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
+    }
+
+    if (!(session.role === 'super_admin' || session.role === 'admin' || await checkRegionalScope(user, session))) {
+      return NextResponse.json({ success: false, message: 'Forbidden: Target user is out of regional scope' }, { status: 403 });
     }
 
     // Generate Agreement ID

@@ -10,7 +10,8 @@ export const ALLOWED_USER_FIELDS = [
   'district', 'block', 'village', 'designation', 'createdAt', 
   'paymentCompleted', 'subscriptionPaid', 'depositPaid', 'verificationStatus',
   'vendorCode', 'subVendorCode', 'employeeId', 'vendorType',
-  'parentVendorId', 'profileImage', 'assignmentStatus', 'documents'
+  'parentVendorId', 'profileImage', 'assignmentStatus', 'documents',
+  'permissions', 'assignedScope', 'assignedStates', 'assignedDistricts', 'assignedBlocks', 'assignedRegions'
 ];
 
 /**
@@ -18,37 +19,61 @@ export const ALLOWED_USER_FIELDS = [
  * Modifies the documents to strip URLs but adds `hasUrl` boolean.
  * Drops completely: aadhaarNumber, panNumber, bankDetails, password, otp, etc.
  */
-export function sanitizeUserListForClient(users: any[], includePII = false) {
+export function sanitizeUserListForClient(users: any[], includePII = false, includeDocs = false) {
   if (!Array.isArray(users)) return [];
 
   return users.map(user => {
     // Clone to avoid mutating original mongoose documents if they are lean, but we assume they are JS objects here
     const sanitized: any = {};
     
-    const fieldsToKeep = includePII 
-      ? [
-          ...ALLOWED_USER_FIELDS, 
-          'aadhaarNumber', 'panNumber', 'bankDetails',
-          'address', 'area', 'state', 'pincode', 'dob', 'gender',
-          'workState', 'workDistrict', 'workBlock', 'workTehsil', 'workPincode', 'workArea', 'workAddress'
-        ]
-      : ALLOWED_USER_FIELDS;
+    // Always copy the base fields plus address/demographic fields (address info is handled as less sensitive than PAN/Aadhaar/Bank details)
+    const baseFields = [
+      ...ALLOWED_USER_FIELDS,
+      'address', 'area', 'state', 'pincode', 'dob', 'gender',
+      'workState', 'workDistrict', 'workBlock', 'workTehsil', 'workPincode', 'workArea', 'workAddress'
+    ];
 
-    // Copy only allowed fields
+    const fieldsToKeep = [
+      ...baseFields,
+      'aadhaarNumber', 'panNumber', 'bankDetails'
+    ];
+
+    // Copy fields
     fieldsToKeep.forEach(field => {
       if (user[field] !== undefined) {
         sanitized[field] = user[field];
       }
     });
 
-    // Special handling for documents to keep status but remove URLs if includePII is false
+    // If PII credentials access is not allowed, return masked versions
+    if (!includePII) {
+      if (sanitized.aadhaarNumber) {
+        const str = String(sanitized.aadhaarNumber);
+        sanitized.aadhaarNumber = `XXXXXXXX${str.slice(-4)}`;
+      }
+      if (sanitized.panNumber) {
+        const str = String(sanitized.panNumber);
+        sanitized.panNumber = `XXXXXX${str.slice(-4)}`;
+      }
+      if (sanitized.bankDetails) {
+        sanitized.bankDetails = {
+          bankName: sanitized.bankDetails.bankName || '',
+          accountHolderName: '••••••••',
+          accountNumber: sanitized.bankDetails.accountNumber ? `XXXXXXXX${String(sanitized.bankDetails.accountNumber).slice(-4)}` : '',
+          ifscCode: '••••••••',
+          branchName: '••••••••'
+        };
+      }
+    }
+
+    // Special handling for documents: strip URLs but keep status/metadata if includeDocs is false
     if (sanitized.documents && typeof sanitized.documents === 'object') {
       const secureDocs: any = {};
       
       for (const [docKey, docValue] of Object.entries(sanitized.documents)) {
         if (docValue && typeof docValue === 'object') {
           const v = docValue as any;
-          if (includePII) {
+          if (includeDocs) {
             secureDocs[docKey] = v;
           } else {
             secureDocs[docKey] = {
@@ -57,9 +82,11 @@ export function sanitizeUserListForClient(users: any[], includePII = false) {
               rejectionReason: v.rejectionReason,
               isLocked: v.isLocked,
               exceptionRequested: v.exceptionRequested,
-              exceptionReason: v.exceptionReason
+              exceptionReason: v.exceptionReason,
+              fileName: v.fileName,
+              fileSize: v.fileSize,
+              uploadedAt: v.uploadedAt
             };
-            // Explicitly NOT copying `url` or `key`
           }
         }
       }

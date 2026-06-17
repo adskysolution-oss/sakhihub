@@ -52,6 +52,9 @@ export async function GET(req: NextRequest) {
       query = { documentsVerified: true, paymentCompleted: false, role: { $in: ['vendor', 'sub_vendor', 'employee'] } };
     }
 
+    const { applyRegionalFilter } = await import('@/utils/authHelpers');
+    query = await applyRegionalFilter(query, session);
+
     const users = await User.find(query).select('fullName mobile email role status subscriptionPaid depositPaid documentsVerified').limit(5).lean();
 
     return successResponse(users, 'Users retrieved successfully');

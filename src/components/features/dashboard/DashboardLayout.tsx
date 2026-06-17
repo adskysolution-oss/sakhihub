@@ -13,7 +13,9 @@ import {
   ShieldCheck,
   User,
   AlertCircle,
-  ChevronDown
+  ChevronDown,
+  LayoutDashboard,
+  BookOpen
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -136,6 +138,69 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   const getMenuItems = () => {
     if (user?.role === 'super_admin') return ADMIN_DASHBOARD_LINKS;
+    if (user?.role === 'staff') {
+      const userPermissions = Array.isArray(user.permissions) ? user.permissions : [];
+      
+      const items: any[] = [
+        { section: 'Core', name: 'Dashboard', icon: LayoutDashboard, href: '/portal/dashboard' }
+      ];
+
+      const findIcon = (name: string) => {
+        const link = ADMIN_DASHBOARD_LINKS.find(l => l.name === name);
+        return link ? link.icon : User;
+      };
+
+      if (userPermissions.includes('network.view')) {
+        items.push({ section: 'Core', name: 'Network Tree', icon: findIcon('Network Tree'), href: '/portal/network' });
+      }
+      if (userPermissions.includes('reports.view')) {
+        items.push({ section: 'Core', name: 'Activity Reports', icon: findIcon('Activity Reports'), href: '/portal/reports' });
+      }
+      if (userPermissions.includes('vendors.view')) {
+        items.push({ section: 'Users', name: 'Vendors', icon: findIcon('Vendors'), href: '/portal/vendors' });
+      }
+      if (userPermissions.includes('sub_vendors.view')) {
+        items.push({ section: 'Users', name: 'Sub-Vendors', icon: findIcon('Sub-Vendors'), href: '/portal/sub-vendors' });
+      }
+      if (userPermissions.includes('employees.view')) {
+        items.push({ section: 'Users', name: 'Employees', icon: findIcon('Employees'), href: '/portal/employees' });
+      }
+      if (userPermissions.includes('groups.view')) {
+        items.push({ section: 'Users', name: 'All Groups', icon: findIcon('All Groups'), href: '/portal/groups' });
+      }
+      if (userPermissions.includes('members.view')) {
+        items.push({ section: 'Users', name: 'All Members', icon: findIcon('All Members'), href: '/portal/members' });
+      }
+      if (userPermissions.includes('abha.view')) {
+        items.push({ section: 'Users', name: 'ABHA', icon: findIcon('ABHA'), href: '/portal/abha' });
+      }
+      if (userPermissions.includes('recruitment.view')) {
+        items.push({ section: 'Recruitment', name: 'Vacancies', icon: findIcon('Vacancies'), href: '/portal/recruitment' });
+        items.push({ section: 'Recruitment', name: 'Applications', icon: findIcon('Applications'), href: '/portal/applications' });
+      }
+      if (userPermissions.includes('payments.view')) {
+        items.push({ section: 'Operations', name: 'Memberships', icon: findIcon('Memberships'), href: '/portal/memberships' });
+        items.push({ section: 'System & Finance', name: 'Offline Payments', icon: findIcon('Offline Payments'), href: '/portal/offline-payments' });
+      }
+      if (userPermissions.includes('campaigns.view')) {
+        items.push({ section: 'Operations', name: 'Campaigns', icon: findIcon('Campaigns'), href: '/portal/campaigns' });
+      }
+      if (userPermissions.includes('projects.view')) {
+        items.push({ section: 'Operations', name: 'Manage Projects', icon: findIcon('Manage Projects'), href: '/portal/projects' });
+      }
+      if (userPermissions.includes('products.view')) {
+        items.push({ section: 'Operations', name: 'Manage Products', icon: findIcon('Manage Products'), href: '/portal/products' });
+      }
+      if (userPermissions.includes('support.view')) {
+        items.push({ section: 'Operations', name: 'Support Queries', icon: findIcon('Support Queries'), href: '/portal/support-requests' });
+      }
+
+      // Always include Profile
+      items.push({ section: 'Account', name: 'Profile', icon: User, href: '/portal/profile' });
+      items.push({ section: 'Core', name: 'Training', icon: BookOpen, href: '/portal/training' });
+
+      return items;
+    }
     if (user?.role === 'operations_admin') {
       const restrictedHrefs = [
         '/admin/operations-admins',
@@ -146,7 +211,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
         '/admin/finance',
         '/admin/forms',
         '/admin/payment-config',
-        '/admin/communication'
+        '/admin/communication',
+        '/admin/staff'
       ];
       const linkPermissionMap: Record<string, string> = {
         '/admin/network': 'network.view',
@@ -388,7 +454,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             </button>
 
             <Link
-              href={['super_admin', 'operations_admin'].includes(user?.role) ? '/admin/profile' : `/${user?.role?.replace('_', '-')}/dashboard/profile`}
+              href={['super_admin', 'operations_admin'].includes(user?.role) ? '/admin/profile' : (user?.role === 'staff' ? '/portal/profile' : `/${user?.role?.replace('_', '-')}/dashboard/profile`)}
               className="flex items-center gap-3 pl-3 md:pl-5 border-l border-[#eee] no-underline group"
             >
               <div className="text-right hidden sm:block">
@@ -420,7 +486,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                 </div>
               </div>
               <Link
-                href={['super_admin', 'operations_admin'].includes(user?.role) ? '/admin/profile' : `/${user?.role?.replace('_', '-')}/dashboard/profile`}
+                href={['super_admin', 'operations_admin'].includes(user?.role) ? '/admin/profile' : (user?.role === 'staff' ? '/portal/profile' : `/${user?.role?.replace('_', '-')}/dashboard/profile`)}
                 className="shrink-0 w-full sm:w-auto text-center px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold tracking-wide hover:bg-rose-700 transition-colors shadow-sm"
               >
                 {t('dashboardCommon.completeProfileBtn', 'Complete Profile')}

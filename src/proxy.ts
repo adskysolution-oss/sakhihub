@@ -17,11 +17,13 @@ export async function proxy(request: NextRequest) {
   const isVendorPage = pathname.startsWith('/vendor');
   const isVendorApi = pathname.startsWith('/api/vendor');
   const isSubVendorPage = pathname.startsWith('/sub-vendor');
-  const isEmployeePage = pathname.startsWith('/employee');
+  const isEmployeePage = pathname.startsWith('/employee/') || pathname === '/employee';
+  const isOfferLetterPage = pathname.startsWith('/employee-offer-letter');
   const isMemberPage = pathname.startsWith('/member');
+  const isPortalPage = pathname.startsWith('/portal');
   const isPaymentPendingPage = pathname === '/payment-pending' || pathname === '/payment-pending/';
   const isPaymentApi = pathname.startsWith('/api/payment');
-  const isPublicPage = !isAdminPage && !isVendorPage && !isSubVendorPage && !isEmployeePage && !isMemberPage && !isAuthPage && !isPaymentPendingPage;
+  const isPublicPage = !isAdminPage && !isVendorPage && !isSubVendorPage && !isEmployeePage && !isOfferLetterPage && !isMemberPage && !isPortalPage && !isAuthPage && !isPaymentPendingPage;
 
   // 1. Allow public pages and payment APIs (payment APIs have their own auth)
   if (isPublicPage || pathname === '/' || pathname.startsWith('/api/public') || pathname.startsWith('/_next') || isPaymentApi) {
@@ -77,6 +79,15 @@ export async function proxy(request: NextRequest) {
         }
         return NextResponse.redirect(new URL('/employee/onboarding', request.url));
       }
+      if (payload.role === 'staff') {
+        if (payload.status === 'active' && payload.dashboardAccess) {
+          return NextResponse.redirect(new URL('/portal/dashboard', request.url));
+        }
+        if (payload.status === 'under_review' || (payload.status === 'active' && !payload.dashboardAccess)) {
+          return NextResponse.redirect(new URL('/pending-approval', request.url));
+        }
+        return NextResponse.redirect(new URL('/portal/onboarding', request.url));
+      }
       if (payload.role === 'member') return NextResponse.redirect(new URL('/member/dashboard', request.url));
     } catch (e) {
       return NextResponse.next();
@@ -84,7 +95,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // 3. Protect dashboard routes
-  if (isAdminPage || isVendorPage || isVendorApi || isSubVendorPage || isEmployeePage || isMemberPage) {
+  if (isAdminPage || isVendorPage || isVendorApi || isSubVendorPage || isEmployeePage || isMemberPage || isPortalPage || isOfferLetterPage) {
     if (!token) {
       if (isVendorApi) return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
       return NextResponse.redirect(new URL(`/login?callbackUrl=${pathname}`, request.url));
@@ -92,6 +103,26 @@ export async function proxy(request: NextRequest) {
 
     try {
       const { payload }: any = await jwtVerify(token, JWT_SECRET);
+
+      // Super Admin Bypass
+      if (payload.role === 'super_admin') {
+        return NextResponse.next();
+      }
+
+      // Offer Letter Page Security Gating
+      if (isOfferLetterPage) {
+        const pathSegments = pathname.split('/');
+        const targetEmployeeId = pathSegments[2];
+        const isSelf = payload.role === 'employee' && payload.id === targetEmployeeId;
+
+        const userPermissions = Array.isArray(payload.permissions) ? payload.permissions : [];
+        const isAuthorized = ['operations_admin', 'staff'].includes(payload.role) && userPermissions.includes('offer_letters.view');
+
+        if (!isSelf && !isAuthorized) {
+          return NextResponse.redirect(new URL('/unauthorized', request.url));
+        }
+        return NextResponse.next();
+      }
 
       // VENDOR STRICT ACCESS CONTROL
       if (payload.role === 'vendor') {
@@ -200,6 +231,61 @@ export async function proxy(request: NextRequest) {
 
 
 
+      // STAFF STRICT ACCESS CONTROL
+      if (payload.role === 'staff') {
+        if (isPortalPage) {
+          if (payload.status === 'under_review') {
+            if (pathname !== '/pending-approval') {
+              return NextResponse.redirect(new URL('/pending-approval', request.url));
+            }
+          } else if (!payload.documentsVerified) {
+            if (pathname !== '/portal/onboarding') {
+              return NextResponse.redirect(new URL('/portal/onboarding', request.url));
+            }
+          } else if (payload.status !== 'active' || !payload.dashboardAccess) {
+            if (pathname !== '/pending-approval') {
+              return NextResponse.redirect(new URL('/pending-approval', request.url));
+            }
+          } else if (payload.status === 'active' && payload.dashboardAccess) {
+            if (pathname === '/portal/onboarding') {
+              return NextResponse.redirect(new URL('/portal/dashboard', request.url));
+            }
+
+            // Enforce page-level permission checks
+            const portalPagePermissionMap: Record<string, string> = {
+              '/portal/vendors': 'vendors.view',
+              '/portal/sub-vendors': 'sub_vendors.view',
+              '/portal/employees': 'employees.view',
+              '/portal/members': 'members.view',
+              '/portal/network': 'network.view',
+              '/portal/reports': 'reports.view',
+              '/portal/recruitment': 'recruitment.view',
+              '/portal/applications': 'recruitment.view',
+              '/portal/campaigns': 'campaigns.view',
+              '/portal/projects': 'projects.view',
+              '/portal/products': 'products.view',
+              '/portal/memberships': 'payments.view',
+              '/portal/offline-payments': 'payments.view',
+              '/portal/support-requests': 'support.view',
+              '/portal/abha': 'abha.view',
+            };
+
+            const userPermissions = Array.isArray(payload.permissions) ? payload.permissions : [];
+            for (const [routePrefix, requiredPermission] of Object.entries(portalPagePermissionMap)) {
+              if (pathname.startsWith(routePrefix)) {
+                if (!userPermissions.includes(requiredPermission)) {
+                  return NextResponse.redirect(new URL('/unauthorized', request.url));
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if (isPortalPage && payload.role !== 'staff') {
+        return NextResponse.redirect(new URL('/unauthorized', request.url));
+      }
+
       // RESTRICTED STATUS PROTECTION (All roles)
       if (['rejected', 'suspended', 'inactive'].includes(payload.status)) {
         if (pathname !== '/pending-approval') {
@@ -208,8 +294,8 @@ export async function proxy(request: NextRequest) {
       }
 
       // Hierarchy check (General)
-      // Now including sub_vendor in the mandatory assignment check
-      if (!['super_admin', 'operations_admin', 'vendor', 'member'].includes(payload.role) && payload.assignmentStatus === 'pending') {
+      // Now including sub_vendor and staff in the mandatory assignment check exclusion
+      if (!['super_admin', 'operations_admin', 'staff', 'vendor', 'member'].includes(payload.role) && payload.assignmentStatus === 'pending') {
         if (pathname !== '/pending-assignment' && pathname !== '/pending-approval' && pathname !== '/vendor/onboarding' && !pathname.includes('onboarding')) {
           return NextResponse.redirect(new URL('/pending-assignment', request.url));
         }
@@ -217,7 +303,7 @@ export async function proxy(request: NextRequest) {
 
       // Role-based access control (RBAC)
       if (isAdminPage) {
-        if (payload.role !== 'super_admin' && payload.role !== 'operations_admin') {
+        if (!['super_admin', 'operations_admin'].includes(payload.role)) {
           return NextResponse.redirect(new URL('/unauthorized', request.url));
         }
         if (payload.role === 'operations_admin') {
@@ -234,6 +320,26 @@ export async function proxy(request: NextRequest) {
           ];
           if (restrictedAdminSubPages.some(subPath => pathname.startsWith(subPath))) {
             return NextResponse.redirect(new URL('/unauthorized', request.url));
+          }
+
+          // Enforce page-level permission checks for Operations Admins
+          const adminPagePermissionMap: Record<string, string> = {
+            '/admin/network': 'network.view',
+            '/admin/reports': 'reports.view',
+            '/admin/vendors': 'vendors.view',
+            '/admin/sub-vendors': 'sub_vendors.view',
+            '/admin/employees': 'employees.view',
+            '/admin/members': 'members.view',
+            '/admin/memberships': 'payments.view',
+          };
+
+          const userPermissions = Array.isArray(payload.permissions) ? payload.permissions : [];
+          for (const [routePrefix, requiredPermission] of Object.entries(adminPagePermissionMap)) {
+            if (pathname.startsWith(routePrefix)) {
+              if (!userPermissions.includes(requiredPermission)) {
+                return NextResponse.redirect(new URL('/unauthorized', request.url));
+              }
+            }
           }
         }
       }
@@ -280,6 +386,11 @@ export async function proxy(request: NextRequest) {
 
       // If user is now active and assigned, redirect them out of the waiting room
       if (payload.status === 'active' || payload.status === 'approved') {
+        if (payload.role === 'staff' && !payload.dashboardAccess) {
+          if (pathname === '/pending-approval') {
+            return NextResponse.next();
+          }
+        }
         if (payload.role === 'vendor' && !payload.dashboardAccess) {
           if (payload.documentsVerified && !payload.paymentCompleted) {
             return NextResponse.redirect(new URL('/payment-pending', request.url));
@@ -306,6 +417,7 @@ export async function proxy(request: NextRequest) {
           vendor: '/vendor/dashboard',
           sub_vendor: '/sub-vendor/dashboard',
           employee: '/employee/dashboard',
+          staff: '/portal/dashboard',
           member: '/member/dashboard'
         };
 
@@ -327,6 +439,7 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     '/admin/:path*',
+    '/portal/:path*',
     '/vendor/:path*',
     '/vendor/onboarding',
     '/sub-vendor/onboarding',
@@ -340,5 +453,6 @@ export const config = {
     '/pending-approval',
     '/pending-assignment',
     '/payment-pending',
+    '/employee-offer-letter/:path*',
   ],
 };

@@ -25,6 +25,7 @@ export default function PendingApprovalPage() {
         user.role === 'vendor' ? '/vendor/dashboard' :
         user.role === 'sub_vendor' ? '/sub-vendor/dashboard' :
         user.role === 'employee' ? '/employee/dashboard' :
+        user.role === 'staff' ? '/portal/dashboard' :
         '/member/dashboard';
       window.location.href = targetDashboard;
       return;
@@ -41,6 +42,7 @@ export default function PendingApprovalPage() {
               freshUser.role === 'vendor' ? '/vendor/dashboard' :
               freshUser.role === 'sub_vendor' ? '/sub-vendor/dashboard' :
               freshUser.role === 'employee' ? '/employee/dashboard' :
+              freshUser.role === 'staff' ? '/portal/dashboard' :
               '/member/dashboard';
             window.location.href = targetDashboard;
           }

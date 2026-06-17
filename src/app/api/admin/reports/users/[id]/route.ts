@@ -164,6 +164,12 @@ export async function GET(
       return NextResponse.json({ success: false, message: 'Record not found' }, { status: 404 });
     }
 
+    const { checkRegionalScope } = await import('@/utils/authHelpers');
+    const targetRecord = user || member;
+    if (!((session as any).role === 'super_admin' || (session as any).role === 'admin' || await checkRegionalScope(targetRecord, session))) {
+      return NextResponse.json({ success: false, message: 'Forbidden: Record is out of regional scope' }, { status: 403 });
+    }
+
     const reportId = 'IND-' + Math.random().toString(36).substring(2, 8).toUpperCase();
     const fileName = `report_${reportType}_${id}_${Date.now()}.${format === 'excel' ? 'xls' : format}`;
 

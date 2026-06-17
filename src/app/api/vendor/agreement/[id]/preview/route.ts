@@ -28,16 +28,17 @@ export async function GET(
       return NextResponse.json({ success: false, message: 'Agreement not found' }, { status: 404 });
     }
 
+
     // Security check: Only super_admin, authorized admin, or the specific vendor can view
     const currentUserId = session.id || session.userId;
-    const { hasPermission } = await import('@/utils/authHelpers');
+    const { hasPermission, checkRegionalScope } = await import('@/utils/authHelpers');
     const isAuthorized = session.role === 'super_admin' || 
       session.role === 'admin' ||
-      await hasPermission(currentUserId, session.role, 'agreements.view') ||
+      (await hasPermission(currentUserId, session.role, 'agreements.view') && await checkRegionalScope(agreement, session)) ||
       currentUserId === agreement.vendorId.toString();
 
     if (!isAuthorized) {
-        return NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
+        return NextResponse.json({ success: false, message: 'Forbidden: Insufficient Permissions or Regional Scope Violation' }, { status: 403 });
     }
 
     const regenerate = request.nextUrl.searchParams.get('regenerate') === 'true';

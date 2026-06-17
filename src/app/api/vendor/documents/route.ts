@@ -233,6 +233,8 @@ export async function POST(req: NextRequest) {
       docData.vendorId = user._id.toString();
     } else if (user.role === 'employee') {
       docData.employeeId = user._id.toString();
+    } else if (user.role === 'staff') {
+      docData.userId = user._id.toString();
     }
 
     user.set(`documents.${type}`, docData);
@@ -258,6 +260,8 @@ export async function POST(req: NextRequest) {
     
     if (user.status === 'pending' && requiredDocs.every(doc => uploadedDocs.includes(doc))) {
       user.status = 'documents_uploaded';
+    } else if (user.role === 'staff' && user.status === 'documents_pending' && requiredDocs.every(doc => uploadedDocs.includes(doc))) {
+      user.status = 'under_review';
     }
 
     user.markModified('documents');

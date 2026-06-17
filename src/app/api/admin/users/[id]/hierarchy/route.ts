@@ -24,7 +24,7 @@ export async function GET(
     const { hasPermission } = await import('@/utils/authHelpers');
     const isSuperAdmin = sessionUser.role === 'super_admin';
     const isAuthorized = isSuperAdmin || (
-      sessionUser.role === 'operations_admin' &&
+      ['operations_admin', 'staff'].includes(sessionUser.role) &&
       (
         await hasPermission(sessionUser.id, sessionUser.role, 'network.view') ||
         await hasPermission(sessionUser.id, sessionUser.role, 'vendors.view') ||
@@ -54,10 +54,15 @@ export async function GET(
       return errorResponse('User not found', 404);
     }
 
+    const { checkRegionalScope } = await import('@/utils/authHelpers');
+    if (!(sessionUser.role === 'super_admin' || sessionUser.role === 'admin' || await checkRegionalScope(user, session))) {
+      return errorResponse('Forbidden: Target user is out of regional scope', 403);
+    }
+
     const userId = user._id;
-    const role = user.role;
     const vendorCode = user.vendorCode;
     const subVendorCode = user.subVendorCode;
+    const role = user.role;
     const employeeId = user.employeeId || user._id.toString();
 
     // 2. Aggregate Data based on Role
@@ -243,10 +248,36 @@ export async function GET(
       ];
     }
 
+    const hasCredentialsView = sessionUser.role === 'super_admin' || 
+      (Array.isArray(sessionUser.permissions) && sessionUser.permissions.includes('credentials.view'));
+    const hasDocumentsView = sessionUser.role === 'super_admin' || 
+      (Array.isArray(sessionUser.permissions) && sessionUser.permissions.includes('documents.view'));
+
+    const { sanitizeUserListForClient } = await import('@/utils/apiSecurity');
+    const sanitizedUser = sanitizeUserListForClient([userObj], hasCredentialsView, hasDocumentsView)[0];
+
+    // Sanitize digitalCertificates if document viewing is restricted
+    let secureCertificates = digitalCertificates;
+    if (!hasDocumentsView) {
+      secureCertificates = digitalCertificates.map((cert: any) => ({
+        _id: cert._id,
+        type: cert.type,
+        title: cert.title,
+        status: cert.status,
+        isLocked: cert.isLocked,
+        adminRemarks: cert.adminRemarks,
+        agreementId: cert.agreementId,
+        createdAt: cert.createdAt,
+        visibleToEmployee: cert.visibleToEmployee,
+        visibleToVendor: cert.visibleToVendor
+        // fileUrl and uploadedDocumentUrl are stripped
+      }));
+    }
+
     return successResponse({
-      user: userObj,
+      user: sanitizedUser,
       counts,
-      digitalCertificates,
+      digitalCertificates: secureCertificates,
       hierarchy: {
         subVendors,
         employees,

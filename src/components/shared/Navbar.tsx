@@ -181,6 +181,7 @@ const Navbar = () => {
       <div className={`${styles.actions} gap-2 md:gap-[15px]`}>
         <div className="relative">
           <button
+            suppressHydrationWarning
             className="btn-secondary !p-2 md:!px-3 md:!py-2 flex items-center gap-1.5 border border-gray-100 rounded-xl"
             onClick={() => setLangOpen(!langOpen)}
           >
@@ -228,7 +229,7 @@ const Navbar = () => {
             onMouseEnter={() => setActiveDropdown('portal')}
             onMouseLeave={() => setActiveDropdown(null)}
           >
-            <button className="btn-primary !p-2 md:!px-5 md:!py-2.5 !rounded-xl md:!rounded-full flex items-center gap-2">
+            <button suppressHydrationWarning className="btn-primary !p-2 md:!px-5 md:!py-2.5 !rounded-xl md:!rounded-full flex items-center gap-2">
               <Users2 size={18} />
               <span className={`${styles.portalText} hidden lg:block text-xs font-bold`}>{t('nav.memberPortal')}</span>
               <ChevronDown size={14} className={`${styles.portalChevron} hidden lg:block transition-transform duration-300 ${activeDropdown === 'portal' ? 'rotate-180' : ''}`} />
@@ -254,7 +255,7 @@ const Navbar = () => {
           </div>
         )}
 
-        <button className={`${styles.mobileMenuBtn} flex lg:hidden`} onClick={() => setIsOpen(!isOpen)} style={{ zIndex: 101 }}>
+        <button suppressHydrationWarning className={`${styles.mobileMenuBtn} flex lg:hidden`} onClick={() => setIsOpen(!isOpen)} style={{ zIndex: 101 }}>
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
@@ -299,6 +300,7 @@ const Navbar = () => {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                 {languages.map(l => (
                   <button
+                    suppressHydrationWarning
                     key={l.code}
                     onClick={() => {
                       setLanguage(l.code as any);

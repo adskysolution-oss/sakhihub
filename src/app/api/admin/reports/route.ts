@@ -19,10 +19,11 @@ export async function GET(req: NextRequest) {
     const sessionUser = session as any;
     const dbUser = await User.findById(sessionUser.id).lean();
     let regionalMatch: any = {};
-    if (dbUser && dbUser.assignedScope === 'regional') {
+    if (dbUser && !['all', 'all_india'].includes(dbUser.assignedScope || 'all')) {
       const filters: any[] = [];
       if (dbUser.assignedStates?.length) filters.push({ state: { $in: dbUser.assignedStates } });
       if (dbUser.assignedDistricts?.length) filters.push({ district: { $in: dbUser.assignedDistricts } });
+      if (dbUser.assignedBlocks?.length) filters.push({ block: { $in: dbUser.assignedBlocks } });
       if (filters.length > 0) regionalMatch.$or = filters;
     }
 
@@ -46,7 +47,7 @@ export async function GET(req: NextRequest) {
     const membershipMatchStages: any[] = [
       { $match: { paymentStatus: 'Paid' } }
     ];
-    if (dbUser && dbUser.assignedScope === 'regional') {
+    if (dbUser && !['all', 'all_india'].includes(dbUser.assignedScope || 'all')) {
       membershipMatchStages.push(
         {
           $lookup: {
@@ -62,6 +63,7 @@ export async function GET(req: NextRequest) {
       const filters: any[] = [];
       if (dbUser.assignedStates?.length) filters.push({ 'member.state': { $in: dbUser.assignedStates } });
       if (dbUser.assignedDistricts?.length) filters.push({ 'member.district': { $in: dbUser.assignedDistricts } });
+      if (dbUser.assignedBlocks?.length) filters.push({ 'member.block': { $in: dbUser.assignedBlocks } });
       if (filters.length > 0) {
         membershipMatchStages.push({ $match: { $or: filters } });
       }

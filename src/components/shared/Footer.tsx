@@ -169,6 +169,7 @@ const Footer = () => {
                 <Search size={16} />
               </div>
               <input
+                suppressHydrationWarning
                 type="text"
                 placeholder="Enter ID..."
                 value={verifyId}
@@ -178,6 +179,7 @@ const Footer = () => {
               />
             </div>
             <button
+              suppressHydrationWarning
               type="submit"
               className="px-6 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 transition-colors shrink-0"
             >

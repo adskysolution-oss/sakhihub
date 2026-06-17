@@ -31,11 +31,18 @@ export async function POST(
       return NextResponse.json({ success: false, message: 'Joining date and salary are required' }, { status: 400 });
     }
 
+
+
     await dbConnect();
 
     const user = await User.findById(id);
     if (!user) {
       return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
+    }
+
+    const { checkRegionalScope } = await import('@/utils/authHelpers');
+    if (!(session.role === 'super_admin' || session.role === 'admin' || await checkRegionalScope(user, session))) {
+      return NextResponse.json({ success: false, message: 'Forbidden: Target user is out of regional scope' }, { status: 403 });
     }
 
     // Generate Offer Letter ID

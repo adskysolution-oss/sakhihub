@@ -117,7 +117,9 @@ export async function POST(req: NextRequest) {
       }
 
       // Fetch Users & Populate parents
-      const users = await User.find(queryFilters)
+      const { applyRegionalFilter } = await import('@/utils/authHelpers');
+      const scopedQueryFilters = await applyRegionalFilter(queryFilters, session);
+      const users = await User.find(scopedQueryFilters)
         .populate({
           path: 'parentVendorId',
           select: 'fullName role vendorCode subVendorCode',
@@ -176,7 +178,9 @@ export async function POST(req: NextRequest) {
         queryFilters.block = location.block;
       }
 
-      const members = await WomenMember.find(queryFilters)
+      const { applyRegionalFilter } = await import('@/utils/authHelpers');
+      const scopedQueryFilters = await applyRegionalFilter(queryFilters, session);
+      const members = await WomenMember.find(scopedQueryFilters)
         .populate('assignedEmployeeId', 'fullName employeeId')
         .sort({ createdAt: -1 })
         .lean();
@@ -206,6 +210,11 @@ export async function POST(req: NextRequest) {
         if (paymentStatus && paymentStatus.length > 0) {
           paymentFilters.status = { $in: paymentStatus.map((s: string) => s.toLowerCase()) };
         }
+        const { getRegionalUserIds } = await import('@/utils/authHelpers');
+        const allowedUserIds = await getRegionalUserIds(session);
+        if (allowedUserIds !== null) {
+          paymentFilters.userId = { $in: allowedUserIds };
+        }
         const txs = await PaymentTransaction.find(paymentFilters)
           .populate('userId', 'fullName mobile role')
           .sort({ createdAt: -1 })
@@ -225,6 +234,11 @@ export async function POST(req: NextRequest) {
         if (paymentStatus && paymentStatus.length > 0) {
           const capitalizedStatus = paymentStatus.map((s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase());
           paymentFilters.paymentStatus = { $in: capitalizedStatus };
+        }
+        const { getRegionalMemberIds } = await import('@/utils/authHelpers');
+        const allowedMemberIds = await getRegionalMemberIds(session);
+        if (allowedMemberIds !== null) {
+          paymentFilters.memberId = { $in: allowedMemberIds };
         }
         const mems = await Membership.find(paymentFilters)
           .populate('memberId', 'name mobile')
@@ -250,7 +264,9 @@ export async function POST(req: NextRequest) {
         complianceFilter.designation = designation;
       }
 
-      const users = await User.find(complianceFilter)
+      const { applyRegionalFilter } = await import('@/utils/authHelpers');
+      const scopedComplianceFilter = await applyRegionalFilter(complianceFilter, session);
+      const users = await User.find(scopedComplianceFilter)
         .select('fullName role status documents documentsVerified parentVendorId createdAt')
         .populate('parentVendorId', 'fullName')
         .sort({ createdAt: -1 })

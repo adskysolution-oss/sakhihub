@@ -40,6 +40,11 @@ export async function POST(
       return errorResponse('User not found', 404);
     }
 
+    const { checkRegionalScope } = await import('@/utils/authHelpers');
+    if (!((session as any).role === 'super_admin' || (session as any).role === 'admin' || await checkRegionalScope(user, session))) {
+      return errorResponse('Forbidden: Target user is out of regional scope', 403);
+    }
+
     // Try generic Document first
     let doc: any = await Document.findOne({ _id: docId, userId: id });
     let collection = 'Document';

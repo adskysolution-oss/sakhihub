@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     }
 
     await dbConnect();
-    const admins = await User.find({ role: 'operations_admin' }).select('-password').sort({ createdAt: -1 });
+    const admins = await User.find({ role: { $in: ['operations_admin', 'staff'] } }).select('-password').sort({ createdAt: -1 });
     return successResponse(admins);
   } catch (error: any) {
     return errorResponse(error.message, 500);

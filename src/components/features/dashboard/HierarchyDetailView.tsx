@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   getDocumentViewUrl, 
   isDocumentUploaded, 
@@ -52,6 +53,23 @@ interface HierarchyDetailViewProps {
 export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: HierarchyDetailViewProps) {
   const { user, counts, hierarchy } = data;
   const [activeTab, setActiveTab] = React.useState('overview');
+  const { user: currentUser } = useAuth();
+  const canViewCredentials = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('credentials.view'));
+  const canViewDoc = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('documents.view'));
+  const canVerifyDoc = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('documents.verify'));
+  
+  const hasOfferLetterView = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('offer_letters.view'));
+  const hasOfferLetterGenerate = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('offer_letters.generate'));
+    
+  const hasAgreementView = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('agreements.view'));
+  const hasAgreementGenerate = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('agreements.generate'));
   
   // Appointment / Agreement Letter State
   const [joiningDate, setJoiningDate] = React.useState('');
@@ -220,7 +238,12 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
     { id: 'network', label: 'Network', icon: Users },
     { id: 'ops', label: 'Operations', icon: Target },
     { id: 'docs', label: 'Compliance', icon: ShieldCheck },
-    { id: 'agreement', label: 'Agreement', icon: PenTool },
+    ...(
+      (localUser.role === 'employee' && (hasOfferLetterView || hasOfferLetterGenerate)) ||
+      (['vendor', 'sub_vendor'].includes(localUser.role) && (hasAgreementView || hasAgreementGenerate))
+        ? [{ id: 'agreement', label: 'Agreement', icon: PenTool }]
+        : []
+    )
   ];
 
   const generateAppointmentLetter = async () => {
@@ -841,6 +864,7 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
 
         {activeTab === 'agreement' && (() => {
           const hasAgreement = localUser.role === 'employee' ? localUser.offerLetterDetails : localUser.vendorAgreementDetails;
+          const canGenerateAgreement = localUser.role === 'employee' ? hasOfferLetterGenerate : hasAgreementGenerate;
           return (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-300">
               <div className="max-w-2xl mx-auto space-y-8">
@@ -872,27 +896,40 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                           {localUser.role === 'employee' ? localUser.offerLetterDetails.offerLetterId : localUser.vendorAgreementDetails.agreementId}
                         </span>
                       </p>
-                      <a 
-                        href={localUser.role === 'employee' ? `/employee-offer-letter/${localUser._id}` : (localUser.vendorAgreementDetails.fileUrl || `/api/vendor/agreement/${localUser.vendorAgreementDetails.agreementId}/preview`)} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-colors shadow-lg shadow-green-200"
-                      >
-                        <ExternalLink size={16} /> Preview & Print Document
-                      </a>
+                      {canViewDoc ? (
+                        <a 
+                          href={localUser.role === 'employee' ? `/employee-offer-letter/${localUser._id}` : (localUser.vendorAgreementDetails.fileUrl || `/api/vendor/agreement/${localUser.vendorAgreementDetails.agreementId}/preview`)} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-colors shadow-lg shadow-green-200"
+                        >
+                          <ExternalLink size={16} /> Preview & Print Document
+                        </a>
+                      ) : (
+                        <div className="inline-flex items-center gap-2 bg-gray-100 text-gray-400 border border-gray-200 px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest cursor-not-allowed">
+                          <AlertCircle size={16} className="text-gray-300" /> Preview Restricted
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
 
                 <div className="bg-gray-50 p-8 rounded-[32px] border border-gray-100">
                   <div className="space-y-6">
+                    {!canGenerateAgreement && (
+                      <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-700 text-xs font-bold uppercase tracking-wide">
+                        <AlertCircle size={16} className="text-red-500 shrink-0" />
+                        <span>Generation Restricted: You do not have permissions to generate or update this document.</span>
+                      </div>
+                    )}
                     <div>
                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Joining Date</label>
                       <input 
                         type="date" 
                         value={joiningDate}
                         onChange={(e) => setJoiningDate(e.target.value)}
-                        className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                        disabled={!canGenerateAgreement}
+                        className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-50 disabled:bg-gray-100/50"
                       />
                     </div>
 
@@ -907,7 +944,8 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                               placeholder="e.g. 15000"
                               value={salary}
                               onChange={(e) => setSalary(e.target.value)}
-                              className="w-full pl-10 pr-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                              disabled={!canGenerateAgreement}
+                              className="w-full pl-10 pr-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-50 disabled:bg-gray-100/50"
                             />
                           </div>
                         </div>
@@ -918,7 +956,8 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                             placeholder="e.g. ₹2000/month or N/A"
                             value={travelAllowance}
                             onChange={(e) => setTravelAllowance(e.target.value)}
-                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                            disabled={!canGenerateAgreement}
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-50 disabled:bg-gray-100/50"
                           />
                         </div>
                         <div>
@@ -928,7 +967,8 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                             placeholder="e.g. Up to ₹5000 based on targets"
                             value={performanceIncentives}
                             onChange={(e) => setPerformanceIncentives(e.target.value)}
-                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                            disabled={!canGenerateAgreement}
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-50 disabled:bg-gray-100/50"
                           />
                         </div>
                         <div>
@@ -938,7 +978,8 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                             placeholder="e.g. ₹50 per successful membership"
                             value={membershipIncentives}
                             onChange={(e) => setMembershipIncentives(e.target.value)}
-                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary"
+                            disabled={!canGenerateAgreement}
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-50 disabled:bg-gray-100/50"
                           />
                         </div>
                       </div>
@@ -949,7 +990,8 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                           <select 
                             value={partnerType} 
                             onChange={(e) => setPartnerType(e.target.value)} 
-                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary cursor-pointer"
+                            disabled={!canGenerateAgreement}
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary cursor-pointer disabled:opacity-50 disabled:bg-gray-100/50"
                           >
                             <option value="">Select Heading...</option>
                             <option value="COMPANY PARTNERSHIP AGREEMENT">COMPANY PARTNERSHIP AGREEMENT</option>
@@ -959,70 +1001,73 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                             <option value="NGO PARTNERSHIP AGREEMENT">NGO PARTNERSHIP AGREEMENT</option>
                           </select>
                         </div>
-                            <div>
-                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assigned Territory</label>
-                              <input type="text" value={assignedTerritory} onChange={(e) => setAssignedTerritory(e.target.value)} placeholder="e.g. North District" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
-                            </div>
-                            <div>
-                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Partner Assignment</label>
-                              <select 
-                                value={coordinatorType} 
-                                onChange={(e) => setCoordinatorType(e.target.value)} 
-                                className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary cursor-pointer"
-                              >
-                                <option value="">Select Type...</option>
-                                <option value="District Partner">District Partner</option>
-                                <option value="State Partner">State Partner</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assigned State(s) / District(s)</label>
-                              <input 
-                                type="text" 
-                                value={assignedRegions} 
-                                onChange={(e) => setAssignedRegions(e.target.value)} 
-                                placeholder="e.g. Indore, Dewas, Dhar (comma-separated)" 
-                                className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" 
-                              />
-                            </div>
-                            <div>
-                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Agreement Validity</label>
-                              <input 
-                                type="text" 
-                                value={agreementValidity} 
-                                onChange={(e) => setAgreementValidity(e.target.value)} 
-                                placeholder="e.g. 3 Years, 1 Year, 6 Months" 
-                                className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" 
-                              />
-                            </div>
-                            <div>
-                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Salary Structure (Locked)</label>
-                              <input type="text" value={salaryStructure} disabled placeholder="e.g. ₹20,000/mo Fixed" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
-                            </div>
-                            <div>
-                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Incentive Structure (Locked)</label>
-                              <input type="text" value={incentiveStructure} disabled placeholder="e.g. 5% on Sales" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
-                            </div>
-                            <div>
-                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Membership Commission (Locked)</label>
-                              <input type="text" value={membershipCommission} disabled placeholder="e.g. ₹100 per member" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
-                            </div>
-                            <div>
-                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Monthly Targets (Locked)</label>
-                              <input type="text" value={monthlyTargets} disabled placeholder="e.g. 50 Members/mo" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
-                            </div>
-                            <div className="md:col-span-2">
-                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Operational Role (Locked)</label>
-                              <input type="text" value={operationalRole} disabled placeholder="e.g. Manage field agents and onboarding" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
-                            </div>
-                            <div>
-                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Employee Commission (₹)</label>
-                              <input type="text" value={employeeCommissionAmount} onChange={(e) => setEmployeeCommissionAmount(e.target.value)} placeholder="e.g. 500" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
-                            </div>
-                            <div>
-                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Membership Incentive (₹)</label>
-                              <input type="text" value={membershipIncentiveAmount} onChange={(e) => setMembershipIncentiveAmount(e.target.value)} placeholder="e.g. 10" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary" />
-                            </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assigned Territory</label>
+                          <input type="text" value={assignedTerritory} onChange={(e) => setAssignedTerritory(e.target.value)} disabled={!canGenerateAgreement} placeholder="e.g. North District" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-50 disabled:bg-gray-100/50" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Partner Assignment</label>
+                          <select 
+                            value={coordinatorType} 
+                            onChange={(e) => setCoordinatorType(e.target.value)} 
+                            disabled={!canGenerateAgreement}
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary cursor-pointer disabled:opacity-50 disabled:bg-gray-100/50"
+                          >
+                            <option value="">Select Type...</option>
+                            <option value="District Partner">District Partner</option>
+                            <option value="State Partner">State Partner</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Assigned State(s) / District(s)</label>
+                          <input 
+                            type="text" 
+                            value={assignedRegions} 
+                            onChange={(e) => setAssignedRegions(e.target.value)} 
+                            disabled={!canGenerateAgreement}
+                            placeholder="e.g. Indore, Dewas, Dhar (comma-separated)" 
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-50 disabled:bg-gray-100/50" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Agreement Validity</label>
+                          <input 
+                            type="text" 
+                            value={agreementValidity} 
+                            onChange={(e) => setAgreementValidity(e.target.value)} 
+                            disabled={!canGenerateAgreement}
+                            placeholder="e.g. 3 Years, 1 Year, 6 Months" 
+                            className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-50 disabled:bg-gray-100/50" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Salary Structure (Locked)</label>
+                          <input type="text" value={salaryStructure} disabled placeholder="e.g. ₹20,000/mo Fixed" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Incentive Structure (Locked)</label>
+                          <input type="text" value={incentiveStructure} disabled placeholder="e.g. 5% on Sales" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Membership Commission (Locked)</label>
+                          <input type="text" value={membershipCommission} disabled placeholder="e.g. ₹100 per member" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Monthly Targets (Locked)</label>
+                          <input type="text" value={monthlyTargets} disabled placeholder="e.g. 50 Members/mo" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Operational Role (Locked)</label>
+                          <input type="text" value={operationalRole} disabled placeholder="e.g. Manage field agents and onboarding" className="w-full px-5 py-3 rounded-2xl bg-gray-50 border border-gray-200 font-bold text-gray-400 focus:outline-none cursor-not-allowed" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Employee Commission (₹)</label>
+                          <input type="text" value={employeeCommissionAmount} onChange={(e) => setEmployeeCommissionAmount(e.target.value)} disabled={!canGenerateAgreement} placeholder="e.g. 500" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-50 disabled:bg-gray-100/50" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Membership Incentive (₹)</label>
+                          <input type="text" value={membershipIncentiveAmount} onChange={(e) => setMembershipIncentiveAmount(e.target.value)} disabled={!canGenerateAgreement} placeholder="e.g. 10" className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-50 disabled:bg-gray-100/50" />
+                        </div>
                       </div>
                     )}
 
@@ -1057,18 +1102,28 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                             setLocalUser(updatedUser);
 
                             // Immediately inject the new doc into digitalCertificates so the
-                            // signed-doc review panel appears without needing a page refresh
+                            // Compliance/Agreement statuses update reactively without refresh
                             if (localUser.role === 'employee' && updatedUser.offerLetterDetails) {
                               const ol = updatedUser.offerLetterDetails;
                               setDigitalCertificates(prev => {
-                                const filtered = prev.filter(c => c.type !== 'employee_offer_letter');
-                                return [...filtered, {
+                                const exist = prev.some(d => d.type === 'employee_offer_letter');
+                                if (exist) {
+                                  return prev.map(d => d.type === 'employee_offer_letter' ? {
+                                    ...d,
+                                    _id: ol._id,
+                                    fileUrl: ol.pdfUrl,
+                                    status: ol.status,
+                                    isLocked: ol.isLocked || false,
+                                    adminRemarks: ol.adminRemarks,
+                                    agreementId: ol.offerLetterId
+                                  } : d);
+                                }
+                                return [...prev, {
                                   _id: ol._id,
                                   type: 'employee_offer_letter',
                                   title: 'Employee Offer Letter',
                                   fileUrl: ol.pdfUrl,
-                                  uploadedDocumentUrl: ol.uploadedDocumentUrl,
-                                  status: ol.status || 'generated',
+                                  status: ol.status,
                                   isLocked: ol.isLocked || false,
                                   adminRemarks: ol.adminRemarks,
                                   agreementId: ol.offerLetterId,
@@ -1079,14 +1134,24 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                             } else if ((localUser.role === 'vendor' || localUser.role === 'sub_vendor') && updatedUser.vendorAgreementDetails) {
                               const ag = updatedUser.vendorAgreementDetails;
                               setDigitalCertificates(prev => {
-                                const filtered = prev.filter(c => c.type !== 'auth_letter');
-                                return [...filtered, {
+                                const exist = prev.some(d => d.type === 'auth_letter');
+                                if (exist) {
+                                  return prev.map(d => d.type === 'auth_letter' ? {
+                                    ...d,
+                                    _id: ag._id,
+                                    fileUrl: ag.fileUrl || `/api/vendor/agreement/${ag.agreementId}/preview`,
+                                    status: ag.status,
+                                    isLocked: ag.isLocked || false,
+                                    adminRemarks: ag.adminRemarks,
+                                    agreementId: ag.agreementId
+                                  } : d);
+                                }
+                                return [...prev, {
                                   _id: ag._id,
                                   type: 'auth_letter',
                                   title: 'Partnership Agreement',
                                   fileUrl: ag.fileUrl || `/api/vendor/agreement/${ag.agreementId}/preview`,
-                                  uploadedDocumentUrl: ag.uploadedDocumentUrl,
-                                  status: ag.status || 'generated',
+                                  status: ag.status,
                                   isLocked: ag.isLocked || false,
                                   adminRemarks: ag.adminRemarks,
                                   agreementId: ag.agreementId,
@@ -1103,8 +1168,8 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                           setIsGeneratingAppt(false);
                         }
                       }}
-                      disabled={isGeneratingAppt}
-                      className="w-full py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-transform disabled:opacity-50"
+                      disabled={isGeneratingAppt || !canGenerateAgreement}
+                      className="w-full py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:hover:scale-100"
                     >
                       {isGeneratingAppt 
                         ? (hasAgreement ? 'Updating...' : 'Generating...') 
@@ -1160,122 +1225,142 @@ export default function HierarchyDetailView({ data, onClose, onStatusUpdate }: H
                       {authLetter.uploadedDocumentUrl ? (
                         <div className="space-y-4">
                           <div className="flex flex-col sm:flex-row gap-3">
-                            <a
-                              href={getDocumentViewUrl(authLetter.uploadedDocumentUrl)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-secondary border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-100 transition-colors"
-                            >
-                              <ExternalLink size={14} /> View Signed Document
-                            </a>
-                            {!isDocLocked && (
+                            {canViewDoc ? (
                               <a
-                                href={authLetter.fileUrl}
+                                href={getDocumentViewUrl(authLetter.uploadedDocumentUrl)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-secondary border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-100 transition-colors"
                               >
-                                <ExternalLink size={14} /> View Generated Copy
+                                <ExternalLink size={14} /> View Signed Document
                               </a>
-                            )}
-                          </div>
-
-                          {/* Admin Remarks Input */}
-                          {!isDocLocked && (
-                            <div>
-                              <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1.5">
-                                Admin Remarks (required for rejection / reupload request)
-                              </label>
-                              <textarea
-                                value={signedDocRemarks}
-                                onChange={e => setSignedDocRemarks(e.target.value)}
-                                placeholder="Enter remarks for the partner..."
-                                rows={2}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-xs font-bold placeholder:text-gray-300 focus:outline-none focus:border-primary resize-none"
-                              />
-                            </div>
-                          )}
-
-                          {/* Display previously saved remarks */}
-                          {authLetter.adminRemarks && (docStatus === 'rejected' || docStatus === 'reupload_required') && (
-                            <div className="p-4 bg-orange-50 border border-orange-100 rounded-2xl flex items-start gap-3">
-                              <AlertCircle size={16} className="text-orange-500 shrink-0 mt-0.5" />
-                              <div>
-                                <p className="text-[9px] font-black text-orange-700 uppercase tracking-widest mb-1">Previous Remarks</p>
-                                <p className="text-xs font-bold text-orange-800">{authLetter.adminRemarks}</p>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Action Buttons */}
-                          <div className="flex flex-col sm:flex-row gap-2">
-                            {isDocLocked ? (
-                              <button
-                                onClick={async () => {
-                                  setSignedDocActionLoading('unlock');
-                                  await updateDocumentLock(authLetter._id, false, false);
-                                  setSignedDocActionLoading(null);
-                                }}
-                                disabled={!!signedDocActionLoading}
-                                className="flex-1 px-4 py-3 bg-amber-50 text-amber-700 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-amber-100 transition-colors flex items-center justify-center gap-2"
-                              >
-                                <AlertCircle size={14} /> {signedDocActionLoading === 'unlock' ? 'Unlocking...' : 'Unlock Document'}
-                              </button>
                             ) : (
-                              <>
-                                <button
-                                  onClick={async () => {
-                                    setSignedDocActionLoading('approve');
-                                    await updateDocumentLock(authLetter._id, true, true, signedDocRemarks || undefined, 'approved');
-                                    setSignedDocRemarks('');
-                                    setSignedDocActionLoading(null);
-                                  }}
-                                  disabled={!!signedDocActionLoading}
-                                  className={`flex-1 px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
-                                    docStatus === 'approved' ? 'bg-green-500 text-white shadow-lg shadow-green-200' : 'bg-green-50 text-green-700 hover:bg-green-100'
-                                  }`}
+                              <div className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-400 border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest cursor-not-allowed">
+                                <AlertCircle size={14} className="text-gray-300" /> Viewing Restricted
+                              </div>
+                            )}
+                            {!isDocLocked && (
+                              canViewDoc ? (
+                                <a
+                                  href={authLetter.fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-secondary border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-100 transition-colors"
                                 >
-                                  <ShieldCheck size={14} /> {signedDocActionLoading === 'approve' ? 'Approving...' : 'Approve & Lock'}
-                                </button>
-                                <button
-                                  onClick={async () => {
-                                    if (!signedDocRemarks.trim()) {
-                                      toast.error('Please enter remarks before requesting a reupload.');
-                                      return;
-                                    }
-                                    setSignedDocActionLoading('reupload');
-                                    await updateDocumentLock(authLetter._id, false, false, signedDocRemarks, 'reupload_required');
-                                    setSignedDocRemarks('');
-                                    setSignedDocActionLoading(null);
-                                  }}
-                                  disabled={!!signedDocActionLoading}
-                                  className={`flex-1 px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
-                                    docStatus === 'reupload_required' ? 'bg-amber-500 text-white shadow-lg shadow-amber-200' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
-                                  }`}
-                                >
-                                  <RefreshCw size={14} /> {signedDocActionLoading === 'reupload' ? 'Requesting...' : 'Request Reupload'}
-                                </button>
-                                <button
-                                  onClick={async () => {
-                                    if (!signedDocRemarks.trim()) {
-                                      toast.error('Please enter a reason for rejection.');
-                                      return;
-                                    }
-                                    setSignedDocActionLoading('reject');
-                                    await updateDocumentLock(authLetter._id, false, false, signedDocRemarks, 'rejected');
-                                    setSignedDocRemarks('');
-                                    setSignedDocActionLoading(null);
-                                  }}
-                                  disabled={!!signedDocActionLoading}
-                                  className={`flex-1 px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
-                                    docStatus === 'rejected' ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-red-50 text-red-700 hover:bg-red-100'
-                                  }`}
-                                >
-                                  <X size={14} /> {signedDocActionLoading === 'reject' ? 'Rejecting...' : 'Reject'}
-                                </button>
-                              </>
+                                  <ExternalLink size={14} /> View Generated Copy
+                                </a>
+                              ) : (
+                                <div className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-400 border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest cursor-not-allowed">
+                                  <AlertCircle size={14} className="text-gray-300" /> Viewing Restricted
+                                </div>
+                              )
                             )}
                           </div>
+
+                          {!canVerifyDoc ? (
+                            <div className="p-6 bg-gray-50 rounded-2xl border border-dashed border-gray-200 text-center flex flex-col items-center justify-center">
+                              <AlertCircle size={24} className="text-gray-400 mb-2" />
+                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Verification Restricted</p>
+                            </div>
+                          ) : (
+                            <>
+                              {!isDocLocked && (
+                                <div>
+                                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1.5">
+                                    Admin Remarks (required for rejection / reupload request)
+                                  </label>
+                                  <textarea
+                                    value={signedDocRemarks}
+                                    onChange={e => setSignedDocRemarks(e.target.value)}
+                                    placeholder="Enter remarks for the partner..."
+                                    rows={2}
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-xs font-bold placeholder:text-gray-300 focus:outline-none focus:border-primary resize-none"
+                                  />
+                                </div>
+                              )}
+
+                              {/* Display previously saved remarks */}
+                              {authLetter.adminRemarks && (docStatus === 'rejected' || docStatus === 'reupload_required') && (
+                                <div className="p-4 bg-orange-50 border border-orange-100 rounded-2xl flex items-start gap-3">
+                                  <AlertCircle size={16} className="text-orange-500 shrink-0 mt-0.5" />
+                                  <div>
+                                    <p className="text-[9px] font-black text-orange-700 uppercase tracking-widest mb-1">Previous Remarks</p>
+                                    <p className="text-xs font-bold text-orange-800">{authLetter.adminRemarks}</p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Action Buttons */}
+                              <div className="flex flex-col sm:flex-row gap-2">
+                                {isDocLocked ? (
+                                  <button
+                                    onClick={async () => {
+                                      setSignedDocActionLoading('unlock');
+                                      await updateDocumentLock(authLetter._id, false, false);
+                                      setSignedDocActionLoading(null);
+                                    }}
+                                    disabled={!!signedDocActionLoading}
+                                    className="flex-1 px-4 py-3 bg-amber-50 text-amber-700 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-amber-100 transition-colors flex items-center justify-center gap-2"
+                                  >
+                                    <AlertCircle size={14} /> {signedDocActionLoading === 'unlock' ? 'Unlocking...' : 'Unlock Document'}
+                                  </button>
+                                ) : (
+                                  <>
+                                    <button
+                                      onClick={async () => {
+                                        setSignedDocActionLoading('approve');
+                                        await updateDocumentLock(authLetter._id, true, true, signedDocRemarks || undefined, 'approved');
+                                        setSignedDocRemarks('');
+                                        setSignedDocActionLoading(null);
+                                      }}
+                                      disabled={!!signedDocActionLoading}
+                                      className={`flex-1 px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
+                                        docStatus === 'approved' ? 'bg-green-500 text-white shadow-lg shadow-green-200' : 'bg-green-50 text-green-700 hover:bg-green-100'
+                                      }`}
+                                    >
+                                      <ShieldCheck size={14} /> {signedDocActionLoading === 'approve' ? 'Approving...' : 'Approve & Lock'}
+                                    </button>
+                                    <button
+                                      onClick={async () => {
+                                        if (!signedDocRemarks.trim()) {
+                                          toast.error('Please enter remarks before requesting a reupload.');
+                                          return;
+                                        }
+                                        setSignedDocActionLoading('reupload');
+                                        await updateDocumentLock(authLetter._id, false, false, signedDocRemarks, 'reupload_required');
+                                        setSignedDocRemarks('');
+                                        setSignedDocActionLoading(null);
+                                      }}
+                                      disabled={!!signedDocActionLoading}
+                                      className={`flex-1 px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
+                                        docStatus === 'reupload_required' ? 'bg-amber-500 text-white shadow-lg shadow-amber-200' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                                      }`}
+                                    >
+                                      <RefreshCw size={14} /> {signedDocActionLoading === 'reupload' ? 'Requesting...' : 'Request Reupload'}
+                                    </button>
+                                    <button
+                                      onClick={async () => {
+                                        if (!signedDocRemarks.trim()) {
+                                          toast.error('Please enter a reason for rejection.');
+                                          return;
+                                        }
+                                        setSignedDocActionLoading('reject');
+                                        await updateDocumentLock(authLetter._id, false, false, signedDocRemarks, 'rejected');
+                                        setSignedDocRemarks('');
+                                        setSignedDocActionLoading(null);
+                                      }}
+                                      disabled={!!signedDocActionLoading}
+                                      className={`flex-1 px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
+                                        docStatus === 'rejected' ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-red-50 text-red-700 hover:bg-red-100'
+                                      }`}
+                                    >
+                                      <X size={14} /> {signedDocActionLoading === 'reject' ? 'Rejecting...' : 'Reject'}
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </>
+                          )}
 
                           {isDocLocked && (
                             <p className="text-[10px] text-green-600 font-bold uppercase tracking-widest flex items-center justify-center gap-1">

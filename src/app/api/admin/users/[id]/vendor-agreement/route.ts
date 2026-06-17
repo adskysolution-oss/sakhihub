@@ -57,6 +57,11 @@ export async function POST(
       return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
     }
 
+    const { checkRegionalScope } = await import('@/utils/authHelpers');
+    if (!(session.role === 'super_admin' || session.role === 'admin' || await checkRegionalScope(user, session))) {
+      return NextResponse.json({ success: false, message: 'Forbidden: Target user is out of regional scope' }, { status: 403 });
+    }
+
     // Determine current version to assign new version number
     const existingAgreement = await VendorAgreement.findOne({ vendorId: user._id });
     const versionNumber = existingAgreement ? (await AgreementVersion.countDocuments({ vendorId: user._id })) + 1 : 1;

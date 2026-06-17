@@ -2,6 +2,7 @@ import {
   FileCheck, CreditCard, UserCheck, Landmark,
   FileText, Clock, ShieldCheck, AlertCircle, MessageSquare
 } from 'lucide-react';
+import { STAFF_REQUIRED_DOCS, StaffDesignationType } from '@/constants/designations';
 
 /**
  * Required documents based on user role
@@ -22,6 +23,13 @@ export function getRequiredDocs(role: string, vendorType?: string, designation?:
   if (role === 'vendor' || role === 'sub_vendor') {
     const type = vendorType || 'individual';
     return REQUIRED_DOCS_BY_VENDOR_TYPE[type] || REQUIRED_DOCS_BY_VENDOR_TYPE.individual;
+  }
+  
+  if (role === 'staff') {
+    if (designation && designation in STAFF_REQUIRED_DOCS) {
+      return [...STAFF_REQUIRED_DOCS[designation as StaffDesignationType]];
+    }
+    return ['aadhaarCardFront', 'aadhaarCardBack', 'passportPhoto'];
   }
   
   let docs = [...(REQUIRED_DOCS_BY_ROLE[role] || [])];
@@ -196,6 +204,11 @@ export const DOC_CONFIG: Record<string, { label: string; icon: any; desc: string
     label: 'Graduation Certificate',
     icon: FileCheck,
     desc: 'Degree or provisional graduation certificate'
+  },
+  experienceCertificate: {
+    label: 'Experience Certificate',
+    icon: FileCheck,
+    desc: 'Proof of prior work experience'
   }
 };
 

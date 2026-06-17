@@ -13,6 +13,7 @@ import PasswordField from "@/components/ui/PasswordField";
 import { validatePassword } from "@/utils/validation";
 import { usePincodeAutofill } from "@/hooks/usePincodeAutofill";
 import { useLanguage } from "@/context/LanguageContext";
+import { STAFF_DESIGNATIONS } from "@/constants/designations";
 
 const designations = [
   "Block Employee",
@@ -495,6 +496,16 @@ export default function RegisterForm() {
                         <p className="text-xs md:text-sm text-gray-400">{t("auth.register.form.memberDesc")}</p>
                       </div>
                     </div>
+                    <div
+                      onClick={() => !referralContext && setFormData({ ...formData, role: "staff" })}
+                      className={`p-6 md:p-8 rounded-3xl border-2 transition-all cursor-pointer flex flex-col gap-4 items-center text-center ${formData.role === "staff" ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-200'} ${referralContext && formData.role !== 'staff' ? 'opacity-40 grayscale pointer-events-none' : ''}`}
+                    >
+                      <div className="w-12 h-12 md:w-16 md:h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"><ShieldCheck size={28} /></div>
+                      <div>
+                        <h3 className="text-lg md:text-xl font-black text-secondary">Staff</h3>
+                        <p className="text-xs md:text-sm text-gray-400">Join as Recruiter, Trainer, or coordinator</p>
+                      </div>
+                    </div>
                     <div className="sm:col-span-2">
                       <button type="button" disabled={!formData.role} onClick={nextStep} className="btn-primary w-full py-4 justify-center text-sm md:text-base">{t("auth.register.form.continue")} <ArrowRight size={20} /></button>
                     </div>
@@ -549,6 +560,21 @@ export default function RegisterForm() {
                             <select name="designation" value={formData.designation} onChange={handleChange} className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none bg-white font-bold" required>
                               <option value="">{t("auth.register.form.selectDesignation")}</option>
                               {designations.map(d => <option key={d} value={d}>{d}</option>)}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {formData.role === 'staff' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-black text-gray-700">Staff Designation</label>
+                          <div className="relative">
+                            <ClipboardList size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <select name="designation" value={formData.designation} onChange={handleChange} className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none bg-white font-bold" required>
+                              <option value="">Select Designation...</option>
+                              {STAFF_DESIGNATIONS.map(d => <option key={d} value={d}>{d}</option>)}
                             </select>
                           </div>
                         </div>
@@ -867,7 +893,7 @@ export default function RegisterForm() {
                     <div className="flex flex-col sm:flex-row gap-3 mt-4">
                       <button type="button" onClick={prevStep} className="btn-secondary w-full justify-center order-2 sm:order-1 py-4">{t("auth.register.form.back")}</button>
                       <button type="submit" disabled={loading} className="btn-primary w-full justify-center order-1 sm:order-2 py-4 shadow-xl shadow-primary/20">
-                        {loading ? "Registering..." : (formData.role === 'employee' ? "Register as Employee" : "Join Movement")} <Sparkles size={18} />
+                        {loading ? "Registering..." : (formData.role === 'employee' ? "Register as Employee" : formData.role === 'staff' ? "Register as Staff" : "Join Movement")} <Sparkles size={18} />
                       </button>
                     </div>
                   </motion.div>

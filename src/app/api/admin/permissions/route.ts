@@ -8,6 +8,7 @@ export const DEFAULT_PERMISSIONS = [
   { key: 'documents.view', name: 'View Documents', module: 'Documents' },
   { key: 'documents.verify', name: 'Verify Documents', module: 'Documents' },
   { key: 'documents.reject', name: 'Reject Documents', module: 'Documents' },
+  { key: 'credentials.view', name: 'View Sensitive Credentials (PII)', module: 'Credentials' },
 
   { key: 'offer_letters.view', name: 'View Offer Letters', module: 'Offer Letters' },
   { key: 'offer_letters.generate', name: 'Generate Offer Letters', module: 'Offer Letters' },
@@ -73,8 +74,8 @@ export async function POST(req: NextRequest) {
 
     const User = (await import('@/models/User')).default;
     const user = await User.findById(userId);
-    if (!user || user.role !== 'operations_admin') {
-      return errorResponse('Operations Admin not found', 404);
+    if (!user || !['operations_admin', 'staff'].includes(user.role)) {
+      return errorResponse('Permission enabled user not found', 404);
     }
 
     user.permissions = permissions;

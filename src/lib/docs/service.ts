@@ -2,6 +2,7 @@
  * Shared Backend Document Service
  * Handles folder generation, required docs logic, and status synchronization.
  */
+import { STAFF_REQUIRED_DOCS, StaffDesignationType } from '@/constants/designations';
 
 export const REQUIRED_DOCS_BY_ROLE: Record<string, string[]> = {
   vendor: ['ngoCertificate', 'panCard', 'aadhaarCard', 'bankPassbook'],
@@ -19,6 +20,13 @@ export function getRequiredDocs(role: string, vendorType?: string, designation?:
   if (role === 'vendor' || role === 'sub_vendor') {
     const type = vendorType || 'individual';
     return REQUIRED_DOCS_BY_VENDOR_TYPE[type] || REQUIRED_DOCS_BY_VENDOR_TYPE.individual;
+  }
+  
+  if (role === 'staff') {
+    if (designation && designation in STAFF_REQUIRED_DOCS) {
+      return [...STAFF_REQUIRED_DOCS[designation as StaffDesignationType]];
+    }
+    return ['aadhaarCardFront', 'aadhaarCardBack', 'passportPhoto'];
   }
   
   let docs = [...(REQUIRED_DOCS_BY_ROLE[role] || [])];
@@ -91,6 +99,7 @@ export function getDocumentFolderPath(user: any): string {
   if (user.role === 'vendor') role = 'vendor';
   else if (user.role === 'sub_vendor') role = 'sub-vendor';
   else if (user.role === 'employee') role = 'employee';
+  else if (user.role === 'staff') role = 'staff';
   
   // Safe identifier extraction
   let emailStr = '';
@@ -128,7 +137,10 @@ export function determineUserStatus(user: any): string {
   const hasReupload = statuses.includes('reupload_required');
   const allApproved = areAllDocsApproved(user);
   
-  if (allApproved) return 'approved'; 
+  if (allApproved) {
+    if (user.status === 'active') return 'active';
+    return 'approved';
+  }
   if (hasRejected || hasReupload) return 'reupload_required';
   
   const allUploaded = required.every(t => user.documents?.[t]?.url || ['exception_requested', 'exception_responded', 'exception_approved', 'on_hold'].includes(user.documents?.[t]?.status));

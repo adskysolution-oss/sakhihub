@@ -22,7 +22,7 @@ import {
 import PasswordField from "@/components/ui/PasswordField";
 import { useLanguage } from "@/context/LanguageContext";
 
-type Role = 'member' | 'employee' | 'vendor' | 'sub_vendor';
+type Role = 'member' | 'employee' | 'vendor' | 'sub_vendor' | 'staff';
 
 function LoginContent() {
   const router = useRouter();
@@ -79,6 +79,7 @@ function LoginContent() {
         else if (user.role === 'vendor') window.location.href = '/vendor/dashboard';
         else if (user.role === 'sub_vendor') window.location.href = '/sub-vendor/dashboard';
         else if (user.role === 'employee') window.location.href = '/employee/dashboard';
+        else if (user.role === 'staff') window.location.href = '/portal/dashboard';
         else window.location.href = '/member/dashboard';
       }
     } catch (err: any) {
@@ -163,15 +164,15 @@ function LoginContent() {
             <p className="text-gray-400 font-bold mt-2">{t('auth.login.welcomeBack')}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mb-10 p-1.5 bg-gray-50 rounded-3xl border border-gray-100">
-            {(['member', 'employee', 'vendor', 'sub_vendor'] as Role[]).map((r) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-10 p-1.5 bg-gray-50 rounded-3xl border border-gray-100">
+            {(['member', 'employee', 'vendor', 'sub_vendor', 'staff'] as Role[]).map((r) => (
               <button
                 key={r}
                 type="button"
                 onClick={() => setRole(r)}
                 className={`flex items-center justify-center gap-2 py-3 rounded-[18px] transition-all duration-300 font-black text-[10px] uppercase tracking-wider ${role === r ? 'bg-white text-primary shadow-xl shadow-gray-200' : 'text-gray-400 hover:text-gray-600'}`}
               >
-                {r === 'employee' ? <BriefIcon size={14} /> : r === 'vendor' ? <ShieldIcon size={14} /> : r === 'sub_vendor' ? <SparkleIcon size={14} /> : <UsersIcon size={14} />}
+                {r === 'employee' ? <BriefIcon size={14} /> : r === 'vendor' ? <ShieldIcon size={14} /> : r === 'sub_vendor' ? <SparkleIcon size={14} /> : r === 'staff' ? <BriefIcon size={14} /> : <UsersIcon size={14} />}
                 {r.replace('_', ' ')}
               </button>
             ))}

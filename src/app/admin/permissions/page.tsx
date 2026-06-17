@@ -91,7 +91,7 @@ export default function PermissionsPage() {
         {/* Header */}
         <div>
           <h2 className="text-3xl font-black text-secondary">Operational Permissions</h2>
-          <p className="text-gray-400 font-bold mt-1">Configure individual permission rules for operations administrators.</p>
+          <p className="text-gray-400 font-bold mt-1">Configure individual permission rules for operations administrators and staff.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

@@ -103,7 +103,13 @@ export async function GET(req: NextRequest) {
       vendorAgreementDetails: agreementMap[sv._id.toString()] || null
     }));
 
-    const sanitizedData = sanitizeUserListForClient(enrichedSubVendors, true);
+    const sessionUser = session as any;
+    const hasCredentialsView = sessionUser.role === 'super_admin' || 
+      (Array.isArray(sessionUser.permissions) && sessionUser.permissions.includes('credentials.view'));
+    const hasDocumentsView = sessionUser.role === 'super_admin' || 
+      (Array.isArray(sessionUser.permissions) && sessionUser.permissions.includes('documents.view'));
+
+    const sanitizedData = sanitizeUserListForClient(enrichedSubVendors, hasCredentialsView, hasDocumentsView);
 
     return Response.json({
       success: true,

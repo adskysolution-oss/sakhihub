@@ -12,20 +12,21 @@ export async function POST(req: NextRequest) {
     }
 
     await dbConnect();
-    const { userId, assignedScope, assignedStates, assignedDistricts, assignedRegions } = await req.json();
+    const { userId, assignedScope, assignedStates, assignedDistricts, assignedBlocks, assignedRegions } = await req.json();
 
     if (!userId) {
       return errorResponse('Missing userId', 400);
     }
 
     const user = await User.findById(userId);
-    if (!user || user.role !== 'operations_admin') {
-      return errorResponse('Operations Admin not found', 404);
+    if (!user || !['operations_admin', 'staff'].includes(user.role)) {
+      return errorResponse('Operations Admin or Staff not found', 404);
     }
 
     user.assignedScope = assignedScope || 'all';
     user.assignedStates = assignedStates || [];
     user.assignedDistricts = assignedDistricts || [];
+    user.assignedBlocks = assignedBlocks || [];
     user.assignedRegions = assignedRegions || [];
     await user.save();
 
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
       assignedScope,
       assignedStates,
       assignedDistricts,
+      assignedBlocks,
       assignedRegions
     });
 

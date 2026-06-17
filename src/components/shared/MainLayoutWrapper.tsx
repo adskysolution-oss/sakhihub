@@ -12,6 +12,7 @@ export default function MainLayoutWrapper({ children }: { children: React.ReactN
   // Dashboard routes where Navbar and Footer should be hidden
   const isDashboardRoute = 
     pathname.startsWith('/admin') || 
+    pathname.startsWith('/portal') || 
     pathname.startsWith('/vendor') || 
     pathname.startsWith('/sub-vendor') || 
     pathname.startsWith('/employee') || 

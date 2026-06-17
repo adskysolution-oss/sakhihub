@@ -7,14 +7,37 @@ import { successResponse, errorResponse } from '@/utils/response';
 export async function GET(req: NextRequest) {
   try {
     const session = await getAuthSession();
-    if (!session || !['super_admin', 'operations_admin'].includes((session as any).role)) {
-      return errorResponse('Unauthorized', 403);
+    if (!session) {
+      return errorResponse('Unauthorized', 401);
+    }
+
+    const userRole = (session as any).role;
+    if (!['super_admin', 'operations_admin', 'staff'].includes(userRole)) {
+      return errorResponse('Forbidden: Insufficient Permissions', 403);
     }
 
     await dbConnect();
+
+    // Check permissions from database for operations_admin and staff
+    if (userRole !== 'super_admin') {
+      const dbUser = await User.findById((session as any).id).lean() as any;
+      if (!dbUser) {
+        return errorResponse('User not found', 404);
+      }
+
+      const dbPermissions = Array.isArray(dbUser.permissions) ? dbUser.permissions : [];
+      // Require dashboard.view OR at least one valid permission
+      const hasDashboardView = dbPermissions.includes('dashboard.view');
+      const hasAnyPermission = dbPermissions.length > 0;
+
+      if (!hasDashboardView && !hasAnyPermission) {
+        return errorResponse('Forbidden: Insufficient Permissions', 403);
+      }
+    }
+
     const AuditLog = (await import('@/models/AuditLog')).default;
 
-    const isOperationsAdmin = (session as any).role === 'operations_admin';
+    const isOperationsAdmin = ['operations_admin', 'staff'].includes(userRole);
     if (isOperationsAdmin) {
       const dbUser = await User.findById((session as any).id).lean();
 

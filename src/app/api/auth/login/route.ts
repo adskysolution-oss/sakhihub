@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       if (user.role !== 'super_admin' && user.role !== 'operations_admin') {
         return errorResponse('Only administrators can access this portal', 403);
       }
-    } else if (role === 'member' || role === 'employee' || role === 'vendor' || role === 'sub_vendor') {
+    } else if (role === 'member' || role === 'employee' || role === 'vendor' || role === 'sub_vendor' || role === 'staff') {
       if (user.role === 'super_admin' || user.role === 'operations_admin') {
         return errorResponse('Administrators must use the Admin Portal', 403);
       }

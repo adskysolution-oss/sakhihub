@@ -28,7 +28,13 @@ export async function PATCH(
     const userToUpdate = await User.findById(id);
     if (!userToUpdate) return errorResponse('User not found', 404);
 
-    const { hasPermission } = await import('@/utils/authHelpers');
+
+
+    const { hasPermission, checkRegionalScope } = await import('@/utils/authHelpers');
+
+    if (!((session as any).role === 'super_admin' || (session as any).role === 'admin' || await checkRegionalScope(userToUpdate, session))) {
+      return errorResponse('Forbidden: Target user is out of regional scope', 403);
+    }
 
     if (status.startsWith('doc:')) {
       const requiredPerm = status.endsWith(':approved') || status.endsWith(':exception_approved') ? 'documents.verify' : 'documents.reject';
@@ -39,6 +45,7 @@ export async function PATCH(
       if (userToUpdate.role === 'vendor') requiredPerm = 'vendors.update';
       else if (userToUpdate.role === 'sub_vendor') requiredPerm = 'sub_vendors.update';
       else if (userToUpdate.role === 'employee') requiredPerm = 'employees.update';
+      else if (userToUpdate.role === 'staff') requiredPerm = 'employees.update';
       else if (userToUpdate.role === 'member') requiredPerm = 'members.update';
 
       const isAuthorized = await hasPermission((session as any).id, (session as any).role, requiredPerm);
@@ -66,6 +73,17 @@ export async function PATCH(
             updateData.onboardingCompleted = true;
           } else {
             // Mark as active but keep dashboard blocked until ALL conditions are met
+            updateData.dashboardAccess = false;
+            updateData.documentsVerified = allDocsOk;
+            updateData.onboardingCompleted = false;
+          }
+        } else if (userToUpdate.role === 'staff') {
+          const allDocsOk = areAllDocsApproved(userToUpdate);
+          if (allDocsOk) {
+            updateData.dashboardAccess = true;
+            updateData.documentsVerified = true;
+            updateData.onboardingCompleted = true;
+          } else {
             updateData.dashboardAccess = false;
             updateData.documentsVerified = allDocsOk;
             updateData.onboardingCompleted = false;
@@ -154,6 +172,15 @@ export async function PATCH(
           user.isVerified = true;
         } else {
           user.status = 'pending';
+          user.isVerified = false;
+          user.dashboardAccess = false;
+        }
+      } else if (user.role === 'staff') {
+        if (user.documentsVerified) {
+          user.status = 'approved';
+          user.isVerified = true;
+        } else {
+          user.status = 'under_review';
           user.isVerified = false;
           user.dashboardAccess = false;
         }
