@@ -179,7 +179,7 @@ export default function AdminFormResponsesPage() {
                         <div key={field.fieldId}>
                           <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">{field.label}</p>
                           {field.type === 'file' && value ? (
-                            <a href={value} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-primary font-bold hover:underline bg-primary/5 px-4 py-2 rounded-xl">
+                            <a href={`/api/file/preview?url=${encodeURIComponent(value)}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-primary font-bold hover:underline bg-primary/5 px-4 py-2 rounded-xl">
                               <ExternalLink size={16} /> View Uploaded File
                             </a>
                           ) : field.type === 'checkbox' && Array.isArray(value) ? (

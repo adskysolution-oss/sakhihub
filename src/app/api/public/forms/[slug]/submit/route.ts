@@ -19,6 +19,44 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     const session = await getAuthSession() as any;
     const userId = session?.id || null;
 
+    // Check for duplicates
+    // 1. If user is logged in, check by userId
+    if (userId) {
+      const existingByUser = await FormResponse.findOne({ formId: form._id, userId });
+      if (existingByUser) {
+        return NextResponse.json({ success: false, message: 'You have already submitted this form' }, { status: 400 });
+      }
+    }
+
+    // 2. Check by unique identifying fields (email, phone, mobile, aadhaar, pan)
+    for (const step of form.steps) {
+      for (const field of step.fields) {
+        const fieldId = field.fieldId;
+        const submittedValue = responses[fieldId];
+        
+        if (!submittedValue) continue;
+
+        const isEmailField = field.type === 'email' || fieldId.toLowerCase().includes('email');
+        const isPhoneField = field.type === 'phone' || fieldId.toLowerCase().includes('phone') || fieldId.toLowerCase().includes('mobile') || fieldId.toLowerCase().includes('contact');
+        const isUniqueDocField = fieldId.toLowerCase().includes('aadhaar') || fieldId.toLowerCase().includes('pan') || fieldId.toLowerCase().includes('roll');
+
+        if (isEmailField || isPhoneField || isUniqueDocField) {
+          const queryKey = `responses.${fieldId}`;
+          const existingDuplicate = await FormResponse.findOne({
+            formId: form._id,
+            [queryKey]: submittedValue
+          });
+
+          if (existingDuplicate) {
+            return NextResponse.json({ 
+              success: false, 
+              message: `A submission with this ${field.label} already exists.` 
+            }, { status: 400 });
+          }
+        }
+      }
+    }
+
     const newResponse = new FormResponse({
       formId: form._id,
       userId: userId,
