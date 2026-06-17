@@ -50,6 +50,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
     if (formatted.startsWith('SHVND')) return `SH-VND-${formatted.substring(5)}`;
     if (formatted.startsWith('SHSVN')) return `SH-SVN-${formatted.substring(5)}`;
     if (formatted.startsWith('SHEMP')) return `SH-EMP-${formatted.substring(5)}`;
+    if (formatted.startsWith('SHSTF')) return `SH-STF-${formatted.substring(5)}`;
     if (formatted.startsWith('SH')) {
       const rest = formatted.substring(2);
       const match = rest.match(/^([A-Z]+)(\d+)$/);

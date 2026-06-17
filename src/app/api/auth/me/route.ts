@@ -132,11 +132,7 @@ export async function PUT(req: NextRequest) {
 
     await dbConnect();
     const sessionUser = session as any;
-    const { vendorType } = await req.json();
-
-    if (!vendorType || !['individual', 'company', 'ngo_trust'].includes(vendorType)) {
-      return errorResponse('Invalid vendor type', 400);
-    }
+    const body = await req.json();
 
     const UserModel = await getUserModel();
     const user = await UserModel.findById(sessionUser.id);
@@ -144,7 +140,17 @@ export async function PUT(req: NextRequest) {
       return errorResponse('User not found', 404);
     }
 
-    user.vendorType = vendorType;
+    if (body.vendorType !== undefined) {
+      if (!['individual', 'company', 'ngo_trust'].includes(body.vendorType)) {
+        return errorResponse('Invalid vendor type', 400);
+      }
+      user.vendorType = body.vendorType;
+    }
+
+    if (body.currentAddressSameAsAadhaar !== undefined) {
+      user.currentAddressSameAsAadhaar = !!body.currentAddressSameAsAadhaar;
+    }
+
     await user.save();
 
     return successResponse(user, 'Profile updated successfully');

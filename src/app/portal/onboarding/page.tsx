@@ -183,7 +183,7 @@ export default function StaffOnboarding() {
     </div>
   );
 
-  const requiredDocs = profile ? getRequiredDocsForUser(profile.role, profile.documents, undefined, profile.designation) : [];
+  const requiredDocs = profile ? getRequiredDocsForUser(profile.role, profile.documents, undefined, profile.designation, profile.currentAddressSameAsAadhaar) : [];
   const uploadedDocs = profile ? Object.keys(profile.documents || {}).filter(key => !!profile.documents[key]?.url) : [];
   const allUploaded = requiredDocs.every(doc => uploadedDocs.includes(doc));
   
@@ -472,6 +472,74 @@ export default function StaffOnboarding() {
                           <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp" disabled={uploading === 'bankPassbook' || isComplianceDone} onChange={submitBank} />
                         </label>
                       )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Address Match Selection for HR Recruiter Cum Trainer */}
+              {profile?.designation === 'HR Recruiter Cum Trainer' && (
+                <div className="bg-white p-6 md:p-8 rounded-[32px] border-2 border-gray-100 hover:border-primary/20 transition-all overflow-hidden shadow-sm">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                      <Landmark size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-black text-secondary">{t('onboarding.addressMatchTitle', 'Current Address Verification')}</h3>
+                      <p className="text-[10px] text-primary font-black uppercase tracking-widest">{t('onboarding.addressMatchSubtitle', 'Please verify your current physical address.')}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <p className="text-sm font-bold text-gray-700">
+                      {t('onboarding.isAddressSameQuestion', 'Is your current address the same as your Aadhaar address?')}
+                    </p>
+                    <div className="flex gap-4">
+                      <button
+                        type="button"
+                        disabled={isComplianceDone}
+                        onClick={async () => {
+                          try {
+                            const res = await axios.put('/api/auth/me', { currentAddressSameAsAadhaar: true });
+                            if (res.data.success) {
+                              setProfile((prev: any) => ({ ...prev, currentAddressSameAsAadhaar: true }));
+                              toast.success(t('onboarding.addressSameSuccess', 'Address preference saved successfully'));
+                            }
+                          } catch (err) {
+                            toast.error(t('onboarding.addressSaveError', 'Failed to update address preference'));
+                          }
+                        }}
+                        className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest border-2 transition-all flex items-center justify-center gap-2 ${
+                          profile?.currentAddressSameAsAadhaar !== false
+                            ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20'
+                            : 'bg-white border-gray-100 text-gray-500 hover:border-primary/20'
+                        }`}
+                      >
+                        {profile?.currentAddressSameAsAadhaar !== false && <span className="w-2 h-2 rounded-full bg-white animate-pulse" />}
+                        {t('common.yes', 'Yes')}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isComplianceDone}
+                        onClick={async () => {
+                          try {
+                            const res = await axios.put('/api/auth/me', { currentAddressSameAsAadhaar: false });
+                            if (res.data.success) {
+                              setProfile((prev: any) => ({ ...prev, currentAddressSameAsAadhaar: false }));
+                              toast.success(t('onboarding.addressSameSuccess', 'Address preference saved successfully'));
+                            }
+                          } catch (err) {
+                            toast.error(t('onboarding.addressSaveError', 'Failed to update address preference'));
+                          }
+                        }}
+                        className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest border-2 transition-all flex items-center justify-center gap-2 ${
+                          profile?.currentAddressSameAsAadhaar === false
+                            ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20'
+                            : 'bg-white border-gray-100 text-gray-500 hover:border-primary/20'
+                        }`}
+                      >
+                        {profile?.currentAddressSameAsAadhaar === false && <span className="w-2 h-2 rounded-full bg-white animate-pulse" />}
+                        {t('common.no', 'No')}
+                      </button>
                     </div>
                   </div>
                 </div>

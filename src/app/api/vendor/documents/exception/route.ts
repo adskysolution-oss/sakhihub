@@ -25,7 +25,13 @@ export async function POST(req: NextRequest) {
       return errorResponse('User not found', 404);
     }
 
-    const allowedTypes = getRequiredDocsForUser(user.role, user.documents, user.vendorType, user.designation);
+    const allowedTypes = getRequiredDocsForUser(
+      user.role, 
+      user.documents, 
+      user.vendorType, 
+      user.designation,
+      user.currentAddressSameAsAadhaar
+    );
     if (!allowedTypes.includes(type)) {
       return errorResponse('Invalid document type for this role', 400);
     }

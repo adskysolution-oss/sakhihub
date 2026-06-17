@@ -271,8 +271,8 @@ export default function StaffManagement() {
     return acc;
   }, {});
 
-  const requiredDocs = selectedStaff ? getRequiredDocsForUser('staff', selectedStaff.documents, undefined, selectedStaff.designation) : [];
-  const compliance = selectedStaff ? getDocComplianceSummary(selectedStaff.documents, 'staff', undefined, selectedStaff.designation) : null;
+  const requiredDocs = selectedStaff ? getRequiredDocsForUser('staff', selectedStaff.documents, undefined, selectedStaff.designation, selectedStaff.currentAddressSameAsAadhaar) : [];
+  const compliance = selectedStaff ? getDocComplianceSummary(selectedStaff.documents, 'staff', undefined, selectedStaff.designation, selectedStaff.currentAddressSameAsAadhaar) : null;
   const allDocsApproved = compliance ? compliance.approved === compliance.total : false;
 
   return (
@@ -315,7 +315,7 @@ export default function StaffManagement() {
                   <tr><td colSpan={7} className="p-20 text-center text-gray-400 font-bold italic">{t('staff.emptyState', 'No staff users found.')}</td></tr>
                 ) : (
                   staffList.map((staff, index) => {
-                    const staffComp = getDocComplianceSummary(staff.documents, 'staff', undefined, staff.designation);
+                    const staffComp = getDocComplianceSummary(staff.documents, 'staff', undefined, staff.designation, staff.currentAddressSameAsAadhaar);
                     return (
                       <tr key={staff._id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer group" onClick={() => setSelectedStaff(staff)}>
                         <td className="p-5 text-xs font-bold text-gray-400">
@@ -463,21 +463,59 @@ export default function StaffManagement() {
                     {/* General Profile Info */}
                     <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
                       <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-4 border-primary pl-3">
-                        Contact Details
+                        Personal & Contact Details
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-bold">
                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                          <Phone size={14} className="text-primary" />
+                          <div>
+                            <p className="text-[9px] text-gray-400 uppercase tracking-wider">Full Name</p>
+                            <p className="text-secondary mt-0.5">{selectedStaff.fullName}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                          <div>
+                            <p className="text-[9px] text-gray-400 uppercase tracking-wider">Staff ID / Employee ID</p>
+                            <p className="text-primary font-black mt-0.5">{selectedStaff.employeeId || 'Pending'}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                           <div>
                             <p className="text-[9px] text-gray-400 uppercase tracking-wider">Mobile Number</p>
                             <p className="text-secondary mt-0.5">{selectedStaff.mobile}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                          <Mail size={14} className="text-primary" />
                           <div>
                             <p className="text-[9px] text-gray-400 uppercase tracking-wider">Email Address</p>
                             <p className="text-secondary mt-0.5">{selectedStaff.email || 'Not Provided'}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                          <div>
+                            <p className="text-[9px] text-gray-400 uppercase tracking-wider">Gender</p>
+                            <p className="text-secondary mt-0.5 capitalize">{selectedStaff.gender || 'Not specified'}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                          <div>
+                            <p className="text-[9px] text-gray-400 uppercase tracking-wider">Date of Birth</p>
+                            <p className="text-secondary mt-0.5">
+                              {selectedStaff.dob ? new Date(selectedStaff.dob).toLocaleDateString('en-IN') : 'Not specified'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                          <div>
+                            <p className="text-[9px] text-gray-400 uppercase tracking-wider">Designation</p>
+                            <p className="text-secondary mt-0.5">{selectedStaff.designation || 'Staff Member'}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                          <div>
+                            <p className="text-[9px] text-gray-400 uppercase tracking-wider">Registered At</p>
+                            <p className="text-secondary mt-0.5">
+                              {new Date(selectedStaff.createdAt).toLocaleDateString()}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -485,24 +523,26 @@ export default function StaffManagement() {
 
                     <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
                       <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-4 border-primary pl-3">
-                        Work Location & Demographics
+                        Permanent Location Details
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-bold">
+                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl md:col-span-2">
+                          <div>
+                            <p className="text-[9px] text-gray-400 uppercase tracking-wider">Full Address</p>
+                            <p className="text-secondary mt-0.5">{selectedStaff.address || 'Not provided'}</p>
+                          </div>
+                        </div>
                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                          <MapPin size={14} className="text-primary" />
+                          <div>
+                            <p className="text-[9px] text-gray-400 uppercase tracking-wider">Village / Area</p>
+                            <p className="text-secondary mt-0.5">{selectedStaff.area || 'Not provided'}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                           <div>
                             <p className="text-[9px] text-gray-400 uppercase tracking-wider">State / District / Block</p>
                             <p className="text-secondary mt-0.5">
                               {selectedStaff.state}, {selectedStaff.district}, {selectedStaff.block}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                          <Calendar size={14} className="text-primary" />
-                          <div>
-                            <p className="text-[9px] text-gray-400 uppercase tracking-wider">Registered At</p>
-                            <p className="text-secondary mt-0.5">
-                              {new Date(selectedStaff.createdAt).toLocaleDateString()}
                             </p>
                           </div>
                         </div>
@@ -522,6 +562,11 @@ export default function StaffManagement() {
                       <p className="text-xs text-gray-400 font-bold mb-4">
                         Review uploaded credential scans for the designation: <span className="text-secondary font-black">{selectedStaff.designation}</span>.
                       </p>
+                      {selectedStaff.designation === 'HR Recruiter Cum Trainer' && (
+                        <p className="text-xs font-bold text-gray-500 mt-2 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                          Current Address Same as Aadhaar: <span className="text-secondary font-black">{selectedStaff.currentAddressSameAsAadhaar !== false ? 'Yes' : 'No'}</span>
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-6">

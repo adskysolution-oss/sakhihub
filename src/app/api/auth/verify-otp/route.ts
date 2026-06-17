@@ -44,7 +44,9 @@ export async function POST(req: NextRequest) {
       // Generate unique codes
       const myVendorCode = userRole === 'vendor' ? `SHVND${Math.random().toString(36).substr(2, 6).toUpperCase()}` : undefined;
       const mySubVendorCode = userRole === 'sub_vendor' ? `SHSVN${Math.random().toString(36).substr(2, 6).toUpperCase()}` : undefined;
-      const myEmployeeId = userRole === 'employee' ? `SHEMP${Math.random().toString(36).substr(2, 6).toUpperCase()}` : undefined;
+      const myEmployeeId = (userRole === 'employee' || userRole === 'staff')
+        ? `${userRole === 'employee' ? 'SHEMP' : 'SHSTF'}${Math.random().toString(36).substr(2, 6).toUpperCase()}`
+        : undefined;
 
       // Status Enforcement
       let userStatus = (userRole === 'super_admin' || userRole === 'member') ? 'active' : 'pending';

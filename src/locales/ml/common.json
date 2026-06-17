@@ -1647,7 +1647,14 @@
     "certificate12th_label": "12th Pass Certificate",
     "certificate12th_desc": "Highest secondary education certificate",
     "graduationCertificate_label": "Graduation Certificate",
-    "graduationCertificate_desc": "Degree or provisional graduation certificate"
+    "graduationCertificate_desc": "Degree or provisional graduation certificate",
+    "addressProof_label": "നിലവിലെ വിലാസ തെളിവ്",
+    "addressProof_desc": "നിലവിലെ വിലാസത്തിന്റെ തെളിവ് (ആധാറിൽ നിന്ന് വ്യത്യസ്തമാണെങ്കിൽ)",
+    "addressMatchTitle": "നിലവിലെ വിലാസം പരിശോധിക്കൽ",
+    "addressMatchSubtitle": "ദയവായി നിങ്ങളുടെ നിലവിലെ വിലാസം പരിശോധിക്കുക.",
+    "isAddressSameQuestion": "നിങ്ങളുടെ നിലവിലെ വിലാസവും ആധാർ വിലാസവും ഒന്നാണോ?",
+    "addressSameSuccess": "വിലാസ മുൻഗണന വിജയകരമായി സംരക്ഷിച്ചു",
+    "addressSaveError": "വിലാസ മുൻഗണന അപ്ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു"
   },
   "memberProfile": {
     "loading": "പ്രൊഫൈൽ ലോഡ് ചെയ്യുന്നു...",

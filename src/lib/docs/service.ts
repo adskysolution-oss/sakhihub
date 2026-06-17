@@ -16,7 +16,12 @@ export const REQUIRED_DOCS_BY_VENDOR_TYPE: Record<string, string[]> = {
   ngo_trust: ['ngoCertificate', 'ngoPanCard', 'aadhaarCard', 'panCard', 'bankPassbook', 'ngoLogo']
 };
 
-export function getRequiredDocs(role: string, vendorType?: string, designation?: string): string[] {
+export function getRequiredDocs(
+  role: string, 
+  vendorType?: string, 
+  designation?: string,
+  currentAddressSameAsAadhaar?: boolean
+): string[] {
   if (role === 'vendor' || role === 'sub_vendor') {
     const type = vendorType || 'individual';
     return REQUIRED_DOCS_BY_VENDOR_TYPE[type] || REQUIRED_DOCS_BY_VENDOR_TYPE.individual;
@@ -24,7 +29,11 @@ export function getRequiredDocs(role: string, vendorType?: string, designation?:
   
   if (role === 'staff') {
     if (designation && designation in STAFF_REQUIRED_DOCS) {
-      return [...STAFF_REQUIRED_DOCS[designation as StaffDesignationType]];
+      const docs = [...STAFF_REQUIRED_DOCS[designation as StaffDesignationType]];
+      if (designation === 'HR Recruiter Cum Trainer' && currentAddressSameAsAadhaar === false) {
+        docs.push('addressProof');
+      }
+      return docs;
     }
     return ['aadhaarCardFront', 'aadhaarCardBack', 'passportPhoto'];
   }
@@ -45,8 +54,14 @@ export function getRequiredDocs(role: string, vendorType?: string, designation?:
 /**
  * Get required documents dynamically adjusting for legacy single aadhaarCard upload compatibility.
  */
-export function getRequiredDocsForUser(role: string, userDocuments: any, vendorType?: string, designation?: string): string[] {
-  let docs = getRequiredDocs(role, vendorType, designation);
+export function getRequiredDocsForUser(
+  role: string, 
+  userDocuments: any, 
+  vendorType?: string, 
+  designation?: string,
+  currentAddressSameAsAadhaar?: boolean
+): string[] {
+  let docs = getRequiredDocs(role, vendorType, designation, currentAddressSameAsAadhaar);
   
   const aadhaarKeysToSplit = ['aadhaarCard', 'directorAadhaarCard'];
   
@@ -119,7 +134,7 @@ export function getDocumentFolderPath(user: any): string {
  * Checks if all required documents for a role are approved
  */
 export function areAllDocsApproved(user: any): boolean {
-  const required = getRequiredDocsForUser(user.role, user.documents, user.vendorType, user.designation);
+  const required = getRequiredDocsForUser(user.role, user.documents, user.vendorType, user.designation, user.currentAddressSameAsAadhaar);
   if (required.length === 0) return false;
   return required.every(type => user.documents?.[type]?.status === 'approved' || user.documents?.[type]?.status === 'exception_approved');
 }
@@ -128,7 +143,7 @@ export function areAllDocsApproved(user: any): boolean {
  * Determines the overall user status based on individual document statuses
  */
 export function determineUserStatus(user: any): string {
-  const required = getRequiredDocsForUser(user.role, user.documents, user.vendorType, user.designation);
+  const required = getRequiredDocsForUser(user.role, user.documents, user.vendorType, user.designation, user.currentAddressSameAsAadhaar);
   if (!user.documents) return user.status;
 
   const statuses = required.map(t => user.documents?.[t]?.status);

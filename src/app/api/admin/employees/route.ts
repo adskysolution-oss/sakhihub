@@ -94,6 +94,17 @@ export async function GET(req: NextRequest) {
       .skip((page - 1) * limit)
       .limit(limit);
 
+    // Auto-assign employeeId to staff users who don't have one
+    if (targetRole === 'staff') {
+      for (const u of data) {
+        if (!u.employeeId) {
+          const generatedId = `SHSTF${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+          u.employeeId = generatedId;
+          await User.updateOne({ _id: u._id }, { $set: { employeeId: generatedId } });
+        }
+      }
+    }
+
     const resultFacet = { data };
 
     const populatedEmployees = await User.populate(resultFacet.data, {

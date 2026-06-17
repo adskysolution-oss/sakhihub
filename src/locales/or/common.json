@@ -1647,7 +1647,14 @@
     "certificate12th_label": "12th Pass Certificate",
     "certificate12th_desc": "Highest secondary education certificate",
     "graduationCertificate_label": "Graduation Certificate",
-    "graduationCertificate_desc": "Degree or provisional graduation certificate"
+    "graduationCertificate_desc": "Degree or provisional graduation certificate",
+    "addressProof_label": "Current Address Proof",
+    "addressProof_desc": "Proof of current address (if different from Aadhaar)",
+    "addressMatchTitle": "Current Address Verification",
+    "addressMatchSubtitle": "Please verify your current physical address.",
+    "isAddressSameQuestion": "Is your current address the same as your Aadhaar address?",
+    "addressSameSuccess": "Address preference saved successfully",
+    "addressSaveError": "Failed to update address preference"
   },
   "memberProfile": {
     "loading": "ପ୍ରୋଫାଇଲ୍ ଲୋଡ୍ କରୁଛି ...",

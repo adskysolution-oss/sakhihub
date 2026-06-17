@@ -92,8 +92,10 @@ export interface IUser extends Document {
     certificate12th?: IVendorDocumentEntry;
     graduationCertificate?: IVendorDocumentEntry;
     experienceCertificate?: IVendorDocumentEntry;
+    addressProof?: IVendorDocumentEntry;
     [key: string]: IVendorDocumentEntry | undefined;
   };
+  currentAddressSameAsAadhaar?: boolean;
   joiningDate?: Date;
   lastOtpSentAt?: Date;
   otpAttempts?: number;
@@ -215,6 +217,7 @@ const UserSchema: Schema = new Schema(
     experience: { type: String },
     aadhaarNumber: { type: String, unique: true, sparse: true },
     profileImage: { type: String },
+    currentAddressSameAsAadhaar: { type: Boolean, default: true },
     documents: {
       ngoCertificate: { type: DocumentEntrySchema },
       panCard: { type: DocumentEntrySchema },
@@ -238,7 +241,8 @@ const UserSchema: Schema = new Schema(
       certificate12th: { type: DocumentEntrySchema },
       graduationCertificate: { type: DocumentEntrySchema },
       resume: { type: DocumentEntrySchema },
-      experienceCertificate: { type: DocumentEntrySchema }
+      experienceCertificate: { type: DocumentEntrySchema },
+      addressProof: { type: DocumentEntrySchema }
     },
     lastOtpSentAt: { type: Date },
     otpAttempts: { type: Number, default: 0 },

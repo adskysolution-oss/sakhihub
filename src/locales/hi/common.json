@@ -1647,7 +1647,14 @@
     "certificate12th_label": "12वीं पास प्रमाणपत्र",
     "certificate12th_desc": "उच्च माध्यमिक शिक्षा प्रमाणपत्र",
     "graduationCertificate_label": "स्नातक प्रमाणपत्र",
-    "graduationCertificate_desc": "डिग्री या अनंतिम स्नातक प्रमाणपत्र"
+    "graduationCertificate_desc": "डिग्री या अनंतिम स्नातक प्रमाणपत्र",
+    "addressProof_label": "वर्तमान पता प्रमाण",
+    "addressProof_desc": "वर्तमान पते का प्रमाण (यदि आधार से भिन्न हो)",
+    "addressMatchTitle": "वर्तमान पता सत्यापन",
+    "addressMatchSubtitle": "कृपया अपना वर्तमान भौतिक पता सत्यापित करें।",
+    "isAddressSameQuestion": "क्या आपका वर्तमान पता आपके आधार पते के समान है?",
+    "addressSameSuccess": "पता प्राथमिकता सफलतापूर्वक सहेजी गई",
+    "addressSaveError": "पता प्राथमिकता अपडेट करने में विफल"
   },
   "memberProfile": {
     "loading": "प्रोफ़ाइल लोड हो रही है...",

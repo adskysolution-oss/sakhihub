@@ -1647,7 +1647,14 @@
     "certificate12th_label": "12th Pass Certificate",
     "certificate12th_desc": "Highest secondary education certificate",
     "graduationCertificate_label": "Graduation Certificate",
-    "graduationCertificate_desc": "Degree or provisional graduation certificate"
+    "graduationCertificate_desc": "Degree or provisional graduation certificate",
+    "addressProof_label": "বর্তমান ঠিকানার প্রমাণ",
+    "addressProof_desc": "বর্তমান ঠিকানার প্রমাণ (যদি আধার থেকে আলাদা হয়)",
+    "addressMatchTitle": "বর্তমান ঠিকানা যাচাইকরণ",
+    "addressMatchSubtitle": "দয়া করে আপনার বর্তমান শারীরিক ঠিকানা যাচাই করুন।",
+    "isAddressSameQuestion": "আপনার বর্তমান ঠিকানা কি আপনার আধার ঠিকানার মতো একই?",
+    "addressSameSuccess": "ঠিকানার পছন্দ সফলভাবে সংরক্ষিত হয়েছে",
+    "addressSaveError": "ঠিকানার পছন্দ আপডেট করতে ব্যর্থ হয়েছে"
   },
   "memberProfile": {
     "loading": "প্রোফাইল লোড হচ্ছে...",

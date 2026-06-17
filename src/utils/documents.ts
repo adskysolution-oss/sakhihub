@@ -19,7 +19,12 @@ export const REQUIRED_DOCS_BY_VENDOR_TYPE: Record<string, string[]> = {
   ngo_trust: ['ngoCertificate', 'ngoPanCard', 'aadhaarCard', 'panCard', 'bankPassbook', 'ngoLogo']
 };
 
-export function getRequiredDocs(role: string, vendorType?: string, designation?: string): string[] {
+export function getRequiredDocs(
+  role: string, 
+  vendorType?: string, 
+  designation?: string,
+  currentAddressSameAsAadhaar?: boolean
+): string[] {
   if (role === 'vendor' || role === 'sub_vendor') {
     const type = vendorType || 'individual';
     return REQUIRED_DOCS_BY_VENDOR_TYPE[type] || REQUIRED_DOCS_BY_VENDOR_TYPE.individual;
@@ -27,7 +32,11 @@ export function getRequiredDocs(role: string, vendorType?: string, designation?:
   
   if (role === 'staff') {
     if (designation && designation in STAFF_REQUIRED_DOCS) {
-      return [...STAFF_REQUIRED_DOCS[designation as StaffDesignationType]];
+      const docs = [...STAFF_REQUIRED_DOCS[designation as StaffDesignationType]];
+      if (designation === 'HR Recruiter Cum Trainer' && currentAddressSameAsAadhaar === false) {
+        docs.push('addressProof');
+      }
+      return docs;
     }
     return ['aadhaarCardFront', 'aadhaarCardBack', 'passportPhoto'];
   }
@@ -48,8 +57,14 @@ export function getRequiredDocs(role: string, vendorType?: string, designation?:
 /**
  * Get required documents dynamically adjusting for legacy single aadhaarCard upload compatibility.
  */
-export function getRequiredDocsForUser(role: string, userDocuments: any, vendorType?: string, designation?: string): string[] {
-  let docs = getRequiredDocs(role, vendorType, designation);
+export function getRequiredDocsForUser(
+  role: string, 
+  userDocuments: any, 
+  vendorType?: string, 
+  designation?: string,
+  currentAddressSameAsAadhaar?: boolean
+): string[] {
+  let docs = getRequiredDocs(role, vendorType, designation, currentAddressSameAsAadhaar);
   
   const aadhaarKeysToSplit = ['aadhaarCard', 'directorAadhaarCard'];
   
@@ -209,6 +224,11 @@ export const DOC_CONFIG: Record<string, { label: string; icon: any; desc: string
     label: 'Experience Certificate',
     icon: FileCheck,
     desc: 'Proof of prior work experience'
+  },
+  addressProof: {
+    label: 'Current Address Proof',
+    icon: FileText,
+    desc: 'Proof of current address (if different from Aadhaar)'
   }
 };
 
@@ -256,8 +276,14 @@ export function formatFileSize(size?: string | number): string {
 /**
  * Get compliance summary for a user's documents
  */
-export function getDocComplianceSummary(userDocuments: any, role: string, vendorType?: string, designation?: string) {
-  const required = getRequiredDocsForUser(role, userDocuments, vendorType, designation);
+export function getDocComplianceSummary(
+  userDocuments: any, 
+  role: string, 
+  vendorType?: string, 
+  designation?: string,
+  currentAddressSameAsAadhaar?: boolean
+) {
+  const required = getRequiredDocsForUser(role, userDocuments, vendorType, designation, currentAddressSameAsAadhaar);
   let uploaded = 0;
   let approved = 0;
   let rejected = 0;

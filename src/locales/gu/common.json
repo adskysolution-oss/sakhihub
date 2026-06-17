@@ -1647,7 +1647,14 @@
     "certificate12th_label": "12th Pass Certificate",
     "certificate12th_desc": "Highest secondary education certificate",
     "graduationCertificate_label": "Graduation Certificate",
-    "graduationCertificate_desc": "Degree or provisional graduation certificate"
+    "graduationCertificate_desc": "Degree or provisional graduation certificate",
+    "addressProof_label": "વર્તમાન સરનામાનો પુરાવો",
+    "addressProof_desc": "વર્તમાન સરનામાનો પુરાવો (જો આધાર કરતા અલગ હોય)",
+    "addressMatchTitle": "વર્તમાન સરનામાની ચકાસણી",
+    "addressMatchSubtitle": "કૃપા કરીને તમારા વર્તમાન ભૌતિક સરનામાની ચકાસણી કરો.",
+    "isAddressSameQuestion": "શું તમારું વર્તમાન સરનામું તમારા આધાર સરનામા જેવું જ છે?",
+    "addressSameSuccess": "સરનામાંની પસંદગી સફળતાપૂર્વક સાચવવામાં આવી",
+    "addressSaveError": "સરનામાંની પસંદગી અપડેટ કરવામાં નિષ્ફળ"
   },
   "memberProfile": {
     "loading": "પ્રોફાઇલ લોડ કરી રહ્યું છે...",
