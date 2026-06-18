@@ -158,9 +158,14 @@ const AppointmentLetterPreview: React.FC<{ data: AppointmentLetterData }> = ({ d
               </p>
 
               <div className="flex justify-between items-end mt-12 pt-8">
-                <div className="text-center relative">
-                  <img src="/manager-signature.png" alt="Manager Signature" className="h-16 w-auto mx-auto object-contain opacity-80" />
-                  <p className="font-bold border-t border-gray-400 pt-2 px-8 uppercase text-sm">Official Company Details</p>
+                <div className="text-center relative w-48 flex flex-col items-center">
+                  <div className="w-full h-24 flex items-center justify-center mb-2 relative">
+                    {/* Seal Image */}
+                    <img src="/Seal-Signature.png" alt="SakhiHub Seal" className="h-24 w-auto object-contain absolute opacity-60 z-0 mix-blend-darken" />
+                    {/* Signature Image */}
+                    <img src="/manager-signature.png" alt="Manager Signature" className="h-16 w-auto object-contain relative opacity-95 z-10 mix-blend-darken" />
+                  </div>
+                  <p className="font-bold border-t border-gray-400 pt-2 px-4 uppercase text-sm w-full">Official Company Details</p>
                   <p className="text-xs text-gray-500 mt-1">Authorized Signatory For {companyName}</p>
                 </div>
 

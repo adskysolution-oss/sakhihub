@@ -167,6 +167,15 @@ export const generateAgreementHtml = (data: any) => {
     console.error('Signature image not found:', e);
   }
 
+  let sealBase64 = '';
+  try {
+    const sealPath = path.join(process.cwd(), 'public', 'Seal-Signature.png');
+    const sealData = fs.readFileSync(sealPath);
+    sealBase64 = `data:image/png;base64,${sealData.toString('base64')}`;
+  } catch (e) {
+    console.error('Seal image not found:', e);
+  }
+
 
 
   // 55 Clauses definition
@@ -863,15 +872,16 @@ export const generateAgreementHtml = (data: any) => {
                     IN WITNESS WHEREOF, the Parties hereto have executed this ${headingTitle} on the day, month, and year first above written.
                   </div>
 
-                  <div class="sig-row">
-                    <div class="signature-box" style="position: relative;">
-                      ${signatureBase64 ? `<img src="${signatureBase64}" alt="Signature" style="height: 45px; position: absolute; top: -15px; left: 10px; opacity: 0.85;" />` : ''}
+                  <div class="sig-row" style="margin-top: 15px;">
+                    <div class="signature-box" style="position: relative; padding-top: 45px;">
+                      ${sealBase64 ? `<img src="${sealBase64}" alt="SakhiHub Seal" style="position: absolute; height: 80px; width: auto; object-fit: contain; opacity: 0.60; z-index: 0; mix-blend-mode: multiply; top: -15px; left: 5px;" />` : ''}
+                      ${signatureBase64 ? `<img src="${signatureBase64}" alt="Signature" style="position: absolute; height: 45px; width: auto; object-fit: contain; opacity: 0.95; z-index: 10; mix-blend-mode: multiply; top: 5px; left: 15px;" />` : ''}
                       <div class="line"></div>
                       <strong>For SakhiHub</strong><br/>
                       Authorized Signatory<br/>
                       Date: ${data.acceptanceTimestamp ? data.acceptanceTimestamp.split(',')[0] : currentDate}
                     </div>
-                    <div class="signature-box">
+                    <div class="signature-box" style="position: relative; padding-top: 45px;">
                       <div class="line"></div>
                       <strong>For Vendor</strong><br/>
                       Authorized Representative: ${data.vendorName}<br/>
