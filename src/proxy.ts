@@ -271,6 +271,17 @@ export async function proxy(request: NextRequest) {
             };
 
             const userPermissions = Array.isArray(payload.permissions) ? payload.permissions : [];
+
+            if (pathname.startsWith('/portal/forms/builder')) {
+              if (!userPermissions.includes('forms.manage')) {
+                return NextResponse.redirect(new URL('/unauthorized', request.url));
+              }
+            } else if (pathname.startsWith('/portal/forms')) {
+              if (!userPermissions.includes('forms.view') && !userPermissions.includes('forms.manage')) {
+                return NextResponse.redirect(new URL('/unauthorized', request.url));
+              }
+            }
+
             for (const [routePrefix, requiredPermission] of Object.entries(portalPagePermissionMap)) {
               if (pathname.startsWith(routePrefix)) {
                 if (!userPermissions.includes(requiredPermission)) {

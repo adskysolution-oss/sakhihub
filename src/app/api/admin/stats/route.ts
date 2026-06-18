@@ -3,6 +3,15 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
+import AuditLog from '@/models/AuditLog';
+import VendorAgreement from '@/models/VendorAgreement';
+import EmployeeOfferLetter from '@/models/EmployeeOfferLetter';
+import DailyReport from '@/models/DailyReport';
+import Group from '@/models/Group';
+import WomenMember from '@/models/WomenMember';
+import Membership from '@/models/Membership';
+import MemberRequest from '@/models/MemberRequest';
+import PaymentTransaction from '@/models/PaymentTransaction';
 
 export async function GET(req: NextRequest) {
   try {
@@ -35,7 +44,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const AuditLog = (await import('@/models/AuditLog')).default;
+
 
     const isOperationsAdmin = ['operations_admin', 'staff'].includes(userRole);
     if (isOperationsAdmin) {
@@ -60,7 +69,7 @@ export async function GET(req: NextRequest) {
         status: { $in: ['documents_uploaded', 'under_review', 'pending'] }
       });
 
-      const VendorAgreement = (await import('@/models/VendorAgreement')).default;
+
       const allRegionalPartners = await User.find({
         ...regionalMatch,
         role: { $in: ['vendor', 'sub_vendor'] },
@@ -71,7 +80,7 @@ export async function GET(req: NextRequest) {
       const generatedPartnerIds = generatedAgreements.map((g: any) => g.vendorId.toString());
       const pendingAgreementsCount = partnerIds.filter(id => !generatedPartnerIds.includes(id.toString())).length;
 
-      const EmployeeOfferLetter = (await import('@/models/EmployeeOfferLetter')).default;
+
       const allRegionalEmployees = await User.find({
         ...regionalMatch,
         role: 'employee',
@@ -82,7 +91,7 @@ export async function GET(req: NextRequest) {
       const generatedEmployeeIds = generatedOfferLetters.map((g: any) => g.employeeId.toString());
       const pendingOfferLettersCount = employeeIds.filter(id => !generatedEmployeeIds.includes(id.toString())).length;
 
-      const DailyReport = (await import('@/models/DailyReport')).default;
+
       let reportQuery: any = {};
       if (dbUser && dbUser.assignedScope === 'regional') {
         const regionalEmployees = await User.find({
@@ -127,11 +136,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // Import models for stats
-    const Group = (await import('@/models/Group')).default;
-    const WomenMember = (await import('@/models/WomenMember')).default;
-    const Membership = (await import('@/models/Membership')).default;
-    const MemberRequest = (await import('@/models/MemberRequest')).default;
+    // Models loaded via static imports
 
     const totalUsers = await User.countDocuments();
     const totalEmployees = await User.countDocuments({ role: 'employee' });
@@ -156,7 +161,7 @@ export async function GET(req: NextRequest) {
     const totalCollections = collections[0]?.total || 0;
 
     // Aggregate Partner Subscriptions & Deposits from PaymentTransaction
-    const PaymentTransaction = (await import('@/models/PaymentTransaction')).default;
+
 
     const partnerSubscriptionsAgg = await PaymentTransaction.aggregate([
       { $match: { type: 'subscription', status: { $in: ['paid', 'completed', 'success'] } } },

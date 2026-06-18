@@ -5,6 +5,11 @@ import { getAuthSession } from '@/lib/auth';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const session = await getAuthSession() as any;
+    if (!session || (session.role !== 'super_admin' && !(session.role === 'staff' && (session.permissions?.includes('forms.view') || session.permissions?.includes('forms.manage'))))) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
+
     const { id } = await params;
     await connectDB();
     const form = await DynamicForm.findById(id);
@@ -18,7 +23,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getAuthSession() as any;
-    if (!session || session.role !== 'super_admin') {
+    if (!session || (session.role !== 'super_admin' && !(session.role === 'staff' && session.permissions?.includes('forms.manage')))) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 
@@ -36,7 +41,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getAuthSession() as any;
-    if (!session || session.role !== 'super_admin') {
+    if (!session || (session.role !== 'super_admin' && !(session.role === 'staff' && session.permissions?.includes('forms.manage')))) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 

@@ -195,6 +195,9 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
       if (userPermissions.includes('support.view')) {
         items.push({ section: 'Operations', name: 'Support Queries', icon: findIcon('Support Queries'), href: '/portal/support-requests' });
       }
+      if (userPermissions.includes('forms.view')) {
+        items.push({ section: 'System & Finance', name: 'Dynamic Forms', icon: findIcon('Dynamic Forms'), href: '/portal/forms' });
+      }
 
       // Always include Profile and Documents
       items.push({ section: 'Account', name: 'Profile', icon: User, href: '/portal/profile' });

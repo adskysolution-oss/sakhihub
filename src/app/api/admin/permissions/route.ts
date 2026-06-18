@@ -34,7 +34,9 @@ export const DEFAULT_PERMISSIONS = [
   { key: 'members.update', name: 'Update Members', module: 'Members' },
 
   { key: 'payments.view', name: 'View Payments', module: 'Payments' },
-  { key: 'network.view', name: 'View Network Tree', module: 'Network' }
+  { key: 'network.view', name: 'View Network Tree', module: 'Network' },
+  { key: 'forms.view', name: 'View Dynamic Forms', module: 'Dynamic Forms' },
+  { key: 'forms.manage', name: 'Manage Dynamic Forms', module: 'Dynamic Forms' }
 ];
 
 export async function GET(req: NextRequest) {
@@ -46,10 +48,13 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
 
-    // Seed default permissions if they don't exist
-    const count = await Permission.countDocuments();
-    if (count === 0) {
-      await Permission.insertMany(DEFAULT_PERMISSIONS);
+    // Seed default permissions if they don't exist, and upsert any newly added default permissions
+    for (const perm of DEFAULT_PERMISSIONS) {
+      await Permission.findOneAndUpdate(
+        { key: perm.key },
+        { $setOnInsert: perm },
+        { upsert: true, new: true }
+      );
     }
 
     const permissions = await Permission.find({}).sort({ module: 1, key: 1 });

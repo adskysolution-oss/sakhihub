@@ -5,6 +5,11 @@ import { getAuthSession } from '@/lib/auth';
 
 export async function GET(request: Request) {
   try {
+    const session = await getAuthSession() as any;
+    if (!session || (session.role !== 'super_admin' && !(session.role === 'staff' && (session.permissions?.includes('forms.view') || session.permissions?.includes('forms.manage'))))) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     const forms = await DynamicForm.find({}).sort({ createdAt: -1 });
     return NextResponse.json({ success: true, data: forms });
@@ -16,7 +21,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const session = await getAuthSession() as any;
-    if (!session || session.role !== 'super_admin') {
+    if (!session || (session.role !== 'super_admin' && !(session.role === 'staff' && session.permissions?.includes('forms.manage')))) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 
