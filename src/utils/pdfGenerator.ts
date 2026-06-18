@@ -966,6 +966,7 @@ export const generateOfferLetterHtml = (data: any) => {
 
   let logoBase64 = '';
   let sigBase64 = '';
+  let sealBase64 = '';
   try {
     const logoPath = path.join(process.cwd(), 'public', 'logo.png');
     const logoData = fs.readFileSync(logoPath);
@@ -979,6 +980,13 @@ export const generateOfferLetterHtml = (data: any) => {
     sigBase64 = 'data:image/png;base64,' + sigData.toString('base64');
   } catch (e) {
     console.error('Signature image not found:', e);
+  }
+  try {
+    const sealPath = path.join(process.cwd(), 'public', 'Seal-Signature.png');
+    const sealData = fs.readFileSync(sealPath);
+    sealBase64 = 'data:image/png;base64,' + sealData.toString('base64');
+  } catch (e) {
+    console.error('Seal image not found:', e);
   }
 
   const programName = data.programName || "Women Health & Awareness Campaign";
@@ -1787,16 +1795,8 @@ export const generateOfferLetterHtml = (data: any) => {
                 You agree to comply with Company Rules, HR Policies, Operational Guidelines, Project SOPs, Data Protection Requirements, and Legal and Regulatory Requirements as amended from time to time.
               </p>
 
-              <!-- 26. SECURITY DEPOSIT & REFUND POLICY -->
-              <h3 class="section-title">26. SECURITY DEPOSIT & REFUND POLICY</h3>
-              <ul class="clause-bullet-list">
-                <li>• <span><strong>Security Deposit Amount:</strong> ₹${data.depositAmount || '2,000'}</span></li>
-                <li>• <span><strong>Refund Eligibility Period:</strong> 90 Days (3 Months) of continuous service.</span></li>
-                <li>• <span><strong>Refund Policy & Conditions:</strong> The employee security deposit shall become refundable only after successful completion of 90 days (3 months) of continuous service. If the employee leaves, resigns, abandons duties, or is terminated before completion of 90 days, the security deposit shall not be refundable.</span></li>
-              </ul>
-
-              <!-- 27. JURISDICTION -->
-              <h3 class="section-title">27. JURISDICTION</h3>
+              <!-- 26. JURISDICTION -->
+              <h3 class="section-title">26. JURISDICTION</h3>
               <p class="clause-text">
                 Any dispute arising out of this employment shall be subject exclusively to the jurisdiction of courts situated in Indore, Madhya Pradesh, India.
               </p>
@@ -2100,8 +2100,9 @@ export const generateOfferLetterHtml = (data: any) => {
 
                   <!-- Authorized By -->
                   <div class="signature-col-right">
-                    <div class="sig-img-container">
-                      ${sigBase64 ? `<img src="${sigBase64}" class="sig-img" alt="Manager Signature" />` : ''}
+                    <div class="sig-img-container" style="position: relative;">
+                      ${sealBase64 ? `<img src="${sealBase64}" alt="SakhiHub Seal" style="position: absolute; height: 80px; width: auto; object-fit: contain; opacity: 0.80; z-index: 0; mix-blend-mode: multiply; transform: translateX(16px);" />` : ''}
+                      ${sigBase64 ? `<img src="${sigBase64}" class="sig-img" alt="Manager Signature" style="position: relative; z-index: 10; mix-blend-mode: multiply;" />` : ''}
                     </div>
                     <div style="width: 100%;">
                       <h4 class="auth-title">AUTHORIZED BY</h4>

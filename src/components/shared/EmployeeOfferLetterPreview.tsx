@@ -465,18 +465,8 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
                     You agree to comply with Company Rules, HR Policies, Operational Guidelines, Project SOPs, Data Protection Requirements, and Legal and Regulatory Requirements as amended from time to time.
                   </p>
 
-                  {/* 26. SECURITY DEPOSIT & REFUND POLICY */}
-                  <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">26. SECURITY DEPOSIT & REFUND POLICY</h3>
-                  <div className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
-                    <ul className="space-y-1.5 list-none pl-1">
-                      <li className="flex items-start gap-1.5">• <span className="flex-1"><strong>Security Deposit Amount:</strong> ₹{data.depositAmount || '2,000'}</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="flex-1"><strong>Refund Eligibility Period:</strong> 90 Days (3 Months) of continuous service.</span></li>
-                      <li className="flex items-start gap-1.5">• <span className="flex-1"><strong>Refund Policy & Conditions:</strong> The employee security deposit shall become refundable only after successful completion of 90 days (3 months) of continuous service. If the employee leaves, resigns, abandons duties, or is terminated before completion of 90 days, the security deposit shall not be refundable.</span></li>
-                    </ul>
-                  </div>
-
-                  {/* 27. JURISDICTION */}
-                  <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">27. JURISDICTION</h3>
+                  {/* 26. JURISDICTION */}
+                  <h3 className="text-sm font-black uppercase text-[#D91656] mb-3 border-b border-gray-200 pb-1">26. JURISDICTION</h3>
                   <p className="text-xs mb-6 text-justify leading-relaxed text-gray-700">
                     Any dispute arising out of this employment shall be subject exclusively to the jurisdiction of courts situated in Indore, Madhya Pradesh, India.
                   </p>
@@ -783,8 +773,11 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
 
                   {/* Authorized By */}
                   <div className="text-center flex flex-col justify-between items-center relative min-h-[180px] pl-6 border-l border-gray-100">
-                    <div className="w-full h-20 flex items-center justify-center mb-2">
-                      <img src="/manager-signature.png" alt="Manager Signature" className="h-16 w-auto object-contain opacity-85" />
+                    <div className="w-full h-20 flex items-center justify-center mb-2 relative">
+                      {/* Seal Image */}
+                      <img src="/Seal-Signature.png" alt="SakhiHub Seal" className="h-20 w-auto object-contain absolute opacity-80 z-0 mix-blend-darken translate-x-4" />
+                      {/* Signature Image */}
+                      <img src="/manager-signature.png" alt="Manager Signature" className="h-16 w-auto object-contain relative opacity-90 z-10 mix-blend-darken" />
                     </div>
                     <div className="w-full text-center">
                       <h4 className="text-xs font-black uppercase text-gray-900 tracking-wider border-t border-gray-400 pt-2">AUTHORIZED BY</h4>
