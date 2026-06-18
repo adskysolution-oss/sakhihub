@@ -338,6 +338,17 @@ export default function StaffDocuments() {
             <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
               <h2 className="text-xl font-black text-secondary mb-6">Digital Certificates</h2>
               <div className="flex flex-col gap-3">
+                <Link 
+                  href="/id-card"
+                  className="flex items-center justify-between p-5 bg-primary/5 hover:bg-primary hover:text-white rounded-3xl transition-all group text-left border border-primary/20"
+                >
+                  <div className="flex items-center gap-4">
+                    <BadgeCheck size={20} className="text-primary group-hover:text-white" />
+                    <span className="font-bold text-sm">Digital ID Card (Live View)</span>
+                  </div>
+                  <ChevronRight size={18} className="opacity-40 group-hover:opacity-100" />
+                </Link>
+
                 {[
                   { id: 'employee_offer_letter', title: 'Staff Offer Letter', icon: FileText }
                 ].map((expectedCert, idx) => {

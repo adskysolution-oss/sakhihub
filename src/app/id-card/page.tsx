@@ -152,7 +152,7 @@ export default function IDCardPage() {
               </p>
             </div>
             <Link 
-              href={`/${user.role.replace('_', '-')}/dashboard/profile`}
+              href={user.role === 'staff' ? '/portal/profile' : `/${user.role.replace('_', '-')}/dashboard/profile`}
               className="px-5 py-2.5 bg-amber-500 text-white text-xs font-bold uppercase tracking-wide rounded-xl hover:bg-amber-600 transition-all whitespace-nowrap shrink-0 shadow-md shadow-amber-500/20"
             >
               Update Profile

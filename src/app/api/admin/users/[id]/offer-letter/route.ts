@@ -48,9 +48,9 @@ export async function POST(
     // Generate Offer Letter ID
     const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
     const des = (user.designation || '').toUpperCase();
-    const isTrainingOrStaff = des.includes('TRAINER') || des.includes('COORDINATOR') || des.includes('RECRUITER');
+    const isTrainingOrStaff = des.includes('TRAINER') || des.includes('COORDINATOR') || des.includes('RECRUITER') || user.role === 'staff';
     const offerLetterId = isTrainingOrStaff
-      ? `SH/TRN/2026/${randomStr}`
+      ? `SH-OFR-STF-${randomStr}`
       : `SH-OFR-${randomStr}`;
 
     const offerLetterDetails = {
@@ -75,8 +75,15 @@ export async function POST(
       { upsert: true, new: true, runValidators: true }
     );
 
-    // Reset email sent flag on user and trigger notification
+    // Reset email sent flag on user, save/verify correct employeeId format, and trigger notification
     user.offerLetterEmailSent = false;
+    
+    const expectedPrefix = user.role === 'staff' ? 'SHSTF' : 'SHEMP';
+    const isCorrectFormat = typeof user.employeeId === 'string' && user.employeeId.startsWith(expectedPrefix) && user.employeeId.length === 11;
+    
+    if (!isCorrectFormat) {
+      user.employeeId = `${expectedPrefix}${randomStr}`;
+    }
     await user.save();
 
     const { NotificationService, NotificationEvent } = await import('@/lib/notifications');

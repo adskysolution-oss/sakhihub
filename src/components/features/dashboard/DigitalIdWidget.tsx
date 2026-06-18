@@ -15,7 +15,12 @@ export default function DigitalIdWidget({ user }: DigitalIdWidgetProps) {
   const isReady = user.status === 'active' || user.isVerified || user.dashboardAccess;
 
   const idNumber = user.vendorCode || user.subVendorCode || user.employeeId || user._id;
-  const displayRole = user.role === 'sub_vendor' ? 'Sub-Vendor' : user.role === 'vendor' ? 'Vendor' : user.role === 'employee' ? 'Employee' : 'Member';
+  const displayRole = 
+    user.role === 'sub_vendor' ? 'Sub-Vendor' : 
+    user.role === 'vendor' ? 'Vendor' : 
+    user.role === 'employee' ? 'Employee' : 
+    user.role === 'staff' ? (user.designation || 'Staff') :
+    'Member';
 
   return (
     <div className={`p-8 rounded-[40px] shadow-2xl relative overflow-hidden ${isReady ? 'bg-gradient-to-br from-[#2C0A28] via-[#6A1B9A] to-[#D91656] text-white' : 'bg-white border border-gray-100'}`}>

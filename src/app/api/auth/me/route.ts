@@ -28,11 +28,35 @@ export async function GET() {
 
     let userObj = user.toObject();
 
-    if (userObj.role === 'employee') {
+    if (userObj.role === 'employee' || userObj.role === 'staff') {
       const EmployeeOfferLetter = (await import('@/models/EmployeeOfferLetter')).default;
       const offerLetter = await EmployeeOfferLetter.findOne({ employeeId: user._id }).lean();
       if (offerLetter) {
         userObj.offerLetterDetails = offerLetter;
+        
+        // Sync/Heal User's employeeId to SHSTF/SHEMP format
+        const expectedPrefix = user.role === 'employee' ? 'SHEMP' : 'SHSTF';
+        const isCorrectFormat = typeof user.employeeId === 'string' && user.employeeId.startsWith(expectedPrefix) && user.employeeId.length === 11;
+        
+        if (!isCorrectFormat) {
+          let suffix = '';
+          if (offerLetter.offerLetterId && offerLetter.offerLetterId.includes('/')) {
+            const parts = offerLetter.offerLetterId.split('/');
+            suffix = parts[parts.length - 1];
+          } else if (offerLetter.offerLetterId && offerLetter.offerLetterId.includes('-')) {
+            const parts = offerLetter.offerLetterId.split('-');
+            suffix = parts[parts.length - 1];
+          }
+          
+          if (!suffix || suffix.length !== 6) {
+            suffix = Math.random().toString(36).substr(2, 6).toUpperCase();
+          }
+          
+          const newId = `${expectedPrefix}${suffix}`;
+          user.employeeId = newId;
+          await user.save();
+          userObj.employeeId = newId;
+        }
       }
     } else if (['vendor', 'sub_vendor'].includes(userObj.role)) {
       const VendorAgreement = (await import('@/models/VendorAgreement')).default;

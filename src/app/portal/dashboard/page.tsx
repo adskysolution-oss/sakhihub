@@ -7,6 +7,7 @@ import axios from "axios";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { ShieldAlert, RefreshCw } from "lucide-react";
+import DigitalIdWidget from "@/components/features/dashboard/DigitalIdWidget";
 
 export default function StaffDashboardPage() {
   const { t } = useLanguage();
@@ -86,6 +87,11 @@ export default function StaffDashboardPage() {
           {t('dashboardStaff.description', 'Verify documents, review field reports, and manage regional operations.')}
         </p>
       </div>
+
+      <div className="mb-8">
+        <DigitalIdWidget user={user} />
+      </div>
+
       <PermissionEnabledDashboard stats={data} />
     </DashboardLayout>
   );

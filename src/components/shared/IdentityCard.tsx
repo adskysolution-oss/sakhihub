@@ -37,6 +37,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
   };
 
   const getDesignation = (role: string) => {
+    if (user.designation) return user.designation;
     if (role === 'employee') return 'SakhiHub Executive';
     if (role === 'vendor') return 'SakhiHub Partner';
     if (role === 'sub_vendor') return 'SakhiHub Sub-Partner';
@@ -66,7 +67,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
   // Format the Role display string dynamically
   const getFormattedRoleString = () => {
     const base = getRoleDisplayName(user.role);
-    if (user.role === 'employee' && user.designation) {
+    if ((user.role === 'employee' || user.role === 'staff') && user.designation) {
       // capitalize designation
       const d = user.designation.replace(/\b\w/g, l => l.toUpperCase());
       return d;
@@ -254,10 +255,10 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
         </div>
 
         {/* Content Container (No Logo here) */}
-        <div className="relative z-10 flex-1 flex flex-col pt-[55px]">
+        <div className="relative z-10 flex-1 flex flex-col pt-[55px] pb-[60px]">
 
           {/* Detailed Address Table */}
-          <div className="px-10 w-full flex flex-col gap-2 text-[10px] mb-2 mt-2">
+          <div className="px-10 w-full flex flex-col gap-1.5 text-[9.5px] mb-1.5 mt-1.5">
             {[
               { label: 'Organization', value: user.organizationName || 'SakhiHub', icon: Building },
               { label: 'State', value: user.state, icon: MapPin },
@@ -277,7 +278,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
           </div>
 
           {/* Terms & Conditions Header */}
-          <div className="mt-2.5 mb-1.5 flex items-center justify-center">
+          <div className="mt-1.5 mb-1 flex items-center justify-center">
             <div className="h-[1px] w-12 bg-gray-300"></div>
             <div className="w-1.5 h-1.5 rounded-full bg-[#E91E63] mx-2 shadow-sm opacity-80"></div>
             <span className="text-[9.5px] font-black text-[#E91E63] uppercase tracking-widest mx-1">
@@ -288,7 +289,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
           </div>
 
           {/* T&C List */}
-          <div className="px-10 mb-2.5">
+          <div className="px-10 mb-1.5">
             <ul className="text-[9px] text-gray-700 list-disc pl-3 space-y-1 font-medium leading-tight tracking-tight">
               <li>This card is non-transferable and for official work only.</li>
               <li>Must be carried while on official duty.</li>
@@ -297,7 +298,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
           </div>
 
           {/* Company Information Box */}
-          <div className="mx-10 mb-2 p-2.5 bg-pink-50/40 rounded-xl border border-pink-100/50 flex flex-col gap-1 text-[9px]">
+          <div className="mx-10 mb-1.5 p-2 bg-pink-50/40 rounded-xl border border-pink-100/50 flex flex-col gap-0.5 text-[9px]">
             <span className="font-extrabold text-[#E91E63] uppercase tracking-wider text-[9.5px] mb-0.5">Company Information</span>
             <div className="flex items-start text-gray-700 leading-tight">
               <Building size={11} strokeWidth={2.5} className="text-[#E91E63] mr-2 shrink-0 mt-0.5" />
@@ -322,12 +323,12 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
           </div>
 
           {/* Signatures & Seal Area */}
-          <div className="flex justify-between items-end px-10 mt-auto pb-4 z-10">
+          <div className="flex justify-between items-end px-10 mt-auto pb-0 z-10">
             <div className="flex flex-col items-center">
               <img
-                src={user.role === 'employee' ? "/manager-signature.png" : "/signature-placeholder.png"}
+                src={['employee', 'staff', 'vendor', 'sub_vendor'].includes(user.role) ? "/manager-signature.png" : "/signature-placeholder.png"}
                 alt="Signature"
-                className={user.role === 'employee' ? "h-10 w-auto object-contain mb-0.5 mix-blend-darken" : "h-8 opacity-80 mb-1"}
+                className={['employee', 'staff', 'vendor', 'sub_vendor'].includes(user.role) ? "h-10 w-auto object-contain mb-0.5 mix-blend-darken" : "h-8 opacity-80 mb-1"}
                 onError={(e) => { e.currentTarget.style.display = 'none'; }}
               />
               <div className="h-[1px] w-[100px] bg-gray-400 mb-1.5"></div>
@@ -335,27 +336,21 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
             </div>
 
             <div className="relative ml-2">
-              {/* Circular Verification Stamp */}
-              <div className="w-[75px] h-[75px] rounded-full border-[1.5px] border-[#E91E63] flex items-center justify-center p-0.5 opacity-90 shadow-sm bg-white">
-                <div className="w-full h-full rounded-full border border-[#E91E63] border-dashed flex flex-col items-center justify-center relative bg-pink-50/50">
-                  <svg viewBox="0 0 100 100" className="absolute w-full h-full text-[#E91E63] animate-spin-slow" style={{ animationDuration: '20s' }}>
-                    <path id="curve-back" d="M 15 50 A 35 35 0 1 1 85 50 A 35 35 0 1 1 15 50" fill="transparent" />
-                    <text className="text-[13px] font-black uppercase tracking-[0.15em]" fill="currentColor">
-                      <textPath href="#curve-back" startOffset="25%" textAnchor="middle">SAKHIHUB</textPath>
-                      <textPath href="#curve-back" startOffset="75%" textAnchor="middle">VERIFIED</textPath>
-                    </text>
-                  </svg>
-                  <img src="/logo.png" className="w-[24px] opacity-80" alt="" />
-                </div>
-              </div>
+              {/* Official Seal/Stamp */}
+              <img
+                src="/Seal-Signature.png"
+                alt="SakhiHub Official Seal"
+                className="w-[75px] h-[75px] object-contain opacity-95 mix-blend-darken"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
             </div>
           </div>
 
           {/* Bottom Footer Section */}
-          <div className="relative w-full h-[50px] z-10 flex flex-col justify-end overflow-hidden rounded-b-[24px] mt-2">
+          <div className="absolute bottom-0 left-0 w-full h-[60px] z-20 flex flex-col justify-end overflow-hidden rounded-b-[24px]">
             {/* Bottom Wave Background */}
-            <svg viewBox="0 0 340 50" className="absolute bottom-0 left-0 w-full h-full" preserveAspectRatio="none">
-              <path d="M0,12 C100,2 240,22 340,10 L340,50 L0,50 Z" fill="url(#back-bottom-grad)" />
+            <svg viewBox="0 0 340 60" className="absolute bottom-0 left-0 w-full h-full" preserveAspectRatio="none">
+              <path d="M0,15 C100,2 240,25 340,12 L340,60 L0,60 Z" fill="url(#back-bottom-grad)" />
               <defs>
                 <linearGradient id="back-bottom-grad" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#E91E63" />
@@ -365,7 +360,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
             </svg>
 
             {/* Footer Content */}
-            <div className="absolute bottom-3.5 w-full flex justify-center items-center gap-3.5 text-white/95">
+            <div className="absolute bottom-[22px] w-full flex justify-center items-center gap-3.5 text-white/95">
               <div className="flex items-center gap-1.5">
                 <Globe size={11.5} />
                 <span className="text-[9.5px] font-semibold tracking-wider">www.sakhihub.com</span>

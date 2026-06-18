@@ -63,7 +63,36 @@ export async function GET(request: NextRequest) {
     // Determine the ID Number to display
     if (user.role === 'vendor') publicData.idNumber = user.vendorCode;
     else if (user.role === 'sub_vendor') publicData.idNumber = user.subVendorCode;
-    else if (user.role === 'employee') publicData.idNumber = user.employeeId;
+    else if (user.role === 'employee' || user.role === 'staff') {
+      const expectedPrefix = user.role === 'employee' ? 'SHEMP' : 'SHSTF';
+      const isCorrectFormat = typeof user.employeeId === 'string' && user.employeeId.startsWith(expectedPrefix) && user.employeeId.length === 11;
+
+      if (!isCorrectFormat) {
+        const EmployeeOfferLetter = (await import('@/models/EmployeeOfferLetter')).default;
+        const offerLetter = await EmployeeOfferLetter.findOne({ employeeId: user._id }).lean();
+        
+        let suffix = '';
+        if (offerLetter && offerLetter.offerLetterId) {
+          if (offerLetter.offerLetterId.includes('/')) {
+            const parts = offerLetter.offerLetterId.split('/');
+            suffix = parts[parts.length - 1];
+          } else if (offerLetter.offerLetterId.includes('-')) {
+            const parts = offerLetter.offerLetterId.split('-');
+            suffix = parts[parts.length - 1];
+          }
+        }
+        
+        if (!suffix || suffix.length !== 6) {
+          suffix = Math.random().toString(36).substr(2, 6).toUpperCase();
+        }
+        
+        const newId = `${expectedPrefix}${suffix}`;
+        publicData.idNumber = newId;
+        await User.updateOne({ _id: user._id }, { $set: { employeeId: newId } });
+      } else {
+        publicData.idNumber = user.employeeId;
+      }
+    }
     else publicData.idNumber = user._id.toString();
 
     // If role is member, try fetching additional public details from WomenMember
