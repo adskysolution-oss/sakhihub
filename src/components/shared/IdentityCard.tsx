@@ -347,7 +347,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
           </div>
 
           {/* Bottom Footer Section */}
-          <div className="absolute bottom-0 left-0 w-full h-[60px] z-20 flex flex-col justify-end overflow-hidden rounded-b-[24px]">
+          <div className="absolute bottom-0 left-0 w-full h-[60px] z-20 overflow-hidden rounded-b-[24px]">
             {/* Bottom Wave Background */}
             <svg viewBox="0 0 340 60" className="absolute bottom-0 left-0 w-full h-full" preserveAspectRatio="none">
               <path d="M0,15 C100,2 240,25 340,12 L340,60 L0,60 Z" fill="url(#back-bottom-grad)" />
@@ -360,7 +360,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
             </svg>
 
             {/* Footer Content */}
-            <div className="absolute bottom-[22px] w-full flex justify-center items-center gap-3.5 text-white/95">
+            <div className="absolute w-full flex justify-center items-center gap-3.5 text-white/95" style={{ bottom: '24px' }}>
               <div className="flex items-center gap-1.5">
                 <Globe size={11.5} />
                 <span className="text-[9.5px] font-semibold tracking-wider">www.sakhihub.com</span>
