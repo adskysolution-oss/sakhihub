@@ -36,7 +36,9 @@ export const DEFAULT_PERMISSIONS = [
   { key: 'payments.view', name: 'View Payments', module: 'Payments' },
   { key: 'network.view', name: 'View Network Tree', module: 'Network' },
   { key: 'forms.view', name: 'View Dynamic Forms', module: 'Dynamic Forms' },
-  { key: 'forms.manage', name: 'Manage Dynamic Forms', module: 'Dynamic Forms' }
+  { key: 'forms.manage', name: 'Manage Dynamic Forms', module: 'Dynamic Forms' },
+  { key: 'forms.analytics', name: 'View Dynamic Forms Analytics', module: 'Dynamic Forms' },
+  { key: 'forms.export', name: 'Export Dynamic Forms Submissions', module: 'Dynamic Forms' }
 ];
 
 export async function GET(req: NextRequest) {

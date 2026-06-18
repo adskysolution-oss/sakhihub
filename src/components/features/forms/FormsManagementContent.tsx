@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, List, Settings, Eye } from "lucide-react";
+import { Plus, Edit, Trash2, List, Settings, Eye, BarChart3 } from "lucide-react";
 import axios from "axios";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -18,6 +18,9 @@ export default function FormsManagementContent() {
 
   const canManage = currentUser?.role === 'super_admin' || 
     (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('forms.manage'));
+
+  const canViewAnalytics = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('forms.analytics'));
 
   useEffect(() => {
     fetchForms();
@@ -112,8 +115,17 @@ export default function FormsManagementContent() {
                     <Edit size={14} /> Edit
                   </div>
                 )}
-                <Link target="_blank" href={`/forms/${form.slug}`} className="col-span-2 bg-gray-50 hover:bg-gray-100 text-gray-700 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors">
-                  <Eye size={14} /> View Live Form
+                {canViewAnalytics ? (
+                  <Link href={`${basePath}/${form._id}/analytics`} className="bg-[#f0fdf4] hover:bg-[#dcfce7] text-green-700 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors">
+                    <BarChart3 size={14} /> Analytics
+                  </Link>
+                ) : (
+                  <div className="bg-gray-100 text-gray-400 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-2 cursor-not-allowed">
+                    <BarChart3 size={14} /> Analytics
+                  </div>
+                )}
+                <Link target="_blank" href={`/forms/${form.slug}`} className="bg-gray-50 hover:bg-gray-100 text-gray-700 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors">
+                  <Eye size={14} /> View Live
                 </Link>
               </div>
               {canManage && (

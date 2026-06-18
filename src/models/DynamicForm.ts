@@ -7,6 +7,7 @@ export interface IDynamicFormField {
   placeholder?: string;
   required: boolean;
   options?: string[]; // Used for select, radio, checkbox
+  analyticsEnabled?: boolean;
 }
 
 export interface IDynamicFormStep {
@@ -23,6 +24,7 @@ export interface IDynamicForm extends Document {
   isActive: boolean;
   createdBy: mongoose.Types.ObjectId;
   steps: IDynamicFormStep[];
+  version: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -37,7 +39,8 @@ const DynamicFormFieldSchema = new Schema<IDynamicFormField>({
   },
   placeholder: { type: String },
   required: { type: Boolean, default: false },
-  options: [{ type: String }]
+  options: [{ type: String }],
+  analyticsEnabled: { type: Boolean, default: false }
 }, { _id: false });
 
 const DynamicFormStepSchema = new Schema<IDynamicFormStep>({
@@ -53,7 +56,13 @@ const DynamicFormSchema = new Schema<IDynamicForm>({
   description: { type: String },
   isActive: { type: Boolean, default: true },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
-  steps: [DynamicFormStepSchema]
+  steps: [DynamicFormStepSchema],
+  version: { type: Number, default: 1 }
 }, { timestamps: true });
+
+// Prevent model recompilation in development while ensuring schema updates are picked up
+if (process.env.NODE_ENV !== 'production' && mongoose.models && mongoose.models.DynamicForm) {
+  delete (mongoose.models as any).DynamicForm;
+}
 
 export default mongoose.models.DynamicForm || mongoose.model<IDynamicForm>('DynamicForm', DynamicFormSchema);

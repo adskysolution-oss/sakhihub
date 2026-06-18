@@ -17,6 +17,7 @@ interface FormField {
   placeholder?: string;
   required: boolean;
   options?: string[];
+  analyticsEnabled?: boolean;
 }
 
 interface FormStep {
@@ -144,7 +145,8 @@ export default function FormBuilderContent() {
         type: 'text',
         placeholder: '',
         required: false,
-        options: []
+        options: [],
+        analyticsEnabled: false
       });
       return { ...prev, steps: newSteps };
     });
@@ -387,9 +389,19 @@ export default function FormBuilderContent() {
                     )}
                   </div>
                   
-                  <div className="flex flex-col items-end justify-between border-l border-gray-100 pl-4 ml-2 shrink-0">
+                  <div className="flex flex-col items-end justify-between border-l border-gray-100 pl-4 ml-2 shrink-0 gap-3">
                     <button onClick={() => deleteField(stepIndex, fieldIndex)} className="text-gray-400 hover:text-rose-500 p-2"><Trash2 size={16} /></button>
+                    
+                    {/* Include In Analytics Toggle */}
                     <label className="flex items-center gap-2 cursor-pointer mt-auto">
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Include In Analytics</span>
+                      <div className={`w-10 h-6 rounded-full transition-colors relative ${field.analyticsEnabled ? 'bg-primary' : 'bg-gray-200'}`}>
+                        <input type="checkbox" className="hidden" checked={field.analyticsEnabled || false} onChange={(e) => updateField(stepIndex, fieldIndex, { analyticsEnabled: e.target.checked })} />
+                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${field.analyticsEnabled ? 'left-5' : 'left-1'}`}></div>
+                      </div>
+                    </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer">
                       <span className="text-xs font-bold text-gray-400 uppercase">Required</span>
                       <div className={`w-10 h-6 rounded-full transition-colors relative ${field.required ? 'bg-pink-500' : 'bg-gray-200'}`}>
                         <input type="checkbox" className="hidden" checked={field.required} onChange={(e) => updateField(stepIndex, fieldIndex, { required: e.target.checked })} />

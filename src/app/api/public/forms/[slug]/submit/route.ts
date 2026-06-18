@@ -61,7 +61,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       formId: form._id,
       userId: userId,
       responses: responses,
-      status: 'Submitted'
+      status: 'Submitted',
+      formVersion: form.version || 1
     });
     
     await newResponse.save();

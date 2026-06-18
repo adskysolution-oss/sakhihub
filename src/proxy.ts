@@ -276,6 +276,10 @@ export async function proxy(request: NextRequest) {
               if (!userPermissions.includes('forms.manage')) {
                 return NextResponse.redirect(new URL('/unauthorized', request.url));
               }
+            } else if (pathname.startsWith('/portal/forms') && pathname.endsWith('/analytics')) {
+              if (!userPermissions.includes('forms.analytics')) {
+                return NextResponse.redirect(new URL('/unauthorized', request.url));
+              }
             } else if (pathname.startsWith('/portal/forms')) {
               if (!userPermissions.includes('forms.view') && !userPermissions.includes('forms.manage')) {
                 return NextResponse.redirect(new URL('/unauthorized', request.url));
