@@ -2100,8 +2100,8 @@ export const generateOfferLetterHtml = (data: any) => {
 
                   <!-- Authorized By -->
                   <div class="signature-col-right">
-                    <div class="sig-img-container" style="position: relative;">
-                      ${sealBase64 ? `<img src="${sealBase64}" alt="SakhiHub Seal" style="position: absolute; height: 80px; width: auto; object-fit: contain; opacity: 0.80; z-index: 0; mix-blend-mode: multiply; transform: translateX(16px);" />` : ''}
+                    <div class="sig-img-container" style="position: relative; height: 96px;">
+                      ${sealBase64 ? `<img src="${sealBase64}" alt="SakhiHub Seal" style="position: absolute; height: 96px; width: auto; object-fit: contain; opacity: 0.60; z-index: 0; mix-blend-mode: multiply;" />` : ''}
                       ${sigBase64 ? `<img src="${sigBase64}" class="sig-img" alt="Manager Signature" style="position: relative; z-index: 10; mix-blend-mode: multiply;" />` : ''}
                     </div>
                     <div style="width: 100%;">

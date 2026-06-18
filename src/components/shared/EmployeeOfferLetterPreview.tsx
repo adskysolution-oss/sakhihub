@@ -773,11 +773,11 @@ const EmployeeOfferLetterPreview: React.FC<{ data: EmployeeOfferLetterData }> = 
 
                   {/* Authorized By */}
                   <div className="text-center flex flex-col justify-between items-center relative min-h-[180px] pl-6 border-l border-gray-100">
-                    <div className="w-full h-20 flex items-center justify-center mb-2 relative">
+                    <div className="w-full h-24 flex items-center justify-center mb-2 relative">
                       {/* Seal Image */}
-                      <img src="/Seal-Signature.png" alt="SakhiHub Seal" className="h-20 w-auto object-contain absolute opacity-80 z-0 mix-blend-darken translate-x-4" />
+                      <img src="/Seal-Signature.png" alt="SakhiHub Seal" className="h-24 w-auto object-contain absolute opacity-60 z-0 mix-blend-darken" />
                       {/* Signature Image */}
-                      <img src="/manager-signature.png" alt="Manager Signature" className="h-16 w-auto object-contain relative opacity-90 z-10 mix-blend-darken" />
+                      <img src="/manager-signature.png" alt="Manager Signature" className="h-16 w-auto object-contain relative opacity-95 z-10 mix-blend-darken" />
                     </div>
                     <div className="w-full text-center">
                       <h4 className="text-xs font-black uppercase text-gray-900 tracking-wider border-t border-gray-400 pt-2">AUTHORIZED BY</h4>
