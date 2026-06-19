@@ -14,6 +14,15 @@ export default function PendingApprovalPage() {
   const router = useRouter();
   const { user, logout, loading } = useAuth();
 
+  // Helper to determine onboarding path based on role
+  const getOnboardingPath = (role: string) => {
+    if (role === 'staff') return '/portal/onboarding';
+    if (role === 'vendor') return '/vendor/onboarding';
+    if (role === 'sub_vendor') return '/sub-vendor/onboarding';
+    if (role === 'employee') return '/employee/onboarding';
+    return '/';
+  };
+
   // Poll status every 4 seconds to detect active status
   useEffect(() => {
     if (!user) return;
@@ -31,20 +40,30 @@ export default function PendingApprovalPage() {
       return;
     }
 
+    // If document action or reupload is required, immediately route to onboarding
+    if (['reupload_required', 'documents_pending'].includes(user.status)) {
+      window.location.href = getOnboardingPath(user.role);
+      return;
+    }
+
     const interval = setInterval(async () => {
       try {
         const res = await axios.get('/api/auth/me');
         if (res.data.success) {
           const freshUser = res.data.data;
-          if (freshUser && freshUser.status === 'active') {
-            const targetDashboard = 
-              freshUser.role === 'super_admin' ? '/admin/dashboard' :
-              freshUser.role === 'vendor' ? '/vendor/dashboard' :
-              freshUser.role === 'sub_vendor' ? '/sub-vendor/dashboard' :
-              freshUser.role === 'employee' ? '/employee/dashboard' :
-              freshUser.role === 'staff' ? '/portal/dashboard' :
-              '/member/dashboard';
-            window.location.href = targetDashboard;
+          if (freshUser) {
+            if (freshUser.status === 'active') {
+              const targetDashboard = 
+                freshUser.role === 'super_admin' ? '/admin/dashboard' :
+                freshUser.role === 'vendor' ? '/vendor/dashboard' :
+                freshUser.role === 'sub_vendor' ? '/sub-vendor/dashboard' :
+                freshUser.role === 'employee' ? '/employee/dashboard' :
+                freshUser.role === 'staff' ? '/portal/dashboard' :
+                '/member/dashboard';
+              window.location.href = targetDashboard;
+            } else if (['reupload_required', 'documents_pending'].includes(freshUser.status)) {
+              window.location.href = getOnboardingPath(freshUser.role);
+            }
           }
         }
       } catch (err) {

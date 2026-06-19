@@ -185,7 +185,6 @@ export async function PATCH(
           user.status = 'approved';
           user.isVerified = true;
         } else {
-          user.status = 'under_review';
           user.isVerified = false;
           user.dashboardAccess = false;
         }

@@ -80,10 +80,10 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL('/employee/onboarding', request.url));
       }
       if (payload.role === 'staff') {
-        if (payload.status === 'active' && payload.dashboardAccess) {
+        if (['active', 'approved'].includes(payload.status) && payload.dashboardAccess) {
           return NextResponse.redirect(new URL('/portal/dashboard', request.url));
         }
-        if (payload.status === 'under_review' || (payload.status === 'active' && !payload.dashboardAccess)) {
+        if (payload.status === 'under_review' || (['active', 'approved'].includes(payload.status) && !payload.dashboardAccess)) {
           return NextResponse.redirect(new URL('/pending-approval', request.url));
         }
         return NextResponse.redirect(new URL('/portal/onboarding', request.url));
@@ -234,20 +234,22 @@ export async function proxy(request: NextRequest) {
       // STAFF STRICT ACCESS CONTROL
       if (payload.role === 'staff') {
         if (isPortalPage) {
+          const isApprovedOrActive = ['approved', 'active'].includes(payload.status);
+          
           if (payload.status === 'under_review') {
             if (pathname !== '/pending-approval') {
               return NextResponse.redirect(new URL('/pending-approval', request.url));
             }
-          } else if (!payload.documentsVerified) {
+          } else if (['documents_pending', 'reupload_required'].includes(payload.status) || !payload.documentsVerified) {
             if (pathname !== '/portal/onboarding') {
               return NextResponse.redirect(new URL('/portal/onboarding', request.url));
             }
-          } else if (payload.status !== 'active' || !payload.dashboardAccess) {
+          } else if (isApprovedOrActive && !payload.dashboardAccess) {
             if (pathname !== '/pending-approval') {
               return NextResponse.redirect(new URL('/pending-approval', request.url));
             }
-          } else if (payload.status === 'active' && payload.dashboardAccess) {
-            if (pathname === '/portal/onboarding') {
+          } else if (isApprovedOrActive && payload.dashboardAccess) {
+            if (pathname === '/portal/onboarding' || pathname === '/pending-approval') {
               return NextResponse.redirect(new URL('/portal/dashboard', request.url));
             }
 
@@ -398,6 +400,10 @@ export async function proxy(request: NextRequest) {
     if (!token) return NextResponse.redirect(new URL('/login', request.url));
     try {
       const { payload }: any = await jwtVerify(token, JWT_SECRET);
+
+      if (payload.role === 'staff' && ['documents_pending', 'reupload_required'].includes(payload.status)) {
+        return NextResponse.redirect(new URL('/portal/onboarding', request.url));
+      }
 
       // If user is now active and assigned, redirect them out of the waiting room
       if (payload.status === 'active' || payload.status === 'approved') {

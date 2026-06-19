@@ -144,7 +144,10 @@ export function areAllDocsApproved(user: any): boolean {
  */
 export function determineUserStatus(user: any): string {
   const required = getRequiredDocsForUser(user.role, user.documents, user.vendorType, user.designation, user.currentAddressSameAsAadhaar);
-  if (!user.documents) return user.status;
+  if (!user.documents) {
+    if (user.role === 'staff') return 'documents_pending';
+    return user.status;
+  }
 
   const statuses = required.map(t => user.documents?.[t]?.status);
   
@@ -159,7 +162,13 @@ export function determineUserStatus(user: any): string {
   if (hasRejected || hasReupload) return 'reupload_required';
   
   const allUploaded = required.every(t => user.documents?.[t]?.url || ['exception_requested', 'exception_responded', 'exception_approved', 'on_hold'].includes(user.documents?.[t]?.status));
-  if (allUploaded) return 'documents_uploaded';
+  if (allUploaded) {
+    if (user.role === 'staff') return 'under_review';
+    return 'documents_uploaded';
+  }
   
+  if (user.role === 'staff') {
+    return 'documents_pending';
+  }
   return user.status; 
 }

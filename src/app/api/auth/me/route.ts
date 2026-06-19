@@ -87,6 +87,41 @@ export async function GET() {
        }
     }
 
+    if (user.role === 'staff') {
+       const { areAllDocsApproved, determineUserStatus } = await import('@/lib/docs/service');
+       const allDocsApproved = areAllDocsApproved(user);
+       const computedStatus = determineUserStatus(user);
+       let changed = false;
+       
+       if (user.documentsVerified !== allDocsApproved) {
+         user.documentsVerified = allDocsApproved;
+         changed = true;
+       }
+       
+       if (allDocsApproved) {
+         if (user.status !== 'approved' && user.status !== 'active') {
+           user.status = 'approved';
+           user.isVerified = true;
+           changed = true;
+         }
+       } else {
+         if (user.status !== computedStatus) {
+           user.status = computedStatus;
+           user.isVerified = false;
+           user.dashboardAccess = false;
+           changed = true;
+         }
+       }
+       
+       if (changed) {
+         await user.save();
+         userObj.status = user.status;
+         userObj.documentsVerified = user.documentsVerified;
+         userObj.isVerified = user.isVerified;
+         userObj.dashboardAccess = user.dashboardAccess;
+       }
+    }
+
     // AUTH SYNC LOGIC: 
     // If the database state (dashboardAccess, status, or hierarchy assignment) has changed 
     // since the token was issued, we need to update the token in the cookie to prevent 

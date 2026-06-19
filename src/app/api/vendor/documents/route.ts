@@ -14,7 +14,8 @@ import {
   REQUIRED_DOCS_BY_ROLE, 
   getDocumentFolderPath,
   getRequiredDocs,
-  getRequiredDocsForUser
+  getRequiredDocsForUser,
+  determineUserStatus
 } from '@/lib/docs/service';
 
 export async function POST(req: NextRequest) {
@@ -260,20 +261,19 @@ export async function POST(req: NextRequest) {
       };
     }
 
-    // Update global status if needed (from pending to documents_uploaded)
-    const requiredDocs = getRequiredDocsForUser(
-      user.role, 
-      user.documents, 
-      user.vendorType, 
-      user.designation,
-      user.currentAddressSameAsAadhaar
-    );
-    const uploadedDocs = Object.keys(user.documents).filter(key => !!(user.documents as any)[key]?.url);
-    
-    if (user.status === 'pending' && requiredDocs.every(doc => uploadedDocs.includes(doc))) {
-      user.status = 'documents_uploaded';
-    } else if (user.role === 'staff' && user.status === 'documents_pending' && requiredDocs.every(doc => uploadedDocs.includes(doc))) {
-      user.status = 'under_review';
+    const computedStatus = determineUserStatus(user);
+    if (user.role === 'staff') {
+      if (computedStatus === 'under_review') {
+        user.status = 'under_review';
+      } else if (computedStatus === 'reupload_required') {
+        user.status = 'reupload_required';
+      } else {
+        user.status = 'documents_pending';
+      }
+    } else {
+      if (user.status === 'pending' && computedStatus === 'documents_uploaded') {
+        user.status = 'documents_uploaded';
+      }
     }
 
     user.markModified('documents');

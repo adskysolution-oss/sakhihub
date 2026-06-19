@@ -106,7 +106,7 @@ export async function POST(
     }
 
     // Check if overall user documents are verified
-    const { areAllDocsApproved } = await import('@/lib/docs/service');
+    const { areAllDocsApproved, determineUserStatus } = await import('@/lib/docs/service');
     const updatedUser = await User.findById(id);
     if (updatedUser) {
       if (collection === 'Document' && doc.documentType) {
@@ -117,14 +117,42 @@ export async function POST(
           userDoc.reviewedAt = new Date();
           userDoc.adminRemarks = doc.adminRemarks || '';
           updatedUser.markModified('documents');
-          await updatedUser.save();
         }
       }
       
       const allDocsOk = areAllDocsApproved(updatedUser);
-      if (allDocsOk && !updatedUser.documentsVerified) {
-        updatedUser.documentsVerified = true;
-        await updatedUser.save();
+      const isReuploadOrReject = ['rejected', 'reupload_required'].includes(doc.status);
+      
+      updatedUser.documentsVerified = allDocsOk;
+      
+      if (isReuploadOrReject && ['VendorAgreement', 'VendorMOU', 'EmployeeOfferLetter'].includes(collection)) {
+        updatedUser.status = 'reupload_required';
+      } else {
+        updatedUser.status = determineUserStatus(updatedUser);
+      }
+      
+      if (updatedUser.role === 'employee') {
+        if (updatedUser.documentsVerified) {
+          updatedUser.status = 'approved';
+          updatedUser.isVerified = true;
+        } else {
+          updatedUser.status = 'pending';
+          updatedUser.isVerified = false;
+          updatedUser.dashboardAccess = false;
+        }
+      } else if (updatedUser.role === 'staff') {
+        if (updatedUser.documentsVerified) {
+          updatedUser.status = 'approved';
+          updatedUser.isVerified = true;
+        } else {
+          updatedUser.isVerified = false;
+          updatedUser.dashboardAccess = false;
+        }
+      }
+      
+      await updatedUser.save();
+      
+      if (allDocsOk) {
         await NotificationService.trigger(NotificationEvent.DOCUMENTS_VERIFIED, { userId: updatedUser._id });
       }
     }

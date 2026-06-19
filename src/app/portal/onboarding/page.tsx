@@ -56,13 +56,13 @@ export default function StaffOnboarding() {
 
         setProfile(user);
 
-        if (['rejected', 'suspended', 'inactive'].includes(user.status)) {
+        if (['rejected', 'suspended', 'inactive', 'under_review'].includes(user.status) || (['active', 'approved'].includes(user.status) && !user.dashboardAccess)) {
           router.push('/pending-approval');
           return;
         }
 
         // Redirect if active and has dashboard access
-        if (user.status === 'active' && user.dashboardAccess) {
+        if (['active', 'approved'].includes(user.status) && user.dashboardAccess) {
           router.push('/portal/dashboard');
           return;
         }
