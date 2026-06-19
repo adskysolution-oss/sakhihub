@@ -114,6 +114,11 @@ export async function PATCH(
         await NotificationService.trigger(NotificationEvent.ACCOUNT_ACTIVATED, { userId: updatedUser._id });
       }
 
+      // Auto-revoke authorization letters if user is no longer eligible
+      const { syncAuthorizationLetterStatus } = await import('@/utils/authLetterSync');
+      const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
+      await syncAuthorizationLetterStatus(id, ip);
+
       return successResponse(updatedUser, `User status updated to ${status}`);
     }
 
@@ -193,6 +198,11 @@ export async function PATCH(
 
       user.markModified('documents');
       await user.save();
+
+      // Auto-revoke authorization letters if user is no longer eligible
+      const { syncAuthorizationLetterStatus } = await import('@/utils/authLetterSync');
+      const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
+      await syncAuthorizationLetterStatus(id, ip);
 
       // Trigger Centralized Notifications
       const { NotificationService, NotificationEvent } = await import('@/lib/notifications');

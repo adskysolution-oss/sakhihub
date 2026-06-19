@@ -18,6 +18,11 @@ export const DEFAULT_PERMISSIONS = [
   { key: 'agreements.generate', name: 'Generate Agreements', module: 'Agreements' },
   { key: 'agreements.download', name: 'Download Agreements', module: 'Agreements' },
 
+  { key: 'authorization.generate', name: 'Generate Authorization Letters', module: 'Authorization Letters' },
+  { key: 'authorization.view', name: 'View Authorization Letters', module: 'Authorization Letters' },
+  { key: 'authorization.download', name: 'Download Authorization Letters', module: 'Authorization Letters' },
+  { key: 'authorization.revoke', name: 'Revoke Authorization Letters', module: 'Authorization Letters' },
+
   { key: 'reports.view', name: 'View Reports', module: 'Reports' },
   { key: 'reports.export', name: 'Export/Download Reports', module: 'Reports' },
 

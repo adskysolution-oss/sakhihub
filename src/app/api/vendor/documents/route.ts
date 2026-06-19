@@ -395,19 +395,52 @@ export async function GET() {
     } else if (user.role === 'employee' || user.role === 'staff') {
       const offerLetters = await EmployeeOfferLetter.find({ employeeId: user._id }).lean();
       const certs = await EmployeeCertificate.find({ employeeId: user._id }).lean();
+      
+      // Fetch Appointment Letters (stored in VendorAgreement for employees)
+      const VendorAgreement = (await import('@/models/VendorAgreement')).default;
+      const agreements = await VendorAgreement.find({ vendorId: user._id }).lean();
+
+      // Fetch and Sync Authorization Letters dynamically
+      const AuthorizationLetter = (await import('@/models/AuthorizationLetter')).default;
+      const { syncAuthorizationLetterStatus } = await import('@/utils/authLetterSync');
+      await syncAuthorizationLetterStatus(user._id.toString());
+      const authLetters = await AuthorizationLetter.find({ userId: user._id }).lean();
 
       digitalCertificates = [
         ...offerLetters.map(o => ({
           _id: o._id,
-          type: 'employee_offer_letter', // Mapping to frontend expectation
+          type: 'employee_offer_letter',
           title: 'Employee Offer Letter',
           fileUrl: o.pdfUrl,
           uploadedDocumentUrl: (o as any).uploadedDocumentUrl,
           status: o.status,
           isLocked: (o as any).isLocked || false,
           adminRemarks: (o as any).adminRemarks,
-          agreementId: o.offerLetterId, // Frontend maps this in the UI
+          agreementId: o.offerLetterId,
           createdAt: o.createdAt,
+          visibleToEmployee: true
+        })),
+        ...agreements.map(a => ({
+          _id: a._id,
+          type: 'appointment_letter',
+          title: 'Appointment Letter',
+          fileUrl: a.fileUrl || `/appointment-letter/${user._id}`,
+          uploadedDocumentUrl: a.uploadedDocumentUrl,
+          status: a.status,
+          isLocked: a.isLocked,
+          adminRemarks: a.adminRemarks,
+          agreementId: a.agreementId,
+          createdAt: a.createdAt,
+          visibleToEmployee: true
+        })),
+        ...authLetters.map(al => ({
+          _id: al._id,
+          type: 'authorization_letter',
+          title: 'Authorization Letter',
+          fileUrl: `/employee-authorization-letter/${user._id}`,
+          status: al.status,
+          agreementId: al.authorizationNumber,
+          createdAt: al.createdAt,
           visibleToEmployee: true
         })),
         ...certs.map(c => ({

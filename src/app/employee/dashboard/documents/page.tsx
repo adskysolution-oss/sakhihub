@@ -361,6 +361,9 @@ export default function EmployeeDocuments() {
                 </div>
                 {[
                   { id: 'employee_offer_letter', title: 'Employee Offer Letter', icon: FileText },
+                  ...(designation && ['District Coordinator', 'District Project Officer', 'Block Coordinator', 'Field Executive', 'Block Employee'].includes(designation) ? [
+                    { id: 'authorization_letter', title: 'Authorization Letter', icon: ShieldCheck }
+                  ] : []),
                   { id: 'vendor_code_cert', title: 'Employee ID Card', icon: ShieldCheck }
                 ].map((expectedCert, idx) => {
                   const certData = digitalCertificates.find(c => c.type === expectedCert.id);
@@ -368,7 +371,7 @@ export default function EmployeeDocuments() {
                     return (
                       <a 
                         key={idx}
-                        href={certData.fileUrl}
+                        href={certData.fileUrl && certData.fileUrl.startsWith('/') ? certData.fileUrl : getDocumentViewUrl(certData.fileUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-between p-5 bg-green-50 hover:bg-green-600 hover:text-white rounded-3xl transition-all group text-left border border-green-100"

@@ -68,6 +68,110 @@ export default function EmployeeManagementContent() {
   const [editSubVendorId, setEditSubVendorId] = useState('');
   const [isSavingEmp, setIsSavingEmp] = useState(false);
 
+  // Authorization Letter States
+  const [authLetter, setAuthLetter] = useState<any>(null);
+  const [authLetterLoading, setAuthLetterLoading] = useState(false);
+  const [validUntil, setValidUntil] = useState('');
+  const [isGeneratingAuth, setIsGeneratingAuth] = useState(false);
+  const [isRevokingAuth, setIsRevokingAuth] = useState(false);
+  const [revokeReason, setRevokeReason] = useState('');
+  const [showRevokeConfirm, setShowRevokeConfirm] = useState(false);
+  const [showRegenerateForm, setShowRegenerateForm] = useState(false);
+
+  const fetchAuthLetter = async (empId: string) => {
+    setAuthLetterLoading(true);
+    try {
+      const res = await axios.get(`/api/admin/authorization/${empId}`);
+      if (res.data.success) {
+        setAuthLetter(res.data.data);
+      } else {
+        setAuthLetter(null);
+      }
+    } catch (err: any) {
+      console.error("Error fetching authorization letter:", err);
+      setAuthLetter(null);
+    } finally {
+      setAuthLetterLoading(false);
+    }
+  };
+
+  const handleGenerateAuthLetter = async () => {
+    setIsGeneratingAuth(true);
+    try {
+      const res = await axios.post('/api/admin/authorization/generate', {
+        userId: selectedEmp._id,
+        validUntil: validUntil || undefined
+      });
+      if (res.data.success) {
+        toast.success(res.data.message || 'Authorization Letter generated successfully!');
+        setAuthLetter(res.data.data);
+        setShowRegenerateForm(false);
+        // Refresh employee just in case
+        const freshRes = await axios.get(`/api/admin/employees?search=${selectedEmp.mobile}`);
+        if (freshRes.data.success && freshRes.data.data.length > 0) {
+          setSelectedEmp(freshRes.data.data[0]);
+        }
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.response?.data?.message || 'Failed to generate Authorization Letter');
+    } finally {
+      setIsGeneratingAuth(false);
+    }
+  };
+
+  const handleRevokeAuthLetter = async () => {
+    if (!revokeReason.trim()) {
+      toast.error('Please enter a reason for revocation.');
+      return;
+    }
+    setIsRevokingAuth(true);
+    try {
+      const res = await axios.patch(`/api/admin/authorization/${selectedEmp._id}/revoke`, {
+        reason: revokeReason
+      });
+      if (res.data.success) {
+        toast.success(res.data.message || 'Authorization Letter successfully revoked.');
+        setAuthLetter(res.data.data);
+        setRevokeReason('');
+        setShowRevokeConfirm(false);
+        // Refresh employee
+        const freshRes = await axios.get(`/api/admin/employees?search=${selectedEmp.mobile}`);
+        if (freshRes.data.success && freshRes.data.data.length > 0) {
+          setSelectedEmp(freshRes.data.data[0]);
+        }
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.response?.data?.message || 'Failed to revoke Authorization Letter');
+    } finally {
+      setIsRevokingAuth(false);
+    }
+  };
+
+  const handleDownloadAuthLetter = async () => {
+    if (!authLetter) return;
+    try {
+      const response = await fetch(`/api/admin/authorization/${selectedEmp._id}/download`);
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Failed to download PDF');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `AuthorizationLetter_${authLetter.authorizationNumber}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      toast.success('Authorization Letter downloaded successfully!');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to download Authorization Letter');
+    }
+  };
+
+
   const fetchEmployees = async () => {
     setLoading(true);
     try {
@@ -153,10 +257,28 @@ export default function EmployeeManagementContent() {
         setEditVendorId('');
         setEditSubVendorId('');
       }
+
+      // Reset Authorization Letter states
+      setRevokeReason('');
+      setShowRevokeConfirm(false);
+      setShowRegenerateForm(false);
+      const oneYear = new Date();
+      oneYear.setFullYear(oneYear.getFullYear() + 1);
+      setValidUntil(oneYear.toISOString().split('T')[0]);
+
+      if (['District Coordinator', 'District Project Officer', 'Block Coordinator', 'Field Executive', 'Block Employee'].includes(selectedEmp.designation)) {
+        fetchAuthLetter(selectedEmp._id);
+      } else {
+        setAuthLetter(null);
+      }
     } else {
       setEditDesignation('');
       setEditVendorId('');
       setEditSubVendorId('');
+      setAuthLetter(null);
+      setRevokeReason('');
+      setShowRevokeConfirm(false);
+      setShowRegenerateForm(false);
     }
   }, [selectedEmp?._id]);
 
@@ -309,6 +431,14 @@ export default function EmployeeManagementContent() {
     (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('offer_letters.view'));
   const hasOfferLetterGenerate = currentUser?.role === 'super_admin' || 
     (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('offer_letters.generate'));
+  const hasAuthLetterView = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('authorization.view'));
+  const hasAuthLetterGenerate = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('authorization.generate'));
+  const hasAuthLetterRevoke = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('authorization.revoke'));
+  const hasAuthLetterDownload = currentUser?.role === 'super_admin' || 
+    (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('authorization.download'));
 
   return (
     <>
@@ -564,6 +694,14 @@ export default function EmployeeManagementContent() {
                         Agreement
                       </button>
                     )}
+                    {selectedEmp && ['District Coordinator', 'District Project Officer', 'Block Coordinator', 'Field Executive', 'Block Employee'].includes(selectedEmp.designation) && (hasAuthLetterView || hasAuthLetterGenerate) && (
+                      <button
+                        onClick={() => setActiveTab('auth-letter')}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === 'auth-letter' ? 'bg-white text-secondary shadow-xl' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+                      >
+                        Authorization Letter
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -587,7 +725,10 @@ export default function EmployeeManagementContent() {
                                >
                                  <option value="">Select Designation...</option>
                                  <option value="Block Employee">Block Employee</option>
+                                 <option value="Block Coordinator">Block Coordinator</option>
+                                 <option value="Field Executive">Field Executive</option>
                                  <option value="District Coordinator">District Coordinator</option>
+                                 <option value="District Project Officer">District Project Officer</option>
                                  <option value="Trainer">Trainer</option>
                                  <option value="Volunteer">Volunteer</option>
                                  <option value="Delivery Partner">Delivery Partner</option>
@@ -1254,6 +1395,353 @@ export default function EmployeeManagementContent() {
                         </div>
                     </div>
                   )}
+
+                  {activeTab === 'auth-letter' && (() => {
+                    const isDC = selectedEmp?.designation === 'District Coordinator' || selectedEmp?.designation === 'District Project Officer';
+                    const isBC = selectedEmp?.designation === 'Block Coordinator' || selectedEmp?.designation === 'Field Executive' || selectedEmp?.designation === 'Block Employee';
+                    const validationErrors: string[] = [];
+                    if (selectedEmp) {
+                      if (isDC) {
+                        if (!selectedEmp.state || selectedEmp.state.trim() === '') {
+                          validationErrors.push('State assignment not configured. Please assign State before generating Authorization Letter.');
+                        }
+                        if (!selectedEmp.district || selectedEmp.district.trim() === '') {
+                          validationErrors.push('District assignment not configured. Please assign District before generating Authorization Letter.');
+                        }
+                      } else if (isBC) {
+                        if (!selectedEmp.state || selectedEmp.state.trim() === '') {
+                          validationErrors.push('State assignment not configured. Please assign State before generating Authorization Letter.');
+                        }
+                        if (!selectedEmp.district || selectedEmp.district.trim() === '') {
+                          validationErrors.push('District assignment not configured. Please assign District before generating Authorization Letter.');
+                        }
+                        if (!selectedEmp.block || selectedEmp.block.trim() === '') {
+                          validationErrors.push('Block assignment not configured. Please assign Block before generating Authorization Letter.');
+                        }
+                      }
+                      if (selectedEmp.status !== 'active') {
+                        validationErrors.push('Employee status must be Active to generate an Authorization Letter.');
+                      }
+                      if (selectedEmp.dashboardAccess !== true) {
+                        validationErrors.push('Employee dashboard access must be enabled to generate an Authorization Letter.');
+                      }
+                      if (!selectedEmp.offerLetterDetails) {
+                        validationErrors.push('Employee Offer Letter must be generated before generating an Authorization Letter.');
+                      }
+                    }
+                    return (
+                      <div className="max-w-2xl mx-auto space-y-8 py-8">
+                        <div className="text-center">
+                          <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl mx-auto flex items-center justify-center mb-4">
+                            <ShieldCheck size={32} />
+                          </div>
+                          <h3 className="text-2xl font-black text-secondary tracking-tight">Authorization Letter</h3>
+                          <p className="text-sm text-gray-500 font-bold mt-2">
+                            Manage community outreach and field work authorization credentials.
+                          </p>
+                        </div>
+
+                        {!hasAuthLetterView && !hasAuthLetterGenerate ? (
+                          <div className="p-6 bg-red-50 border border-red-200 text-red-800 rounded-3xl flex items-center gap-3 text-sm font-bold">
+                            <AlertCircle size={18} /> You do not have permission to view or manage Authorization Letters.
+                          </div>
+                        ) : authLetterLoading ? (
+                          <div className="flex flex-col items-center justify-center py-20 bg-gray-50 rounded-[32px] border border-gray-100 animate-pulse">
+                            <RefreshCw className="animate-spin text-primary mb-3" size={32} />
+                            <span className="text-xs font-black uppercase tracking-widest text-gray-400">Loading details...</span>
+                          </div>
+                        ) : (
+                          <>
+                            {/* Active Letter Alert & Quick Actions */}
+                            {authLetter && authLetter.status === 'active' && !showRegenerateForm && (
+                              <div className="bg-amber-50 border border-amber-200 rounded-[32px] p-8 text-center relative overflow-hidden mb-8 shadow-sm">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/30 rounded-full blur-2xl -mr-16 -mt-16" />
+                                <div className="relative z-10">
+                                  <ShieldAlert size={48} className="text-amber-600 mx-auto mb-4" />
+                                  <h4 className="text-xl font-black text-amber-800">Authorization Letter Already Active</h4>
+                                  <p className="text-xs text-amber-700 font-bold mt-2 mb-6">
+                                    This employee already has an active authorization letter: <span className="font-mono bg-white px-2 py-0.5 rounded border border-amber-100">{authLetter.authorizationNumber}</span>
+                                  </p>
+                                  <div className="flex flex-wrap gap-3 justify-center">
+                                    {hasAuthLetterView && (
+                                      <a
+                                        href={`/employee-authorization-letter/${selectedEmp._id}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-green-700 transition-colors shadow-lg shadow-green-200/20"
+                                      >
+                                        <ExternalLink size={14} /> Preview & Print Letter
+                                      </a>
+                                    )}
+                                    {hasAuthLetterDownload && (
+                                      <button
+                                        onClick={handleDownloadAuthLetter}
+                                        className="inline-flex items-center gap-2 bg-amber-600 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-amber-700 transition-colors shadow-md shadow-amber-600/10"
+                                      >
+                                        <Upload size={14} className="rotate-180" /> Download PDF
+                                      </button>
+                                    )}
+                                    {hasAuthLetterRevoke && (
+                                      <button
+                                        onClick={() => {
+                                          setShowRevokeConfirm(true);
+                                          setShowRegenerateForm(false);
+                                        }}
+                                        className="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-100 transition-colors"
+                                      >
+                                        <X size={14} /> Revoke Existing
+                                      </button>
+                                    )}
+                                    {hasAuthLetterGenerate && (
+                                      <button
+                                        onClick={() => {
+                                          setShowRegenerateForm(true);
+                                          setShowRevokeConfirm(false);
+                                        }}
+                                        className="inline-flex items-center gap-2 bg-secondary text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary-dark transition-colors shadow-md shadow-secondary/10"
+                                      >
+                                        <RefreshCw size={14} /> Regenerate Letter
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Detail View of Existing Letter */}
+                            {authLetter && !showRegenerateForm && (
+                              <div className="bg-white border border-gray-100 shadow-soft rounded-[32px] p-8 space-y-6">
+                                <div className="flex items-start justify-between gap-4 border-b border-gray-50 pb-4">
+                                  <div>
+                                    <h4 className="text-lg font-black text-secondary">Letter Details</h4>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
+                                      Number: {authLetter.authorizationNumber}
+                                    </p>
+                                  </div>
+                                  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shrink-0 ${
+                                    authLetter.status === 'active' ? 'bg-green-100 text-green-700' :
+                                    authLetter.status === 'expired' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
+                                  }`}>
+                                    {authLetter.status}
+                                  </span>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                                  <div className="space-y-4 text-xs font-bold text-secondary">
+                                    <div className="grid grid-cols-2 gap-2 bg-gray-50 p-4 rounded-2xl">
+                                      <div>
+                                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-wider">Type</p>
+                                        <p className="mt-0.5 capitalize">{authLetter.authorizationType.replace('_', ' ')}</p>
+                                      </div>
+                                      <div>
+                                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-wider">State</p>
+                                        <p className="mt-0.5">{authLetter.state}</p>
+                                      </div>
+                                      <div className="mt-2">
+                                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-wider">District</p>
+                                        <p className="mt-0.5">{authLetter.district}</p>
+                                      </div>
+                                      {authLetter.block && (
+                                        <div className="mt-2">
+                                          <p className="text-[8px] font-black text-gray-400 uppercase tracking-wider">Block</p>
+                                          <p className="mt-0.5">{authLetter.block}</p>
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2 bg-gray-50 p-4 rounded-2xl">
+                                      <div>
+                                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-wider">Issue Date</p>
+                                        <p className="mt-0.5">{new Date(authLetter.issueDate).toLocaleDateString('en-IN')}</p>
+                                      </div>
+                                      <div>
+                                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-wider">Valid Until</p>
+                                        <p className="mt-0.5">{new Date(authLetter.validUntil).toLocaleDateString('en-IN')}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* QR Code and Web Link */}
+                                  <div className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-3xl border border-gray-100">
+                                    <img 
+                                      src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent('https://sakhihub.com/verify/authorization/' + authLetter._id)}`} 
+                                      alt="Verification QR"
+                                      className="w-28 h-28 bg-white p-2 rounded-2xl shadow-sm border border-gray-100"
+                                    />
+                                    <a 
+                                      href={`/verify/authorization/${authLetter._id}`} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="text-[9px] text-primary hover:underline font-black uppercase tracking-widest mt-3 flex items-center gap-1 font-bold"
+                                    >
+                                      <ExternalLink size={10} /> Public Verify Page
+                                    </a>
+                                  </div>
+                                </div>
+
+                                {/* Manual Revocation Reason Input */}
+                                {showRevokeConfirm && (
+                                  <div className="border-t border-gray-100 pt-6 space-y-4 md:col-span-2">
+                                    <div>
+                                      <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1.5">
+                                        Reason for Revocation
+                                      </label>
+                                      <textarea
+                                        value={revokeReason}
+                                        onChange={e => setRevokeReason(e.target.value)}
+                                        placeholder="Provide the reason for revoking this authorization letter..."
+                                        rows={2}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-xs font-bold placeholder:text-gray-300 focus:outline-none focus:border-primary resize-none"
+                                      />
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <button
+                                        onClick={handleRevokeAuthLetter}
+                                        disabled={isRevokingAuth || !revokeReason.trim()}
+                                        className="flex-1 bg-red-600 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-50"
+                                      >
+                                        {isRevokingAuth ? 'Revoking...' : 'Confirm Revocation'}
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          setShowRevokeConfirm(false);
+                                          setRevokeReason('');
+                                        }}
+                                        className="px-6 py-3 bg-gray-100 text-secondary rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-colors"
+                                      >
+                                        Cancel
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Download & Action bar when not confirming revoke */}
+                                {!showRevokeConfirm && (
+                                  <div className="border-t border-gray-100 pt-6 flex flex-wrap gap-3 justify-end md:col-span-2">
+                                    {authLetter.status === 'active' && hasAuthLetterView && (
+                                      <a
+                                        href={`/employee-authorization-letter/${selectedEmp._id}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-green-700 transition-colors shadow-md shadow-green-600/10"
+                                      >
+                                        <ExternalLink size={12} /> Preview & Print
+                                      </a>
+                                    )}
+                                    {authLetter.status === 'active' && hasAuthLetterDownload && (
+                                      <button
+                                        onClick={handleDownloadAuthLetter}
+                                        className="bg-primary text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary/95 transition-colors shadow-md shadow-primary/10"
+                                      >
+                                        Download PDF
+                                      </button>
+                                    )}
+                                    {authLetter.status === 'active' && hasAuthLetterRevoke && (
+                                      <button
+                                        onClick={() => setShowRevokeConfirm(true)}
+                                        className="bg-red-50 text-red-600 border border-red-100 px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-100 transition-colors"
+                                      >
+                                        Revoke Letter
+                                      </button>
+                                    )}
+                                    {authLetter.status !== 'active' && hasAuthLetterGenerate && (
+                                      <button
+                                        onClick={() => setShowRegenerateForm(true)}
+                                        className="bg-primary text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary/95 transition-colors shadow-md shadow-primary/10"
+                                      >
+                                        Generate New Letter
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Generate Form */}
+                            {(!authLetter || authLetter.status !== 'active' || showRegenerateForm) && (
+                              <div className="bg-gray-50 p-8 rounded-[32px] border border-gray-100 space-y-6">
+                                <div className="border-b border-gray-100 pb-3">
+                                  <h4 className="text-lg font-black text-secondary">
+                                    {showRegenerateForm ? 'Regenerate Authorization Letter' : 'Generate Authorization Letter'}
+                                  </h4>
+                                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
+                                    Configure validity and issue standard outreach credentials
+                                  </p>
+                                </div>
+
+                                {showRegenerateForm && authLetter && (
+                                  <div className="p-4 bg-orange-50 border border-orange-200 text-orange-800 rounded-2xl flex items-start gap-3 text-xs font-bold leading-normal">
+                                    <AlertCircle size={18} className="shrink-0 mt-0.5" />
+                                    <div>
+                                      <p className="font-black uppercase tracking-wider text-[10px] text-orange-700 mb-1">Important Notice</p>
+                                      Regenerating will automatically revoke the current active authorization letter: <span className="font-mono bg-white px-1.5 py-0.5 rounded border border-orange-100">{authLetter.authorizationNumber}</span> immediately.
+                                    </div>
+                                  </div>
+                                )}
+
+                                {validationErrors.length > 0 ? (
+                                  <div className="bg-red-50 border border-red-200 text-red-800 rounded-2xl p-6 space-y-3 animate-headshake">
+                                    <div className="flex items-center gap-2 text-sm font-black uppercase tracking-wider text-red-700">
+                                      <AlertCircle size={18} /> Eligibility Blocked
+                                    </div>
+                                    <ul className="list-disc pl-5 text-xs font-bold space-y-1.5">
+                                      {validationErrors.map((err, i) => (
+                                        <li key={i}>{err}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <div className="space-y-4">
+                                      <div>
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Valid Until (Expiration Date)</label>
+                                        <input 
+                                          type="date" 
+                                          value={validUntil}
+                                          onChange={(e) => setValidUntil(e.target.value)}
+                                          disabled={!hasAuthLetterGenerate || isGeneratingAuth}
+                                          className="w-full px-5 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary disabled:opacity-60 disabled:bg-gray-100"
+                                        />
+                                      </div>
+
+                                      {/* Preview Coordinates Information */}
+                                      <div className="p-4 bg-white rounded-2xl border border-gray-200 text-xs font-bold text-secondary space-y-2">
+                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-wider">Assigned Coordinates info (Will print in PDF)</p>
+                                        <div className="grid grid-cols-2 gap-2 pt-1">
+                                          <div>State: {selectedEmp.state}</div>
+                                          <div>District: {selectedEmp.district}</div>
+                                          {selectedEmp.block && <div>Block: {selectedEmp.block}</div>}
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                      <button
+                                        onClick={handleGenerateAuthLetter}
+                                        disabled={isGeneratingAuth || !hasAuthLetterGenerate}
+                                        className="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary/95 transition-colors shadow-lg shadow-primary/20 disabled:opacity-50"
+                                      >
+                                        {isGeneratingAuth ? 'Generating...' : (showRegenerateForm ? 'Confirm & Regenerate' : 'Generate Letter')}
+                                      </button>
+                                      {showRegenerateForm && (
+                                        <button
+                                          onClick={() => setShowRegenerateForm(false)}
+                                          disabled={isGeneratingAuth}
+                                          className="px-6 py-4 bg-gray-100 text-secondary rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-colors"
+                                        >
+                                          Cancel
+                                        </button>
+                                      )}
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Footer Actions */}

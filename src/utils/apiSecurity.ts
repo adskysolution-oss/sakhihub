@@ -11,7 +11,8 @@ export const ALLOWED_USER_FIELDS = [
   'paymentCompleted', 'subscriptionPaid', 'depositPaid', 'verificationStatus',
   'vendorCode', 'subVendorCode', 'employeeId', 'vendorType',
   'parentVendorId', 'profileImage', 'assignmentStatus', 'documents',
-  'permissions', 'assignedScope', 'assignedStates', 'assignedDistricts', 'assignedBlocks', 'assignedRegions'
+  'permissions', 'assignedScope', 'assignedStates', 'assignedDistricts', 'assignedBlocks', 'assignedRegions',
+  'dashboardAccess'
 ];
 
 /**

@@ -43,6 +43,11 @@ export async function PATCH(
       { new: true, runValidators: true }
     ).select('-password');
 
+    // Auto-revoke authorization letters if user assignments/details changed and they no longer qualify
+    const { syncAuthorizationLetterStatus } = await import('@/utils/authLetterSync');
+    const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
+    await syncAuthorizationLetterStatus(id, ip);
+
     return successResponse(updatedUser, 'Employee details updated successfully');
   } catch (error: any) {
     console.error('Update Employee Error:', error);

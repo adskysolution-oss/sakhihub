@@ -35,10 +35,11 @@ export async function GET(req: NextRequest) {
       isAuthorized = true;
     } else {
       // Find target user from associated collections to verify owner or regional scoping
-      const [Document, VendorAgreement, EmployeeOfferLetter, User, FileRecord] = await Promise.all([
+      const [Document, VendorAgreement, EmployeeOfferLetter, AuthorizationLetter, User, FileRecord] = await Promise.all([
         import('@/models/Document').then(m => m.default),
         import('@/models/VendorAgreement').then(m => m.default),
         import('@/models/EmployeeOfferLetter').then(m => m.default),
+        import('@/models/AuthorizationLetter').then(m => m.default),
         import('@/models/User').then(m => m.default),
         import('@/models/FileRecord').then(m => m.default),
       ]);
@@ -72,6 +73,11 @@ export async function GET(req: NextRequest) {
         if (!ownerId) ownerId = ol.employeeId.toString();
       }
 
+      const authLetter = await AuthorizationLetter.findOne({ pdfUrl: url }).lean();
+      if (authLetter) {
+        if (!ownerId) ownerId = authLetter.userId.toString();
+      }
+
       if (!ownerId) {
         const u = await User.findOne({ profileImage: url }).lean();
         if (u) ownerId = u._id.toString();
@@ -89,11 +95,14 @@ export async function GET(req: NextRequest) {
         let requiredPermission = 'documents.view';
         const isOfferLetter = url.toLowerCase().includes('offer-letter') || url.toLowerCase().includes('offer_letter') || !!ol;
         const isAgreement = url.toLowerCase().includes('agreement') || !!va;
+        const isAuthLetter = url.toLowerCase().includes('authorization') || !!authLetter;
 
         if (isOfferLetter) {
           requiredPermission = 'offer_letters.download';
         } else if (isAgreement) {
           requiredPermission = 'agreements.view';
+        } else if (isAuthLetter) {
+          requiredPermission = 'authorization.view';
         }
 
         const hasPerm = await hasPermission(sessionUser.id, sessionUser.role, requiredPermission);
