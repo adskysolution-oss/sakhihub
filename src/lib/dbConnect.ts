@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import '@/models/Group'; // Ensure Group model is registered to prevent populate errors
 
 const MONGODB_URI = process.env.MONGODB_URI;
 

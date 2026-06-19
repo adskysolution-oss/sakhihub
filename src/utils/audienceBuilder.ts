@@ -61,19 +61,9 @@ async function translateRuleToMongo(rule: Rule): Promise<any> {
 
     case 'paymentStatus':
       if (value === 'paid') {
-        return {
-          $or: [
-            { paymentCompleted: true },
-            { subscriptionPaid: true }
-          ]
-        };
+        return { paymentCompleted: true };
       } else {
-        return {
-          $and: [
-            { paymentCompleted: { $ne: true } },
-            { subscriptionPaid: { $ne: true } }
-          ]
-        };
+        return { paymentCompleted: { $ne: true } };
       }
 
     case 'verificationStatus':
@@ -180,7 +170,7 @@ async function translateRuleToMemberMongo(rule: Rule): Promise<any> {
         return {
           $or: [
             { "userDoc.status": { $in: ['pending', 'documents_uploaded', 'under_review', 'reupload_required'] } },
-            { 
+            {
               $and: [
                 { "userDoc.status": { $exists: false } },
                 { accountStatus: 'pending' }

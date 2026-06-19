@@ -2,13 +2,13 @@ import { Types } from 'mongoose';
 
 export function buildDateRangeQuery(dateRange?: string | null, customDate?: string | null, startDate?: string | null, endDate?: string | null) {
   const dateQuery: any = {};
-  
+
   if (dateRange && dateRange !== 'all') {
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfYesterday = new Date(startOfToday);
     startOfYesterday.setDate(startOfYesterday.getDate() - 1);
-    
+
     if (dateRange === 'today') {
       dateQuery.createdAt = { $gte: startOfToday };
     } else if (dateRange === 'yesterday') {
@@ -57,14 +57,9 @@ export function buildPaymentQuery(activePaymentStatus?: string | null) {
   let paymentFilterQuery: any = {};
   if (activePaymentStatus && activePaymentStatus !== 'all') {
     if (activePaymentStatus === 'paid') {
-      paymentFilterQuery = { $or: [{ paymentCompleted: true }, { subscriptionPaid: true }] };
+      paymentFilterQuery = { paymentCompleted: true };
     } else if (activePaymentStatus === 'unpaid') {
-      paymentFilterQuery = {
-        $and: [
-          { paymentCompleted: { $ne: true } },
-          { subscriptionPaid: { $ne: true } }
-        ]
-      };
+      paymentFilterQuery = { paymentCompleted: { $ne: true } };
     }
   }
   return paymentFilterQuery;
@@ -82,7 +77,7 @@ export function buildPaginationAndCountsFacet(page: number, limit: number, statu
         $group: {
           _id: {
             $cond: [
-              { $or: [{ $eq: ["$paymentCompleted", true] }, { $eq: ["$subscriptionPaid", true] }] },
+              { $eq: ["$paymentCompleted", true] },
               "paid",
               "unpaid"
             ]
@@ -110,7 +105,7 @@ export function parseCountsFromFacet(facet: any) {
     approved: 0,
     rejected: 0
   };
-  
+
   let totalStatusCount = 0;
   facet.statusCounts.forEach((item: any) => {
     totalStatusCount += item.count;
