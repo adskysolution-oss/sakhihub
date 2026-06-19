@@ -89,7 +89,7 @@ export const generateAuthorizationLetterHtml = (data: AuthorizationLetterData) =
         background-color: #ffffff;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: flex-start;
       }
 
       /* Premium Double Border */
@@ -434,7 +434,7 @@ export const generateAuthorizationLetterHtml = (data: AuthorizationLetterData) =
         opacity: 0.55;
         z-index: 5;
         mix-blend-mode: multiply;
-        top: -12px;
+        top: -2px;
         left: 50%;
         transform: translateX(-50%);
       }
@@ -707,7 +707,7 @@ export const generateAuthorizationLetterHtml = (data: AuthorizationLetterData) =
       </div>
 
       <!-- Main Body Bottom Section -->
-      <div>
+      <div style="margin-top: 25px;">
         <!-- 5. Signatures -->
         <div class="footer-signatures" style="margin-top: 10px; padding-top: 8px;">
           <div class="sig-col-left" style="min-height: 60px;">
@@ -721,7 +721,7 @@ export const generateAuthorizationLetterHtml = (data: AuthorizationLetterData) =
           </div>
           <div class="sig-col-right" style="min-height: 60px;">
             <div style="height: 40px; display: flex; align-items: center; justify-content: center; width: 100%;">
-              ${sealBase64 ? `<img src="${sealBase64}" class="seal-img" style="height: 52px; top: -14px;" alt="Official Seal" />` : ''}
+              ${sealBase64 ? `<img src="${sealBase64}" class="seal-img" style="height: 52px; top: -2px;" alt="Official Seal" />` : ''}
               ${sigBase64 ? `<img src="${sigBase64}" class="sig-img" style="height: 28px;" alt="Authorized Signature" />` : ''}
             </div>
             <div class="sig-line" style="font-size: 9.5px; padding-top: 2px; margin-top: 4px;">
