@@ -12,7 +12,15 @@ export async function GET(req: NextRequest) {
     }
 
     await dbConnect();
-    const admins = await User.find({ role: { $in: ['operations_admin', 'staff'] } }).select('-password').sort({ createdAt: -1 });
+    const admins = await User.find({
+      $or: [
+        { role: { $in: ['operations_admin', 'staff'] } },
+        { 
+          role: 'employee', 
+          designation: { $in: ['District Coordinator', 'District Project Officer'] } 
+        }
+      ]
+    }).select('-password').sort({ createdAt: -1 });
     return successResponse(admins);
   } catch (error: any) {
     return errorResponse(error.message, 500);

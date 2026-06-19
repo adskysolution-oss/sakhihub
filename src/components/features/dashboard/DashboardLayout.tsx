@@ -16,7 +16,8 @@ import {
   ChevronDown,
   LayoutDashboard,
   BookOpen,
-  FileText
+  FileText,
+  Users
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -242,8 +243,21 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     }
     if (user?.role === 'vendor') return VENDOR_DASHBOARD_LINKS;
     if (user?.role === 'sub_vendor') return SUBVENDOR_DASHBOARD_LINKS;
-    if (user?.role === 'employee') return EMPLOYEE_DASHBOARD_LINKS;
-    if (user?.role === 'employee') return EMPLOYEE_DASHBOARD_LINKS;
+    if (user?.role === 'employee') {
+      const isDC = ['District Coordinator', 'District Project Officer'].includes(user.designation || '');
+      if (isDC) {
+        const list = [...EMPLOYEE_DASHBOARD_LINKS];
+        const groupsIndex = list.findIndex(l => l.name === 'My Groups' || l.href === '/employee/groups');
+        const insertIndex = groupsIndex !== -1 ? groupsIndex + 1 : 2;
+        list.splice(insertIndex, 0, {
+          name: 'My Team',
+          icon: Users,
+          href: '/employee/dashboard/my-team'
+        });
+        return list;
+      }
+      return EMPLOYEE_DASHBOARD_LINKS;
+    }
 
     if (user?.role === 'member') {
       const isPaidVerified = user?.membershipType === 'paid' && (user?.accessStatus === 'unlocked' || user?.paymentStatus === 'completed');

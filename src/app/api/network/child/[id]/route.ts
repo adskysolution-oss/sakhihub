@@ -28,7 +28,7 @@ function sanitizeDocuments(docs: any) {
 export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const session = await getAuthSession();
-    if (!session || !['vendor', 'sub_vendor'].includes((session as any).role)) {
+    if (!session || !['vendor', 'sub_vendor', 'employee'].includes((session as any).role)) {
       return errorResponse('Unauthorized', 403);
     }
 
@@ -46,6 +46,11 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
     const currentUser = await User.findById(currentUserId);
 
     if (!currentUser) return errorResponse('Current user not found', 404);
+
+    const isDC = currentUserRole === 'employee' && ['District Coordinator', 'District Project Officer'].includes(currentUser.designation || '');
+    if (currentUserRole === 'employee' && !isDC) {
+      return errorResponse('Forbidden: Insufficient permissions', 403);
+    }
 
     // 1. Try to find if the child is a User (sub_vendor or employee)
     let childUser = await User.findById(childId).populate('assignedCampaigns', 'title');
@@ -67,6 +72,16 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
       } else if (currentUserRole === 'sub_vendor') {
         // Sub-vendor can see employees
         if (childUser.parentVendorId?.toString() === currentUserId && childUser.role === 'employee') {
+          isAuthorized = true;
+        }
+      } else if (isDC) {
+        // District Coordinator can see Block Coordinators in their assigned blocks
+        const assignedBlocks = (currentUser.assignedBlocks || []).map((b: string) => b.trim().toLowerCase());
+        const isBlockEmployee = ['Block Coordinator', 'Field Executive', 'Block Employee'].includes(childUser.designation || '');
+        const hasMatchingBlock = 
+          assignedBlocks.includes((childUser.workBlock || '').trim().toLowerCase()) || 
+          assignedBlocks.includes((childUser.block || '').trim().toLowerCase());
+        if (childUser.role === 'employee' && isBlockEmployee && hasMatchingBlock) {
           isAuthorized = true;
         }
       }
@@ -132,6 +147,12 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
         block: childUser.block,
         village: childUser.village,
         pincode: childUser.pincode,
+        address: childUser.address,
+        workState: childUser.workState,
+        workDistrict: childUser.workDistrict,
+        workBlock: childUser.workBlock,
+        workPincode: childUser.workPincode,
+        workAddress: childUser.workAddress,
         vendorType: childUser.vendorType,
         joiningDate: childUser.joiningDate || childUser.createdAt,
         assignedCampaigns: childUser.assignedCampaigns,

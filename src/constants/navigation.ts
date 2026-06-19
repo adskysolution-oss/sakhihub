@@ -47,6 +47,7 @@ export const ADMIN_DASHBOARD_LINKS = [
   { section: 'Users', name: 'Vendors', icon: ShieldCheck, href: '/admin/vendors' },
   { section: 'Users', name: 'Sub-Vendors', icon: Layout, href: '/admin/sub-vendors' },
   { section: 'Users', name: 'Employees', icon: ClipboardList, href: '/admin/employees' },
+  { section: 'Users', name: 'District Coordinators', icon: MapPin, href: '/admin/district-coordinators' },
   { section: 'Users', name: 'Staff Management', icon: Users, href: '/admin/staff' },
   { section: 'Users', name: 'All Groups', icon: Layout, href: '/admin/groups' },
   { section: 'Users', name: 'All Members', icon: Users, href: '/admin/members' },

@@ -158,8 +158,13 @@ export default function AssignmentsPage() {
                           {admin.fullName[0].toUpperCase()}
                         </div>
                         <div>
-                          <p className={`text-xs font-black ${isSelected ? 'text-primary' : 'text-secondary'}`}>
+                          <p className={`text-xs font-black ${isSelected ? 'text-primary' : 'text-secondary'} flex items-center gap-1.5`}>
                             {admin.fullName}
+                            {admin.role === 'employee' && (
+                              <span className="px-1.5 py-0.5 text-[8px] bg-amber-100 text-amber-700 rounded font-black uppercase tracking-wider">
+                                DC
+                              </span>
+                            )}
                           </p>
                           <p className="text-[9px] text-gray-400 font-bold uppercase mt-0.5 tracking-wider">
                             Scope: {admin.assignedScope === 'all' ? 'All India' : 'Regional'}

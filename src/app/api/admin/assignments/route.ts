@@ -19,8 +19,9 @@ export async function POST(req: NextRequest) {
     }
 
     const user = await User.findById(userId);
-    if (!user || !['operations_admin', 'staff'].includes(user.role)) {
-      return errorResponse('Operations Admin or Staff not found', 404);
+    const isDC = user && user.role === 'employee' && ['District Coordinator', 'District Project Officer'].includes(user.designation || '');
+    if (!user || (!['operations_admin', 'staff'].includes(user.role) && !isDC)) {
+      return errorResponse('Operations Admin, Staff, or District Coordinator not found', 404);
     }
 
     user.assignedScope = assignedScope || 'all';

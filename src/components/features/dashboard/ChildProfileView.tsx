@@ -221,6 +221,69 @@ export default function ChildProfileView({ childId, onClose }: ChildProfileViewP
                 </div>
               </div>
             )}
+
+            {type === 'user' && (
+              <div className="space-y-6 pt-4">
+                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <MapPin size={14} /> Address & Work Location
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Personal Address Card */}
+                  <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 flex flex-col gap-4">
+                    <h5 className="text-xs font-black text-secondary uppercase tracking-wider border-b border-gray-150 pb-2 flex items-center gap-1.5">
+                      Personal Address
+                    </h5>
+                    <div className="space-y-3 text-xs">
+                      <div>
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-0.5">State / District / Block</span>
+                        <span className="font-bold text-secondary">{data.state || 'N/A'} / {data.district || 'N/A'} / {data.block || 'N/A'}</span>
+                      </div>
+                      {data.village && (
+                        <div>
+                          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-0.5">Village</span>
+                          <span className="font-bold text-secondary">{data.village}</span>
+                        </div>
+                      )}
+                      <div>
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-0.5">Pincode</span>
+                        <span className="font-mono font-bold text-secondary">{data.pincode || 'N/A'}</span>
+                      </div>
+                      {data.address && (
+                        <div>
+                          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-0.5">Full Address</span>
+                          <span className="font-bold text-secondary">{data.address}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Work Location Card */}
+                  <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 flex flex-col gap-4">
+                    <h5 className="text-xs font-black text-secondary uppercase tracking-wider border-b border-gray-150 pb-2 flex items-center gap-1.5">
+                      Workplace Location
+                    </h5>
+                    <div className="space-y-3 text-xs">
+                      <div>
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-0.5">Work State / District / Block</span>
+                        <span className="font-bold text-secondary">{data.workState || 'N/A'} / {data.workDistrict || 'N/A'} / {data.workBlock || 'N/A'}</span>
+                      </div>
+                      {data.workPincode && (
+                        <div>
+                          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-0.5">Work Pincode</span>
+                          <span className="font-mono font-bold text-secondary">{data.workPincode}</span>
+                        </div>
+                      )}
+                      {data.workAddress && (
+                        <div>
+                          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-0.5">Workplace Address</span>
+                          <span className="font-bold text-secondary">{data.workAddress}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
 
