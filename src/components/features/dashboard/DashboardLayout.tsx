@@ -230,9 +230,18 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
         '/admin/memberships': 'payments.view',
       };
       const userPermissions = Array.isArray(user.permissions) ? user.permissions : [];
+      const hasAnyUserView = userPermissions.includes('vendors.view') ||
+        userPermissions.includes('sub_vendors.view') ||
+        userPermissions.includes('employees.view') ||
+        userPermissions.includes('members.view');
+
       return ADMIN_DASHBOARD_LINKS.filter(link => {
         if (restrictedHrefs.some(href => link.href.startsWith(href))) return false;
         if (link.section === 'Admin Management') return false;
+
+        if (link.href === '/admin/users') {
+          return hasAnyUserView;
+        }
 
         const requiredPermission = linkPermissionMap[link.href];
         if (requiredPermission && !userPermissions.includes(requiredPermission)) {

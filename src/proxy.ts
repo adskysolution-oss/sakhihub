@@ -351,6 +351,17 @@ export async function proxy(request: NextRequest) {
           };
 
           const userPermissions = Array.isArray(payload.permissions) ? payload.permissions : [];
+          
+          if (pathname.startsWith('/admin/users')) {
+            const hasAnyUserView = userPermissions.includes('vendors.view') ||
+              userPermissions.includes('sub_vendors.view') ||
+              userPermissions.includes('employees.view') ||
+              userPermissions.includes('members.view');
+            if (!hasAnyUserView) {
+              return NextResponse.redirect(new URL('/unauthorized', request.url));
+            }
+          }
+
           for (const [routePrefix, requiredPermission] of Object.entries(adminPagePermissionMap)) {
             if (pathname.startsWith(routePrefix)) {
               if (!userPermissions.includes(requiredPermission)) {

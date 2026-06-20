@@ -44,6 +44,7 @@ export const ADMIN_DASHBOARD_LINKS = [
   { section: 'Core', name: 'Activity Reports', icon: FileText, href: '/admin/reports' },
 
   // USERS
+  { section: 'Users', name: 'All Users', icon: Users, href: '/admin/users' },
   { section: 'Users', name: 'Vendors', icon: ShieldCheck, href: '/admin/vendors' },
   { section: 'Users', name: 'Sub-Vendors', icon: Layout, href: '/admin/sub-vendors' },
   { section: 'Users', name: 'Employees', icon: ClipboardList, href: '/admin/employees' },

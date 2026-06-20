@@ -27,6 +27,14 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search');
+    const statusParam = searchParams.get('status');
+    const roleParam = searchParams.get('role');
+
+    let page = parseInt(searchParams.get('page') || '1', 10);
+    let limit = parseInt(searchParams.get('limit') || '50', 10);
+    if (isNaN(page) || page < 1) page = 1;
+    if (isNaN(limit) || limit < 1) limit = 50;
+    const skip = (page - 1) * limit;
 
     await dbConnect();
 
@@ -48,16 +56,36 @@ export async function GET(req: NextRequest) {
       } else {
         query.$or.push({ mobile: { $regex: escapedSearch, $options: 'i' } });
       }
-    } else if (searchParams.get('status') === 'pending_payment') {
+    } else if (statusParam === 'pending_payment') {
       query = { documentsVerified: true, paymentCompleted: false, role: { $in: ['vendor', 'sub_vendor', 'employee'] } };
+    }
+
+    // Apply additional filters (if not overridden by pending_payment logic)
+    if (statusParam && statusParam !== 'pending_payment' && statusParam !== 'all') {
+      query.status = statusParam;
+    }
+    if (roleParam && roleParam !== 'all') {
+      query.role = roleParam;
     }
 
     const { applyRegionalFilter } = await import('@/utils/authHelpers');
     query = await applyRegionalFilter(query, session);
 
-    const users = await User.find(query).select('fullName mobile email role status subscriptionPaid depositPaid documentsVerified').limit(5).lean();
+    const totalCount = await User.countDocuments(query);
+    const users = await User.find(query)
+      .select('fullName mobile email role status subscriptionPaid depositPaid documentsVerified createdAt')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
-    return successResponse(users, 'Users retrieved successfully');
+    return Response.json({
+      success: true,
+      data: users,
+      totalCount,
+      page,
+      limit
+    });
   } catch (error: any) {
     console.error('Fetch Users Error:', error);
     return errorResponse(error.message || 'Failed to fetch users', 500);
