@@ -34,7 +34,7 @@ export default function DeliveryPartnerPage() {
                 <div className="glass-card" style={{ padding: '25px' }}>
                   <ShieldCheck size={32} color="var(--primary)" style={{ marginBottom: '15px' }} />
                   <h4>{t('deliveryPage.deposit')}</h4>
-                  <p style={{ color: 'var(--secondary)', fontWeight: '800', fontSize: '1.2rem' }}>₹25,000</p>
+                  <p style={{ color: 'var(--secondary)', fontWeight: '800', fontSize: '1.2rem' }}>₹50,000</p>
                 </div>
               </div>
 
