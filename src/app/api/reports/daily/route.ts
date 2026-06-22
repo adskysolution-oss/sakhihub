@@ -39,7 +39,16 @@ export async function GET(req: NextRequest) {
       .sort({ date: -1 })
       .populate('employeeId', 'fullName employeeId');
 
-    return successResponse(reports);
+    const { signMediaUrl } = await import('@/lib/s3');
+    const signedReports = await Promise.all(reports.map(async (report) => {
+      const obj = report.toObject();
+      if (Array.isArray(obj.meetingPhotos)) {
+        obj.meetingPhotos = await Promise.all(obj.meetingPhotos.map((url: string) => signMediaUrl(url)));
+      }
+      return obj;
+    }));
+
+    return successResponse(signedReports);
   } catch (error: any) {
     return errorResponse(error.message, 500);
   }

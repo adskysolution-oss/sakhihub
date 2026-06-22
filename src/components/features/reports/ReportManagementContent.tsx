@@ -3,10 +3,13 @@
 import React, { useState, useEffect } from "react";
 import { 
   BarChart, PieChart, TrendingUp, Download, 
-  Calendar, Users, IndianRupee, Map, Award,
+  Calendar, Users, IndianRupee, Map as MapIcon, Award,
   ArrowUpRight, ArrowDownRight, Settings, FileCheck, 
-  Clock, Trash2, FolderOpen, MapPin, RefreshCw, FileText
+  Clock, Trash2, FolderOpen, MapPin, RefreshCw, FileText,
+  X, Eye, AlertTriangle, Check, CheckCircle2, ClipboardList,
+  Camera, Video
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -106,7 +109,7 @@ export default function ReportManagementContent() {
   const userPermissions = Array.isArray(user?.permissions) ? user.permissions : [];
   const canExport = isSuperAdmin || userPermissions.includes('reports.export');
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'builder' | 'templates' | 'audit'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'builder' | 'templates' | 'audit' | 'meetings'>('overview');
   
   // Data Overview State
   const [overviewData, setOverviewData] = useState<any>(null);
@@ -119,6 +122,23 @@ export default function ReportManagementContent() {
   // Audit Logs State
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [loadingAudit, setLoadingAudit] = useState(false);
+  
+  // Meeting Analytics & Evidence States
+  const [meetings, setMeetings] = useState<any[]>([]);
+  const [loadingMeetings, setLoadingMeetings] = useState(false);
+  const [meetingsFilter, setMeetingsFilter] = useState({
+    state: '',
+    district: '',
+    block: '',
+    conductedBy: '',
+    groupId: ''
+  });
+  const [selectedMeetingId, setSelectedMeetingId] = useState<string | null>(null);
+  const [loadingMeetingDetails, setLoadingMeetingDetails] = useState(false);
+  const [meetingDetails, setMeetingDetails] = useState<any>(null);
+  const [rejectionRemarks, setRejectionRemarks] = useState('');
+  const [showRejectInput, setShowRejectInput] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   // Report Builder States
   const [entityType, setEntityType] = useState<'vendors' | 'sub_vendors' | 'employees' | 'members' | 'payments' | 'memberships' | 'compliance'>('vendors');
@@ -187,8 +207,65 @@ export default function ReportManagementContent() {
       fetchTemplates();
     } else if (activeTab === 'audit') {
       fetchAuditLogs();
+    } else if (activeTab === 'meetings') {
+      fetchMeetingsData();
     }
   }, [activeTab]);
+
+  const fetchMeetingsData = async () => {
+    setLoadingMeetings(true);
+    try {
+      const res = await axios.get('/api/meetings?limit=1000');
+      if (res.data.success) {
+        setMeetings(res.data.data.data || res.data.data);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load meetings evidence directory");
+    } finally {
+      setLoadingMeetings(false);
+    }
+  };
+
+  const fetchMeetingDetails = async (meetingId: string) => {
+    setLoadingMeetingDetails(true);
+    setShowRejectInput(false);
+    setRejectionRemarks('');
+    try {
+      const res = await axios.get(`/api/meetings/${meetingId}`);
+      if (res.data.success) {
+        setMeetingDetails(res.data.data);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load meeting verification details");
+    } finally {
+      setLoadingMeetingDetails(false);
+    }
+  };
+
+  const handleReviewMeeting = async (meetingId: string, status: 'verified' | 'rejected') => {
+    try {
+      const payload: any = { status };
+      if (status === 'rejected') {
+        if (!rejectionRemarks.trim()) {
+          toast.error("Please provide a rejection reason");
+          return;
+        }
+        payload.rejectionReason = rejectionRemarks;
+      }
+
+      const res = await axios.patch(`/api/meetings/${meetingId}`, payload);
+      if (res.data.success) {
+        toast.success(`Meeting status updated to ${status} successfully`);
+        fetchMeetingDetails(meetingId);
+        fetchMeetingsData(); // refresh list
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to update meeting review status");
+    }
+  };
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -419,6 +496,18 @@ export default function ReportManagementContent() {
           }}
         >
           <Clock size={16} /> Audit Logs
+        </button>
+        <button
+          onClick={() => setActiveTab('meetings')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '14px', border: 'none', cursor: 'pointer',
+            fontSize: '0.85rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em', transition: 'all 0.2s',
+            background: activeTab === 'meetings' ? 'white' : 'transparent',
+            color: activeTab === 'meetings' ? 'var(--secondary)' : '#64748b',
+            boxShadow: activeTab === 'meetings' ? '0 4px 12px rgba(0,0,0,0.05)' : 'none'
+          }}
+        >
+          <ClipboardList size={16} /> Meeting Analytics
         </button>
       </div>
 
@@ -892,6 +981,362 @@ export default function ReportManagementContent() {
           )}
         </div>
       )}
+      {/* Tab 5: Meetings Evidence Directory */}
+      {activeTab === 'meetings' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+          
+          {/* Dynamically calculated Metrics Counters */}
+          {(() => {
+            const filtered = meetings.filter(m => {
+              const groupRef = m.groupId || {};
+              if (meetingsFilter.state && m.state !== meetingsFilter.state) return false;
+              if (meetingsFilter.district && m.district !== meetingsFilter.district) return false;
+              if (meetingsFilter.block && m.block !== meetingsFilter.block) return false;
+              if (meetingsFilter.conductedBy && m.conductedBy?._id !== meetingsFilter.conductedBy) return false;
+              if (meetingsFilter.groupId && groupRef._id !== meetingsFilter.groupId) return false;
+              return true;
+            });
+
+            const uniqueGroupIds = new Set(filtered.map(m => m.groupId?._id).filter(Boolean));
+            const totalMeetingsCount = filtered.length;
+            const totalGroupsCount = uniqueGroupIds.size;
+            const totalMembersCount = filtered.reduce((sum, m) => sum + (m.attendeesCount || 0), 0);
+            const totalPhotosCount = filtered.reduce((sum, m) => sum + (m.photoCount || 0), 0);
+            const totalVideosCount = filtered.reduce((sum, m) => sum + (m.videoCount || 0), 0);
+
+            // Filter sets for dropdowns
+            const uniqueStates = Array.from(new Set(meetings.map(m => m.state).filter(Boolean)));
+            const uniqueDistricts = Array.from(new Set(meetings.filter(m => !meetingsFilter.state || m.state === meetingsFilter.state).map(m => m.district).filter(Boolean)));
+            const uniqueBlocks = Array.from(new Set(meetings.filter(m => (!meetingsFilter.state || m.state === meetingsFilter.state) && (!meetingsFilter.district || m.district === meetingsFilter.district)).map(m => m.block).filter(Boolean)));
+            const uniqueEmployees = Array.from(new Map(filtered.map(m => [m.conductedBy?._id, m.conductedBy] as [any, any]).filter(([id, u]) => id && u)).values());
+            const uniqueGroups = Array.from(new Map(filtered.map(m => [m.groupId?._id, m.groupId] as [any, any]).filter(([id, g]) => id && g)).values());
+
+            return (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+                  <div className="glass-card" style={{ background: 'white', padding: '25px', borderRadius: '25px', border: '1px solid #f1f5f9', display: 'flex', gap: '15px', alignItems: 'center' }}>
+                    <div style={{ padding: '12px', background: 'rgba(37, 99, 235, 0.1)', color: '#2563eb', borderRadius: '12px' }}><ClipboardList size={22} /></div>
+                    <div>
+                      <p style={{ margin: 0, fontSize: '0.7rem', color: '#94a3b8', fontWeight: '800', textTransform: 'uppercase' }}>Total Meetings</p>
+                      <p style={{ margin: '3px 0 0', fontSize: '1.4rem', fontWeight: '900', color: 'var(--secondary)' }}>{totalMeetingsCount}</p>
+                    </div>
+                  </div>
+                  <div className="glass-card" style={{ background: 'white', padding: '25px', borderRadius: '25px', border: '1px solid #f1f5f9', display: 'flex', gap: '15px', alignItems: 'center' }}>
+                    <div style={{ padding: '12px', background: 'rgba(106, 27, 154, 0.1)', color: '#6a1b9a', borderRadius: '12px' }}><Users size={22} /></div>
+                    <div>
+                      <p style={{ margin: 0, fontSize: '0.7rem', color: '#94a3b8', fontWeight: '800', textTransform: 'uppercase' }}>Groups Covered</p>
+                      <p style={{ margin: '3px 0 0', fontSize: '1.4rem', fontWeight: '900', color: 'var(--secondary)' }}>{totalGroupsCount}</p>
+                    </div>
+                  </div>
+                  <div className="glass-card" style={{ background: 'white', padding: '25px', borderRadius: '25px', border: '1px solid #f1f5f9', display: 'flex', gap: '15px', alignItems: 'center' }}>
+                    <div style={{ padding: '12px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '12px' }}><Users size={22} /></div>
+                    <div>
+                      <p style={{ margin: 0, fontSize: '0.7rem', color: '#94a3b8', fontWeight: '800', textTransform: 'uppercase' }}>Attendees Count</p>
+                      <p style={{ margin: '3px 0 0', fontSize: '1.4rem', fontWeight: '900', color: 'var(--secondary)' }}>{totalMembersCount}</p>
+                    </div>
+                  </div>
+                  <div className="glass-card" style={{ background: 'white', padding: '25px', borderRadius: '25px', border: '1px solid #f1f5f9', display: 'flex', gap: '15px', alignItems: 'center' }}>
+                    <div style={{ padding: '12px', background: 'rgba(233, 30, 99, 0.1)', color: 'var(--primary)', borderRadius: '12px' }}><Camera size={22} /></div>
+                    <div>
+                      <p style={{ margin: 0, fontSize: '0.7rem', color: '#94a3b8', fontWeight: '800', textTransform: 'uppercase' }}>Total Photos</p>
+                      <p style={{ margin: '3px 0 0', fontSize: '1.4rem', fontWeight: '900', color: 'var(--secondary)' }}>{totalPhotosCount}</p>
+                    </div>
+                  </div>
+                  <div className="glass-card" style={{ background: 'white', padding: '25px', borderRadius: '25px', border: '1px solid #f1f5f9', display: 'flex', gap: '15px', alignItems: 'center' }}>
+                    <div style={{ padding: '12px', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', borderRadius: '12px' }}><Video size={22} /></div>
+                    <div>
+                      <p style={{ margin: 0, fontSize: '0.7rem', color: '#94a3b8', fontWeight: '800', textTransform: 'uppercase' }}>Total Videos</p>
+                      <p style={{ margin: '3px 0 0', fontSize: '1.4rem', fontWeight: '900', color: 'var(--secondary)' }}>{totalVideosCount}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* State -> District -> Block -> Coordinator -> Group Dropdown Select drills */}
+                <div className="glass-card" style={{ background: 'white', padding: '25px', borderRadius: '25px', border: '1px solid #f1f5f9', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '15px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', color: '#64748b', marginBottom: '8px' }}>Select State</label>
+                    <select
+                      value={meetingsFilter.state}
+                      onChange={e => setMeetingsFilter(prev => ({ ...prev, state: e.target.value, district: '', block: '', groupId: '', conductedBy: '' }))}
+                      style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #cbd5e1', fontWeight: '700', outline: 'none' }}
+                    >
+                      <option value="">All States</option>
+                      {uniqueStates.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', color: '#64748b', marginBottom: '8px' }}>Select District</label>
+                    <select
+                      value={meetingsFilter.district}
+                      onChange={e => setMeetingsFilter(prev => ({ ...prev, district: e.target.value, block: '', groupId: '', conductedBy: '' }))}
+                      style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #cbd5e1', fontWeight: '700', outline: 'none' }}
+                    >
+                      <option value="">All Districts</option>
+                      {uniqueDistricts.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', color: '#64748b', marginBottom: '8px' }}>Select Block</label>
+                    <select
+                      value={meetingsFilter.block}
+                      onChange={e => setMeetingsFilter(prev => ({ ...prev, block: e.target.value, groupId: '', conductedBy: '' }))}
+                      style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #cbd5e1', fontWeight: '700', outline: 'none' }}
+                    >
+                      <option value="">All Blocks</option>
+                      {uniqueBlocks.map(b => <option key={b} value={b}>{b}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', color: '#64748b', marginBottom: '8px' }}>Select Employee</label>
+                    <select
+                      value={meetingsFilter.conductedBy}
+                      onChange={e => setMeetingsFilter(prev => ({ ...prev, conductedBy: e.target.value }))}
+                      style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #cbd5e1', fontWeight: '700', outline: 'none' }}
+                    >
+                      <option value="">All Employees</option>
+                      {uniqueEmployees.map((emp: any) => <option key={emp._id} value={emp._id}>{emp.fullName}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', color: '#64748b', marginBottom: '8px' }}>Select Group</label>
+                    <select
+                      value={meetingsFilter.groupId}
+                      onChange={e => setMeetingsFilter(prev => ({ ...prev, groupId: e.target.value }))}
+                      style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #cbd5e1', fontWeight: '700', outline: 'none' }}
+                    >
+                      <option value="">All Groups</option>
+                      {uniqueGroups.map((g: any) => <option key={g._id} value={g._id}>{g.groupName}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Master Details Panel split view */}
+                <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '30px', alignItems: 'start' }}>
+                  
+                  {/* Left: Meetings List */}
+                  <div className="glass-card" style={{ background: 'white', padding: '20px', borderRadius: '25px', border: '1px solid #f1f5f9', maxHeight: '60vh', overflowY: 'auto' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: '900', color: 'var(--secondary)', marginBottom: '15px' }}>Meetings Log ({filtered.length})</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {filtered.map(m => (
+                        <div
+                          key={m._id}
+                          onClick={() => {
+                            setSelectedMeetingId(m._id);
+                            fetchMeetingDetails(m._id);
+                          }}
+                          style={{
+                            padding: '15px',
+                            borderRadius: '16px',
+                            border: selectedMeetingId === m._id ? '2px solid var(--primary)' : '1px solid #f1f5f9',
+                            background: selectedMeetingId === m._id ? '#fffcfd' : 'white',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <span style={{ fontWeight: '800', color: 'var(--secondary)', fontSize: '0.9rem' }}>
+                              {new Date(m.meetingDate).toLocaleDateString()}
+                            </span>
+                            <span style={{
+                              padding: '4px 8px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: '800', textTransform: 'uppercase',
+                              background: m.status === 'verified' ? '#ecfdf5' : m.status === 'rejected' ? '#fef2f2' : m.status === 'submitted' ? '#eff6ff' : '#f8fafc',
+                              color: m.status === 'verified' ? '#059669' : m.status === 'rejected' ? '#dc2626' : m.status === 'submitted' ? '#2563eb' : '#64748b'
+                            }}>
+                              {m.status}
+                            </span>
+                          </div>
+                          <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: '800', color: '#475569' }}>Group: {m.groupId?.groupName}</p>
+                          <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: '#94a3b8', fontWeight: '600' }}>Exec: {m.conductedBy?.fullName}</p>
+                          <div style={{ display: 'flex', gap: '10px', marginTop: '8px', fontSize: '0.7rem', color: '#64748b', fontWeight: '800' }}>
+                            <span>👥 {m.attendeesCount} Attended</span>
+                            <span>📸 {m.photoCount} Photos</span>
+                            <span>🎥 {m.videoCount} Videos</span>
+                          </div>
+                        </div>
+                      ))}
+                      {filtered.length === 0 && <p style={{ fontSize: '0.85rem', color: '#94a3b8', textAlign: 'center', padding: '20px' }}>No matching meetings recorded.</p>}
+                    </div>
+                  </div>
+
+                  {/* Right: Detailed Evidence Viewer & Review Action Center */}
+                  <div className="glass-card" style={{ background: 'white', padding: '30px', borderRadius: '30px', border: '1px solid #f1f5f9', minHeight: '50vh' }}>
+                    {loadingMeetingDetails ? (
+                      <div style={{ padding: '80px 0', textAlign: 'center', fontWeight: 'bold', color: '#64748b' }}>
+                        <RefreshCw className="animate-spin" style={{ margin: '0 auto 10px' }} size={24} /> Loading meeting details...
+                      </div>
+                    ) : meetingDetails ? (
+                      <div>
+                        {/* Details Header */}
+                        <div style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '20px', marginBottom: '20px' }}>
+                          <h3 style={{ fontSize: '1.3rem', fontWeight: '900', color: 'var(--secondary)', margin: 0 }}>Review Meeting Evidence Details</h3>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px' }}>
+                            <div>
+                              <p style={{ margin: 0, fontSize: '0.75rem', color: '#94a3b8', fontWeight: '800' }}>GROUP UNIT</p>
+                              <p style={{ margin: '2px 0 0', fontWeight: '800', color: 'var(--secondary)', fontSize: '0.95rem' }}>{meetingDetails.meeting.groupId?.groupName}</p>
+                              <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#64748b' }}>Leader: {meetingDetails.meeting.groupId?.leaderName} ({meetingDetails.meeting.groupId?.leaderMobile})</p>
+                            </div>
+                            <div>
+                              <p style={{ margin: 0, fontSize: '0.75rem', color: '#94a3b8', fontWeight: '800' }}>MEETING LOG DETAILS</p>
+                              <p style={{ margin: '2px 0 0', fontWeight: '800', color: 'var(--secondary)', fontSize: '0.95rem' }}>Conducted: {new Date(meetingDetails.meeting.meetingDate).toLocaleDateString()}</p>
+                              <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#64748b' }}>Exec: {meetingDetails.meeting.conductedBy?.fullName} ({meetingDetails.meeting.conductedBy?.employeeId})</p>
+                            </div>
+                            <div>
+                              <p style={{ margin: 0, fontSize: '0.75rem', color: '#94a3b8', fontWeight: '800' }}>LOCATION SCOPE</p>
+                              <p style={{ margin: '2px 0 0', fontWeight: '800', color: '#64748b', fontSize: '0.85rem' }}>{meetingDetails.meeting.village}, {meetingDetails.meeting.block}, {meetingDetails.meeting.district}</p>
+                            </div>
+                            <div>
+                              <p style={{ margin: 0, fontSize: '0.75rem', color: '#94a3b8', fontWeight: '800' }}>STATUS WORKFLOW</p>
+                              <span style={{
+                                display: 'inline-block', padding: '4px 8px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: '950', textTransform: 'uppercase', marginTop: '4px',
+                                background: meetingDetails.meeting.status === 'verified' ? '#ecfdf5' : meetingDetails.meeting.status === 'rejected' ? '#fef2f2' : meetingDetails.meeting.status === 'submitted' ? '#eff6ff' : '#f8fafc',
+                                color: meetingDetails.meeting.status === 'verified' ? '#059669' : meetingDetails.meeting.status === 'rejected' ? '#dc2626' : meetingDetails.meeting.status === 'submitted' ? '#2563eb' : '#64748b'
+                              }}>{meetingDetails.meeting.status}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Admin Action Center */}
+                        {meetingDetails.meeting.status === 'submitted' && (
+                          <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '20px', border: '1px solid #e2e8f0', marginBottom: '25px' }}>
+                            <h4 style={{ margin: '0 0 10px', fontSize: '0.85rem', fontWeight: '900', color: 'var(--secondary)' }}>Verification Actions</h4>
+                            
+                            {!showRejectInput ? (
+                              <div style={{ display: 'flex', gap: '15px' }}>
+                                <button
+                                  onClick={() => handleReviewMeeting(meetingDetails.meeting._id, 'verified')}
+                                  style={{ flex: 1, padding: '12px', background: '#10b981', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '800', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                                >
+                                  <Check size={16} /> Approve & Verify
+                                </button>
+                                <button
+                                  onClick={() => setShowRejectInput(true)}
+                                  style={{ flex: 1, padding: '12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '800', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                                >
+                                  <X size={16} /> Reject Evidence
+                                </button>
+                              </div>
+                            ) : (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <textarea
+                                  placeholder="Enter the reason why this evidence is rejected..."
+                                  rows={2}
+                                  value={rejectionRemarks}
+                                  onChange={e => setRejectionRemarks(e.target.value)}
+                                  style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '0.8rem', outline: 'none', resize: 'none' }}
+                                />
+                                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                                  <button onClick={() => setShowRejectInput(false)} style={{ padding: '8px 15px', background: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '800', cursor: 'pointer' }}>Cancel</button>
+                                  <button onClick={() => handleReviewMeeting(meetingDetails.meeting._id, 'rejected')} style={{ padding: '8px 15px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '800', cursor: 'pointer' }}>Submit Rejection</button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {meetingDetails.meeting.status === 'rejected' && (
+                          <div style={{ display: 'flex', gap: '10px', padding: '15px', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '16px', marginBottom: '25px', color: '#b91c1c', fontSize: '0.85rem' }}>
+                            <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
+                            <div>
+                              <strong style={{ fontWeight: '900' }}>Rejection Reason:</strong>
+                              <p style={{ margin: '5px 0 0', color: '#991b1b', fontWeight: '700' }}>{meetingDetails.meeting.rejectionReason}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Attendees checklist */}
+                        <div style={{ marginBottom: '25px' }}>
+                          <h4 style={{ margin: '0 0 10px', fontSize: '0.85rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Attended Members ({meetingDetails.meeting.attendees?.length || 0})</h4>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {meetingDetails.meeting.attendees?.map((att: any) => (
+                              <span key={att._id} style={{ padding: '6px 12px', background: '#f1f5f9', color: '#334155', borderRadius: '100px', fontSize: '0.75rem', fontWeight: '700' }}>
+                                {att.name} ({att.mobile})
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Photos Gallery Section */}
+                        <div style={{ marginBottom: '25px' }}>
+                          <h4 style={{ margin: '0 0 10px', fontSize: '0.85rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Photos Evidence ({meetingDetails.media?.filter((m: any) => m.type === 'photo').length || 0})</h4>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '10px' }}>
+                            {meetingDetails.media?.filter((m: any) => m.type === 'photo').map((media: any) => (
+                              <div
+                                key={media._id}
+                                onClick={() => setLightboxImage(media.url)}
+                                style={{ aspectRatio: '1', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0', cursor: 'pointer', position: 'relative' }}
+                                className="group"
+                              >
+                                <img src={media.url} alt="Evidence" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', opacity: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', transition: 'opacity 0.2s' }} className="group-hover:opacity-100">
+                                  <Eye size={16} />
+                                </div>
+                              </div>
+                            ))}
+                            {meetingDetails.media?.filter((m: any) => m.type === 'photo').length === 0 && <p style={{ fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic' }}>No photos attached.</p>}
+                          </div>
+                        </div>
+
+                        {/* Videos Player Section */}
+                        <div style={{ marginBottom: '25px' }}>
+                          <h4 style={{ margin: '0 0 10px', fontSize: '0.85rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Videos Evidence ({meetingDetails.media?.filter((m: any) => m.type === 'video').length || 0})</h4>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '15px' }}>
+                            {meetingDetails.media?.filter((m: any) => m.type === 'video').map((media: any) => (
+                              <div key={media._id} style={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden' }}>
+                                <video src={media.url} controls style={{ width: '100%', aspectRatio: '16/9', background: 'black' }} preload="none" />
+                                {media.duration && <p style={{ margin: '5px 10px', fontSize: '0.75rem', fontWeight: '800', color: 'var(--primary)' }}>Duration: {Math.round(media.duration)}s</p>}
+                              </div>
+                            ))}
+                            {meetingDetails.media?.filter((m: any) => m.type === 'video').length === 0 && <p style={{ fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic' }}>No videos attached.</p>}
+                          </div>
+                        </div>
+
+                        {/* Geolocation Tag */}
+                        {(() => {
+                          const firstMediaGeo = meetingDetails.media?.find((m: any) => m.latitude && m.longitude);
+                          if (!firstMediaGeo) return null;
+                          return (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 15px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', fontSize: '0.75rem', color: '#166534', fontWeight: '800', width: 'fit-content' }}>
+                              <MapPin size={14} />
+                              Captured Coordinates: ({firstMediaGeo.latitude.toFixed(5)}, {firstMediaGeo.longitude.toFixed(5)})
+                              {firstMediaGeo.capturedAt && <span> • {new Date(firstMediaGeo.capturedAt).toLocaleString()}</span>}
+                            </div>
+                          );
+                        })()}
+
+                      </div>
+                    ) : (
+                      <div style={{ padding: '80px 0', textAlign: 'center', color: '#94a3b8', fontWeight: '800', fontStyle: 'italic' }}>
+                        Select a meeting log from the left side registry to review attendees and evidence media.
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              </>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* Lightbox Overlay */}
+      <AnimatePresence>
+        {lightboxImage && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
+            <div onClick={() => setLightboxImage(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)' }} />
+            <button onClick={() => setLightboxImage(null)} style={{ position: 'absolute', right: '30px', top: '30px', background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', width: '45px', height: '45px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <X size={24} />
+            </button>
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              style={{ position: 'relative', maxWidth: '100%', maxHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <img src={lightboxImage} alt="Fullscreen Evidence" style={{ maxWidth: '90vw', maxHeight: '85vh', objectFit: 'contain', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }} />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

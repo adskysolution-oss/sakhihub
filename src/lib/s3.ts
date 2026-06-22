@@ -1,4 +1,5 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION || 'ap-south-1',
@@ -71,6 +72,42 @@ export const uploadBufferToS3 = async (buffer: Buffer, mimeType: string, folder:
   } catch (error) {
     console.error("S3 buffer upload error:", error);
     throw error;
+  }
+};
+
+export const getPresignedUrl = async (objectKey: string, expiresInSeconds: number = 604800) => {
+  try {
+    const bucketName = process.env.AWS_S3_BUCKET_NAME;
+    if (!bucketName) throw new Error("AWS_S3_BUCKET_NAME is not configured");
+
+    const command = new GetObjectCommand({
+      Bucket: bucketName,
+      Key: objectKey,
+    });
+
+    return await getSignedUrl(s3Client, command, { expiresIn: expiresInSeconds });
+  } catch (error) {
+    console.error("Error generating presigned URL for", objectKey, error);
+    return null;
+  }
+};
+
+export const signMediaUrl = async (url: string, expiresInSeconds: number = 604800): Promise<string> => {
+  if (!url) return url;
+  try {
+    const bucketName = process.env.AWS_S3_BUCKET_NAME || 'sakhihub-storage';
+    const isS3 = url.includes('.amazonaws.com/') && url.includes(bucketName);
+    if (!isS3) return url;
+
+    const match = url.match(/amazonaws\.com\/(.+)$/);
+    if (!match) return url;
+
+    const objectKey = decodeURIComponent(match[1]);
+    const presigned = await getPresignedUrl(objectKey, expiresInSeconds);
+    return presigned || url;
+  } catch (error) {
+    console.error("Error signing media URL:", error);
+    return url;
   }
 };
 

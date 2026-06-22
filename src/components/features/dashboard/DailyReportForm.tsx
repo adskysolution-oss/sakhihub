@@ -28,6 +28,8 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
     meetingCount: '0',
     remarks: ''
   });
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [autoStats, setAutoStats] = useState<any>(null);
  
   useEffect(() => {
     const fetchData = async () => {
@@ -49,6 +51,32 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
       });
     }
   }, []);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      setStatsLoading(true);
+      try {
+        const res = await axios.get(`/api/reports/daily/stats?date=${formData.date}`);
+        if (res.data.success) {
+          const stats = res.data.data;
+          setAutoStats(stats);
+          setFormData(prev => ({
+            ...prev,
+            meetingCount: String(stats.meetingCount),
+            groupsCreated: String(stats.groupsCreated),
+            membersAdded: String(stats.membersAdded)
+          }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch daily activity stats", err);
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+    if (formData.date) {
+      fetchStats();
+    }
+  }, [formData.date]);
  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +90,7 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
         membersAdded: parseInt(formData.membersAdded),
         membershipCollected: parseInt(formData.membershipCollected),
         meetingCount: parseInt(formData.meetingCount),
+        meetingPhotos: autoStats?.photos || [],
         location: location
       };
  
@@ -156,9 +185,9 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
                 <input 
                   type="number" 
                   required
-                  className="p-4 rounded-2xl border border-gray-100 bg-gray-50 w-full focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary"
+                  readOnly={true}
+                  className="p-4 rounded-2xl border border-gray-200 bg-gray-100 w-full font-bold text-gray-500 cursor-not-allowed opacity-80 focus:outline-none"
                   value={formData.meetingCount}
-                  onChange={e => setFormData({...formData, meetingCount: e.target.value})}
                 />
               </div>
               <div className="flex flex-col gap-3">
@@ -166,9 +195,9 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
                 <input 
                   type="number" 
                   required
-                  className="p-4 rounded-2xl border border-gray-100 bg-gray-50 w-full focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary"
+                  readOnly={true}
+                  className="p-4 rounded-2xl border border-gray-200 bg-gray-100 w-full font-bold text-gray-500 cursor-not-allowed opacity-80 focus:outline-none"
                   value={formData.groupsCreated}
-                  onChange={e => setFormData({...formData, groupsCreated: e.target.value})}
                 />
               </div>
               <div className="flex flex-col gap-3">
@@ -176,9 +205,9 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
                 <input 
                   type="number" 
                   required
-                  className="p-4 rounded-2xl border border-gray-100 bg-gray-50 w-full focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary"
+                  readOnly={true}
+                  className="p-4 rounded-2xl border border-gray-200 bg-gray-100 w-full font-bold text-gray-500 cursor-not-allowed opacity-80 focus:outline-none"
                   value={formData.membersAdded}
-                  onChange={e => setFormData({...formData, membersAdded: e.target.value})}
                 />
               </div>
               <div className="flex flex-col gap-3">
@@ -192,6 +221,22 @@ export default function DailyReportForm({ onCancel, onSuccess }: { onCancel: () 
                 />
               </div>
           </div>
+
+          {autoStats && (
+            <div className="p-5 bg-purple-50 text-purple-700 rounded-3xl font-semibold border border-purple-100 text-xs space-y-2">
+              <div className="flex flex-wrap gap-x-6 gap-y-1">
+                <div><strong>Meetings Conducted:</strong> {autoStats.meetingCount}</div>
+                <div><strong>Groups Covered:</strong> {autoStats.groupsCreated}</div>
+                <div><strong>New Registrations:</strong> {autoStats.membersAdded}</div>
+                <div><strong>Attendees Count:</strong> {autoStats.membersAttended}</div>
+                <div><strong>Photos Uploaded:</strong> {autoStats.photos?.length || 0}</div>
+                <div><strong>Videos Uploaded:</strong> {autoStats.videosCount || 0}</div>
+              </div>
+              <div className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">
+                * Locked values are automatically calculated from meetings & member registrations logged on this date.
+              </div>
+            </div>
+          )}
  
           <div className="flex flex-col gap-3">
             <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">{t('employeeReports.remarksLabel', 'Field Remarks & Observations')}</label>

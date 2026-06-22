@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Group from '@/models/Group';
+import mongoose from 'mongoose';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 import Campaign from '@/models/Campaign';
@@ -51,12 +52,9 @@ export async function GET(req: NextRequest) {
     const userId = (session as any).id;
     const User = (await import('@/models/User')).default;
     const userProfile = await User.findById(userId);
-
     let query: any = {};
-    
-    // Hierarchy-based filtering
     if (role === 'employee') {
-      query = { createdBy: userId };
+      query = { createdBy: new mongoose.Types.ObjectId(userId) };
     } else if (role === 'vendor') {
       query = { vendorCode: userProfile?.vendorCode };
     } else if (role === 'sub_vendor') {

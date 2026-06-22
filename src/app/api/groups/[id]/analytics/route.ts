@@ -3,6 +3,9 @@ import dbConnect from '@/lib/mongodb';
 import Group from '@/models/Group';
 import WomenMember from '@/models/WomenMember';
 import Membership from '@/models/Membership';
+import GroupMeeting from '@/models/GroupMeeting';
+import MeetingMedia from '@/models/MeetingMedia';
+import User from '@/models/User';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 import mongoose from 'mongoose';
@@ -20,6 +23,11 @@ export async function GET(
     const role = (session as any).role;
     const userId = (session as any).id;
 
+    // Ensure models are registered for populating
+    const _User = User;
+    const _GroupMeeting = GroupMeeting;
+    const _MeetingMedia = MeetingMedia;
+
     const group = await Group.findById(id).populate('createdBy', 'fullName employeeId status');
     if (!group) return errorResponse('Group not found', 404);
 
@@ -30,8 +38,8 @@ export async function GET(
 
     const groupId = new mongoose.Types.ObjectId(id);
 
-    // Run aggregations in parallel
-    const [membersData, financialData] = await Promise.all([
+    // Run aggregations and queries in parallel
+    const [membersData, financialData, meetings, media] = await Promise.all([
       // Member Stats
       WomenMember.aggregate([
         { $match: { groupId } },
@@ -55,7 +63,13 @@ export async function GET(
             verifiedPayments: { $sum: 1 }
           }
         }
-      ])
+      ]),
+      // Fetch group meetings
+      GroupMeeting.find({ groupId })
+        .populate('conductedBy', 'fullName employeeId')
+        .sort({ meetingDate: -1 }),
+      // Fetch media items
+      MeetingMedia.find({ groupId }).sort({ createdAt: -1 })
     ]);
 
     const memberStats = membersData[0] || { totalMembers: 0, paidMembers: 0, freeMembers: 0, connectedMembers: 0 };
@@ -67,16 +81,42 @@ export async function GET(
       .limit(5)
       .select('name mobile village membershipStatus createdAt');
 
+    // Sign media URLs
+    const { signMediaUrl } = await import('@/lib/s3');
+    const signedMedia = await Promise.all(
+      media.map(async (item) => {
+        const obj = item.toObject();
+        try {
+          obj.url = await signMediaUrl(obj.url);
+          if (obj.thumbnailUrl) {
+            obj.thumbnailUrl = await signMediaUrl(obj.thumbnailUrl);
+          }
+        } catch (err) {
+          console.error(`S3 signing failed for media ID ${item._id}:`, err);
+        }
+        return obj;
+      })
+    );
+
+    const totalPhotos = media.filter((m) => m.type === 'photo').length;
+    const totalVideos = media.filter((m) => m.type === 'video').length;
+
     return successResponse({
       group,
       stats: {
         ...memberStats,
-        ...financeStats
+        ...financeStats,
+        totalMeetings: meetings.length,
+        totalPhotos,
+        totalVideos
       },
-      recentMembers
+      recentMembers,
+      meetings,
+      media: signedMedia
     });
   } catch (error: any) {
     console.error('Group Analytics GET Error:', error);
     return errorResponse(error.message, 500);
   }
 }
+

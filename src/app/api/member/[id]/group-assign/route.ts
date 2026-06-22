@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import WomenMember from '@/models/WomenMember';
 import Group from '@/models/Group';
+import mongoose from 'mongoose';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 
@@ -36,9 +37,17 @@ export async function PATCH(
 
     // Permission check for employees
     if ((session as any).role === 'employee') {
-       // Only allowed if member is assigned to this employee
-       if (member.assignedEmployeeId?.toString() !== (session as any).id) {
+       const empIdStr = (session as any).id;
+       // Only allowed if member is assigned to or created by this employee
+       const isAssigned = member.assignedEmployeeId?.toString() === empIdStr;
+       const isCreatedBy = member.createdBy?.toString() === empIdStr;
+       if (!isAssigned && !isCreatedBy) {
          return errorResponse('You are not authorized to assign this member to a group', 403);
+       }
+
+       // Only allowed to assign to a group created by this employee
+       if (group.createdBy.toString() !== empIdStr) {
+         return errorResponse('You can only assign members to groups you created', 403);
        }
     }
 

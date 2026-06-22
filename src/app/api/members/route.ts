@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import WomenMember from '@/models/WomenMember';
+import mongoose from 'mongoose';
 import Group from '@/models/Group';
 import MemberRequest from '@/models/MemberRequest';
 import User from '@/models/User';
@@ -81,13 +82,14 @@ export async function GET(req: NextRequest) {
         userId: { $exists: true } // Only show members who have a user account (self-registered)
       };
     } else if (role === 'employee') {
+      const empObjectId = new mongoose.Types.ObjectId(userId);
       // Find all members who registered using this employee's code (mapped in User model)
-      const mappedUsers = await User.find({ parentVendorId: userId, role: 'member' }).select('_id');
+      const mappedUsers = await User.find({ parentVendorId: empObjectId, role: 'member' }).select('_id');
       const mappedUserIds = mappedUsers.map(u => u._id);
 
       query.$or = [
-        { createdBy: userId }, 
-        { assignedEmployeeId: userId },
+        { createdBy: empObjectId }, 
+        { assignedEmployeeId: empObjectId },
         { userId: { $in: mappedUserIds } }
       ];
     } else if (role === 'vendor') {
