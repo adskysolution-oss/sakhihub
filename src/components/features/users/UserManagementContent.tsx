@@ -24,6 +24,21 @@ export default function UserManagementContent() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [modalMode, setModalMode] = useState<'view' | 'edit'>('view');
 
+  const canEditUser = (targetRole: string) => {
+    if (currentUser?.role === 'super_admin') return true;
+    if (['super_admin', 'operations_admin'].includes(targetRole)) return false;
+    if (!currentUser?.permissions) return false;
+
+    let updatePerm = '';
+    if (targetRole === 'vendor') updatePerm = 'vendors.update';
+    else if (targetRole === 'sub_vendor') updatePerm = 'sub_vendors.update';
+    else if (targetRole === 'employee') updatePerm = 'employees.update';
+    else if (targetRole === 'staff') updatePerm = 'employees.update';
+    else if (targetRole === 'member') updatePerm = 'members.update';
+
+    return currentUser.permissions.includes(updatePerm);
+  };
+
   const fetchUsers = async () => {
     setLoading(true);
     try {
@@ -234,13 +249,15 @@ export default function UserManagementContent() {
                         >
                           <Eye size={14} />
                         </button>
-                        <button
-                          onClick={() => openDetails(item._id, 'edit')}
-                          className="p-2 bg-gray-50 text-primary hover:bg-primary hover:text-white rounded-xl transition-all shadow-sm"
-                          title="Edit User Profile"
-                        >
-                          <Edit3 size={14} />
-                        </button>
+                         {canEditUser(item.role) && (
+                           <button
+                             onClick={() => openDetails(item._id, 'edit')}
+                             className="p-2 bg-gray-50 text-primary hover:bg-primary hover:text-white rounded-xl transition-all shadow-sm"
+                             title="Edit User Profile"
+                           >
+                             <Edit3 size={14} />
+                           </button>
+                         )}
                       </div>
                     </td>
                   </tr>

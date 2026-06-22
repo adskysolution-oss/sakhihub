@@ -158,6 +158,12 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
       if (userPermissions.includes('reports.view')) {
         items.push({ section: 'Core', name: 'Activity Reports', icon: findIcon('Activity Reports'), href: '/portal/reports' });
       }
+      if (userPermissions.includes('vendors.view') ||
+          userPermissions.includes('sub_vendors.view') ||
+          userPermissions.includes('employees.view') ||
+          userPermissions.includes('members.view')) {
+        items.push({ section: 'Users', name: 'All Users', icon: findIcon('All Users'), href: '/admin/users' });
+      }
       if (userPermissions.includes('vendors.view')) {
         items.push({ section: 'Users', name: 'Vendors', icon: findIcon('Vendors'), href: '/portal/vendors' });
       }

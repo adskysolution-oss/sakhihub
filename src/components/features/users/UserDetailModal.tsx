@@ -156,7 +156,24 @@ export default function UserDetailModal({
   // Roles restriction checking
   const isSuperAdmin = currentUser?.role === 'super_admin';
   const isTargetAdmin = ['super_admin', 'operations_admin'].includes(userData?.role);
-  const canEdit = isSuperAdmin || !isTargetAdmin;
+  
+  let hasUpdatePermission = false;
+  if (isSuperAdmin) {
+    hasUpdatePermission = true;
+  } else if (userData?.role) {
+    let updatePerm = '';
+    if (userData.role === 'vendor') updatePerm = 'vendors.update';
+    else if (userData.role === 'sub_vendor') updatePerm = 'sub_vendors.update';
+    else if (userData.role === 'employee') updatePerm = 'employees.update';
+    else if (userData.role === 'staff') updatePerm = 'employees.update';
+    else if (userData.role === 'member') updatePerm = 'members.update';
+
+    if (updatePerm && Array.isArray(currentUser?.permissions)) {
+      hasUpdatePermission = currentUser.permissions.includes(updatePerm);
+    }
+  }
+
+  const canEdit = isSuperAdmin || (!isTargetAdmin && hasUpdatePermission);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-hidden backdrop-blur-md bg-secondary/60">

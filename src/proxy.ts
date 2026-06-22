@@ -320,8 +320,21 @@ export async function proxy(request: NextRequest) {
 
       // Role-based access control (RBAC)
       if (isAdminPage) {
-        if (!['super_admin', 'operations_admin'].includes(payload.role)) {
+        if (!['super_admin', 'operations_admin', 'staff'].includes(payload.role)) {
           return NextResponse.redirect(new URL('/unauthorized', request.url));
+        }
+        if (payload.role === 'staff') {
+          if (!pathname.startsWith('/admin/users')) {
+            return NextResponse.redirect(new URL('/unauthorized', request.url));
+          }
+          const userPermissions = Array.isArray(payload.permissions) ? payload.permissions : [];
+          const hasAnyUserView = userPermissions.includes('vendors.view') ||
+            userPermissions.includes('sub_vendors.view') ||
+            userPermissions.includes('employees.view') ||
+            userPermissions.includes('members.view');
+          if (!hasAnyUserView) {
+            return NextResponse.redirect(new URL('/unauthorized', request.url));
+          }
         }
         if (payload.role === 'operations_admin') {
           const restrictedAdminSubPages = [
