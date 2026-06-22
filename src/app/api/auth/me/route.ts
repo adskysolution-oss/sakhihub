@@ -102,14 +102,23 @@ export async function GET() {
          if (user.status !== 'approved' && user.status !== 'active') {
            user.status = 'approved';
            user.isVerified = true;
+           user.dashboardAccess = true;
            changed = true;
          }
        } else {
-         if (user.status !== computedStatus) {
-           user.status = computedStatus;
-           user.isVerified = false;
-           user.dashboardAccess = false;
-           changed = true;
+         if (user.status !== 'active' && user.status !== 'approved') {
+           if (user.status !== computedStatus) {
+             user.status = computedStatus;
+             user.isVerified = false;
+             user.dashboardAccess = false;
+             changed = true;
+           }
+         } else {
+           if (user.dashboardAccess !== true || user.isVerified !== true) {
+             user.dashboardAccess = true;
+             user.isVerified = true;
+             changed = true;
+           }
          }
        }
        

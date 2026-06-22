@@ -78,16 +78,9 @@ export async function PATCH(
             updateData.onboardingCompleted = false;
           }
         } else if (userToUpdate.role === 'staff') {
-          const allDocsOk = areAllDocsApproved(userToUpdate);
-          if (allDocsOk) {
-            updateData.dashboardAccess = true;
-            updateData.documentsVerified = true;
-            updateData.onboardingCompleted = true;
-          } else {
-            updateData.dashboardAccess = false;
-            updateData.documentsVerified = allDocsOk;
-            updateData.onboardingCompleted = false;
-          }
+          updateData.dashboardAccess = true;
+          updateData.documentsVerified = areAllDocsApproved(userToUpdate);
+          updateData.onboardingCompleted = true;
         } else if (userToUpdate.role === 'vendor') {
           // Vendors get immediate access on activation ONLY if payment is completed
           updateData.dashboardAccess = userToUpdate.paymentCompleted;
@@ -184,9 +177,13 @@ export async function PATCH(
         if (user.documentsVerified) {
           user.status = 'approved';
           user.isVerified = true;
+          user.dashboardAccess = true;
+          user.onboardingCompleted = true;
         } else {
-          user.isVerified = false;
-          user.dashboardAccess = false;
+          if (!['active', 'approved'].includes(user.status)) {
+            user.isVerified = false;
+            user.dashboardAccess = false;
+          }
         }
       }
 
