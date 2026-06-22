@@ -35,6 +35,9 @@ export const DEFAULT_PERMISSIONS = [
   { key: 'employees.view', name: 'View Employees', module: 'Employees' },
   { key: 'employees.update', name: 'Update Employees', module: 'Employees' },
 
+  { key: 'staff.view', name: 'View Staff', module: 'Staff' },
+  { key: 'staff.update', name: 'Update Staff', module: 'Staff' },
+
   { key: 'members.view', name: 'View Members', module: 'Members' },
   { key: 'members.update', name: 'Update Members', module: 'Members' },
 

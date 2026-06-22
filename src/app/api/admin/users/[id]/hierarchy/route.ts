@@ -30,6 +30,7 @@ export async function GET(
         await hasPermission(sessionUser.id, sessionUser.role, 'vendors.view') ||
         await hasPermission(sessionUser.id, sessionUser.role, 'sub_vendors.view') ||
         await hasPermission(sessionUser.id, sessionUser.role, 'employees.view') ||
+        await hasPermission(sessionUser.id, sessionUser.role, 'staff.view') ||
         await hasPermission(sessionUser.id, sessionUser.role, 'members.view')
       )
     );

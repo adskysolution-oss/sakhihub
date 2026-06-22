@@ -33,7 +33,7 @@ export default function UserManagementContent() {
     if (targetRole === 'vendor') updatePerm = 'vendors.update';
     else if (targetRole === 'sub_vendor') updatePerm = 'sub_vendors.update';
     else if (targetRole === 'employee') updatePerm = 'employees.update';
-    else if (targetRole === 'staff') updatePerm = 'employees.update';
+    else if (targetRole === 'staff') updatePerm = 'staff.update';
     else if (targetRole === 'member') updatePerm = 'members.update';
 
     return currentUser.permissions.includes(updatePerm);

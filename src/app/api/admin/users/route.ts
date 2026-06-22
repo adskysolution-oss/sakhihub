@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
       await hasPermission(currentUserId, (session as any).role, 'vendors.view') ||
       await hasPermission(currentUserId, (session as any).role, 'sub_vendors.view') ||
       await hasPermission(currentUserId, (session as any).role, 'employees.view') ||
+      await hasPermission(currentUserId, (session as any).role, 'staff.view') ||
       await hasPermission(currentUserId, (session as any).role, 'members.view');
 
     if (!isAuthorized) {
@@ -83,7 +84,10 @@ export async function GET(req: NextRequest) {
           allowedRoles.push('sub_vendor');
         }
         if (await hasPermission(currentUserId, sessionRole, 'employees.view')) {
-          allowedRoles.push('employee', 'staff');
+          allowedRoles.push('employee');
+        }
+        if (await hasPermission(currentUserId, sessionRole, 'staff.view')) {
+          allowedRoles.push('staff');
         }
         if (await hasPermission(currentUserId, sessionRole, 'members.view')) {
           allowedRoles.push('member');

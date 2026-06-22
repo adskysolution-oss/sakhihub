@@ -35,7 +35,7 @@ export async function GET(
       if (targetUser.role === 'vendor') viewPerm = 'vendors.view';
       else if (targetUser.role === 'sub_vendor') viewPerm = 'sub_vendors.view';
       else if (targetUser.role === 'employee') viewPerm = 'employees.view';
-      else if (targetUser.role === 'staff') viewPerm = 'employees.view';
+      else if (targetUser.role === 'staff') viewPerm = 'staff.view';
       else if (targetUser.role === 'member') viewPerm = 'members.view';
 
       const isAuthorized = sessionUser.role === 'super_admin' ||
@@ -102,7 +102,7 @@ export async function PATCH(
       if (targetUser.role === 'vendor') updatePerm = 'vendors.update';
       else if (targetUser.role === 'sub_vendor') updatePerm = 'sub_vendors.update';
       else if (targetUser.role === 'employee') updatePerm = 'employees.update';
-      else if (targetUser.role === 'staff') updatePerm = 'employees.update';
+      else if (targetUser.role === 'staff') updatePerm = 'staff.update';
       else if (targetUser.role === 'member') updatePerm = 'members.update';
 
       const isAuthorized = sessionUser.role === 'super_admin' ||

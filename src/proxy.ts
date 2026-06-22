@@ -331,6 +331,7 @@ export async function proxy(request: NextRequest) {
           const hasAnyUserView = userPermissions.includes('vendors.view') ||
             userPermissions.includes('sub_vendors.view') ||
             userPermissions.includes('employees.view') ||
+            userPermissions.includes('staff.view') ||
             userPermissions.includes('members.view');
           if (!hasAnyUserView) {
             return NextResponse.redirect(new URL('/unauthorized', request.url));
@@ -369,6 +370,7 @@ export async function proxy(request: NextRequest) {
             const hasAnyUserView = userPermissions.includes('vendors.view') ||
               userPermissions.includes('sub_vendors.view') ||
               userPermissions.includes('employees.view') ||
+              userPermissions.includes('staff.view') ||
               userPermissions.includes('members.view');
             if (!hasAnyUserView) {
               return NextResponse.redirect(new URL('/unauthorized', request.url));

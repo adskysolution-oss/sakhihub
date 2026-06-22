@@ -161,6 +161,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
       if (userPermissions.includes('vendors.view') ||
           userPermissions.includes('sub_vendors.view') ||
           userPermissions.includes('employees.view') ||
+          userPermissions.includes('staff.view') ||
           userPermissions.includes('members.view')) {
         items.push({ section: 'Users', name: 'All Users', icon: findIcon('All Users'), href: '/admin/users' });
       }
@@ -239,6 +240,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
       const hasAnyUserView = userPermissions.includes('vendors.view') ||
         userPermissions.includes('sub_vendors.view') ||
         userPermissions.includes('employees.view') ||
+        userPermissions.includes('staff.view') ||
         userPermissions.includes('members.view');
 
       return ADMIN_DASHBOARD_LINKS.filter(link => {

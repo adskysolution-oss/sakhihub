@@ -165,7 +165,7 @@ export default function UserDetailModal({
     if (userData.role === 'vendor') updatePerm = 'vendors.update';
     else if (userData.role === 'sub_vendor') updatePerm = 'sub_vendors.update';
     else if (userData.role === 'employee') updatePerm = 'employees.update';
-    else if (userData.role === 'staff') updatePerm = 'employees.update';
+    else if (userData.role === 'staff') updatePerm = 'staff.update';
     else if (userData.role === 'member') updatePerm = 'members.update';
 
     if (updatePerm && Array.isArray(currentUser?.permissions)) {
