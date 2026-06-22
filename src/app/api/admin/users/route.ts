@@ -68,6 +68,43 @@ export async function GET(req: NextRequest) {
       query.role = roleParam;
     }
 
+    // Role-based view permissions filtering
+    const sessionRole = (session as any).role;
+    if (sessionRole !== 'super_admin') {
+      const allowedRoles: string[] = [];
+      
+      if (sessionRole === 'admin') {
+        allowedRoles.push('vendor', 'sub_vendor', 'employee', 'staff', 'member');
+      } else {
+        if (await hasPermission(currentUserId, sessionRole, 'vendors.view')) {
+          allowedRoles.push('vendor');
+        }
+        if (await hasPermission(currentUserId, sessionRole, 'sub_vendors.view')) {
+          allowedRoles.push('sub_vendor');
+        }
+        if (await hasPermission(currentUserId, sessionRole, 'employees.view')) {
+          allowedRoles.push('employee', 'staff');
+        }
+        if (await hasPermission(currentUserId, sessionRole, 'members.view')) {
+          allowedRoles.push('member');
+        }
+      }
+
+      if (query.role) {
+        if (typeof query.role === 'string') {
+          if (!allowedRoles.includes(query.role)) {
+            query.role = '__none__';
+          }
+        } else if (query.role.$in) {
+          query.role = { $in: query.role.$in.filter((r: string) => allowedRoles.includes(r)) };
+        } else {
+          query.role = { $in: allowedRoles };
+        }
+      } else {
+        query.role = { $in: allowedRoles };
+      }
+    }
+
     const { applyRegionalFilter } = await import('@/utils/authHelpers');
     query = await applyRegionalFilter(query, session);
 
