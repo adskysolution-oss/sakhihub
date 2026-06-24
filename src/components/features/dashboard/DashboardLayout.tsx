@@ -261,9 +261,15 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     if (user?.role === 'vendor') return VENDOR_DASHBOARD_LINKS;
     if (user?.role === 'sub_vendor') return SUBVENDOR_DASHBOARD_LINKS;
     if (user?.role === 'employee') {
+      let list = [...EMPLOYEE_DASHBOARD_LINKS];
+      
+      // Filter out HRMS links if HRMS is not enabled
+      if (!user.isHrmsEnabled) {
+        list = list.filter(l => !['Attendance', 'Leave Management'].includes(l.name));
+      }
+
       const isDC = ['District Coordinator', 'District Project Officer'].includes(user.designation || '');
       if (isDC) {
-        const list = [...EMPLOYEE_DASHBOARD_LINKS];
         const groupsIndex = list.findIndex(l => l.name === 'My Groups' || l.href === '/employee/groups');
         const insertIndex = groupsIndex !== -1 ? groupsIndex + 1 : 2;
         list.splice(insertIndex, 0, {
@@ -271,9 +277,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
           icon: Users,
           href: '/employee/dashboard/my-team'
         });
-        return list;
       }
-      return EMPLOYEE_DASHBOARD_LINKS;
+      return list;
     }
 
     if (user?.role === 'member') {

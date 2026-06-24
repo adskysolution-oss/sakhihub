@@ -128,6 +128,12 @@ export interface IUser extends Document {
   assignedDistricts?: string[];
   assignedBlocks?: string[];
   assignedRegions?: string[];
+  department?: string;
+  reportingManager?: mongoose.Types.ObjectId;
+  employeeType?: 'Permanent' | 'Contract' | 'Intern';
+  employmentStatus?: 'Active' | 'Inactive' | 'Suspended';
+  assignedVillages?: string[];
+  isHrmsEnabled?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -275,7 +281,13 @@ const UserSchema: Schema = new Schema(
     assignedStates: { type: [String], default: [] },
     assignedDistricts: { type: [String], default: [] },
     assignedBlocks: { type: [String], default: [] },
-    assignedRegions: { type: [String], default: [] }
+    assignedRegions: { type: [String], default: [] },
+    department: { type: String },
+    reportingManager: { type: Schema.Types.ObjectId, ref: 'User' },
+    employeeType: { type: String, enum: ['Permanent', 'Contract', 'Intern'] },
+    employmentStatus: { type: String, enum: ['Active', 'Inactive', 'Suspended'], default: 'Active' },
+    assignedVillages: { type: [String], default: [] },
+    isHrmsEnabled: { type: Boolean, default: false }
   },
   { timestamps: true }
 );

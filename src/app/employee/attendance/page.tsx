@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 export default function EmployeeAttendancePage() {
   const [hrmsEnabled, setHrmsEnabled] = useState<boolean | null>(null);
   const [attendance, setAttendance] = useState<any>(null);
+  const [settings, setSettings] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -19,6 +20,14 @@ export default function EmployeeAttendancePage() {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Modal states
+  const [showLateModal, setShowLateModal] = useState(false);
+  const [lateCategory, setLateCategory] = useState('Traffic');
+  const [lateExplanation, setLateExplanation] = useState('');
+
+  const [showEarlyModal, setShowEarlyModal] = useState(false);
+  const [earlyReason, setEarlyReason] = useState('');
 
   // Safely bind video stream when ref mounts in the DOM
   useEffect(() => {
@@ -49,6 +58,7 @@ export default function EmployeeAttendancePage() {
       if (statusRes.data.success) {
         setHrmsEnabled(statusRes.data.data.hrmsEnabled);
         setAttendance(statusRes.data.data.attendance);
+        setSettings(statusRes.data.data.settings);
       }
 
       const historyRes = await axios.get('/api/hrms/attendance');
@@ -84,7 +94,6 @@ export default function EmployeeAttendancePage() {
         let address = 'Determining address...';
 
         try {
-          // OpenStreetMap Reverse Geocoding (free lookup)
           const geoRes = await axios.get(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
           );
@@ -144,7 +153,6 @@ export default function EmployeeAttendancePage() {
       if (ctx) {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        // Flip horizontally to simulate mirror
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -156,8 +164,44 @@ export default function EmployeeAttendancePage() {
     }
   };
 
-  // Trigger Check-In
-  const handleCheckIn = async () => {
+  const checkIfLate = () => {
+    if (!settings) return false;
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', {
+      timeZone: 'Asia/Kolkata',
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    const [currentHour, currentMinute] = timeString.split(':').map(Number);
+    const currentMinutesSinceMidnight = currentHour * 60 + currentMinute;
+
+    const [startHour, startMinute] = settings.shiftStartTime.split(':').map(Number);
+    const startMinutesSinceMidnight = startHour * 60 + startMinute;
+    const cutoffMinutes = startMinutesSinceMidnight + settings.graceMinutes;
+
+    return currentMinutesSinceMidnight > cutoffMinutes;
+  };
+
+  const checkIfEarly = () => {
+    if (!settings) return false;
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', {
+      timeZone: 'Asia/Kolkata',
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    const [currentHour, currentMinute] = timeString.split(':').map(Number);
+    const currentMinutesSinceMidnight = currentHour * 60 + currentMinute;
+
+    const [endHour, endMinute] = settings.shiftEndTime.split(':').map(Number);
+    const endMinutesSinceMidnight = endHour * 60 + endMinute;
+
+    return currentMinutesSinceMidnight < endMinutesSinceMidnight;
+  };
+
+  const onCheckInClick = () => {
     if (!capturedPhoto) {
       toast.error('Please capture a selfie first.');
       return;
@@ -167,6 +211,15 @@ export default function EmployeeAttendancePage() {
       return;
     }
 
+    if (checkIfLate()) {
+      setShowLateModal(true);
+    } else {
+      handleCheckIn(null, null);
+    }
+  };
+
+  // Trigger Check-In
+  const handleCheckIn = async (category: string | null, explanation: string | null) => {
     setActionLoading(true);
     try {
       // 1. Upload Selfie Photo
@@ -185,13 +238,17 @@ export default function EmployeeAttendancePage() {
       const checkInRes = await axios.post('/api/hrms/attendance/check-in', {
         photoUrl,
         location,
-        deviceInfo: navigator.userAgent
+        deviceInfo: navigator.userAgent,
+        lateReasonCategory: category,
+        lateReasonExplanation: explanation
       });
 
       if (checkInRes.data.success) {
         toast.success('Check-In successful!');
         setCapturedPhoto(null);
         setLocation(null);
+        setShowLateModal(false);
+        setLateExplanation('');
         fetchData();
       }
     } catch (err: any) {
@@ -201,22 +258,33 @@ export default function EmployeeAttendancePage() {
     }
   };
 
-  // Trigger Check-Out
-  const handleCheckOut = async () => {
+  const onCheckOutClick = () => {
     if (!location) {
       toast.error('Please capture your GPS location for check-out.');
       return;
     }
 
+    if (checkIfEarly()) {
+      setShowEarlyModal(true);
+    } else {
+      handleCheckOut(null);
+    }
+  };
+
+  // Trigger Check-Out
+  const handleCheckOut = async (reason: string | null) => {
     setActionLoading(true);
     try {
       const checkOutRes = await axios.post('/api/hrms/attendance/check-out', {
-        location
+        location,
+        earlyCheckOutReason: reason
       });
 
       if (checkOutRes.data.success) {
         toast.success('Check-Out successful!');
         setLocation(null);
+        setShowEarlyModal(false);
+        setEarlyReason('');
         fetchData();
       }
     } catch (err: any) {
@@ -317,14 +385,14 @@ export default function EmployeeAttendancePage() {
                 {/* Submit Action */}
                 <button
                   disabled={actionLoading || !capturedPhoto || !location}
-                  onClick={handleCheckIn}
+                  onClick={onCheckInClick}
                   className="btn-primary"
                   style={{ width: '100%', justifyContent: 'center', gap: '10px', padding: '15px' }}
                 >
                   <UserCheck size={20} /> {actionLoading ? 'Submitting Check-In...' : 'Confirm Check-In'}
                 </button>
               </div>
-            ) : attendance.attendanceStatus === 'Checked In' ? (
+            ) : !attendance.checkOutTime ? (
               // CHECK OUT VIEW
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#2e7d32', background: '#e8f5e9', padding: '15px', borderRadius: '20px' }}>
@@ -364,7 +432,7 @@ export default function EmployeeAttendancePage() {
                 {/* Submit Action */}
                 <button
                   disabled={actionLoading || !location}
-                  onClick={handleCheckOut}
+                  onClick={onCheckOutClick}
                   className="btn-primary"
                   style={{ width: '100%', justifyContent: 'center', gap: '10px', padding: '15px', background: 'var(--secondary)' }}
                 >
@@ -374,7 +442,7 @@ export default function EmployeeAttendancePage() {
             ) : (
               // COMPLETED VIEW
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', textAlign: 'center', padding: '20px 0' }}>
-                <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#e8f5e9', color: '#2e7d32', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '80px', height: '80px', borderRadius: '55%', background: '#e8f5e9', color: '#2e7d32', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <CheckCircle size={40} />
                 </div>
                 <div>
@@ -428,8 +496,8 @@ export default function EmployeeAttendancePage() {
                       padding: '5px 10px',
                       borderRadius: '8px',
                       textTransform: 'uppercase',
-                      background: log.attendanceStatus === 'Checked Out' ? '#e8f5e9' : log.attendanceStatus === 'Checked In' ? '#e3f2fd' : '#fff3e0',
-                      color: log.attendanceStatus === 'Checked Out' ? '#2e7d32' : log.attendanceStatus === 'Checked In' ? '#1565c0' : '#e65100'
+                      background: log.attendanceStatus === 'Checked Out' || log.attendanceStatus === 'Present' ? '#e8f5e9' : log.attendanceStatus === 'Checked In' ? '#e3f2fd' : '#fff3e0',
+                      color: log.attendanceStatus === 'Checked Out' || log.attendanceStatus === 'Present' ? '#2e7d32' : log.attendanceStatus === 'Checked In' ? '#1565c0' : '#e65100'
                     }}>
                       {log.attendanceStatus}
                     </span>
@@ -446,6 +514,148 @@ export default function EmployeeAttendancePage() {
           </div>
         </div>
       </div>
+
+      {/* Late Reason Modal */}
+      {showLateModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '24px',
+            padding: '30px',
+            maxWidth: '480px',
+            width: '100%',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.15)'
+          }}>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: '800', color: 'var(--secondary)', marginBottom: '10px' }}>Late Check-In Reason Required</h3>
+            <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '20px' }}>
+              You are checking in past the official grace time of {settings?.shiftStartTime} ({settings?.graceMinutes} min grace). Please choose a category and explain the delay.
+            </p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '20px' }}>
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: '800', color: '#555', display: 'block', marginBottom: '6px' }}>Category</label>
+                <select 
+                  value={lateCategory} 
+                  onChange={(e) => setLateCategory(e.target.value)}
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #ccc', outline: 'none' }}
+                >
+                  <option value="Traffic">Traffic</option>
+                  <option value="Transit">Transit</option>
+                  <option value="Medical">Medical</option>
+                  <option value="Family Emergency">Family Emergency</option>
+                  <option value="Official Duty">Official Duty</option>
+                  <option value="Weather">Weather</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: '800', color: '#555', display: 'block', marginBottom: '6px' }}>Explanation</label>
+                <textarea
+                  rows={3}
+                  value={lateExplanation}
+                  onChange={(e) => setLateExplanation(e.target.value)}
+                  placeholder="Write details of delay here..."
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #ccc', outline: 'none', resize: 'none' }}
+                />
+              </div>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '15px' }}>
+              <button 
+                onClick={() => setShowLateModal(false)}
+                className="btn-secondary" 
+                style={{ flex: 1, padding: '12px', justifyContent: 'center' }}
+              >
+                Cancel
+              </button>
+              <button 
+                disabled={actionLoading || !lateExplanation.trim()}
+                onClick={() => handleCheckIn(lateCategory, lateExplanation)}
+                className="btn-primary" 
+                style={{ flex: 1, padding: '12px', justifyContent: 'center' }}
+              >
+                {actionLoading ? 'Submitting...' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Early Checkout Modal */}
+      {showEarlyModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '24px',
+            padding: '30px',
+            maxWidth: '480px',
+            width: '100%',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.15)'
+          }}>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: '800', color: 'var(--secondary)', marginBottom: '10px' }}>Early Check-Out Reason Required</h3>
+            <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '20px' }}>
+              You are checking out before the official shift end time of {settings?.shiftEndTime}. Please provide a justification.
+            </p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '20px' }}>
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: '800', color: '#555', display: 'block', marginBottom: '6px' }}>Justification</label>
+                <textarea
+                  rows={3}
+                  value={earlyReason}
+                  onChange={(e) => setEarlyReason(e.target.value)}
+                  placeholder="Write reason for early check-out here..."
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #ccc', outline: 'none', resize: 'none' }}
+                />
+              </div>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '15px' }}>
+              <button 
+                onClick={() => setShowEarlyModal(false)}
+                className="btn-secondary" 
+                style={{ flex: 1, padding: '12px', justifyContent: 'center' }}
+              >
+                Cancel
+              </button>
+              <button 
+                disabled={actionLoading || !earlyReason.trim()}
+                onClick={() => handleCheckOut(earlyReason)}
+                className="btn-primary" 
+                style={{ flex: 1, padding: '12px', justifyContent: 'center' }}
+              >
+                {actionLoading ? 'Submitting...' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

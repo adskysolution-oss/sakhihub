@@ -2,7 +2,7 @@ import {
   LayoutDashboard, Users, Heart, Settings, User,
   MapPin, IndianRupee, ClipboardList, Target, Layout, FileText,
   ShieldCheck, Mail, Sparkles, Wallet, ShoppingBag, BadgeCheck, Briefcase,
-  History, BarChart3
+  History, BarChart3, Calendar
 } from 'lucide-react';
 
 
@@ -27,6 +27,8 @@ export const MEMBER_DASHBOARD_LINKS = [
 
 export const EMPLOYEE_DASHBOARD_LINKS = [
   { name: 'Overview', icon: LayoutDashboard, href: '/employee/dashboard' },
+  { name: 'Attendance', icon: ShieldCheck, href: '/employee/attendance' },
+  { name: 'Leave Management', icon: Calendar, href: '/employee/leaves' },
   { name: 'Member Requests', icon: Heart, href: '/employee/requests' },
   { name: 'My Groups', icon: Layout, href: '/employee/groups' },
   { name: 'Women Members', icon: Users, href: '/employee/members' },
@@ -53,6 +55,13 @@ export const ADMIN_DASHBOARD_LINKS = [
   { section: 'Users', name: 'All Groups', icon: Layout, href: '/admin/groups' },
   { section: 'Users', name: 'All Members', icon: Users, href: '/admin/members' },
   { section: 'Users', name: 'ABHA', icon: Heart, href: '/admin/abha' },
+
+  // HRMS
+  { section: 'HRMS', name: 'HRMS Dashboard', icon: LayoutDashboard, href: '/admin/hrms/dashboard' },
+  { section: 'HRMS', name: 'HRMS Employees', icon: Users, href: '/admin/hrms/employees' },
+  { section: 'HRMS', name: 'HRMS Attendance', icon: ShieldCheck, href: '/admin/hrms/attendance' },
+  { section: 'HRMS', name: 'HRMS Reports', icon: FileText, href: '/admin/hrms/reports' },
+  { section: 'HRMS', name: 'HRMS Leaves', icon: ClipboardList, href: '/admin/hrms/leaves' },
 
   // HR & RECRUITMENT
   { section: 'Recruitment', name: 'Vacancies', icon: Briefcase, href: '/admin/careers/vacancies' },
