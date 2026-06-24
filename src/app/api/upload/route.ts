@@ -5,16 +5,20 @@ import { successResponse, errorResponse } from '@/utils/response';
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getAuthSession();
-    if (!session) return errorResponse('Unauthorized', 401);
-
     const body = await req.json();
     const { image, folder = 'general', uploadedFor, originalName } = body;
 
     if (!image) return errorResponse('No image provided', 400);
 
+    const isPublicFolder = folder.startsWith('career_') || folder.startsWith('forms_');
+
+    const session = await getAuthSession();
+    if (!session && !isPublicFolder) {
+      return errorResponse('Unauthorized', 401);
+    }
+
     const uploadResult = await uploadFile(image, folder, {
-      uploadedBy: (session as any).id || (session as any).userId,
+      uploadedBy: session ? ((session as any).id || (session as any).userId) : undefined,
       uploadedFor,
       originalName
     });
