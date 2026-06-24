@@ -166,7 +166,11 @@ export async function PATCH(
       // Strict Activation for Employees
       if (user.role === 'employee') {
         if (user.documentsVerified) {
-          user.status = 'approved';
+          if (user.paymentCompleted && user.assignmentStatus === 'completed') {
+            user.status = 'active';
+          } else {
+            user.status = 'approved';
+          }
           user.isVerified = true;
         } else {
           user.status = 'pending';
@@ -190,6 +194,7 @@ export async function PATCH(
       if (user.documentsVerified && user.paymentCompleted && (user.role === 'vendor' || user.assignmentStatus === 'completed') && ['active', 'approved', 'documents_uploaded'].includes(user.status)) {
         user.dashboardAccess = true;
         user.onboardingCompleted = true;
+        user.status = 'active';
       }
 
       user.markModified('documents');

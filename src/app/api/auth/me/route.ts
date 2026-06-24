@@ -84,7 +84,25 @@ export async function GET() {
            user.onboardingCompleted = true;
          }
          await user.save();
+         userObj.documentsVerified = user.documentsVerified;
+         userObj.isVerified = user.isVerified;
+         userObj.status = user.status;
+         userObj.dashboardAccess = user.dashboardAccess;
+         userObj.onboardingCompleted = user.onboardingCompleted;
        }
+    }
+
+    // SELF-HEALING: If both documents and payment are complete, activate the user status.
+    if (user.documentsVerified && user.paymentCompleted && (user.role === 'vendor' || user.assignmentStatus === 'completed') && user.status !== 'active') {
+       user.status = 'active';
+       user.dashboardAccess = true;
+       user.onboardingCompleted = true;
+       user.isVerified = true;
+       await user.save();
+       userObj.status = user.status;
+       userObj.dashboardAccess = user.dashboardAccess;
+       userObj.onboardingCompleted = user.onboardingCompleted;
+       userObj.isVerified = user.isVerified;
     }
 
     if (user.role === 'staff') {

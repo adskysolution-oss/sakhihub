@@ -133,7 +133,11 @@ export async function POST(
       
       if (updatedUser.role === 'employee') {
         if (updatedUser.documentsVerified) {
-          updatedUser.status = 'approved';
+          if (updatedUser.paymentCompleted && updatedUser.assignmentStatus === 'completed') {
+            updatedUser.status = 'active';
+          } else {
+            updatedUser.status = 'approved';
+          }
           updatedUser.isVerified = true;
         } else {
           updatedUser.status = 'pending';
@@ -148,6 +152,12 @@ export async function POST(
           updatedUser.isVerified = false;
           updatedUser.dashboardAccess = false;
         }
+      }
+
+      if (updatedUser.documentsVerified && updatedUser.paymentCompleted && (updatedUser.role === 'vendor' || updatedUser.assignmentStatus === 'completed') && ['active', 'approved', 'documents_uploaded'].includes(updatedUser.status)) {
+        updatedUser.dashboardAccess = true;
+        updatedUser.onboardingCompleted = true;
+        updatedUser.status = 'active';
       }
       
       await updatedUser.save();

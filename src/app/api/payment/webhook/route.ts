@@ -150,11 +150,19 @@ export async function POST(req: NextRequest) {
           user.depositPaid = true;
           user.paymentCompleted = true;
           user.paymentStatus = 'completed';
-          user.dashboardAccess = true;
           user.accessStatus = 'unlocked';
-          user.status = 'active';
+          if (user.documentsVerified && user.assignmentStatus === 'completed') {
+            user.dashboardAccess = true;
+            user.onboardingCompleted = true;
+            user.status = 'active';
+          } else {
+            if (user.documentsVerified) {
+              user.status = 'approved';
+            }
+            user.dashboardAccess = false;
+          }
           await user.save();
-          console.log(`[Webhook DB Update Result] User (employee) updated: ID: ${user._id}, depositPaid=true, paymentCompleted=true, paymentStatus=completed, dashboardAccess=true, accessStatus=unlocked, status=active`);
+          console.log(`[Webhook DB Update Result] User (employee) updated: ID: ${user._id}, depositPaid=true, paymentCompleted=true, paymentStatus=completed, dashboardAccess=${user.dashboardAccess}, accessStatus=unlocked, status=${user.status}`);
         } else {
           if (transaction.type === 'subscription') user.subscriptionPaid = true;
           if (transaction.type === 'deposit') user.depositPaid = true;
@@ -169,24 +177,18 @@ export async function POST(req: NextRequest) {
             user.subscriptionPaid = true;
             user.depositPaid = true;
             if (user.role === 'employee') {
-              user.status = 'active';
-              user.accessStatus = 'unlocked';
               user.paymentStatus = 'completed';
-              user.dashboardAccess = true;
+              user.accessStatus = 'unlocked';
             }
-            if (user.documentsVerified) {
-              if (user.role === 'vendor') {
-                user.dashboardAccess = true;
-                user.onboardingCompleted = true;
+            if (user.documentsVerified && (user.role === 'vendor' || user.assignmentStatus === 'completed')) {
+              user.dashboardAccess = true;
+              user.onboardingCompleted = true;
+              user.status = 'active';
+            } else {
+              if (user.documentsVerified) {
                 user.status = 'approved';
               }
-              if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
-                user.dashboardAccess = true;
-                user.onboardingCompleted = true;
-                if (user.role !== 'employee') {
-                  user.status = 'approved';
-                }
-              }
+              user.dashboardAccess = false;
             }
             await user.save();
           } else {
@@ -198,24 +200,18 @@ export async function POST(req: NextRequest) {
             if (subPaid && depPaid) {
               user.paymentCompleted = true;
               if (user.role === 'employee') {
-                user.status = 'active';
-                user.accessStatus = 'unlocked';
                 user.paymentStatus = 'completed';
-                user.dashboardAccess = true;
+                user.accessStatus = 'unlocked';
               }
-              if (user.documentsVerified) {
-                if (user.role === 'vendor') {
-                  user.dashboardAccess = true;
-                  user.onboardingCompleted = true;
+              if (user.documentsVerified && (user.role === 'vendor' || user.assignmentStatus === 'completed')) {
+                user.dashboardAccess = true;
+                user.onboardingCompleted = true;
+                user.status = 'active';
+              } else {
+                if (user.documentsVerified) {
                   user.status = 'approved';
                 }
-                if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
-                  user.dashboardAccess = true;
-                  user.onboardingCompleted = true;
-                  if (user.role !== 'employee') {
-                    user.status = 'approved';
-                  }
-                }
+                user.dashboardAccess = false;
               }
               await user.save();
             }
