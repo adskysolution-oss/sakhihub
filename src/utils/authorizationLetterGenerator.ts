@@ -500,7 +500,7 @@ export const generateAuthorizationLetterHtml = (data: AuthorizationLetterData) =
                   <div class="brand-text">
                     <h1 class="brand-title">SakhiHub</h1>
                     <p class="brand-tagline">Empowering Women Across India</p>
-                    <p class="brand-reg">Reg No: IND26S02588604481</p>
+                    <p class="brand-reg">Reg No: INDO260528SE004491</p>
                   </div>
                 </div>
               </td>

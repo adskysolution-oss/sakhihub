@@ -53,7 +53,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({ logoSrc, classNa
                           Empowering Women Across India
                         </span>
                         <span style={{ fontSize: '9px', color: '#374151', fontWeight: '500', marginTop: '5px', display: 'block' }}>
-                          Reg No :- IND26S02588604481
+                          Reg No :- INDO260528SE004491
                         </span>
                       </td>
                     </tr>
