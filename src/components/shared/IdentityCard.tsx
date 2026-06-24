@@ -318,7 +318,7 @@ const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
             </div>
             <div className="flex items-center text-gray-700 leading-tight">
               <Phone size={11} strokeWidth={2.5} className="text-[#E91E63] mr-2 shrink-0" />
-              <span className="font-semibold text-gray-900">Contact number: +91 8062179122</span>
+              <span className="font-semibold text-gray-900">Contact number: +91 8031492661</span>
             </div>
           </div>
 

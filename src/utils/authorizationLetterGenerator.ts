@@ -507,7 +507,7 @@ export const generateAuthorizationLetterHtml = (data: AuthorizationLetterData) =
               <td class="contact-col">
                 <strong>Website:</strong> www.sakhihub.com<br/>
                 <strong>Email:</strong> info@sakhihub.com<br/>
-                <strong>Contact:</strong> +91 8062179122
+                <strong>Contact:</strong> +91 8031492661
               </td>
             </tr>
           </table>

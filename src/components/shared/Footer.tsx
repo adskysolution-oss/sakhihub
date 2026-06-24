@@ -141,9 +141,9 @@ const Footer = () => {
                 <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-blue-500 transition-all text-blue-500 group-hover:text-white shrink-0"><Mail size={18} /></div>
                 <span className="text-sm font-semibold text-white group-hover:text-blue-500 transition-colors truncate">info@sakhihub.com</span>
               </a>
-              <a href="tel:+918062179122" className="flex items-center gap-4 group justify-start">
+              <a href="tel:+918031492661" className="flex items-center gap-4 group justify-start">
                 <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-green-500 transition-all text-green-500 group-hover:text-white shrink-0"><PhoneCall size={18} /></div>
-                <span className="text-sm font-semibold text-white group-hover:text-green-500 transition-colors truncate">+91 8062179122</span>
+                <span className="text-sm font-semibold text-white group-hover:text-green-500 transition-colors truncate">+91 8031492661</span>
               </a>
             </div>
           </div>
