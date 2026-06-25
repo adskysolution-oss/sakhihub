@@ -80,6 +80,7 @@ export const ADMIN_DASHBOARD_LINKS = [
   { section: 'System & Finance', name: 'Finance Control', icon: Wallet, href: '/admin/finance' },
   { section: 'System & Finance', name: 'Dynamic Forms', icon: ClipboardList, href: '/admin/forms' },
   { section: 'System & Finance', name: 'CMS Manage', icon: Settings, href: '/admin/cms' },
+  { section: 'System & Finance', name: 'Team Manage', icon: Users, href: '/admin/team-manage' },
   { section: 'System & Finance', name: 'My Profile', icon: User, href: '/admin/profile' },
 
   // ADMIN MANAGEMENT

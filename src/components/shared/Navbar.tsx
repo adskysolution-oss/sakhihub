@@ -72,6 +72,7 @@ const Navbar = () => {
       subLinks: [
         { name: t('nav.vision'), href: '/vision', icon: Eye },
         { name: t('nav.mission'), href: '/mission', icon: Target },
+        { name: t('nav.ourTeam', 'Our Team'), href: '/our-team', icon: Users },
       ]
     },
     {

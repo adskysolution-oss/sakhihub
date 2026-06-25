@@ -94,6 +94,7 @@ const Footer = () => {
               {[
                 { name: t('footer.about'), href: '/about' },
                 { name: t('footer.ourMission'), href: '/mission' },
+                { name: t('nav.ourTeam', 'Our Team'), href: '/our-team' },
                 { name: t('footer.programsLink'), href: '/programs' },
                 // { name: t('footer.gallery'), href: '/gallery' },
                 { name: t('footer.contact'), href: '/contact' }

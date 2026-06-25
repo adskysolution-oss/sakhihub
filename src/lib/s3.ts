@@ -99,7 +99,10 @@ export const signMediaUrl = async (url: string, expiresInSeconds: number = 60480
     const isS3 = url.includes('.amazonaws.com/') && url.includes(bucketName);
     if (!isS3) return url;
 
-    const match = url.match(/amazonaws\.com\/(.+)$/);
+    // Strip query parameters to get the clean URL
+    const cleanUrl = url.split('?')[0];
+
+    const match = cleanUrl.match(/amazonaws\.com\/(.+)$/);
     if (!match) return url;
 
     const objectKey = decodeURIComponent(match[1]);

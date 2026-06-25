@@ -45,7 +45,7 @@ const ProductShowcase = () => {
                   </div>
                 ))}
               </div>
-              <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+              <button suppressHydrationWarning className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
                 <MessageCircle size={20} /> {t('productShowcase.btnInquiry')}
               </button>
             </div>
@@ -72,7 +72,7 @@ const ProductShowcase = () => {
                   </div>
                 ))}
               </div>
-              <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+              <button suppressHydrationWarning className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
                 <MessageCircle size={20} /> {t('productShowcase.btnInquiry')}
               </button>
             </div>

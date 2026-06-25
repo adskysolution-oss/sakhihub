@@ -172,7 +172,8 @@ export async function PATCH(
       'membershipType', 'subscriptionPaid', 'depositPaid', 'paymentCompleted',
       'state', 'district', 'block', 'area', 'pincode', 'address',
       'workState', 'workDistrict', 'workBlock', 'workTehsil', 'workPincode', 'workArea', 'workAddress',
-      'gender', 'dob', 'qualification', 'experience', 'aadhaarNumber', 'panNumber', 'bankDetails'
+      'gender', 'dob', 'qualification', 'experience', 'aadhaarNumber', 'panNumber', 'bankDetails',
+      'isPublicVisible'
     ];
 
     const updatedFields: string[] = [];
@@ -182,7 +183,7 @@ export async function PATCH(
     for (const field of editableFields) {
       if (body[field] !== undefined) {
         let hasChanged = false;
-        
+
         if (field === 'bankDetails') {
           const oldBank = targetUser.bankDetails || {};
           const newBank = body.bankDetails || {};
@@ -211,7 +212,7 @@ export async function PATCH(
           updatedFields.push(field);
           previousValues[field] = targetUser[field];
           newValues[field] = body[field];
-          
+
           targetUser[field] = body[field];
         }
       }

@@ -142,6 +142,7 @@ const HeroSlider = () => {
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[4] flex gap-3 p-3 rounded-full bg-black/10 backdrop-blur-sm border border-white/10">
         {slides.map((_, i) => (
           <button 
+            suppressHydrationWarning
             key={i} 
             className={`w-3 h-3 md:w-12 md:h-2 rounded-full transition-all duration-500 ${current === i ? 'bg-primary md:w-20' : 'bg-white/30 hover:bg-white/50'}`}
             onClick={() => setCurrent(i)}

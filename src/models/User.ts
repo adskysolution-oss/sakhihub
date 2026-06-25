@@ -134,6 +134,7 @@ export interface IUser extends Document {
   employmentStatus?: 'Active' | 'Inactive' | 'Suspended';
   assignedVillages?: string[];
   isHrmsEnabled?: boolean;
+  isPublicVisible?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -287,7 +288,8 @@ const UserSchema: Schema = new Schema(
     employeeType: { type: String, enum: ['Permanent', 'Contract', 'Intern'] },
     employmentStatus: { type: String, enum: ['Active', 'Inactive', 'Suspended'], default: 'Active' },
     assignedVillages: { type: [String], default: [] },
-    isHrmsEnabled: { type: Boolean, default: false }
+    isHrmsEnabled: { type: Boolean, default: false },
+    isPublicVisible: { type: Boolean, default: true }
   },
   { timestamps: true }
 );

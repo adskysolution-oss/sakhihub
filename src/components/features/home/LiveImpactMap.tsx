@@ -75,7 +75,7 @@ const LiveImpactMap = () => {
             </div>
 
             <div className="flex justify-center lg:justify-start pt-4">
-              <button className="px-8 py-4 bg-secondary text-white rounded-2xl font-bold flex items-center gap-3 shadow-xl shadow-secondary/20 hover:-translate-y-1 transition-all">
+              <button suppressHydrationWarning className="px-8 py-4 bg-secondary text-white rounded-2xl font-bold flex items-center gap-3 shadow-xl shadow-secondary/20 hover:-translate-y-1 transition-all">
                 {t('liveImpact.cta')} <ArrowRight size={20} />
               </button>
             </div>
