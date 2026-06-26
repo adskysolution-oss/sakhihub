@@ -361,7 +361,7 @@ export default function EmployeeDocuments() {
                 </div>
                 {[
                   { id: 'employee_offer_letter', title: 'Employee Offer Letter', icon: FileText },
-                  ...(designation && ['District Coordinator', 'District Project Officer', 'Block Coordinator', 'Field Executive', 'Block Employee'].includes(designation) ? [
+                  ...(designation && ['District Coordinator', 'District Project Officer', 'Block Coordinator', 'Field Executive'].includes(designation) ? [
                     { id: 'authorization_letter', title: 'Authorization Letter', icon: ShieldCheck }
                   ] : []),
                   { id: 'vendor_code_cert', title: 'Employee ID Card', icon: ShieldCheck }

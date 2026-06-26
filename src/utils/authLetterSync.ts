@@ -45,11 +45,10 @@ export async function syncAuthorizationLetterStatus(userId: string, ipAddress: s
       else if (
         letter.authorizationType === 'block_coordinator' && 
         user.designation !== 'Block Coordinator' &&
-        user.designation !== 'Field Executive' &&
-        user.designation !== 'Block Employee'
+        user.designation !== 'Field Executive'
       ) {
         shouldRevoke = true;
-        reason = `Employee designation changed from Block Coordinator/Field Executive/Employee to '${user.designation || 'None'}'`;
+        reason = `Employee designation changed from Block Coordinator/Field Executive to '${user.designation || 'None'}'`;
       }
 
       // Rule 4: District Assignment Removed
@@ -64,7 +63,7 @@ export async function syncAuthorizationLetterStatus(userId: string, ipAddress: s
         (!user.block || user.block.trim() === '')
       ) {
         shouldRevoke = true;
-        reason = 'Block assignment was removed from Block Coordinator/Field Executive/Employee profile';
+        reason = 'Block assignment was removed from Block Coordinator/Field Executive profile';
       }
 
       if (shouldRevoke) {

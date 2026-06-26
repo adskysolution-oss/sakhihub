@@ -695,7 +695,7 @@ export default function ReportManagementContent() {
                   style={{ width: '100%', padding: '14px 20px', borderRadius: '16px', border: '1px solid #cbd5e1', fontWeight: '700', color: 'var(--secondary)', fontSize: '0.95rem', cursor: 'pointer', outline: 'none' }}
                 >
                   <option value="">All Designations</option>
-                  <option value="Block Employee">Block Employee</option>
+                  <option value="Block Coordinator">Block Coordinator</option>
                   <option value="District Coordinator">District Coordinator</option>
                   <option value="Trainer">Trainer</option>
                   <option value="Volunteer">Volunteer</option>

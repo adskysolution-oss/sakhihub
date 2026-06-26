@@ -266,7 +266,7 @@ export default function EmployeeManagementContent() {
       oneYear.setFullYear(oneYear.getFullYear() + 1);
       setValidUntil(oneYear.toISOString().split('T')[0]);
 
-      if (['District Coordinator', 'District Project Officer', 'Block Coordinator', 'Field Executive', 'Block Employee'].includes(selectedEmp.designation)) {
+      if (['District Coordinator', 'District Project Officer', 'Block Coordinator', 'Field Executive'].includes(selectedEmp.designation)) {
         fetchAuthLetter(selectedEmp._id);
       } else {
         setAuthLetter(null);
@@ -700,7 +700,7 @@ export default function EmployeeManagementContent() {
                         Agreement
                       </button>
                     )}
-                    {selectedEmp && ['District Coordinator', 'District Project Officer', 'Block Coordinator', 'Field Executive', 'Block Employee'].includes(selectedEmp.designation) && (hasAuthLetterView || hasAuthLetterGenerate) && (
+                    {selectedEmp && ['District Coordinator', 'District Project Officer', 'Block Coordinator', 'Field Executive'].includes(selectedEmp.designation) && (hasAuthLetterView || hasAuthLetterGenerate) && (
                       <button
                         onClick={() => setActiveTab('auth-letter')}
                         className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === 'auth-letter' ? 'bg-white text-secondary shadow-xl' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
@@ -730,7 +730,6 @@ export default function EmployeeManagementContent() {
                                  className="w-full px-4 py-2.5 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary text-xs"
                                >
                                  <option value="">Select Designation...</option>
-                                 <option value="Block Employee">Block Employee</option>
                                  <option value="Block Coordinator">Block Coordinator</option>
                                  <option value="Field Executive">Field Executive</option>
                                  <option value="District Coordinator">District Coordinator</option>
@@ -1404,7 +1403,7 @@ export default function EmployeeManagementContent() {
 
                   {activeTab === 'auth-letter' && (() => {
                     const isDC = selectedEmp?.designation === 'District Coordinator' || selectedEmp?.designation === 'District Project Officer';
-                    const isBC = selectedEmp?.designation === 'Block Coordinator' || selectedEmp?.designation === 'Field Executive' || selectedEmp?.designation === 'Block Employee';
+                    const isBC = selectedEmp?.designation === 'Block Coordinator' || selectedEmp?.designation === 'Field Executive';
                     const validationErrors: string[] = [];
                     if (selectedEmp) {
                       if (isDC) {

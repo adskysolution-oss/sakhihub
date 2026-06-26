@@ -33,12 +33,12 @@ export async function POST(request: NextRequest) {
     // 1. Designation Validation
     const designation = user.designation;
     const isDCDesignation = designation === 'District Coordinator' || designation === 'District Project Officer';
-    const isBCDesignation = designation === 'Block Coordinator' || designation === 'Field Executive' || designation === 'Block Employee';
+    const isBCDesignation = designation === 'Block Coordinator' || designation === 'Field Executive';
 
     if (!isDCDesignation && !isBCDesignation) {
       return NextResponse.json({
         success: false,
-        message: 'Authorization letters are only available for District Coordinators, District Project Officers, Block Coordinators, Field Executives, and Block Employees.'
+        message: 'Authorization letters are only available for District Coordinators, District Project Officers, Block Coordinators, and Field Executives.'
       }, { status: 400 });
     }
 

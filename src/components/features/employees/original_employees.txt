@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
@@ -575,7 +575,7 @@ export default function EmployeeManagement() {
                                  className="w-full px-4 py-2.5 rounded-2xl bg-white border border-gray-200 font-bold text-secondary focus:outline-none focus:border-primary text-xs"
                                >
                                  <option value="">Select Designation...</option>
-                                 <option value="Block Employee">Block Employee</option>
+                                 <option value="Block Coordinator">Block Coordinator</option>
                                  <option value="District Coordinator">District Coordinator</option>
                                  <option value="Trainer">Trainer</option>
                                  <option value="Volunteer">Volunteer</option>

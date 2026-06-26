@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
     const baseMatch: any = {
       role: 'employee',
       designation: {
-        $in: ['Block Coordinator', 'Field Executive', 'Block Employee']
+        $in: ['Block Coordinator', 'Field Executive']
       },
       $or: [
         { workBlock: { $in: blockRegexes } },

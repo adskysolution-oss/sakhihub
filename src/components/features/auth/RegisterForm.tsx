@@ -16,7 +16,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { STAFF_DESIGNATIONS } from "@/constants/designations";
 
 const designations = [
-  "Block Employee",
+  "Block Coordinator",
   "District Coordinator",
   "Trainer",
   "Volunteer",

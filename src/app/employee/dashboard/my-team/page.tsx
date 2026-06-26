@@ -123,7 +123,7 @@ export default function MyTeamPage() {
                 ) : employees.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="p-20 text-center text-gray-400 font-bold italic">
-                      No block employee coordinates found in your assigned blocks.
+                      No block coordinator coordinates found in your assigned blocks.
                     </td>
                   </tr>
                 ) : (

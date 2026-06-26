@@ -77,7 +77,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
       } else if (isDC) {
         // District Coordinator can see Block Coordinators in their assigned blocks
         const assignedBlocks = (currentUser.assignedBlocks || []).map((b: string) => b.trim().toLowerCase());
-        const isBlockEmployee = ['Block Coordinator', 'Field Executive', 'Block Employee'].includes(childUser.designation || '');
+        const isBlockEmployee = ['Block Coordinator', 'Field Executive'].includes(childUser.designation || '');
         const hasMatchingBlock = 
           assignedBlocks.includes((childUser.workBlock || '').trim().toLowerCase()) || 
           assignedBlocks.includes((childUser.block || '').trim().toLowerCase());
