@@ -34,7 +34,7 @@ export default function EmployeeManagementContent() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [counts, setCounts] = useState<any>({
-    status: { all: 0, pending: 0, documents_uploaded: 0, under_review: 0, reupload_required: 0, active: 0, rejected: 0 },
+    status: { all: 0, pending: 0, documents_uploaded: 0, under_review: 0, reupload_required: 0, active: 0, approved: 0, unassigned: 0, rejected: 0, suspended: 0 },
     payment: { all: 0, paid: 0, unpaid: 0 }
   });
   const [paymentFilter, setPaymentFilter] = useState("all");
@@ -464,7 +464,13 @@ export default function EmployeeManagementContent() {
             endDate={endDate} setEndDate={setEndDate}
             offerLetterFilter={offerLetterFilter} setOfferLetterFilter={setOfferLetterFilter}
           />
-          <StatusFilterTabs status={status} setStatus={setStatus} counts={counts} />
+          <StatusFilterTabs 
+            status={status} 
+            setStatus={setStatus} 
+            paymentFilter={paymentFilter} 
+            setPaymentFilter={setPaymentFilter} 
+            counts={counts} 
+          />
 
           <div className="overflow-x-auto">
             <table className="w-full border-collapse min-w-[900px]">

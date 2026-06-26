@@ -23,7 +23,7 @@ export default function MemberManagementContent() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [counts, setCounts] = useState<any>({
-    status: { all: 0, pending: 0, documents_uploaded: 0, under_review: 0, reupload_required: 0, active: 0, rejected: 0 },
+    status: { all: 0, pending: 0, documents_uploaded: 0, under_review: 0, reupload_required: 0, active: 0, approved: 0, unassigned: 0, rejected: 0, suspended: 0 },
     payment: { all: 0, paid: 0, unpaid: 0 }
   });
   const [paymentFilter, setPaymentFilter] = useState("all");
@@ -113,6 +113,8 @@ export default function MemberManagementContent() {
                 <option value="yesterday">{t('members.yesterday', 'Yesterday')}</option>
                 <option value="custom">{t('members.customDate', 'Custom Date')}</option>
               </select>
+
+ 
               
               {dateFilter === 'custom' && (
                 <div className="flex gap-2 items-center">
@@ -134,7 +136,7 @@ export default function MemberManagementContent() {
               
             </div>
             <div className="flex gap-1.5 bg-gray-50 p-1.5 rounded-2xl overflow-x-auto no-scrollbar">
-               {['all', 'pending', 'documents_uploaded', 'reupload_required', 'active', 'approved', 'rejected', 'paid', 'unpaid'].map((s) => {
+               {['all', 'pending', 'documents_uploaded', 'reupload_required', 'active', 'approved', 'unassigned', 'rejected', 'suspended', 'paid', 'unpaid'].map((s) => {
                  const labelMap: Record<string, string> = {
                    all: t('status.all', 'All'),
                    pending: t('status.pending', 'Pending'),
@@ -142,7 +144,9 @@ export default function MemberManagementContent() {
                    reupload_required: t('status.reupload_required', 'Re-upload'),
                    active: t('status.active', 'Active'),
                    approved: t('status.approved', 'Approved'),
+                   unassigned: t('status.unassigned', 'Unassigned'),
                    rejected: t('status.rejected', 'Rejected'),
+                   suspended: t('status.suspended', 'Suspended'),
                    paid: t('status.paid', 'Paid'),
                    unpaid: t('status.unpaid', 'Unpaid/Free')
                  };
@@ -153,7 +157,9 @@ export default function MemberManagementContent() {
                    reupload_required: 'text-orange-500',
                    active: 'text-green-600',
                    approved: 'text-emerald-600',
+                   unassigned: 'text-fuchsia-600',
                    rejected: 'text-red-500',
+                   suspended: 'text-zinc-500',
                    paid: 'text-emerald-500',
                    unpaid: 'text-red-400'
                  };
@@ -165,16 +171,40 @@ export default function MemberManagementContent() {
                  } else {
                    count = counts.status[s as keyof typeof counts.status] || 0;
                  }
-                 return (
-                   <button 
-                    key={s}
-                    onClick={() => setStatus(s)}
-                    className={`px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${status === s ? 'bg-white text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                   >
-                     {labelMap[s] || s} <span className={`ml-1 font-bold ${countColorMap[s] || 'text-gray-400'}`}>({count})</span>
-                   </button>
-                 );
-               })}
+                  const handleTabClick = () => {
+                    if (s === 'all') {
+                      setStatus('all');
+                      setPaymentFilter('all');
+                    } else if (s === 'paid' || s === 'unpaid') {
+                      if (paymentFilter === s) {
+                        setPaymentFilter('all');
+                      } else {
+                        setPaymentFilter(s);
+                      }
+                    } else {
+                      if (status === s) {
+                        setStatus('all');
+                      } else {
+                        setStatus(s);
+                      }
+                    }
+                  };
+                  const active = s === 'all'
+                    ? (status === 'all' && paymentFilter === 'all')
+                    : (s === 'paid' || s === 'unpaid')
+                      ? (paymentFilter === s)
+                      : (status === s);
+
+                  return (
+                    <button 
+                     key={s}
+                     onClick={handleTabClick}
+                     className={`px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${active ? 'bg-white text-primary shadow-sm border border-primary/10' : 'text-gray-400 hover:text-gray-600 border border-transparent'}`}
+                    >
+                      {labelMap[s] || s} <span className={`ml-1 font-bold ${countColorMap[s] || 'text-gray-400'}`}>({count})</span>
+                    </button>
+                  );
+                })}
             </div>
           </div>
 

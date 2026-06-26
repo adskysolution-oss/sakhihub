@@ -141,6 +141,15 @@ export async function GET(req: NextRequest) {
             }
           ]
         };
+      } else if (activeStatus === 'unassigned') {
+        statusFilterQuery = {
+          $or: [
+            { "userDoc.parentVendorId": null },
+            { "userDoc.parentVendorId": { $exists: false } },
+            { assignedEmployeeId: null },
+            { assignedEmployeeId: { $exists: false } }
+          ]
+        };
       } else {
         statusFilterQuery = {
           $or: [

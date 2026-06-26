@@ -18,9 +18,9 @@ export async function GET(req: NextRequest) {
     }).select('role district state');
 
     // Query dynamic core team members
-    let coreMembers = [];
+    let coreMembers: any[] = [];
     try {
-      coreMembers = await CoreTeamMember.find({ isPublicVisible: true }).select('state district');
+      coreMembers = await CoreTeamMember.find({ isPublicVisible: true }).select('state district role');
     } catch (e) {
       console.error('Failed to query core team members in stats:', e);
     }
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
       subVendors: users.filter(u => u.role === 'sub_vendor').length,
       staff: users.filter(u => u.role === 'staff').length,
       employees: users.filter(u => u.role === 'employee').length,
-      founders: coreMembers.length
+      founders: coreMembers.filter(m => m.role === 'founder').length
     };
 
     return successResponse({

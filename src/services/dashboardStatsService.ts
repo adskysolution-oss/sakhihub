@@ -17,6 +17,8 @@ export interface DashboardStats {
     active: number;
     approved: number;
     rejected: number;
+    unassigned: number;
+    suspended: number;
   };
   payment: {
     all: number;
@@ -44,7 +46,12 @@ export async function employeeStatsService(baseMatch: any, activeStatus: string 
   ]);
 
   const resultFacet = aggregationResult[0] || { statusCounts: [], paymentCounts: [] };
-  return parseCountsFromFacet(resultFacet) as DashboardStats;
+  const counts = parseCountsFromFacet(resultFacet) as DashboardStats;
+  counts.status.unassigned = await User.countDocuments({
+    ...baseMatch,
+    $or: [{ parentVendorId: null }, { parentVendorId: { $exists: false } }]
+  });
+  return counts;
 }
 
 /**
@@ -66,7 +73,9 @@ export async function vendorStatsService(baseMatch: any, activeStatus: string = 
   ]);
 
   const resultFacet = aggregationResult[0] || { statusCounts: [], paymentCounts: [] };
-  return parseCountsFromFacet(resultFacet) as DashboardStats;
+  const counts = parseCountsFromFacet(resultFacet) as DashboardStats;
+  counts.status.unassigned = 0;
+  return counts;
 }
 
 /**
@@ -88,7 +97,12 @@ export async function subVendorStatsService(baseMatch: any, activeStatus: string
   ]);
 
   const resultFacet = aggregationResult[0] || { statusCounts: [], paymentCounts: [] };
-  return parseCountsFromFacet(resultFacet) as DashboardStats;
+  const counts = parseCountsFromFacet(resultFacet) as DashboardStats;
+  counts.status.unassigned = await User.countDocuments({
+    ...baseMatch,
+    $or: [{ parentVendorId: null }, { parentVendorId: { $exists: false } }]
+  });
+  return counts;
 }
 
 /**
@@ -196,7 +210,8 @@ export async function memberStatsService(baseMatch: any, activeStatus: string = 
     under_review: 0,
     reupload_required: 0,
     active: 0,
-    rejected: 0
+    rejected: 0,
+    suspended: 0
   };
 
   let totalStatusCount = 0;
@@ -209,6 +224,42 @@ export async function memberStatsService(baseMatch: any, activeStatus: string = 
 
   const pendingSum = rawStatusCounts.pending + rawStatusCounts.documents_uploaded + rawStatusCounts.under_review + rawStatusCounts.reupload_required;
 
+  const unassignedCountResult = await WomenMember.aggregate([
+    { $match: baseMatch },
+    {
+      $group: {
+        _id: "$mobile",
+        doc: { $first: "$$ROOT" }
+      }
+    },
+    { $replaceRoot: { newRoot: "$doc" } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "userDoc"
+      }
+    },
+    {
+      $unwind: {
+        path: "$userDoc",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $match: {
+        $or: [
+          { "userDoc.parentVendorId": null },
+          { "userDoc.parentVendorId": { $exists: false } },
+          { assignedEmployeeId: null },
+          { assignedEmployeeId: { $exists: false } }
+        ]
+      }
+    },
+    { $count: "count" }
+  ]);
+
   const counts = {
     status: {
       all: totalStatusCount,
@@ -218,7 +269,9 @@ export async function memberStatsService(baseMatch: any, activeStatus: string = 
       reupload_required: rawStatusCounts.reupload_required,
       active: rawStatusCounts.active,
       approved: rawStatusCounts.approved || 0,
-      rejected: rawStatusCounts.rejected
+      rejected: rawStatusCounts.rejected,
+      unassigned: unassignedCountResult[0]?.count || 0,
+      suspended: rawStatusCounts.suspended || 0
     },
     payment: {
       all: 0,

@@ -46,6 +46,8 @@ export function buildStatusQuery(activeStatus?: string | null) {
   if (activeStatus && activeStatus !== 'all') {
     if (activeStatus === 'pending') {
       statusFilterQuery = { status: { $in: ['pending', 'documents_uploaded', 'under_review', 'reupload_required'] } };
+    } else if (activeStatus === 'unassigned') {
+      statusFilterQuery = { $or: [{ parentVendorId: null }, { parentVendorId: { $exists: false } }] };
     } else {
       statusFilterQuery = { status: activeStatus };
     }
@@ -103,7 +105,8 @@ export function parseCountsFromFacet(facet: any) {
     reupload_required: 0,
     active: 0,
     approved: 0,
-    rejected: 0
+    rejected: 0,
+    suspended: 0
   };
 
   let totalStatusCount = 0;
@@ -125,7 +128,8 @@ export function parseCountsFromFacet(facet: any) {
       reupload_required: rawStatusCounts.reupload_required,
       active: rawStatusCounts.active,
       approved: rawStatusCounts.approved,
-      rejected: rawStatusCounts.rejected
+      rejected: rawStatusCounts.rejected,
+      suspended: rawStatusCounts.suspended
     },
     payment: {
       all: 0,

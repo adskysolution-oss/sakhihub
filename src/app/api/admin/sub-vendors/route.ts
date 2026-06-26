@@ -81,7 +81,11 @@ export async function GET(req: NextRequest) {
     ]);
 
     const resultFacet = aggregationResult[0] || { statusCounts: [], paymentCounts: [], data: [] };
-    const counts = parseCountsFromFacet(resultFacet);
+    const counts = parseCountsFromFacet(resultFacet) as any;
+    counts.status.unassigned = await User.countDocuments({
+      ...baseMatch,
+      $or: [{ parentVendorId: null }, { parentVendorId: { $exists: false } }]
+    });
 
     // Populate parentVendorId on sub-vendors data
     const populatedData = await User.populate(resultFacet.data, {
