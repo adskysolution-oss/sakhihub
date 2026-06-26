@@ -30,22 +30,11 @@ export async function POST(req: NextRequest) {
       user.subscriptionPaid = true;
       user.depositPaid = true;
       user.paymentCompleted = true;
-
-      // Auto-grant access if docs are verified
-      if (user.documentsVerified) {
-        if (user.role === 'vendor') {
-          user.dashboardAccess = true;
-          user.onboardingCompleted = true;
-          if (!['active'].includes(user.status)) user.status = 'active';
-        }
-        if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
-          user.dashboardAccess = true;
-          user.onboardingCompleted = true;
-          if (!['active'].includes(user.status)) user.status = 'active';
-        }
-      }
-
       await user.save();
+
+      // Call centralized activation engine to check status transitions and sync flags
+      const { evaluateUserActivation } = await import('@/services/activationService');
+      const activatedUser = await evaluateUserActivation(user._id);
 
       // Create admin override transaction records
       for (const t of ['subscription', 'deposit']) {
@@ -65,7 +54,7 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      return successResponse(user, 'All payments marked as complete');
+      return successResponse(activatedUser, 'All payments marked as complete');
     }
 
     // Single type override
@@ -77,34 +66,11 @@ export async function POST(req: NextRequest) {
       return errorResponse('Invalid type. Must be "subscription" or "deposit"', 400);
     }
 
-    // Check if all payments are now complete
-    const roleKey = user.role as 'vendor' | 'sub_vendor' | 'employee';
-    const config = await PaymentConfig.findOne({ key: 'default' });
-
-    if (config) {
-      const subRequired = config.subscriptionRequired[roleKey];
-      const depRequired = config.depositRequired[roleKey];
-      const subPaid = user.subscriptionPaid || !subRequired;
-      const depPaid = user.depositPaid || !depRequired;
-
-      if (subPaid && depPaid) {
-        user.paymentCompleted = true;
-        if (user.documentsVerified) {
-          if (user.role === 'vendor') {
-            user.dashboardAccess = true;
-            user.onboardingCompleted = true;
-            if (!['active'].includes(user.status)) user.status = 'active';
-          }
-          if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
-            user.dashboardAccess = true;
-            user.onboardingCompleted = true;
-            if (!['active'].includes(user.status)) user.status = 'active';
-          }
-        }
-      }
-    }
-
     await user.save();
+
+    // Call centralized activation engine to check status transitions and sync flags
+    const { evaluateUserActivation } = await import('@/services/activationService');
+    const activatedUser = await evaluateUserActivation(user._id);
 
     // Create admin override transaction record
     const existing = await PaymentTransaction.findOne({ userId: user._id, type, status: { $in: ['paid', 'completed', 'success'] } });
@@ -122,7 +88,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    return successResponse(user, `${type} payment marked as complete`);
+    return successResponse(activatedUser, `${type} payment marked as complete`);
   } catch (error: any) {
     console.error('Payment Override Error:', error);
     return errorResponse(error.message || 'Failed to override payment', 500);

@@ -3,7 +3,6 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
-import { areAllDocsApproved } from '@/lib/docs/service';
 
 export async function PATCH(
   req: NextRequest,
@@ -50,30 +49,15 @@ export async function PATCH(
     if ('vendorCode' in body) updateData.vendorCode = vendorCode;
     if ('subVendorCode' in body) updateData.subVendorCode = subVendorCode;
 
-    // AUTO-UNLOCK RULE: 
-    // If the user is a sub-vendor or employee and has already been "activated" by admin 
-    // (status is 'active' or 'approved'), completing the hierarchy assignment should 
-    // now automatically unlock dashboard access.
-    if (['sub_vendor', 'employee'].includes(userToUpdate.role) && ['active', 'approved', 'documents_uploaded'].includes(userToUpdate.status)) {
-       const docsOk = areAllDocsApproved(userToUpdate);
-       if (docsOk) {
-         updateData.documentsVerified = true;
-         updateData.dashboardAccess = true;
-         updateData.onboardingCompleted = true;
-       } else {
-         // Even if docs not fully approved, we set dashboardAccess true IF admin is manually assigning
-         // but middleware will still block if documentsVerified is false.
-         // Let's be consistent: only unlock if docs are ok.
-         updateData.dashboardAccess = false; 
-         updateData.documentsVerified = false;
-       }
-    }
-
     const user = await User.findByIdAndUpdate(
       id, 
       { $set: updateData }, 
       { new: true, runValidators: true }
     );
+
+    // Evaluate user activation status centrally
+    const { evaluateUserActivation } = await import('@/services/activationService');
+    const activatedUser = await evaluateUserActivation(id);
 
     // Trigger Centralized Notifications
     const { NotificationService, NotificationEvent } = await import('@/lib/notifications');
@@ -83,11 +67,8 @@ export async function PATCH(
     if (('campaignId' in body && campaignId) || ('assignedCampaigns' in body)) {
       await NotificationService.trigger(NotificationEvent.CAMPAIGN_ASSIGNED, { userId: user._id });
     }
-    if (user && user.status === 'active') {
-      await NotificationService.trigger(NotificationEvent.ACCOUNT_ACTIVATED, { userId: user._id });
-    }
 
-    return successResponse(user, 'User hierarchy assignment completed successfully');
+    return successResponse(activatedUser, 'User hierarchy assignment completed successfully');
   } catch (error: any) {
     console.error('Assignment Error:', error);
     return errorResponse(error.message || 'Internal Server Error', 500);

@@ -97,14 +97,11 @@ export async function POST(req: NextRequest) {
       // Update user flags
       const user = await User.findById(transaction.userId);
       if (user) {
-        if (user.role === 'member') {
-          user.subscriptionPaid = true;
-          user.paymentCompleted = true;
-          user.status = 'active';
-          user.dashboardAccess = true;
-          user.onboardingCompleted = true;
-          await user.save();
+        if (transaction.type === 'subscription') user.subscriptionPaid = true;
+        if (transaction.type === 'deposit') user.depositPaid = true;
+        await user.save();
 
+        if (user.role === 'member') {
           const member = await WomenMember.findOne({ userId: user._id });
           if (member) {
             member.membershipStatus = 'paid';
@@ -145,79 +142,12 @@ export async function POST(req: NextRequest) {
               }
             }
           }
-        } else if (user.role === 'employee' && transaction.type === 'deposit') {
-          // Direct update for employee deposit payment (idempotency, no other locks)
-          user.depositPaid = true;
-          user.paymentCompleted = true;
-          user.paymentStatus = 'completed';
-          user.accessStatus = 'unlocked';
-          if (user.documentsVerified && user.assignmentStatus === 'completed') {
-            user.dashboardAccess = true;
-            user.onboardingCompleted = true;
-            user.status = 'active';
-          } else {
-            if (user.documentsVerified) {
-              user.status = 'approved';
-            }
-            user.dashboardAccess = false;
-          }
-          await user.save();
-          console.log(`[Webhook DB Update Result] User (employee) updated: ID: ${user._id}, depositPaid=true, paymentCompleted=true, paymentStatus=completed, dashboardAccess=${user.dashboardAccess}, accessStatus=unlocked, status=${user.status}`);
-        } else {
-          if (transaction.type === 'subscription') user.subscriptionPaid = true;
-          if (transaction.type === 'deposit') user.depositPaid = true;
-          await user.save();
-
-          // Check full payment completion (robust fallback if config not found)
-          const roleKey = user.role as 'vendor' | 'sub_vendor' | 'employee';
-          let config = await PaymentConfig.findOne({ key: 'default' });
-
-          if (!config) {
-            user.paymentCompleted = true;
-            user.subscriptionPaid = true;
-            user.depositPaid = true;
-            if (user.role === 'employee') {
-              user.paymentStatus = 'completed';
-              user.accessStatus = 'unlocked';
-            }
-            if (user.documentsVerified && (user.role === 'vendor' || user.assignmentStatus === 'completed')) {
-              user.dashboardAccess = true;
-              user.onboardingCompleted = true;
-              user.status = 'active';
-            } else {
-              if (user.documentsVerified) {
-                user.status = 'approved';
-              }
-              user.dashboardAccess = false;
-            }
-            await user.save();
-          } else {
-            const subRequired = config.subscriptionRequired[roleKey];
-            const depRequired = config.depositRequired[roleKey];
-            const subPaid = user.subscriptionPaid || !subRequired;
-            const depPaid = user.depositPaid || !depRequired;
-
-            if (subPaid && depPaid) {
-              user.paymentCompleted = true;
-              if (user.role === 'employee') {
-                user.paymentStatus = 'completed';
-                user.accessStatus = 'unlocked';
-              }
-              if (user.documentsVerified && (user.role === 'vendor' || user.assignmentStatus === 'completed')) {
-                user.dashboardAccess = true;
-                user.onboardingCompleted = true;
-                user.status = 'active';
-              } else {
-                if (user.documentsVerified) {
-                  user.status = 'approved';
-                }
-                user.dashboardAccess = false;
-              }
-              await user.save();
-            }
-          }
-          console.log(`[Webhook DB Update Result] User (non-employee) updated: ID: ${user._id}, role: ${user.role}, paymentCompleted: ${user.paymentCompleted}`);
         }
+
+        // Call the centralized activation engine
+        const { evaluateUserActivation } = await import('@/services/activationService');
+        const activatedUser = await evaluateUserActivation(user._id);
+        console.log(`[Webhook DB Update Result] User updated via Centralized Engine: ID: ${activatedUser._id}, role: ${activatedUser.role}, paymentCompleted: ${activatedUser.paymentCompleted}, status: ${activatedUser.status}, dashboardAccess: ${activatedUser.dashboardAccess}`);
       }
     } else if (verification.status && ['FAILED', 'CANCELLED', 'VOID'].includes(verification.status)) {
       transaction.status = 'failed';

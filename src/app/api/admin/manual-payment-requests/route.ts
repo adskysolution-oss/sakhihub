@@ -120,36 +120,11 @@ export async function PATCH(req: NextRequest) {
     // Mark the payment on the user
     if (type === 'subscription') user.subscriptionPaid = true;
     if (type === 'deposit') user.depositPaid = true;
-
-    // Check if all payments are now complete and unlock access accordingly
-    const roleKey = user.role as 'vendor' | 'sub_vendor' | 'employee';
-    const config = await PaymentConfig.findOne({ key: 'default' });
-
-    if (config) {
-      const subRequired = config.subscriptionRequired[roleKey];
-      const depRequired = config.depositRequired[roleKey];
-      const subPaid = user.subscriptionPaid || !subRequired;
-      const depPaid = user.depositPaid || !depRequired;
-
-      if (subPaid && depPaid) {
-        user.paymentCompleted = true;
-
-        if (user.documentsVerified) {
-          if (user.role === 'vendor') {
-            user.dashboardAccess = true;
-            user.onboardingCompleted = true;
-            if (!['active'].includes(user.status)) user.status = 'active';
-          }
-          if (['sub_vendor', 'employee'].includes(user.role) && user.assignmentStatus === 'completed') {
-            user.dashboardAccess = true;
-            user.onboardingCompleted = true;
-            if (!['active'].includes(user.status)) user.status = 'active';
-          }
-        }
-      }
-    }
-
     await user.save();
+
+    // Call centralized activation engine to check status transitions and sync flags
+    const { evaluateUserActivation } = await import('@/services/activationService');
+    const activatedUser = await evaluateUserActivation(user._id);
 
     // Create a PaymentTransaction record for audit trail
     // Uses the same pattern as ADMIN_OVERRIDE but tags it as manual_payment_request

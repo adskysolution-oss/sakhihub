@@ -12,63 +12,15 @@ import WomenMember from '@/models/WomenMember';
 import Membership from '@/models/Membership';
 import { notifyMembershipPayment } from '@/lib/notifications';
 
+import { evaluateUserActivation } from '@/services/activationService';
+
 /**
  * Check if all required payments are completed for a user and update flags accordingly.
  * Returns true if paymentCompleted was set to true.
  */
 async function checkAndUpdatePaymentCompletion(userId: string): Promise<boolean> {
-  const user = await User.findById(userId);
-  if (!user) return false;
-
-  const roleKey = user.role as 'vendor' | 'sub_vendor' | 'employee';
-  let config = await PaymentConfig.findOne({ key: 'default' });
-
-  if (!config) {
-    // No config means no payment required
-    user.paymentCompleted = true;
-    user.subscriptionPaid = true;
-    user.depositPaid = true;
-    if (user.role === 'employee') {
-      user.status = 'active';
-      user.accessStatus = 'unlocked';
-      user.paymentStatus = 'completed';
-      user.dashboardAccess = true;
-    }
-    await user.save();
-    return true;
-  }
-
-  // Check if payments are required for this role
-  const subRequired = config.subscriptionRequired[roleKey];
-  const depRequired = config.depositRequired[roleKey];
-
-  const subPaid = user.subscriptionPaid || !subRequired;
-  const depPaid = user.depositPaid || !depRequired;
-
-  if (subPaid && depPaid) {
-    user.paymentCompleted = true;
-    if (user.role === 'employee') {
-      user.paymentStatus = 'completed';
-      user.accessStatus = 'unlocked';
-    }
-
-    // If docs verified + payment done + (for vendor, or assignment completed for others) => grant dashboard access
-    if (user.documentsVerified && (user.role === 'vendor' || user.assignmentStatus === 'completed')) {
-      user.dashboardAccess = true;
-      user.onboardingCompleted = true;
-      user.status = 'active';
-    } else {
-      if (user.documentsVerified) {
-        user.status = 'approved';
-      }
-      user.dashboardAccess = false;
-    }
-
-    await user.save();
-    return true;
-  }
-
-  return false;
+  const user = await evaluateUserActivation(userId);
+  return user.paymentCompleted;
 }
 
 export async function POST(req: NextRequest) {
@@ -145,15 +97,11 @@ export async function POST(req: NextRequest) {
       if (user) {
         let completed = false;
 
-        if (user.role === 'member') {
-          user.subscriptionPaid = true;
-          user.paymentCompleted = true;
-          user.status = 'active';
-          user.dashboardAccess = true;
-          user.onboardingCompleted = true;
-          await user.save();
-          completed = true;
+        if (transaction.type === 'subscription') user.subscriptionPaid = true;
+        if (transaction.type === 'deposit') user.depositPaid = true;
+        await user.save();
 
+        if (user.role === 'member') {
           const member = await WomenMember.findOne({ userId: user._id });
           if (member) {
             member.membershipStatus = 'paid';
@@ -194,34 +142,12 @@ export async function POST(req: NextRequest) {
               }
             }
           }
-        } else if (user.role === 'employee' && transaction.type === 'deposit') {
-          // Direct update for employee deposit payment (idempotency, no other locks)
-          user.depositPaid = true;
-          user.paymentCompleted = true;
-          user.paymentStatus = 'completed';
-          user.accessStatus = 'unlocked';
-          if (user.documentsVerified && user.assignmentStatus === 'completed') {
-            user.dashboardAccess = true;
-            user.onboardingCompleted = true;
-            user.status = 'active';
-          } else {
-            if (user.documentsVerified) {
-              user.status = 'approved';
-            }
-            user.dashboardAccess = false;
-          }
-          await user.save();
-          completed = true;
-          console.log(`[Verify DB Update Result] User (employee) updated: ID: ${user._id}, depositPaid=true, paymentCompleted=true, paymentStatus=completed, dashboardAccess=${user.dashboardAccess}, accessStatus=unlocked, status=${user.status}`);
-        } else {
-          if (transaction.type === 'subscription') user.subscriptionPaid = true;
-          if (transaction.type === 'deposit') user.depositPaid = true;
-          await user.save();
-
-          // Check if all payments are now complete
-          completed = await checkAndUpdatePaymentCompletion(sessionUser.id);
-          console.log(`[Verify DB Update Result] User (non-employee) updated: ID: ${user._id}, role: ${user.role}, paymentCompleted: ${user.paymentCompleted}`);
         }
+
+        // Call the centralized activation engine
+        const activatedUser = await evaluateUserActivation(user._id);
+        completed = activatedUser.paymentCompleted;
+        console.log(`[Verify DB Update Result] User updated via Centralized Engine: ID: ${activatedUser._id}, role: ${activatedUser.role}, paymentCompleted: ${activatedUser.paymentCompleted}, status: ${activatedUser.status}, dashboardAccess: ${activatedUser.dashboardAccess}`);
 
         // Refresh JWT token with updated payment status
         const updatedUser = await User.findById(sessionUser.id);

@@ -59,41 +59,6 @@ export async function PATCH(
         updatedAt: new Date()
       };
 
-      // Set dashboard access and verification based on status
-      if (status === 'active') {
-        updateData.isVerified = true;
-
-        // STRICT ACCESS RULE: Sub-vendors and Employees require BOTH document approval AND hierarchy assignment AND payment completion
-        if (['sub_vendor', 'employee'].includes(userToUpdate.role)) {
-          // Check actual documentsVerified flag or re-verify
-          const allDocsOk = areAllDocsApproved(userToUpdate);
-          if (allDocsOk && userToUpdate.paymentCompleted && userToUpdate.assignmentStatus === 'completed' && userToUpdate.parentVendorId) {
-            updateData.dashboardAccess = true;
-            updateData.documentsVerified = true;
-            updateData.onboardingCompleted = true;
-          } else {
-            // Mark as active but keep dashboard blocked until ALL conditions are met
-            updateData.dashboardAccess = false;
-            updateData.documentsVerified = allDocsOk;
-            updateData.onboardingCompleted = false;
-          }
-        } else if (userToUpdate.role === 'staff') {
-          updateData.dashboardAccess = true;
-          updateData.documentsVerified = areAllDocsApproved(userToUpdate);
-          updateData.onboardingCompleted = true;
-        } else if (userToUpdate.role === 'vendor') {
-          // Vendors get immediate access on activation ONLY if payment is completed
-          updateData.dashboardAccess = userToUpdate.paymentCompleted;
-          updateData.documentsVerified = true;
-        } else {
-          // Members get immediate access
-          updateData.dashboardAccess = true;
-          updateData.documentsVerified = true;
-        }
-      } else {
-        updateData.dashboardAccess = false;
-      }
-
       if (remarks) updateData.remarks = remarks;
 
       const updatedUser = await User.findByIdAndUpdate(
@@ -102,17 +67,16 @@ export async function PATCH(
         { new: true }
       ).select('-password');
 
-      if (updatedUser && updatedUser.status === 'active') {
-        const { NotificationService, NotificationEvent } = await import('@/lib/notifications');
-        await NotificationService.trigger(NotificationEvent.ACCOUNT_ACTIVATED, { userId: updatedUser._id });
-      }
+      // Call centralized activation engine to check status transitions and sync flags
+      const { evaluateUserActivation } = await import('@/services/activationService');
+      const activatedUser = await evaluateUserActivation(id);
 
       // Auto-revoke authorization letters if user is no longer eligible
       const { syncAuthorizationLetterStatus } = await import('@/utils/authLetterSync');
       const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
       await syncAuthorizationLetterStatus(id, ip);
 
-      return successResponse(updatedUser, `User status updated to ${status}`);
+      return successResponse(activatedUser, `User status updated to ${status}`);
     }
 
     // 2. Handle specific document status update (doc:{type}:{status})
@@ -159,46 +123,12 @@ export async function PATCH(
       // Sync documentsVerified flag based on overall compliance
       user.documentsVerified = areAllDocsApproved(user);
 
-      // DUAL-GATE ACCESS LOGIC:
-      // If all docs are approved AND payment is completed AND (hierarchy is already set or role is vendor),
-      // we can automatically unlock dashboard access.
-
-      // Strict Activation for Employees
-      if (user.role === 'employee') {
-        if (user.documentsVerified) {
-          if (user.paymentCompleted && user.assignmentStatus === 'completed') {
-            user.status = 'active';
-          } else {
-            user.status = 'approved';
-          }
-          user.isVerified = true;
-        } else {
-          user.status = 'pending';
-          user.isVerified = false;
-          user.dashboardAccess = false;
-        }
-      } else if (user.role === 'staff') {
-        if (user.documentsVerified) {
-          user.status = 'approved';
-          user.isVerified = true;
-          user.dashboardAccess = true;
-          user.onboardingCompleted = true;
-        } else {
-          if (!['active', 'approved'].includes(user.status)) {
-            user.isVerified = false;
-            user.dashboardAccess = false;
-          }
-        }
-      }
-
-      if (user.documentsVerified && user.paymentCompleted && (user.role === 'vendor' || user.assignmentStatus === 'completed') && ['active', 'approved', 'documents_uploaded'].includes(user.status)) {
-        user.dashboardAccess = true;
-        user.onboardingCompleted = true;
-        user.status = 'active';
-      }
-
       user.markModified('documents');
       await user.save();
+
+      // Call centralized activation engine to check status transitions and sync flags
+      const { evaluateUserActivation } = await import('@/services/activationService');
+      const activatedUser = await evaluateUserActivation(id);
 
       // Auto-revoke authorization letters if user is no longer eligible
       const { syncAuthorizationLetterStatus } = await import('@/utils/authLetterSync');
@@ -219,11 +149,6 @@ export async function PATCH(
           userId: user._id
         });
       }
-      if (user.status === 'active') {
-        await NotificationService.trigger(NotificationEvent.ACCOUNT_ACTIVATED, {
-          userId: user._id
-        });
-      }
 
       // Sync to Document collection in MongoDB
       await Document.findOneAndUpdate(
@@ -239,7 +164,7 @@ export async function PATCH(
         { upsert: true }
       );
 
-      return successResponse(user, `Document ${docType} status updated to ${docStatus}`);
+      return successResponse(activatedUser, `Document ${docType} status updated to ${docStatus}`);
     }
 
     return errorResponse('Invalid status type', 400);

@@ -3,6 +3,8 @@ import { successResponse, errorResponse } from '@/utils/response';
 import dbConnect from '@/lib/mongodb';
 import { NextRequest } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 const getUserModel = async () => (await import('@/models/User')).default as any;
 
 export async function GET() {
@@ -15,7 +17,7 @@ export async function GET() {
     await dbConnect();
     const sessionUser = session as any;
     const UserModel = await getUserModel();
-    const user = await UserModel.findOne({
+    let user = await UserModel.findOne({
       $or: [
         { _id: sessionUser.id },
         ...(sessionUser.mobile ? [{ mobile: sessionUser.mobile }] : []),
@@ -25,6 +27,10 @@ export async function GET() {
     if (!user) {
       return errorResponse('User not found', 404);
     }
+
+    // Evaluate and transition user activation status centrally
+    const { evaluateUserActivation } = await import('@/services/activationService');
+    user = await evaluateUserActivation(user._id.toString());
 
     let userObj = user.toObject();
 
@@ -67,88 +73,6 @@ export async function GET() {
       }
     }
 
-    // SELF-HEALING: If documents are approved but flag is false, fix it now.
-    // This handles users who were approved before the strict dual-gate logic was finalized.
-    if (!user.documentsVerified && ['sub_vendor', 'employee'].includes(user.role)) {
-       const { areAllDocsApproved } = await import('@/lib/docs/service');
-       if (areAllDocsApproved(user)) {
-         user.documentsVerified = true;
-         
-         if (user.role === 'employee') {
-            user.isVerified = true;
-            user.status = 'active';
-         }
-
-         if (user.assignmentStatus === 'completed' && ['active', 'approved'].includes(user.status)) {
-           user.dashboardAccess = true;
-           user.onboardingCompleted = true;
-         }
-         await user.save();
-         userObj.documentsVerified = user.documentsVerified;
-         userObj.isVerified = user.isVerified;
-         userObj.status = user.status;
-         userObj.dashboardAccess = user.dashboardAccess;
-         userObj.onboardingCompleted = user.onboardingCompleted;
-       }
-    }
-
-    // SELF-HEALING: If both documents and payment are complete, activate the user status.
-    if (user.documentsVerified && user.paymentCompleted && (user.role === 'vendor' || user.assignmentStatus === 'completed') && user.status !== 'active') {
-       user.status = 'active';
-       user.dashboardAccess = true;
-       user.onboardingCompleted = true;
-       user.isVerified = true;
-       await user.save();
-       userObj.status = user.status;
-       userObj.dashboardAccess = user.dashboardAccess;
-       userObj.onboardingCompleted = user.onboardingCompleted;
-       userObj.isVerified = user.isVerified;
-    }
-
-    if (user.role === 'staff') {
-       const { areAllDocsApproved, determineUserStatus } = await import('@/lib/docs/service');
-       const allDocsApproved = areAllDocsApproved(user);
-       const computedStatus = determineUserStatus(user);
-       let changed = false;
-       
-       if (user.documentsVerified !== allDocsApproved) {
-         user.documentsVerified = allDocsApproved;
-         changed = true;
-       }
-       
-       if (allDocsApproved) {
-         if (user.status !== 'approved' && user.status !== 'active') {
-           user.status = 'approved';
-           user.isVerified = true;
-           user.dashboardAccess = true;
-           changed = true;
-         }
-       } else {
-         if (user.status !== 'active' && user.status !== 'approved') {
-           if (user.status !== computedStatus) {
-             user.status = computedStatus;
-             user.isVerified = false;
-             user.dashboardAccess = false;
-             changed = true;
-           }
-         } else {
-           if (user.dashboardAccess !== true || user.isVerified !== true) {
-             user.dashboardAccess = true;
-             user.isVerified = true;
-             changed = true;
-           }
-         }
-       }
-       
-       if (changed) {
-         await user.save();
-         userObj.status = user.status;
-         userObj.documentsVerified = user.documentsVerified;
-         userObj.isVerified = user.isVerified;
-         userObj.dashboardAccess = user.dashboardAccess;
-       }
-    }
-
     // AUTH SYNC LOGIC: 
     // If the database state (dashboardAccess, status, or hierarchy assignment) has changed 
     // since the token was issued, we need to update the token in the cookie to prevent 
@@ -163,6 +87,25 @@ export async function GET() {
                                   JSON.stringify(user.assignedStates || []) !== JSON.stringify(sessionUser.assignedStates || []) ||
                                   JSON.stringify(user.assignedDistricts || []) !== JSON.stringify(sessionUser.assignedDistricts || []) ||
                                   JSON.stringify(user.assignedRegions || []) !== JSON.stringify(sessionUser.assignedRegions || []);
+
+    let responseData: any = userObj;
+    if (user.role === 'member' && user.assignmentStatus !== 'completed') {
+       const MemberRequest = (await import('@/models/MemberRequest')).default;
+       const requests = await MemberRequest.find({ 
+         memberId: user._id, 
+         status: 'pending' 
+       }).populate('employeeId', 'fullName mobile employeeId');
+       
+       responseData = {
+         ...userObj,
+         pendingRequests: requests
+       };
+    }
+
+    const response = successResponse(responseData);
+
+    // Set Cache-Control header to prevent any browser or Next.js router caching
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
 
     if (hasStatusChanged || hasAccessChanged || hasAssignmentChanged || hasDocsVerifiedChanged || hasPaymentChanged || hasPermissionsChanged || hasAssignmentsChanged) {
       // Strip JWT metadata (iat, exp) from existing session to avoid conflict with signToken's expiresIn
@@ -186,23 +129,16 @@ export async function GET() {
         assignedRegions: user.assignedRegions || []
       };
       const newToken = signToken(newPayload);
-      await setAuthCookie(newToken);
+      response.cookies.set('token', newToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+        path: '/',
+      });
     }
 
-    if (user.role === 'member' && user.assignmentStatus !== 'completed') {
-       const MemberRequest = (await import('@/models/MemberRequest')).default;
-       const requests = await MemberRequest.find({ 
-         memberId: user._id, 
-         status: 'pending' 
-       }).populate('employeeId', 'fullName mobile employeeId');
-       
-       return successResponse({
-         ...userObj,
-         pendingRequests: requests
-       });
-    }
-
-    return successResponse(userObj);
+    return response;
   } catch (error) {
     console.error('Auth Me Sync Error:', error);
     return errorResponse('Internal Server Error', 500);
