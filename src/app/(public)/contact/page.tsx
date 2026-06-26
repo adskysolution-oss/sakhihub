@@ -74,7 +74,7 @@ export default function ContactPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6 sm:gap-8">
                 {[
-                  { title: t('contactPage.supportEmail'), val: "support@sakhihub.com", icon: Mail, bg: "bg-primary/5", color: "text-primary" },
+                  { title: t('contactPage.supportEmail'), val: "info@sakhihub.com", icon: Mail, bg: "bg-primary/5", color: "text-primary" },
                   { title: "Phone Number", val: "+91 8031492661", icon: PhoneCall, bg: "bg-primary/5", color: "text-primary" },
                   { title: t('contactPage.headquarters'), val: "Pu 4, Behind C21 Mall, Scheme 54, Indore, Madhya Pradesh 452010", icon: MapPin, bg: "bg-primary/5", color: "text-primary" }
                 ].map((item, i) => (
