@@ -385,7 +385,7 @@ export default function OurTeamPage() {
   // Role Styling Mapping
   const roleConfig: Record<string, { label: string; bg: string; text: string; border: string; accentBg: string }> = {
     founder: { label: 'Founder & Chair', bg: 'bg-amber-500', text: 'text-amber-600', border: 'border-amber-400', accentBg: 'bg-amber-50' },
-    vendor: { label: 'Delivery Partner', bg: 'bg-blue-500', text: 'text-blue-600', border: 'border-blue-400', accentBg: 'bg-blue-50' },
+    vendor: { label: 'Vendor Partner', bg: 'bg-blue-500', text: 'text-blue-600', border: 'border-blue-400', accentBg: 'bg-blue-50' },
     sub_vendor: { label: 'Sub-Vendor Partner', bg: 'bg-purple-500', text: 'text-purple-600', border: 'border-purple-400', accentBg: 'bg-purple-50' },
     staff: { label: 'Office Staff', bg: 'bg-orange-500', text: 'text-orange-600', border: 'border-orange-400', accentBg: 'bg-orange-50' },
     employee: { label: 'Field Associate', bg: 'bg-emerald-500', text: 'text-emerald-600', border: 'border-emerald-400', accentBg: 'bg-emerald-50' }
@@ -658,7 +658,7 @@ export default function OurTeamPage() {
                 <Briefcase size={20} />
               </div>
               <p className="text-2xl font-black text-gray-800">{stats.vendors}</p>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1">Delivery Partners</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1">Vendor Partners</p>
             </div>
 
             <div className="bg-white border border-gray-100 p-6 rounded-3xl text-center shadow-soft hover:shadow-medium hover:-translate-y-1 transition-all group">
@@ -818,7 +818,7 @@ export default function OurTeamPage() {
                   >
                     <option value="all">All Roles</option>
                     <option value="founder">Founder</option>
-                    <option value="vendor">Delivery Partner</option>
+                    <option value="vendor">Vendor Partner</option>
                     <option value="sub_vendor">Sub-Vendor</option>
                     <option value="staff">Staff</option>
                     <option value="employee">Field Associate</option>
@@ -897,9 +897,9 @@ export default function OurTeamPage() {
                       <div className="space-y-6">
                         <div className="border-b border-gray-100 pb-4">
                           <h2 className="text-2xl md:text-3xl font-black text-secondary-dark">
-                            {t('team.deliveryPartners', 'Delivery Partners')}
+                            {t('team.vendorPartners', 'Vendor Partners')}
                           </h2>
-                          <p className="text-gray-500 text-sm mt-1">Our certified logistics and distribution network nodes.</p>
+                          <p className="text-gray-500 text-sm mt-1">Our certified vendor and distribution network partners.</p>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                           {vendors.map(renderMemberCard)}
