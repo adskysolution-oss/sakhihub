@@ -34,10 +34,14 @@ export default function SubVendorEmployees() {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [status, setStatus] = useState('all');
+  const [paymentFilter, setPaymentFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [counts, setCounts] = useState({ status: {}, payment: {} });
+  const [counts, setCounts] = useState<any>({ 
+    status: { all: 0, pending: 0, documents_uploaded: 0, reupload_required: 0, active: 0, approved: 0, unassigned: 0, rejected: 0, suspended: 0 }, 
+    payment: { all: 0, paid: 0, unpaid: 0 } 
+  });
   const isFirstMount = useRef(true);
 
   const fetchEmployees = async () => {
@@ -47,6 +51,7 @@ export default function SubVendorEmployees() {
         page: page.toString(),
         limit: limit.toString(),
         status,
+        paymentStatus: paymentFilter,
         dateRange: dateFilter,
       });
       if (search) params.append('search', search);
@@ -75,7 +80,7 @@ export default function SubVendorEmployees() {
       fetchEmployees();
     }, 500);
     return () => clearTimeout(delayDebounce);
-  }, [search, page, status, dateFilter, startDate, endDate]);
+  }, [search, page, status, dateFilter, startDate, endDate, paymentFilter]);
 
   return (
     <DashboardLayout>
@@ -97,7 +102,13 @@ export default function SubVendorEmployees() {
             startDate={startDate} setStartDate={setStartDate}
             endDate={endDate} setEndDate={setEndDate}
           />
-          <StatusFilterTabs status={status} setStatus={setStatus} counts={counts as any} />
+          <StatusFilterTabs 
+            status={status} 
+            setStatus={setStatus} 
+            paymentFilter={paymentFilter} 
+            setPaymentFilter={setPaymentFilter} 
+            counts={counts as any} 
+          />
 
           <div className="overflow-x-auto">
             <table className="w-full border-collapse min-w-[900px]">

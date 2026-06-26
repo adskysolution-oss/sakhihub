@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import DashboardLayout from "@/components/features/dashboard/DashboardLayout";
-import { User, Search, MapPin, Phone, Mail, IndianRupee, ShieldCheck } from "lucide-react";
+import { Search, MapPin, Phone, Mail, IndianRupee, ShieldCheck, ExternalLink } from "lucide-react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { ExternalLink } from "lucide-react";
 import ChildProfileView from "@/components/features/dashboard/ChildProfileView";
+import UnifiedFilterBar from "@/components/shared/filters/UnifiedFilterBar";
+import StatusFilterTabs from "@/components/shared/filters/StatusFilterTabs";
+import PaginationControls from "@/components/shared/filters/PaginationControls";
 import { useLanguage } from "@/context/LanguageContext";
 
 const getStatusBadge = (status: string) => {
@@ -29,13 +31,38 @@ export default function VendorMembers() {
   const [loading, setLoading] = useState(true);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit] = useState(50);
+  const [status, setStatus] = useState('all');
+  const [paymentFilter, setPaymentFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [counts, setCounts] = useState<any>({
+    status: { all: 0, pending: 0, documents_uploaded: 0, reupload_required: 0, active: 0, approved: 0, unassigned: 0, rejected: 0, suspended: 0 },
+    payment: { all: 0, paid: 0, unpaid: 0 }
+  });
   const isFirstMount = useRef(true);
 
   const fetchMembers = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/vendor/members?search=${search}`);
-      if (res.data.success) setMembers(res.data.data);
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        status,
+        paymentStatus: paymentFilter,
+        dateRange: dateFilter,
+      });
+      if (search) params.append('search', search);
+      if (dateFilter === 'custom' && startDate) params.append('startDate', startDate);
+      if (dateFilter === 'custom' && endDate) params.append('endDate', endDate);
+
+      const res = await axios.get(`/api/vendor/members?${params.toString()}`);
+      if (res.data.success) {
+        setMembers(res.data.data);
+        if (res.data.counts) setCounts(res.data.counts);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -44,12 +71,12 @@ export default function VendorMembers() {
   };
 
   useEffect(() => {
+    setPage(1);
+  }, [search, status, dateFilter, paymentFilter, startDate, endDate]);
+
+  useEffect(() => {
     if (isFirstMount.current) {
       isFirstMount.current = false;
-      fetchMembers();
-      return;
-    }
-    if (search === "") {
       fetchMembers();
       return;
     }
@@ -57,7 +84,7 @@ export default function VendorMembers() {
       fetchMembers();
     }, 500);
     return () => clearTimeout(delayDebounce);
-  }, [search]);
+  }, [search, page, status, dateFilter, paymentFilter, startDate, endDate]);
 
   return (
     <DashboardLayout>
@@ -68,18 +95,19 @@ export default function VendorMembers() {
         </header>
 
         <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-soft">
-          <div className="flex gap-4 mb-8">
-            <div className="relative flex-1">
-              <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input 
-                type="text" 
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search members by name or mobile..." 
-                className="w-full pl-14 pr-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-              />
-            </div>
-          </div>
+          <UnifiedFilterBar
+            search={search} setSearch={setSearch} searchPlaceholder="Search members by name, mobile or village..."
+            dateFilter={dateFilter} setDateFilter={setDateFilter}
+            startDate={startDate} setStartDate={setStartDate}
+            endDate={endDate} setEndDate={setEndDate}
+          />
+          <StatusFilterTabs 
+            status={status} 
+            setStatus={setStatus} 
+            paymentFilter={paymentFilter} 
+            setPaymentFilter={setPaymentFilter} 
+            counts={counts} 
+          />
 
           <div className="overflow-x-auto">
             <table className="w-full border-collapse min-w-[900px]">
@@ -95,7 +123,7 @@ export default function VendorMembers() {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">Retrieving member records...</td></tr>
+                  <tr><td colSpan={6} className="p-20 text-center text-gray-400 font-bold italic">Retrieving member records...</td></tr>
                 ) : members.length === 0 ? (
                   <tr><td colSpan={6} className="p-20 text-center text-gray-400 font-bold italic">No members found.</td></tr>
                 ) : (
@@ -128,10 +156,10 @@ export default function VendorMembers() {
                       </td>
                       <td className="p-5">
                         {(() => {
-                          const badge = getStatusBadge(member.accountStatus);
+                          const badge = getStatusBadge(member.accountStatus || 'pending');
                           return (
                             <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${badge.className}`}>
-                              {t('status.' + member.accountStatus, badge.label)}
+                              {t('status.' + (member.accountStatus || 'pending'), badge.label)}
                             </span>
                           );
                         })()}
@@ -150,6 +178,15 @@ export default function VendorMembers() {
                 )}
               </tbody>
             </table>
+          </div>
+
+          <div className="mt-8">
+            <PaginationControls
+              page={page}
+              setPage={setPage}
+              totalCount={counts.status[status] || 0}
+              limit={limit}
+            />
           </div>
         </div>
 
