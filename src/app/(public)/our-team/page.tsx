@@ -468,6 +468,64 @@ export default function OurTeamPage() {
   const spotlightMessage = spotlightUser ? (spotlightUser.message || '') : ORGANIZATION_PROFILE.founderMessage;
   const spotlightBio = spotlightUser ? (spotlightUser.bio || '') : ORGANIZATION_PROFILE.founderBio;
   
+  // Card renderer helper
+  const renderMemberCard = (m: TeamMember) => {
+    const style = roleConfig[m.role] || { 
+      label: m.role.replace(/_/g, ' '), 
+      bg: 'bg-violet-500', 
+      text: 'text-violet-600', 
+      border: 'border-violet-300', 
+      accentBg: 'bg-violet-50' 
+    };
+    return (
+      <motion.div
+        key={m.userId}
+        whileHover={{ y: -6 }}
+        className={`bg-white rounded-[24px] border ${style.border} p-6 shadow-soft hover:shadow-medium cursor-pointer transition-all flex flex-col justify-between`}
+        onClick={() => setActiveDrawerUser(m)}
+      >
+        <div className="space-y-4">
+          {/* Photo and Badge */}
+          <div className="flex justify-between items-start">
+            <div className="w-16 h-16 rounded-[20px] overflow-hidden bg-gray-50 border border-gray-100 flex items-center justify-center">
+              {m.photo ? (
+                <img src={m.photo} alt={m.name} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-2xl font-black text-secondary">{m.name[0]}</span>
+              )}
+            </div>
+            <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${style.accentBg} ${style.text}`}>
+              {style.label}
+            </span>
+          </div>
+
+          {/* Info */}
+          <div>
+            <h3 className="font-bold text-lg text-gray-800 line-clamp-1 flex items-center gap-1">
+              {m.name}
+              {m.role === 'founder' && <span className="text-amber-500">👑</span>}
+            </h3>
+            <p className="text-xs font-mono text-gray-400 mt-0.5">{m.employeeId}</p>
+          </div>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-xs text-gray-500 font-medium">
+          <span className="flex items-center gap-1">
+            <MapPin size={12} className="text-primary" /> {m.district || m.state}
+          </span>
+          <span className="text-[10px] text-gray-400">
+            Joined {new Date(m.joiningDate).getFullYear()}
+          </span>
+        </div>
+      </motion.div>
+    );
+  };
+
+  // Group members dynamically
+  const vendors = members.filter(m => m.role === 'vendor');
+  const subVendors = members.filter(m => m.role === 'sub_vendor');
+  const others = members.filter(m => m.role !== 'vendor' && m.role !== 'sub_vendor');
+  
 
 
   return (
@@ -833,73 +891,51 @@ export default function OurTeamPage() {
                 </div>
               ) : members.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {members.map(m => {
-                      const style = roleConfig[m.role] || { 
-                        label: m.role.replace(/_/g, ' '), 
-                        bg: 'bg-violet-500', 
-                        text: 'text-violet-600', 
-                        border: 'border-violet-300', 
-                        accentBg: 'bg-violet-50' 
-                      };
-                      return (
-                        <motion.div
-                          key={m.userId}
-                          whileHover={{ y: -6 }}
-                          className={`bg-white rounded-[24px] border ${style.border} p-6 shadow-soft hover:shadow-medium cursor-pointer transition-all flex flex-col justify-between`}
-                          onClick={() => setActiveDrawerUser(m)}
-                        >
-                          <div className="space-y-4">
-                            {/* Photo and Badge */}
-                            <div className="flex justify-between items-start">
-                              <div className="w-16 h-16 rounded-[20px] overflow-hidden bg-gray-50 border border-gray-100 flex items-center justify-center">
-                                {m.photo ? (
-                                  <img src={m.photo} alt={m.name} className="w-full h-full object-cover" />
-                                ) : (
-                                  <span className="text-2xl font-black text-secondary">{m.name[0]}</span>
-                                )}
-                              </div>
-                              <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${style.accentBg} ${style.text}`}>
-                                {style.label}
-                              </span>
-                            </div>
+                  <div className="space-y-12">
+                    {/* Delivery Partners Section */}
+                    {vendors.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="border-b border-gray-100 pb-4">
+                          <h2 className="text-2xl md:text-3xl font-black text-secondary-dark">
+                            {t('team.deliveryPartners', 'Delivery Partners')}
+                          </h2>
+                          <p className="text-gray-500 text-sm mt-1">Our certified logistics and distribution network nodes.</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                          {vendors.map(renderMemberCard)}
+                        </div>
+                      </div>
+                    )}
 
-                            {/* Info */}
-                            <div>
-                              <h3 className="font-bold text-lg text-gray-800 line-clamp-1 flex items-center gap-1">
-                                {m.name}
-                                {m.role === 'founder' && <span className="text-amber-500">👑</span>}
-                              </h3>
-                              <p className="text-xs font-mono text-gray-400 mt-0.5">{m.employeeId}</p>
-                            </div>
+                    {/* Sub-Vendor Partners Section */}
+                    {subVendors.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="border-b border-gray-100 pb-4">
+                          <h2 className="text-2xl md:text-3xl font-black text-secondary-dark">
+                            {t('team.subVendorPartners', 'Sub-Vendor Partners')}
+                          </h2>
+                          <p className="text-gray-500 text-sm mt-1">Local hubs and secondary sub-distribution partners.</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                          {subVendors.map(renderMemberCard)}
+                        </div>
+                      </div>
+                    )}
 
-                            {/* Parent Info */}
-                            <div className="bg-gray-50/70 p-3 rounded-xl border border-gray-100 text-xs text-gray-600 space-y-1">
-                              <div>
-                                <span className="text-gray-400 font-bold">Reports To:</span>{' '}
-                                <span className="font-bold text-gray-700">
-                                  {m.parent ? m.parent.name : '—'}
-                                </span>
-                              </div>
-                              {m.parent && (
-                                <div className="text-[10px] text-gray-400 font-mono">
-                                  ID: {m.parent.id}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-xs text-gray-500 font-medium">
-                            <span className="flex items-center gap-1">
-                              <MapPin size={12} className="text-primary" /> {m.district || m.state}
-                            </span>
-                            <span className="text-[10px] text-gray-400">
-                              Joined {new Date(m.joiningDate).getFullYear()}
-                            </span>
-                          </div>
-                        </motion.div>
-                      );
-                    })}
+                    {/* Other Team Members Section */}
+                    {others.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="border-b border-gray-100 pb-4">
+                          <h2 className="text-2xl md:text-3xl font-black text-secondary-dark">
+                            {t('team.otherMembers', 'Other Team Members')}
+                          </h2>
+                          <p className="text-gray-500 text-sm mt-1">Office staff, field associates, and project coordinators.</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                          {others.map(renderMemberCard)}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Load More Pagination */}
