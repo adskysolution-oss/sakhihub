@@ -31,6 +31,11 @@ try {
 
   connection = new IORedis(redisOptions);
 
+  // Attach error listener to avoid unhandled exceptions
+  connection.on('error', (err) => {
+    // Silently consume to prevent unhandled rejection/exception crash logs
+  });
+
   // Test connection
   connection.connect()
     .then(() => {
@@ -69,6 +74,10 @@ function initializeQueue() {
     }
   });
 
+  emailQueue.on('error', (err) => {
+    // Silently consume to prevent unhandled connection refuse crash logs
+  });
+
   // Define Worker
   queueWorker = new Worker(
     'email-campaign-queue',
@@ -89,6 +98,10 @@ function initializeQueue() {
 
   queueWorker.on('failed', (job, err) => {
     console.error(`[QUEUE-WORKER] Job ${job?.id} failed:`, err.message);
+  });
+
+  queueWorker.on('error', (err) => {
+    // Silently consume to prevent unhandled connection refuse crash logs
   });
 }
 
