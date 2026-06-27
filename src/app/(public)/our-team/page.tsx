@@ -3,10 +3,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Users, MapPin, Search, SlidersHorizontal, LayoutGrid, 
-  Network, HelpCircle, ChevronRight, X, Loader2, ArrowRight, 
-  Calendar, Award, Maximize2, Minimize2, ZoomIn, ZoomOut, 
+import {
+  Users, MapPin, Search, SlidersHorizontal, LayoutGrid,
+  Network, HelpCircle, ChevronRight, X, Loader2, ArrowRight,
+  Calendar, Award, Maximize2, Minimize2, ZoomIn, ZoomOut,
   RefreshCw, Briefcase, ChevronDown, CheckCircle
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
@@ -60,7 +60,7 @@ const AnimatedCounter = ({ value, duration = 1.5 }: { value: number; duration?: 
 
     const totalMiliseconds = duration * 1000;
     const incrementTime = Math.max(Math.floor(totalMiliseconds / end), 15);
-    
+
     const timer = setInterval(() => {
       start += Math.ceil(end / (totalMiliseconds / incrementTime));
       if (start >= end) {
@@ -82,7 +82,7 @@ export default function OurTeamPage() {
 
   // View States
   const [viewMode, setViewMode] = useState<'grid' | 'hierarchy' | 'chain'>('grid');
-  
+
   // API Data States
   const [stats, setStats] = useState<Stats>({
     totalTeamMembers: 0,
@@ -96,10 +96,10 @@ export default function OurTeamPage() {
     employees: 0,
     founders: 0
   });
-  
+
   const [states, setStates] = useState<string[]>([]);
   const [districts, setDistricts] = useState<string[]>([]);
-  
+
   // Grid Members State
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [coreMembers, setCoreMembers] = useState<TeamMember[]>([]);
@@ -186,8 +186,8 @@ export default function OurTeamPage() {
           setMembers(res.data.data.users);
           if (res.data.data.coreMembers) {
             setCoreMembers(res.data.data.coreMembers);
-            const foundFounder = res.data.data.coreMembers.find((u: any) => u.priority === 1) || 
-                                 res.data.data.coreMembers.find((u: any) => u.role === 'founder');
+            const foundFounder = res.data.data.coreMembers.find((u: any) => u.priority === 1) ||
+              res.data.data.coreMembers.find((u: any) => u.role === 'founder');
             setFounderProfile(foundFounder || null);
           }
         }
@@ -215,7 +215,7 @@ export default function OurTeamPage() {
       const res = await axios.get('/api/public/team/hierarchy');
       if (res.data.success) {
         setTreeData(res.data.data);
-        
+
         // Auto expand top 2 levels
         const roots = new Set<string>(['founder_root']);
         if (res.data.data.children) {
@@ -241,11 +241,11 @@ export default function OurTeamPage() {
   // Handle building Reporting Chain
   const selectChainMember = (member: TeamMember) => {
     setSelectedChainNode(member);
-    
+
     // Construct chain path recursively from list
     const chain = [];
     let current: any = member;
-    
+
     while (current) {
       chain.unshift(current);
       if (current.parent) {
@@ -285,7 +285,7 @@ export default function OurTeamPage() {
         current = null;
       }
     }
-    
+
     // Ensure Founder is ALWAYS at the root if we got a vendor or staff reporting to none
     if (chain.length > 0 && chain[0].role !== 'founder') {
       chain.unshift({
@@ -399,7 +399,7 @@ export default function OurTeamPage() {
 
     return (
       <li key={node.userId}>
-        <div 
+        <div
           onClick={() => {
             setActiveDrawerUser(node);
           }}
@@ -463,19 +463,19 @@ export default function OurTeamPage() {
   const spotlightName = spotlightUser ? spotlightUser.name : ORGANIZATION_PROFILE.founderName;
   const spotlightDesignation = spotlightUser ? (spotlightUser.designation || '') : ORGANIZATION_PROFILE.founderDesignation;
   const spotlightPhoto = spotlightUser ? (spotlightUser.photo || '') : ORGANIZATION_PROFILE.founderPhoto;
-  
+
   // Clean fallbacks: no sub-field fallback to ORGANIZATION_PROFILE if a database record is found.
   const spotlightMessage = spotlightUser ? (spotlightUser.message || '') : ORGANIZATION_PROFILE.founderMessage;
   const spotlightBio = spotlightUser ? (spotlightUser.bio || '') : ORGANIZATION_PROFILE.founderBio;
-  
+
   // Card renderer helper
   const renderMemberCard = (m: TeamMember) => {
-    const style = roleConfig[m.role] || { 
-      label: m.role.replace(/_/g, ' '), 
-      bg: 'bg-violet-500', 
-      text: 'text-violet-600', 
-      border: 'border-violet-300', 
-      accentBg: 'bg-violet-50' 
+    const style = roleConfig[m.role] || {
+      label: m.role.replace(/_/g, ' '),
+      bg: 'bg-violet-500',
+      text: 'text-violet-600',
+      border: 'border-violet-300',
+      accentBg: 'bg-violet-50'
     };
     return (
       <motion.div
@@ -525,7 +525,7 @@ export default function OurTeamPage() {
   const vendors = members.filter(m => m.role === 'vendor');
   const subVendors = members.filter(m => m.role === 'sub_vendor');
   const others = members.filter(m => m.role !== 'vendor' && m.role !== 'sub_vendor');
-  
+
 
 
   return (
@@ -533,7 +533,7 @@ export default function OurTeamPage() {
       {/* Background Blobs */}
       <div className="shape-blob bg-primary w-[300px] h-[300px] top-10 left-[-100px] opacity-10"></div>
       <div className="shape-blob bg-secondary w-[400px] h-[400px] top-[20%] right-[-150px] opacity-10"></div>
-      
+
       {/* 1. Hero Banner Section */}
       <section className="relative overflow-hidden pt-12 pb-16 bg-gradient-to-br from-secondary-dark via-secondary to-primary text-white">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.08)_0%,transparent_80%)]"></div>
@@ -588,10 +588,10 @@ export default function OurTeamPage() {
               <div className="relative shrink-0">
                 <div className="w-40 h-40 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-white shadow-medium bg-white flex items-center justify-center relative">
                   {spotlightPhoto ? (
-                    <img 
-                      src={spotlightPhoto} 
-                      alt={spotlightName} 
-                      className="w-full h-full object-cover" 
+                    <img
+                      src={spotlightPhoto}
+                      alt={spotlightName}
+                      className="w-full h-full object-cover"
                       onError={(e) => {
                         e.currentTarget.src = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400';
                       }}
@@ -601,9 +601,6 @@ export default function OurTeamPage() {
                       {spotlightName ? spotlightName.charAt(0).toUpperCase() : '?'}
                     </div>
                   )}
-                </div>
-                <div className="absolute top-2 right-2 w-10 h-10 rounded-full bg-amber-500 border-2 border-white flex items-center justify-center shadow-md animate-bounce">
-                  <span className="text-white text-base">👑</span>
                 </div>
               </div>
 
@@ -615,9 +612,9 @@ export default function OurTeamPage() {
                 {spotlightDesignation && (
                   <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest">{spotlightDesignation}</h3>
                 )}
-                
+
                 <div className="h-px bg-gray-200/60 my-2"></div>
-                
+
                 {spotlightMessage && (
                   <p className="text-secondary italic font-medium text-lg leading-relaxed max-w-xl">
                     &ldquo;{spotlightMessage}&rdquo;
@@ -628,7 +625,7 @@ export default function OurTeamPage() {
                     {spotlightBio}
                   </p>
                 )}
-                
+
 
               </div>
             </div>
@@ -643,7 +640,7 @@ export default function OurTeamPage() {
             <span>Core Statistics</span>
             <h2 className="text-secondary-dark">Operational Strength Breakdown</h2>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
             <div className="bg-white border border-gray-100 p-6 rounded-3xl text-center shadow-soft hover:shadow-medium hover:-translate-y-1 transition-all group">
               <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
@@ -652,7 +649,7 @@ export default function OurTeamPage() {
               <p className="text-2xl font-black text-gray-800">{stats.founders}</p>
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1">Founder</p>
             </div>
-            
+
             <div className="bg-white border border-gray-100 p-6 rounded-3xl text-center shadow-soft hover:shadow-medium hover:-translate-y-1 transition-all group">
               <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <Briefcase size={20} />
@@ -694,12 +691,12 @@ export default function OurTeamPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {coreMembers.filter((m: any) => m.userId !== spotlightUser?.userId && m.photo && m.photo.trim() !== '').map(m => {
-                const style = roleConfig[m.role] || { 
-                  label: m.role.replace(/_/g, ' '), 
-                  bg: 'bg-violet-500', 
-                  text: 'text-violet-600', 
-                  border: 'border-violet-300', 
-                  accentBg: 'bg-violet-50' 
+                const style = roleConfig[m.role] || {
+                  label: m.role.replace(/_/g, ' '),
+                  bg: 'bg-violet-500',
+                  text: 'text-violet-600',
+                  border: 'border-violet-300',
+                  accentBg: 'bg-violet-50'
                 };
                 return (
                   <motion.div
@@ -762,7 +759,7 @@ export default function OurTeamPage() {
       {/* 4. Controls, Filters and Views */}
       <section className="section-padding !py-12 bg-white relative">
         <div className="container px-4">
-          
+
           {/* View Toggles & Header */}
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 border-b border-gray-100 pb-8">
             <div>
@@ -880,7 +877,7 @@ export default function OurTeamPage() {
           )}
 
           {/* Render Contents Based on View Mode */}
-          
+
           {/* GRID VIEW */}
           {viewMode === 'grid' && (
             <div className="mt-12 space-y-12">
@@ -897,7 +894,7 @@ export default function OurTeamPage() {
                       <div className="space-y-6">
                         <div className="border-b border-gray-100 pb-4">
                           <h2 className="text-2xl md:text-3xl font-black text-secondary-dark">
-                            {t('team.vendorPartners', 'Vendor Partners')}
+                            {t('team.stateVendorPartners', 'State Vendor Partners')}
                           </h2>
                           <p className="text-gray-500 text-sm mt-1">Our certified vendor and distribution network partners.</p>
                         </div>
@@ -912,7 +909,7 @@ export default function OurTeamPage() {
                       <div className="space-y-6">
                         <div className="border-b border-gray-100 pb-4">
                           <h2 className="text-2xl md:text-3xl font-black text-secondary-dark">
-                            {t('team.subVendorPartners', 'Sub-Vendor Partners')}
+                            {t('team.stateSubVendorPartners', 'State Sub-Vendor Partners')}
                           </h2>
                           <p className="text-gray-500 text-sm mt-1">Local hubs and secondary sub-distribution partners.</p>
                         </div>
@@ -976,7 +973,7 @@ export default function OurTeamPage() {
                   <p className="text-gray-500 font-bold text-sm">Building organizational hierarchy tree...</p>
                 </div>
               ) : treeData ? (
-                <div 
+                <div
                   ref={treeContainerRef}
                   className={`relative overflow-hidden rounded-[36px] bg-slate-50 border border-gray-200/80 shadow-medium ${isFullscreen ? 'w-screen h-screen fixed inset-0 z-[9999]' : 'h-[600px] w-full'}`}
                 >
@@ -1023,21 +1020,22 @@ export default function OurTeamPage() {
                   </div>
 
                   {/* Drag Viewport */}
-                  <div 
+                  <div
                     className="w-full h-full cursor-grab active:cursor-grabbing select-none overflow-hidden flex items-center justify-center"
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
                     onMouseLeave={handleMouseUp}
                   >
-                    <div 
+                    <div
                       className="org-tree-container origin-center"
                       style={{
                         transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
                         transition: isDragging ? 'none' : 'transform 0.15s cubic-bezier(0.1, 0.8, 0.25, 1)'
                       }}
                     >
-                      <style dangerouslySetInnerHTML={{ __html: `
+                      <style dangerouslySetInnerHTML={{
+                        __html: `
                         .org-tree-container ul {
                           padding-top: 30px;
                           position: relative;
@@ -1160,7 +1158,7 @@ export default function OurTeamPage() {
                             {index + 1}
                           </div>
 
-                          <div 
+                          <div
                             onClick={() => setActiveDrawerUser(node)}
                             className="bg-gray-50/70 border border-gray-100 rounded-3xl p-6 hover:bg-white hover:shadow-medium hover:border-primary/20 transition-all flex flex-col md:flex-row justify-between items-start md:items-center gap-6 cursor-pointer"
                           >

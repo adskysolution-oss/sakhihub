@@ -202,6 +202,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
       }
       if (userPermissions.includes('support.view')) {
         items.push({ section: 'Operations', name: 'Support Queries', icon: findIcon('Support Queries'), href: '/portal/support-requests' });
+        items.push({ section: 'Operations', name: 'Support Desk', icon: findIcon('Support Desk'), href: '/portal/support-desk' });
       }
       if (userPermissions.includes('forms.view')) {
         items.push({ section: 'System & Finance', name: 'Dynamic Forms', icon: findIcon('Dynamic Forms'), href: '/portal/forms' });
@@ -227,14 +228,31 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
         '/admin/communication',
         '/admin/staff'
       ];
-      const linkPermissionMap: Record<string, string> = {
+       const linkPermissionMap: Record<string, string> = {
         '/admin/network': 'network.view',
         '/admin/reports': 'reports.view',
         '/admin/vendors': 'vendors.view',
         '/admin/sub-vendors': 'sub_vendors.view',
         '/admin/employees': 'employees.view',
+        '/admin/district-coordinators': 'employees.view',
+        '/admin/groups': 'groups.view',
         '/admin/members': 'members.view',
+        '/admin/abha': 'abha.view',
+        '/admin/hrms/dashboard': 'hrms.view',
+        '/admin/hrms/employees': 'hrms.view',
+        '/admin/hrms/attendance': 'hrms.view',
+        '/admin/hrms/reports': 'hrms.view',
+        '/admin/hrms/leaves': 'hrms.view',
+        '/admin/careers/vacancies': 'careers.view',
+        '/admin/careers/applications': 'careers.view',
         '/admin/memberships': 'payments.view',
+        '/admin/campaigns': 'campaigns.view',
+        '/admin/projects': 'projects.view',
+        '/admin/products': 'products.view',
+        '/admin/support-desk': 'support.view',
+        '/admin/support-requests': 'support.view',
+        '/admin/offline-payments': 'payments.view',
+        '/admin/team-manage': 'employees.view',
       };
       const userPermissions = Array.isArray(user.permissions) ? user.permissions : [];
       const hasAnyUserView = userPermissions.includes('vendors.view') ||

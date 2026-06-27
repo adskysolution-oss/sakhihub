@@ -46,7 +46,21 @@ export const DEFAULT_PERMISSIONS = [
   { key: 'forms.view', name: 'View Dynamic Forms', module: 'Dynamic Forms' },
   { key: 'forms.manage', name: 'Manage Dynamic Forms', module: 'Dynamic Forms' },
   { key: 'forms.analytics', name: 'View Dynamic Forms Analytics', module: 'Dynamic Forms' },
-  { key: 'forms.export', name: 'Export Dynamic Forms Submissions', module: 'Dynamic Forms' }
+  { key: 'forms.export', name: 'Export Dynamic Forms Submissions', module: 'Dynamic Forms' },
+
+  { key: 'groups.view', name: 'View Groups', module: 'Groups' },
+  { key: 'abha.view', name: 'View ABHA', module: 'ABHA' },
+  { key: 'hrms.view', name: 'View HRMS Dashboard and Logs', module: 'HRMS' },
+  { key: 'careers.view', name: 'View Careers and Applications', module: 'Recruitment' },
+  { key: 'campaigns.view', name: 'View Campaigns', module: 'Campaigns' },
+  { key: 'projects.view', name: 'View Projects', module: 'Projects' },
+  { key: 'products.view', name: 'View Products', module: 'Products' },
+
+  { key: 'support.view', name: 'View Support Desk', module: 'Support' },
+  { key: 'support.search_user', name: 'Search Support Users', module: 'Support' },
+  { key: 'support.create_case', name: 'Create Support Cases', module: 'Support' },
+  { key: 'support.update_case', name: 'Update Support Cases (Admins)', module: 'Support' },
+  { key: 'support.view_case', name: 'View Support Cases', module: 'Support' }
 ];
 
 export async function GET(req: NextRequest) {

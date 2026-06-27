@@ -72,6 +72,7 @@ export const ADMIN_DASHBOARD_LINKS = [
   { section: 'Operations', name: 'Campaigns', icon: Target, href: '/admin/campaigns' },
   { section: 'Operations', name: 'Manage Projects', icon: Sparkles, href: '/admin/projects' },
   { section: 'Operations', name: 'Manage Products', icon: ShoppingBag, href: '/admin/products' },
+  { section: 'Operations', name: 'Support Desk', icon: ClipboardList, href: '/admin/support-desk' },
   { section: 'Operations', name: 'Support Queries', icon: Mail, href: '/admin/support-requests' },
 
   // SYSTEM & FINANCE

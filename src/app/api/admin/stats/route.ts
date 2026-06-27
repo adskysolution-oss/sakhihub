@@ -27,8 +27,8 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
 
-    // Check permissions from database for operations_admin and staff
-    if (userRole !== 'super_admin') {
+    // Check permissions from database for staff (super_admin and operations_admin are exempt)
+    if (userRole !== 'super_admin' && userRole !== 'operations_admin') {
       const dbUser = await User.findById((session as any).id).lean() as any;
       if (!dbUser) {
         return errorResponse('User not found', 404);

@@ -1,29 +1,35 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import SupportRequest from '@/models/SupportRequest';
-import { jwtVerify } from 'jose';
+import { getAuthSession } from '@/lib/auth';
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'sakhi-hub-secret-key-2026'
-);
+async function isAuthorizedForSupport(session: any, action: 'view' | 'update') {
+  if (!session) return false;
+  
+  const role = session.role;
+  if (role === 'super_admin' || role === 'admin') {
+    return true;
+  }
 
-async function checkAdmin(req: Request) {
-  const token = req.headers.get('cookie')?.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-  if (!token) return false;
-  try {
-    const { payload }: any = await jwtVerify(token, JWT_SECRET);
-    return payload.role === 'super_admin' || payload.role === 'admin';
-  } catch {
-    return false;
+  const userId = session.id || session.userId;
+  const { hasPermission } = await import('@/utils/authHelpers');
+  
+  if (action === 'view') {
+    return await hasPermission(userId, role, 'support.view') || 
+           await hasPermission(userId, role, 'support.view_case');
+  } else {
+    return await hasPermission(userId, role, 'support.update_case') || 
+           await hasPermission(userId, role, 'support.view');
   }
 }
 
-export async function GET(req: Request) {
-  if (!await checkAdmin(req)) {
-    return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
-  }
-
+export async function GET(req: NextRequest) {
   try {
+    const session = await getAuthSession();
+    if (!await isAuthorizedForSupport(session, 'view')) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
+
     await dbConnect();
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
@@ -42,16 +48,18 @@ export async function GET(req: Request) {
     const requests = await SupportRequest.find(query).sort({ createdAt: -1 });
     return NextResponse.json({ success: true, data: requests });
   } catch (error: any) {
+    console.error('GET Support Requests Error:', error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
 
-export async function PATCH(req: Request) {
-  if (!await checkAdmin(req)) {
-    return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
-  }
-
+export async function PATCH(req: NextRequest) {
   try {
+    const session = await getAuthSession();
+    if (!await isAuthorizedForSupport(session, 'update')) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
+
     await dbConnect();
     const { id, status, adminNotes } = await req.json();
     const updateData: any = {};
@@ -61,16 +69,18 @@ export async function PATCH(req: Request) {
     const request = await SupportRequest.findByIdAndUpdate(id, updateData, { new: true });
     return NextResponse.json({ success: true, data: request });
   } catch (error: any) {
+    console.error('PATCH Support Requests Error:', error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
 
-export async function DELETE(req: Request) {
-  if (!await checkAdmin(req)) {
-    return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
-  }
-
+export async function DELETE(req: NextRequest) {
   try {
+    const session = await getAuthSession();
+    if (!await isAuthorizedForSupport(session, 'update')) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
+
     await dbConnect();
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
@@ -79,6 +89,7 @@ export async function DELETE(req: Request) {
     await SupportRequest.findByIdAndDelete(id);
     return NextResponse.json({ success: true, message: 'Request deleted' });
   } catch (error: any) {
+    console.error('DELETE Support Requests Error:', error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }

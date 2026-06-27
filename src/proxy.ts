@@ -235,7 +235,7 @@ export async function proxy(request: NextRequest) {
       if (payload.role === 'staff') {
         if (isPortalPage) {
           const isApprovedOrActive = ['approved', 'active'].includes(payload.status);
-          
+
           if (payload.status === 'under_review') {
             if (pathname !== '/pending-approval') {
               return NextResponse.redirect(new URL('/pending-approval', request.url));
@@ -269,6 +269,7 @@ export async function proxy(request: NextRequest) {
               '/portal/memberships': 'payments.view',
               '/portal/offline-payments': 'payments.view',
               '/portal/support-requests': 'support.view',
+              '/portal/support-desk': 'support.view',
               '/portal/abha': 'abha.view',
             };
 
@@ -362,10 +363,11 @@ export async function proxy(request: NextRequest) {
             '/admin/employees': 'employees.view',
             '/admin/members': 'members.view',
             '/admin/memberships': 'payments.view',
+            '/admin/support-desk': 'support.view',
           };
 
           const userPermissions = Array.isArray(payload.permissions) ? payload.permissions : [];
-          
+
           if (pathname.startsWith('/admin/users')) {
             const hasAnyUserView = userPermissions.includes('vendors.view') ||
               userPermissions.includes('sub_vendors.view') ||
