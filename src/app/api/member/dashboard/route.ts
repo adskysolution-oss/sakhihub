@@ -25,6 +25,11 @@ export async function GET(req: NextRequest) {
       return errorResponse('User not found', 404);
     }
 
+    if (user.role === 'member' && user.subscriptionPaid === true && user.membershipType === 'free') {
+      user.membershipType = 'paid';
+      await user.save();
+    }
+
     // Find the linked field record using userId
     const fieldRecord = await WomenMember.findOne({ userId: user._id })
       .populate('groupId', 'groupName village district block')

@@ -97,7 +97,12 @@ export async function POST(req: NextRequest) {
       // Update user flags
       const user = await User.findById(transaction.userId);
       if (user) {
-        if (transaction.type === 'subscription') user.subscriptionPaid = true;
+        if (transaction.type === 'subscription') {
+          user.subscriptionPaid = true;
+          if (user.role === 'member') {
+            user.membershipType = 'paid';
+          }
+        }
         if (transaction.type === 'deposit') user.depositPaid = true;
         await user.save();
 

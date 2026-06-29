@@ -97,7 +97,12 @@ export async function POST(req: NextRequest) {
       if (user) {
         let completed = false;
 
-        if (transaction.type === 'subscription') user.subscriptionPaid = true;
+        if (transaction.type === 'subscription') {
+          user.subscriptionPaid = true;
+          if (user.role === 'member') {
+            user.membershipType = 'paid';
+          }
+        }
         if (transaction.type === 'deposit') user.depositPaid = true;
         await user.save();
 
@@ -164,6 +169,9 @@ export async function POST(req: NextRequest) {
             documentsVerified: updatedUser.documentsVerified,
             dashboardAccess: updatedUser.dashboardAccess,
             paymentCompleted: updatedUser.paymentCompleted,
+            membershipType: updatedUser.membershipType,
+            subscriptionPaid: updatedUser.subscriptionPaid,
+            accessStatus: updatedUser.accessStatus,
           });
           await setAuthCookie(newToken);
         }

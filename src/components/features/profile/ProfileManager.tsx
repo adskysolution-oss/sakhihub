@@ -415,7 +415,7 @@ export default function ProfileManager() {
                 <div className="space-y-1">
                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Joining Date</p>
                   <div className="flex items-center gap-2 font-black text-secondary">
-                    <Calendar size={16} className="text-primary" /> {user?.joiningDate ? new Date(user.joiningDate).toLocaleDateString() : 'N/A'}
+                    <Calendar size={16} className="text-primary" /> {user?.joiningDate || user?.createdAt ? new Date(user.joiningDate || user.createdAt).toLocaleDateString() : 'N/A'}
                   </div>
                 </div>
                 <div className="space-y-1">
@@ -427,7 +427,7 @@ export default function ProfileManager() {
                 <div className="space-y-1">
                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">User ID</p>
                   <div className="flex items-center gap-2 font-black text-secondary uppercase">
-                    <ShieldCheck size={16} className="text-primary" /> {user?.employeeId || user?.subVendorCode || user?.vendorCode || 'N/A'}
+                    <ShieldCheck size={16} className="text-primary" /> {user?.employeeId || user?.subVendorCode || user?.vendorCode || user?.membershipId || 'N/A'}
                   </div>
                 </div>
                 <div className="space-y-1">

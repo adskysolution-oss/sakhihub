@@ -28,6 +28,11 @@ export async function GET() {
       return errorResponse('User not found', 404);
     }
 
+    if (user.role === 'member' && user.subscriptionPaid === true && user.membershipType === 'free') {
+      user.membershipType = 'paid';
+      await user.save();
+    }
+
     // Evaluate and transition user activation status centrally
     const { evaluateUserActivation } = await import('@/services/activationService');
     user = await evaluateUserActivation(user._id.toString());
@@ -82,6 +87,9 @@ export async function GET() {
     const hasAssignmentChanged = user.assignmentStatus !== sessionUser.assignmentStatus;
     const hasDocsVerifiedChanged = user.documentsVerified !== sessionUser.documentsVerified;
     const hasPaymentChanged = user.paymentCompleted !== sessionUser.paymentCompleted;
+    const hasSubscriptionPaidChanged = user.subscriptionPaid !== sessionUser.subscriptionPaid;
+    const hasAccessStatusChanged = user.accessStatus !== sessionUser.accessStatus;
+    const hasMembershipTypeChanged = user.membershipType !== sessionUser.membershipType;
     const hasPermissionsChanged = JSON.stringify(user.permissions || []) !== JSON.stringify(sessionUser.permissions || []);
     const hasAssignmentsChanged = user.assignedScope !== sessionUser.assignedScope || 
                                   JSON.stringify(user.assignedStates || []) !== JSON.stringify(sessionUser.assignedStates || []) ||
@@ -107,7 +115,7 @@ export async function GET() {
     // Set Cache-Control header to prevent any browser or Next.js router caching
     response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
 
-    if (hasStatusChanged || hasAccessChanged || hasAssignmentChanged || hasDocsVerifiedChanged || hasPaymentChanged || hasPermissionsChanged || hasAssignmentsChanged) {
+    if (hasStatusChanged || hasAccessChanged || hasAssignmentChanged || hasDocsVerifiedChanged || hasPaymentChanged || hasSubscriptionPaidChanged || hasAccessStatusChanged || hasMembershipTypeChanged || hasPermissionsChanged || hasAssignmentsChanged) {
       // Strip JWT metadata (iat, exp) from existing session to avoid conflict with signToken's expiresIn
       const { iat, exp, ...cleanPayload } = sessionUser;
       
@@ -122,6 +130,9 @@ export async function GET() {
         vendorCode: user.vendorCode,
         subVendorCode: user.subVendorCode,
         paymentCompleted: user.paymentCompleted,
+        subscriptionPaid: user.subscriptionPaid,
+        accessStatus: user.accessStatus,
+        membershipType: user.membershipType,
         permissions: user.permissions || [],
         assignedScope: user.assignedScope || 'all',
         assignedStates: user.assignedStates || [],

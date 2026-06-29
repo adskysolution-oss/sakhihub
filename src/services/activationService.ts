@@ -41,8 +41,16 @@ export async function evaluateUserActivation(userId: string) {
     // Staff, admin, etc., do not require payment configuration
     paymentCompleted = true;
   } else if (user.role === 'member') {
-    // Members only pay a subscription
-    paymentCompleted = user.subscriptionPaid;
+    // Members only pay a subscription if required globally and not on free tier
+    const CommissionConfig = (await import('@/models/CommissionConfig')).default;
+    const commConfig = await CommissionConfig.findOne({ key: 'default' });
+    const isPaymentRequired = commConfig ? (commConfig.membershipPaymentEnabled !== false) : true;
+
+    if (!isPaymentRequired || user.membershipType === 'free') {
+      paymentCompleted = true;
+    } else {
+      paymentCompleted = user.subscriptionPaid;
+    }
   } else {
     const config = await PaymentConfig.findOne({ key: 'default' });
     if (!config) {

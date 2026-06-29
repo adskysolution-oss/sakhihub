@@ -118,7 +118,12 @@ export async function PATCH(req: NextRequest) {
     }
 
     // Mark the payment on the user
-    if (type === 'subscription') user.subscriptionPaid = true;
+    if (type === 'subscription') {
+      user.subscriptionPaid = true;
+      if (user.role === 'member') {
+        user.membershipType = 'paid';
+      }
+    }
     if (type === 'deposit') user.depositPaid = true;
     await user.save();
 

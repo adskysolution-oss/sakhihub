@@ -17,17 +17,35 @@ export async function GET(request: NextRequest) {
 
     await dbConnect();
 
-    // Build the query
-    const searchQuery: any[] = [
-      { mobile: id },
-      { vendorCode: id },
-      { subVendorCode: id },
-      { employeeId: id }
-    ];
+    let searchUserId: any = null;
 
-    // If the provided ID is a valid MongoDB ObjectId, we can search by _id as well
-    if (mongoose.Types.ObjectId.isValid(id)) {
-      searchQuery.push({ _id: id });
+    // Check if the id passed is a membershipId (starts with 'SH-' case insensitive)
+    if (id.toUpperCase().startsWith('SH-')) {
+      const Membership = (await import('@/models/Membership')).default;
+      const membership = await Membership.findOne({ membershipId: id.toUpperCase() }).lean();
+      if (membership && membership.memberId) {
+        const WomenMember = (await import('@/models/WomenMember')).default;
+        const member = await WomenMember.findById(membership.memberId).lean();
+        if (member && member.userId) {
+          searchUserId = member.userId;
+        }
+      }
+    }
+
+    // Build the query
+    const searchQuery: any[] = [];
+    if (searchUserId) {
+      searchQuery.push({ _id: searchUserId });
+    } else {
+      searchQuery.push(
+        { mobile: id },
+        { vendorCode: id },
+        { subVendorCode: id },
+        { employeeId: id }
+      );
+      if (mongoose.Types.ObjectId.isValid(id)) {
+        searchQuery.push({ _id: id });
+      }
     }
 
     // Find the user
@@ -105,6 +123,13 @@ export async function GET(request: NextRequest) {
         publicData.pincode = publicData.pincode || memberDetails.pincode;
         publicData.accountStatus = memberDetails.accountStatus; // active | inactive
         publicData.membershipStatus = memberDetails.membershipStatus; // free | paid
+
+        // Find membershipId from Membership collection
+        const Membership = (await import('@/models/Membership')).default;
+        const membership = await Membership.findOne({ memberId: memberDetails._id }).lean();
+        if (membership && membership.membershipId) {
+          publicData.idNumber = membership.membershipId;
+        }
       }
     }
 

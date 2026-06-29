@@ -17,7 +17,21 @@ export async function GET() {
 
     if (!user) return errorResponse('User not found', 404);
 
-    return successResponse(user);
+    let userObj = user.toObject();
+
+    if (user.role === 'member') {
+      const WomenMember = (await import('@/models/WomenMember')).default;
+      const memberDetails = await WomenMember.findOne({ userId: user._id }).lean();
+      if (memberDetails) {
+        const Membership = (await import('@/models/Membership')).default;
+        const membership = await Membership.findOne({ memberId: memberDetails._id }).lean();
+        if (membership && membership.membershipId) {
+          userObj.membershipId = membership.membershipId;
+        }
+      }
+    }
+
+    return successResponse(userObj);
   } catch (error: any) {
     return errorResponse(error.message, 500);
   }
