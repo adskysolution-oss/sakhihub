@@ -35,7 +35,7 @@ export default function EmployeeDashboard({ user }: { user: any }) {
     { label: t('employeeDashboard.groupsCreated', 'Groups Created'), value: data?.totalGroups || "0", icon: Users, color: "#6a1b9a" },
     { label: t('employeeDashboard.womenMembers', 'Women Members'), value: data?.totalMembers || "0", icon: UserPlus, color: "#e91e63" },
     { label: t('employeeDashboard.walletBalance', 'Wallet Balance'), value: `₹${(data?.walletBalance || 0).toLocaleString()}`, icon: IndianRupee, color: "#2e7d32" },
-    { label: t('employeeDashboard.monthlyGoal', 'Monthly Goal'), value: `${data?.monthlyMembers || 0} / 200`, icon: Target, color: "#ef6c00" },
+    { label: t('employeeDashboard.monthlyGoal', 'Monthly Goal'), value: `${data?.monthlyMembers || 0} / 500`, icon: Target, color: "#ef6c00" },
   ];
 
   const isVerified = user?.isVerified;
@@ -247,12 +247,12 @@ export default function EmployeeDashboard({ user }: { user: any }) {
               <div>
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t('employeeDashboard.monthlyMembers', 'Monthly Members')}</span>
-                  <span className="text-sm font-bold text-secondary">{data?.monthlyMembers || 0} / 200</span>
+                  <span className="text-sm font-bold text-secondary">{data?.monthlyMembers || 0} / 500</span>
                 </div>
                 <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
-                    whileInView={{ width: `${Math.min(((data?.monthlyMembers || 0) / 200) * 100, 100)}%` }}
+                    whileInView={{ width: `${Math.min(((data?.monthlyMembers || 0) / 500) * 100, 100)}%` }}
                     className="h-full bg-gradient-to-r from-primary to-secondary"
                   ></motion.div>
                 </div>
@@ -272,9 +272,9 @@ export default function EmployeeDashboard({ user }: { user: any }) {
               </div>
               <div className="mt-4 p-8 bg-primary/5 rounded-[32px] border border-dashed border-primary/30 text-center">
                 <p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">{t('employeeDashboard.efficiencyScore', 'Efficiency Score')}</p>
-                <h4 className="text-5xl font-bold text-secondary mb-4">{Math.round(((data?.monthlyMembers || 0) / 200) * 100)}%</h4>
+                <h4 className="text-5xl font-bold text-secondary mb-4">{Math.round(((data?.monthlyMembers || 0) / 500) * 100)}%</h4>
                 <p className="text-xs text-gray-400 font-semibold leading-relaxed px-4">
-                  {((data?.monthlyMembers || 0) / 200) >= 0.8 
+                  {((data?.monthlyMembers || 0) / 500) >= 0.8 
                     ? t('employeeDashboard.perfExcellent', 'You are performing exceptionally well!') 
                     : t('employeeDashboard.perfKeepPushing', 'Keep pushing to reach your monthly targets and help more women.')}
                 </p>
