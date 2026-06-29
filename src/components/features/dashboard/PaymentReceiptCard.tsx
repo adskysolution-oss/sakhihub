@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { IndianRupee, FileText, Download, X } from 'lucide-react';
 import axios from 'axios';
-import PaymentSlip from '@/components/shared/PaymentSlip';
+import PaymentReceiptAction from '@/components/shared/PaymentReceiptAction';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function PaymentReceiptCard() {
@@ -69,45 +69,11 @@ export default function PaymentReceiptCard() {
 
       {/* Receipt Modal Overlay */}
       {selectedReceipt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 overflow-y-auto print:p-0 print:bg-white print:fixed print:inset-0 print:overflow-visible">
-          <div className="relative w-full max-w-4xl bg-white rounded-[32px] shadow-2xl p-6 md:p-10 my-8 overflow-y-auto max-h-[90vh] print:max-h-none print:my-0 print:p-0 print:shadow-none print:border-none print:static print:overflow-visible">
-            {/* Close Button - Hidden on Print */}
-            <button
-              onClick={() => setSelectedReceipt(null)}
-              className="absolute top-6 right-6 p-2 bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-600 rounded-full transition-colors print:hidden"
-              title="Close Receipt"
-            >
-              <X size={20} />
-            </button>
-            <div className="pt-4 print:pt-0">
-              <PaymentSlip 
-                type={selectedReceipt.type === 'deposit' ? 'deposit' : 'subscription'} 
-                data={{
-                  receiptNumber: selectedReceipt.cashfreeOrderId || 'N/A',
-                  transactionId: selectedReceipt.cashfreePaymentId || selectedReceipt.cashfreeOrderId || 'N/A',
-                  paymentDate: selectedReceipt.paidAt || selectedReceipt.createdAt,
-                  paymentTime: selectedReceipt.paidAt 
-                    ? new Date(selectedReceipt.paidAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) 
-                    : new Date(selectedReceipt.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
-                  paymentMode: selectedReceipt.paymentMethod || 'ONLINE',
-                  amount: selectedReceipt.amount,
-                  fullName: selectedReceipt.userId?.fullName || 'N/A',
-                  mobileNumber: selectedReceipt.userId?.mobile || 'N/A',
-                  role: selectedReceipt.role === 'vendor' ? 'Vendor' : selectedReceipt.role === 'sub_vendor' ? 'Sub-Vendor' : selectedReceipt.role === 'employee' ? 'Employee' : 'Member',
-                  planType: selectedReceipt.type === 'subscription' 
-                    ? (selectedReceipt.role === 'vendor' ? 'Premium Vendor Access' : selectedReceipt.role === 'sub_vendor' ? 'Sub-Vendor Account' : 'Employee Access') 
-                    : undefined,
-                  planDuration: selectedReceipt.type === 'subscription' ? 'Monthly Partner' : undefined,
-                  depositPurpose: selectedReceipt.type === 'deposit' ? 'Refundable Onboarding Security Deposit' : undefined,
-                  approvalStatus: 'Approved',
-                  feeCollectedBy: 'System Auto-Verify',
-                  verifiedBy: 'Cashfree API Verification',
-                  verificationHash: selectedReceipt._id ? `SH-PAY-${selectedReceipt._id.toString().substring(0,8).toUpperCase()}` : undefined
-                }} 
-              />
-            </div>
-          </div>
-        </div>
+        <PaymentReceiptAction
+          isOpen={true}
+          onClose={() => setSelectedReceipt(null)}
+          paymentTransaction={selectedReceipt}
+        />
       )}
     </>
   );

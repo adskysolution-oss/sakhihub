@@ -3,12 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
-import { 
-  Printer, ArrowLeft, ShieldCheck, 
-  MapPin, User, Calendar, IndianRupee, 
-  FileText, CheckCircle2, Mail, Globe, Phone
-} from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 import PaymentSlip from "@/components/shared/PaymentSlip";
 
 export default function MemberReceiptPage() {

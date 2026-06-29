@@ -170,7 +170,8 @@ export async function GET(req: NextRequest) {
           method: m.paymentMode || 'Online',
           referenceId: m.membershipId || m.receiptNumber || 'N/A',
           status: m.paymentStatus.toLowerCase(),
-          details: `Registered: ${(m.memberId as any)?.name || 'Member'}`
+          details: `Registered: ${(m.memberId as any)?.name || 'Member'}`,
+          receiptUrl: m.receiptUrl
         });
       });
     }

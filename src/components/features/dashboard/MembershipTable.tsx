@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { CreditCard, FileText, CheckCircle, Clock, ShieldCheck, XCircle, ExternalLink } from 'lucide-react';
-import Link from 'next/link';
 import axios from 'axios';
 import { toast } from 'sonner';
+import PaymentReceiptAction from '@/components/shared/PaymentReceiptAction';
 
 interface MembershipTableProps {
   data: any[];
@@ -80,14 +80,10 @@ export default function MembershipTable({ data, isAdmin = false, onUpdate }: Mem
                 </td>
                 <td className="px-6 py-5 text-right">
                   <div className="flex items-center justify-end gap-3">
-                    <Link 
-                      href={`/member/receipt/${m._id}`} 
-                      target="_blank" 
-                      className="p-2 text-primary hover:bg-primary/5 rounded-lg transition-all"
-                      title="View Receipt"
-                    >
-                      <FileText size={18} />
-                    </Link>
+                    <PaymentReceiptAction
+                      receiptUrl={m.receiptUrl}
+                      dynamicReceiptId={m._id}
+                    />
                     {isAdmin && m.paymentStatus !== 'Paid' && (
                       <div className="flex items-center gap-2 border-l border-gray-100 pl-3">
                         <button 

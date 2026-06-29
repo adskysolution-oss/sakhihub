@@ -231,160 +231,163 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
         {/* Top Divider */}
         <div className="h-[2px] bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 my-5 relative z-10" />
 
-        {/* 2. MAIN 2-COLUMN CONTENT SECTION */}
-        <div className="grid grid-cols-1 md:grid-cols-12 print:grid-cols-12 gap-5 relative z-10">
+        {/* 2. MAIN DETAILS ROW SECTION */}
+        <div className="space-y-5 relative z-10">
 
-          {/* LEFT COLUMN: Payer & Member Details */}
-          <div className="md:col-span-7 print:col-span-7 space-y-3">
-            <div>
-              <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                <User size={13} className="text-primary" />
-                Member Details
-              </h3>
+          {/* FIRST ROW: Payer & Member Details */}
+          <div className="space-y-2">
+            <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+              <User size={13} className="text-primary" />
+              Member Details
+            </h3>
 
-              <div className="bg-gray-50/50 border border-gray-100 rounded-[20px] p-4 md:p-5 space-y-3">
+            <div className="bg-gray-50/50 border border-gray-100 rounded-[20px] p-4 md:p-5">
+              <div className="grid grid-cols-1 md:grid-cols-3 print:grid-cols-3 gap-5">
                 <div>
-                  <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Full Name</span>
-                  <p className="text-lg font-black text-secondary mt-1">{data.fullName}</p>
+                  <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block">Full Name</span>
+                  <p className="text-base font-black text-secondary mt-1">{data.fullName}</p>
+                  {data.role && (
+                    <div className="mt-2">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-[#FFF5F8] text-primary border border-red-50">
+                        {data.role}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Mobile Number</span>
-                    <p className="text-xs font-bold text-secondary mt-0.5">{data.mobileNumber}</p>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block">Mobile Number</span>
+                    <p className="text-xs font-bold text-secondary mt-1">{data.mobileNumber}</p>
                   </div>
                   <div>
-                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Village / Area</span>
-                    <p className="text-xs font-bold text-secondary mt-0.5">{data.villageArea || 'N/A'}</p>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block">Village / Area</span>
+                    <p className="text-xs font-bold text-secondary mt-1">{data.villageArea || 'N/A'}</p>
                   </div>
                 </div>
 
-                <div>
-                  <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Assigned Group</span>
-                  <p className="text-xs font-bold text-secondary mt-0.5">{data.assignedGroup || 'Individual / Pending Allocation'}</p>
-                </div>
-
-                {/* Role Badge */}
-                {data.role && (
+                <div className="space-y-3">
                   <div>
-                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Hierarchy Role</span>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-[#FFF5F8] text-primary border border-red-50">
-                      {data.role}
-                    </span>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block">Assigned Group</span>
+                    <p className="text-xs font-bold text-secondary mt-1">{data.assignedGroup || 'Individual / Pending Allocation'}</p>
                   </div>
-                )}
 
-                {/* Referred By */}
-                {data.referredBy && (
-                  <div className="bg-white border border-gray-100 rounded-2xl p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 shrink-0">
-                      <Users size={18} />
+                  {/* Referred By */}
+                  {data.referredBy && (
+                    <div className="pt-2 border-t border-gray-100 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 shrink-0">
+                        <Users size={14} />
+                      </div>
+                      <div>
+                        <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block">Referred By</span>
+                        <p className="text-[11px] font-black text-secondary">{data.referredBy.name} ({data.referredBy.role})</p>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Referred By</span>
-                      <p className="text-xs font-black text-secondary">{data.referredBy.name}</p>
-                      <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">({data.referredBy.role})</p>
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Transaction Summary */}
-          <div className="md:col-span-5 print:col-span-5 space-y-3">
-            <div>
-              <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                <Building size={13} className="text-primary" />
-                Transaction Summary
-              </h3>
+          {/* SECOND ROW: Transaction Summary */}
+          <div className="space-y-2">
+            <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+              <Building size={13} className="text-primary" />
+              Transaction Summary
+            </h3>
 
-              <div className="bg-white border border-gray-100 rounded-[20px] p-4 md:p-5 space-y-1.5 shadow-sm">
-
-                <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Receipt No.</span>
-                  <span className="text-xs font-black text-secondary tracking-wide">{data.receiptNumber}</span>
-                </div>
-
-                <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Transaction ID</span>
-                  <span className="text-xs font-bold text-secondary truncate max-w-[160px]">{data.transactionId}</span>
-                </div>
-
-                <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Payment Date</span>
-                  <span className="text-xs font-bold text-secondary flex items-center gap-1.5">
-                    <Calendar size={12} className="text-gray-400" />
-                    {formatDate(data.paymentDate)}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Payment Time</span>
-                  <span className="text-xs font-bold text-secondary flex items-center gap-1.5">
-                    <Clock size={12} className="text-gray-400" />
-                    {data.paymentTime}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Payment Mode</span>
-                  <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-purple-50 text-purple-600 border border-purple-100">
-                    {data.paymentMode}
-                  </span>
-                </div>
-
-                {/* Dynamic Extra Detail Fields for Subscription & Deposit */}
-                {type === 'subscription' && (data.planType || data.renewalDate) && (
-                  <div className="pt-1.5 space-y-1.5 border-t border-gray-100">
-                    {data.planType && (
-                      <div className="flex justify-between items-center py-1">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Plan Type</span>
-                        <span className="text-xs font-bold text-secondary">{data.planType}</span>
-                      </div>
-                    )}
-                    {data.renewalDate && (
-                      <div className="flex justify-between items-center py-1">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Renewal Date</span>
-                        <span className="text-xs font-bold text-secondary">{formatDate(data.renewalDate)}</span>
-                      </div>
-                    )}
+            <div className="bg-white border border-gray-100 rounded-[20px] p-4 md:p-5 shadow-sm space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 print:grid-cols-3 gap-5">
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Receipt No.</span>
+                    <span className="text-xs font-black text-secondary tracking-wide select-all break-all">{data.receiptNumber}</span>
                   </div>
-                )}
 
-                {type === 'deposit' && (data.depositPurpose || data.approvalStatus) && (
-                  <div className="pt-1.5 space-y-1.5 border-t border-gray-100">
-                    {data.depositPurpose && (
-                      <div className="flex justify-between items-center py-1">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Purpose</span>
-                        <span className="text-xs font-bold text-secondary">{data.depositPurpose}</span>
-                      </div>
-                    )}
-                    {data.approvalStatus && (
-                      <div className="flex justify-between items-center py-1">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Status</span>
-                        <span className="text-xs font-bold text-secondary uppercase tracking-widest">{data.approvalStatus}</span>
-                      </div>
-                    )}
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Transaction ID</span>
+                    <span className="text-xs font-bold text-secondary break-all select-all">{data.transactionId}</span>
                   </div>
-                )}
+                </div>
 
-                {/* Amount Box */}
-                <div className={`mt-4 rounded-[16px] border p-3 ${config.accentBg} ${config.accentBorder} flex justify-between items-center`}>
-                  <div>
-                    <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest block">{config.amountLabel}</span>
-                    <p className={`text-xl font-black ${config.accentText} mt-0.5`}>₹{data.amount}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-white border border-gray-100 text-secondary shadow-sm`}>
-                      {config.extraLabel}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">Payment Date</span>
+                    <span className="text-xs font-bold text-secondary mt-1 flex items-center gap-1.5">
+                      <Calendar size={11} className="text-gray-400" />
+                      {formatDate(data.paymentDate)}
                     </span>
-                    {type !== 'deposit' && (
-                      <span className="text-[8px] font-black text-red-500 uppercase tracking-wider">
-                        NON-REFUNDABLE
-                      </span>
-                    )}
                   </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">Payment Time</span>
+                    <span className="text-xs font-bold text-secondary mt-1 flex items-center gap-1.5">
+                      <Clock size={11} className="text-gray-400" />
+                      {data.paymentTime}
+                    </span>
+                  </div>
+                  <div className="col-span-2 flex flex-col gap-1">
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">Payment Mode</span>
+                    <div className="flex">
+                      <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-purple-50 text-purple-600 border border-purple-100">
+                        {data.paymentMode}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Dynamic Extra Detail Fields for Subscription & Deposit */}
+                  {type === 'subscription' && (data.planType || data.renewalDate) && (
+                    <div className="space-y-2">
+                      {data.planType && (
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Plan Type</span>
+                          <span className="text-xs font-bold text-secondary">{data.planType}</span>
+                        </div>
+                      )}
+                      {data.renewalDate && (
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Renewal Date</span>
+                          <span className="text-xs font-bold text-secondary">{formatDate(data.renewalDate)}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {type === 'deposit' && (data.depositPurpose || data.approvalStatus) && (
+                    <div className="space-y-2">
+                      {data.depositPurpose && (
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Purpose</span>
+                          <span className="text-xs font-bold text-secondary leading-relaxed">{data.depositPurpose}</span>
+                        </div>
+                      )}
+                      {data.approvalStatus && (
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Status</span>
+                          <span className="text-xs font-bold text-secondary uppercase tracking-widest">{data.approvalStatus}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Amount Box */}
+              <div className={`rounded-[16px] border p-4 ${config.accentBg} ${config.accentBorder} flex justify-between items-center`}>
+                <div>
+                  <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest block">{config.amountLabel}</span>
+                  <p className={`text-2xl font-black ${config.accentText} mt-0.5`}>₹{data.amount}</p>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-white border border-gray-100 text-secondary shadow-sm`}>
+                    {config.extraLabel}
+                  </span>
+                  {type !== 'deposit' && (
+                    <span className="text-[8px] font-black text-red-500 uppercase tracking-wider">
+                      NON-REFUNDABLE
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -438,21 +441,11 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
         {/* Middle Line Divider */}
         <div className="h-px bg-gray-100 my-4 relative z-10" />
 
-        {/* 4. VERIFICATION SEAL & QR CODE & SIGNATURE INFO SECTION */}
+        {/* 4. VERIFICATION SEAL & SIGNATURE INFO SECTION */}
         <div className="grid grid-cols-1 md:grid-cols-12 print:grid-cols-12 gap-4 items-center relative z-10">
 
-          {/* QR Verification Code */}
-          <div className="md:col-span-3 print:col-span-3 flex justify-center md:justify-start">
-            <div className="bg-white border border-gray-200/80 p-3 rounded-2xl flex flex-col items-center shadow-sm shrink-0">
-              <svg width="76" height="76" viewBox="0 0 29 29" className="qr-code-svg text-secondary select-none" fill="currentColor">
-                <path d="M0 0h9v9H0zm1 1v7h7V1zm8 0h1v1H9zm0 2h1v1H9zm0 2h1v1H9zm0 2h1v1H9zM2 2h5v5H2V2zm18-2h9v9h-9zm1 1v7h7V1zm1 1h5v5h-5zm-12 8h1v1h-1zm1 0h1v1h-1zm1 0h1v1h-1zm6 0h1v1h-1zm2 0h1v1h-1zm1 0h1v1h-1zm2 0h1v1h-1zm1 0h1v1H27zm-18 1h1v1H9zm4 0h1v1h-1zm1 0h1v1h-1zm1 0h1v1h-1zm2 0h1v1h-1zm2 0h1v1h-1zm4 0h1v1h-1zm1 0h1v1h-1zm-15 1h1v1H9zm1 0h1v1h-1zm3 0h1v1h-1zm2 0h1v1h-1zm1 0h1v1h-1zm1 0h1v1h-1zm3 0h1v1h-1zm3 0h1v1h-1zm-17 1h1v1H8zm1 0h1v1h-1zm2 0h1v1h-1zm3 0h1v1h-1zm4 0h1v1h-1zm1 0h1v1h-1zm2 0h1v1H22zm3 0h1v1h-1zm-17 1h1v1H8zm2 0h1v1H10zm1 0h1v1h-1zm2 0h1v1h-1zm1 0h1v1h-1zm2 0h1v1h-1zm3 0h1v1h-1zm1 0h1v1h-1zm1 0h1v1h-1zm2 0h1v1h-1zm-12 1h1v1h-1zm2 0h1v1h-1zm2 0h1v1h-1zm1 0h1v1h-1zm1 0h1v1h-1zm3 0h1v1h-1zm2 0h1v1H27zm0 1v9h9V20zm1 1h7v7h-7zm1 1h5v5h-5zm-20 7h9v-9H0zm1-8h7v7H1zm1-5h5v5H2zm11 2h1v1h-1zm2 0h1v1h-1zm2 0h1v1h-1zm-4 1h1v1h-1zm2 0h1v1h-1zm-3 1h1v1h-1zm1 0h1v1h-1zm3 0h1v1h-1zm-5 1h1v1h-1zm1 0h1v1h-1zm2 0h1v1h-1zm2 0h1v1h-1z" />
-              </svg>
-              <span className="text-[7px] text-gray-400 font-bold uppercase tracking-widest mt-1.5">Scan to Verify</span>
-            </div>
-          </div>
-
-          {/* Verification Hash & Notice */}
-          <div className="md:col-span-5 print:col-span-5 text-center md:text-left space-y-1">
+          {/* Verification Hash & Notice - Left Aligned */}
+          <div className="md:col-span-8 print:col-span-8 text-center md:text-left space-y-1">
             <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest block">Audit Trail Token</span>
             <span className="text-[10px] font-mono text-secondary font-black bg-gray-50 px-2 py-1 rounded border border-gray-100 inline-block max-w-full truncate">
               {hash}
@@ -462,10 +455,16 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
             </p>
           </div>
 
-          {/* Signature Line */}
-          <div className="md:col-span-4 print:col-span-4 flex flex-col items-center md:items-end">
-            <div className="w-40 border-b border-gray-200 pb-2 text-center select-none font-serif italic text-secondary font-bold text-sm tracking-wider">
-              System Seal
+          {/* Signature Line - Right Aligned */}
+          <div className="md:col-span-4 print:col-span-4 flex flex-col items-center md:items-end relative">
+            <div className="w-40 border-b border-gray-200 pb-2 text-center select-none font-serif italic text-secondary font-bold text-sm tracking-wider relative flex justify-center items-center">
+              <img 
+                src="/Seal-Signature.png" 
+                alt="SakhiHub Seal" 
+                className="absolute h-20 w-auto object-contain opacity-70 z-0 mix-blend-multiply pointer-events-none" 
+                style={{ top: '-36px' }}
+              />
+              <span className="opacity-0">System Seal</span>
             </div>
             <span className="text-[9px] uppercase font-black text-gray-400 mt-2 tracking-widest">Authorized Representative</span>
           </div>

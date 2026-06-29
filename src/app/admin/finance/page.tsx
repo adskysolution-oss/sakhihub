@@ -10,6 +10,7 @@ import {
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import PaymentReceiptAction from '@/components/shared/PaymentReceiptAction';
 
 export default function AdminFinancePage() {
   const [stats, setStats] = useState<any>(null);
@@ -566,12 +567,13 @@ export default function AdminFinancePage() {
                         <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Method & Reference</th>
                         <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Date</th>
                         <th className="pb-4 text-right text-[10px] font-black uppercase tracking-widest text-gray-400">Amount Paid</th>
+                        <th className="pb-4 text-right text-[10px] font-black uppercase tracking-widest text-gray-400">Receipt</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
                       {paymentsList.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className="py-12 text-center text-gray-400 text-xs font-medium">No successful revenues match the active filter criteria.</td>
+                          <td colSpan={6} className="py-12 text-center text-gray-400 text-xs font-medium">No successful revenues match the active filter criteria.</td>
                         </tr>
                       ) : (
                         paymentsList.map((pay) => (
@@ -608,6 +610,15 @@ export default function AdminFinancePage() {
                             </td>
                             <td className="py-5 text-right">
                               <span className="text-sm font-black text-emerald-500">₹{pay.amount}</span>
+                            </td>
+                            <td className="py-5 text-right">
+                              <div className="flex justify-end">
+                                <PaymentReceiptAction
+                                  receiptUrl={pay.receiptUrl}
+                                  dynamicReceiptId={pay.type === 'Member Registration' ? pay.id : undefined}
+                                  paymentTransaction={pay.type !== 'Member Registration' ? pay : undefined}
+                                />
+                              </div>
                             </td>
                           </tr>
                         ))
