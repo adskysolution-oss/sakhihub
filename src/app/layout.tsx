@@ -3,6 +3,7 @@ import "./globals.css";
 import MainLayoutWrapper from "@/components/shared/MainLayoutWrapper";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { Toaster } from 'sonner';
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
   title: "SakhiHub | Empowering Women Across India",
@@ -27,6 +28,7 @@ export default function RootLayout({
           </MainLayoutWrapper>
         </LanguageProvider>
         <Toaster richColors position="top-right" />
+        <Analytics />
       </body>
     </html>
   );
