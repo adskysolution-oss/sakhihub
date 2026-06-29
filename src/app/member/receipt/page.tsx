@@ -36,34 +36,8 @@ function MemberReceiptContent() {
   const searchParams = useSearchParams();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [cashfree, setCashfree] = useState<any>(null);
-  const [scriptLoaded, setScriptLoaded] = useState(false);
   const [payingOnline, setPayingOnline] = useState(false);
   const [verifyingPayment, setVerifyingPayment] = useState(false);
-
-  // Load Cashfree SDK
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
-    script.async = true;
-    script.onload = () => {
-      setScriptLoaded(true);
-    };
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
-  // Initialize Cashfree dynamically
-  useEffect(() => {
-    if (scriptLoaded && data && (window as any).Cashfree && !cashfree) {
-      const mode = 'production';
-      console.log('Initializing Cashfree for Member Receipt in mode:', mode);
-      setCashfree((window as any).Cashfree({ mode }));
-    }
-  }, [scriptLoaded, data, cashfree]);
 
   // Handle Cashfree verification callback
   const handleVerifyCallback = async () => {
@@ -88,37 +62,95 @@ function MemberReceiptContent() {
     handleVerifyCallback();
   }, [searchParams]);
 
+  const loadScript = (src: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (document.querySelector(`script[src="${src}"]`)) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = src;
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handleInitiateOnlinePayment = async () => {
     setPayingOnline(true);
     try {
       const res = await axios.post('/api/payment/create-order', { type: 'subscription' });
       if (res.data.success) {
-        if (res.data.data.paymentUrl) {
-          // PhonePe or other redirect-based gateways
-          window.location.href = res.data.data.paymentUrl;
-        } else if (res.data.data.paymentSessionId) {
+        const orderData = res.data.data;
+        const gatewayProvider = orderData.provider || 'cashfree';
+
+        if (orderData.paymentUrl) {
+          // PhonePe or redirect-based gateways
+          window.location.href = orderData.paymentUrl;
+        } else if (gatewayProvider === 'razorpay') {
+          // Razorpay inline modal checkout
+          const loaded = await loadScript('https://checkout.razorpay.com/v1/checkout.js');
+          if (loaded && (window as any).Razorpay) {
+            const options = {
+              key: orderData.razorpayKeyId,
+              amount: Math.round(orderData.amount * 100), // in paise
+              currency: "INR",
+              name: "SakhiHub",
+              description: "Membership Subscription Payment",
+              order_id: orderData.paymentSessionId,
+              handler: async function (response: any) {
+                setPayingOnline(false);
+                setVerifyingPayment(true);
+                try {
+                  await axios.post('/api/payment/verify', { 
+                    orderId: orderData.orderId 
+                  });
+                  toast.success("Payment verified successfully! Welcome to SakhiHub paid membership.");
+                  router.replace('/member/receipt');
+                } catch (verifyError: any) {
+                  console.error('Razorpay verification error:', verifyError);
+                  toast.error("Payment verification failed. Please contact admin if amount was deducted.");
+                } finally {
+                  setVerifyingPayment(false);
+                  fetchDashboard();
+                }
+              },
+              prefill: {
+                name: profile?.fullName || '',
+                email: profile?.email || '',
+                contact: profile?.mobile || '',
+              },
+              theme: {
+                color: "#EC4899", // Match primary theme color
+              },
+              modal: {
+                ondismiss: function () {
+                  setPayingOnline(false);
+                }
+              }
+            };
+            const rzp = new (window as any).Razorpay(options);
+            rzp.open();
+          } else {
+            toast.error('Payment gateway is still loading. Please wait a moment.');
+            setPayingOnline(false);
+          }
+        } else if (gatewayProvider === 'cashfree' && orderData.paymentSessionId) {
           // Cashfree inline checkout
-          if (cashfree) {
-            cashfree.checkout({
-              paymentSessionId: res.data.data.paymentSessionId,
+          const loaded = await loadScript('https://sdk.cashfree.com/js/v3/cashfree.js');
+          if (loaded && (window as any).Cashfree) {
+            const cf = (window as any).Cashfree({ mode: 'production' });
+            cf.checkout({
+              paymentSessionId: orderData.paymentSessionId,
               redirectTarget: "_self"
             });
           } else {
-            const mode = 'production';
-            if ((window as any).Cashfree) {
-              const cf = (window as any).Cashfree({ mode });
-              setCashfree(cf);
-              cf.checkout({
-                paymentSessionId: res.data.data.paymentSessionId,
-                redirectTarget: "_self"
-              });
-            } else {
-              toast.error('Payment gateway is still loading. Please wait a moment.');
-              setPayingOnline(false);
-            }
+            toast.error('Payment gateway is still loading. Please wait a moment.');
+            setPayingOnline(false);
           }
         } else {
-          toast.error('Invalid payment response from server');
+          toast.error('Failed to initiate payment');
           setPayingOnline(false);
         }
       } else {

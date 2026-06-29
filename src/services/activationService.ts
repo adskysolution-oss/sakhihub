@@ -60,12 +60,12 @@ export async function evaluateUserActivation(userId: string) {
 
   user.paymentCompleted = paymentCompleted;
 
-  // Sync specific flags for employees
-  if (user.role === 'employee') {
+  // Sync specific flags for employees and members
+  if (['employee', 'member'].includes(user.role)) {
     if (paymentCompleted) {
       user.paymentStatus = 'completed';
       user.accessStatus = 'unlocked';
-      user.depositPaid = true; // Auto-sync payment completed deposit flag
+      if (user.role === 'employee') user.depositPaid = true; // Auto-sync payment completed deposit flag
     } else {
       user.paymentStatus = 'pending';
       user.accessStatus = 'locked';
@@ -78,11 +78,12 @@ export async function evaluateUserActivation(userId: string) {
   }
 
   // 3. Evaluate Mapping/Assignment
-  // Vendors and Staff do not require mapping.
-  // Employees, Sub-vendors, and Members require campaign/parent mapping.
+  // Vendors, Staff, and Members do not require mapping for dashboard access.
+  // Employees and Sub-vendors require campaign/parent mapping.
   const mappingCompleted = (
     user.role === 'vendor' || 
     user.role === 'staff' || 
+    user.role === 'member' ||
     user.assignmentStatus === 'completed'
   );
 
@@ -104,6 +105,17 @@ export async function evaluateUserActivation(userId: string) {
     user.status = determineUserStatus(user);
     user.dashboardAccess = false;
     user.onboardingCompleted = false;
+  }
+
+  // Special checks for Members (ensure verification flags align with admin approval status)
+  if (user.role === 'member') {
+    if (['approved', 'active'].includes(user.status)) {
+      user.isVerified = true;
+      user.verificationStatus = 'verified';
+    } else {
+      user.isVerified = false;
+      user.verificationStatus = 'pending';
+    }
   }
 
   // Special checks for Staff (only require doc verification)

@@ -25,6 +25,18 @@ export default function PaymentConfigPage() {
     subscriptionRequired: { vendor: true, sub_vendor: true, employee: true },
     depositRequired: { vendor: true, sub_vendor: true, employee: true },
   });
+  const [commConfig, setCommConfig] = useState<any>({
+    membershipFee: 100,
+    membershipPaymentEnabled: true,
+    memberCommission: {
+      employeeRecruiter: 20,
+      subVendorRecruiter: 20,
+      vendorRecruiter: 25,
+      subVendorParent: 10,
+      vendorParentDirect: 10,
+      vendorGrandparent: 5
+    }
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -48,9 +60,10 @@ export default function PaymentConfigPage() {
 
   const fetchConfig = async () => {
     try {
-      const [res, pendingRes] = await Promise.all([
+      const [res, pendingRes, commRes] = await Promise.all([
         axios.get('/api/admin/payment-config'),
-        axios.get('/api/admin/users?status=pending_payment')
+        axios.get('/api/admin/users?status=pending_payment'),
+        axios.get('/api/admin/commission-config').catch(() => ({ data: { success: false } }))
       ]);
       
       if (res.data.success) {
@@ -86,6 +99,9 @@ export default function PaymentConfigPage() {
       if (pendingRes.data.success) {
         setPendingUsers(pendingRes.data.data);
       }
+      if (commRes?.data?.success) {
+        setCommConfig(commRes.data.data);
+      }
     } catch (error) {
       console.error('Failed to fetch config', error);
       setMessage('Failed to load configuration');
@@ -107,8 +123,14 @@ export default function PaymentConfigPage() {
     setMessage('');
 
     try {
-      const res = await axios.put('/api/admin/payment-config', config);
-      if (res.data.success) {
+      const [res, commRes] = await Promise.all([
+        axios.put('/api/admin/payment-config', config),
+        axios.post('/api/admin/commission-config', {
+          membershipFee: commConfig.membershipFee,
+          membershipPaymentEnabled: commConfig.membershipPaymentEnabled
+        })
+      ]);
+      if (res.data.success && commRes.data.success) {
         setMessage('Configuration saved successfully!');
         toast.success('Configuration saved successfully');
         setTimeout(() => setMessage(''), 3000);
@@ -412,6 +434,42 @@ export default function PaymentConfigPage() {
                   </div>
                 </div>
               ))}
+
+              {/* Membership Pricing & Configuration */}
+              <div className="p-5 rounded-2xl bg-gray-50 border border-gray-100 mt-6">
+                <h4 className="text-md font-black text-secondary capitalize mb-4">Membership (Member)</h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                  <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+                      <label className="text-xs font-bold text-gray-700 flex items-center gap-2">
+                        <IndianRupee size={16} className="text-primary" /> Require Paid Membership
+                      </label>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          className="sr-only peer" 
+                          checked={commConfig.membershipPaymentEnabled}
+                          onChange={(e) => setCommConfig({...commConfig, membershipPaymentEnabled: e.target.checked})}
+                        />
+                        <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                      </label>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Amount (₹)</label>
+                      <input
+                        type="number"
+                        value={commConfig.membershipFee}
+                        onChange={(e) => setCommConfig({...commConfig, membershipFee: Number(e.target.value)})}
+                        disabled={!commConfig.membershipPaymentEnabled}
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 disabled:opacity-50 disabled:bg-gray-50 font-bold"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+
+              </div>
             </div>
 
             <div className="mt-8 flex justify-end">
