@@ -427,7 +427,8 @@ function MemberDashboardContent() {
     );
   }
 
-  const { profile, fieldRecord, membership, pendingRequests, membershipFee = 100 } = data || {};
+  const { profile, fieldRecord, membership, pendingRequests, membershipFee = 100, membershipOfflinePaymentEnabled = true } = data || {};
+  const offlinePaymentEnabled = membershipOfflinePaymentEnabled !== false;
   
   const isFreeMember = profile?.membershipType === 'free';
   const isPaidVerified = profile?.membershipType === 'paid' && (profile?.accessStatus === 'unlocked' || membership?.paymentStatus === 'Paid' || fieldRecord?.membershipStatus === 'paid');
@@ -850,7 +851,7 @@ function MemberDashboardContent() {
                       <p className="text-xs font-bold text-gray-500 uppercase tracking-widest animate-pulse">{t('dashboardMember.verifyingOnline', 'Verifying online transaction...')}</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                    <div className={`grid grid-cols-1 ${offlinePaymentEnabled ? 'md:grid-cols-2 max-w-2xl' : 'max-w-md'} gap-6 mx-auto`}>
                       {/* Option 1: Pay Online */}
                       <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-soft flex flex-col justify-between text-left">
                         <div>
@@ -872,30 +873,32 @@ function MemberDashboardContent() {
                       </div>
  
                       {/* Option 2: Pay Offline */}
-                      <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-soft flex flex-col justify-between text-left">
-                        <div>
-                          <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-amber-100">
-                            Offline Mode
-                          </span>
-                          <h4 className="text-sm font-black text-secondary mt-3">{t('dashboardMember.payCash', 'Pay Cash to Agent')}</h4>
-                          <p className="text-[11px] text-gray-400 font-bold leading-relaxed mt-2">
-                            {t('dashboardMember.payCashDesc', 'Hand over membership fee to your regional hero/employee. They will register it on their portal to activate your account.')}
-                          </p>
+                      {offlinePaymentEnabled && (
+                        <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-soft flex flex-col justify-between text-left">
+                          <div>
+                            <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-amber-100">
+                              Offline Mode
+                            </span>
+                            <h4 className="text-sm font-black text-secondary mt-3">{t('dashboardMember.payCash', 'Pay Cash to Agent')}</h4>
+                            <p className="text-[11px] text-gray-400 font-bold leading-relaxed mt-2">
+                              {t('dashboardMember.payCashDesc', 'Hand over membership fee to your regional hero/employee. They will register it on their portal to activate your account.')}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              const heroSec = document.getElementById("hero-details-section");
+                              if (heroSec) {
+                                heroSec.scrollIntoView({ behavior: 'smooth' });
+                              } else {
+                                toast.error("Please contact your local employee. You can find their number in the sidebar.");
+                              }
+                            }}
+                            className="mt-6 w-full py-3.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-secondary hover:text-primary rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"
+                          >
+                            Contact Sakhi Hero
+                          </button>
                         </div>
-                        <button
-                          onClick={() => {
-                            const heroSec = document.getElementById("hero-details-section");
-                            if (heroSec) {
-                              heroSec.scrollIntoView({ behavior: 'smooth' });
-                            } else {
-                              toast.error("Please contact your local employee. You can find their number in the sidebar.");
-                            }
-                          }}
-                          className="mt-6 w-full py-3.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-secondary hover:text-primary rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"
-                        >
-                          Contact Sakhi Hero
-                        </button>
-                      </div>
+                      )}
                     </div>
                   )}
                 </div>

@@ -38,6 +38,7 @@ function MemberReceiptContent() {
   const [loading, setLoading] = useState(true);
   const [payingOnline, setPayingOnline] = useState(false);
   const [verifyingPayment, setVerifyingPayment] = useState(false);
+  const [showBankDetails, setShowBankDetails] = useState(false);
 
   // Handle Cashfree verification callback
   const handleVerifyCallback = async () => {
@@ -196,6 +197,7 @@ function MemberReceiptContent() {
   const profile = data?.profile;
   const fieldRecord = data?.fieldRecord;
   const membershipFee = data?.membershipFee ?? 100;
+  const offlinePaymentEnabled = data?.membershipOfflinePaymentEnabled !== false;
 
   if (!membership) {
     return (
@@ -215,7 +217,7 @@ function MemberReceiptContent() {
               <p className="text-xs font-bold text-gray-500 uppercase tracking-widest animate-pulse">Verifying online transaction...</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto mt-10 text-left">
+            <div className={`grid grid-cols-1 ${offlinePaymentEnabled ? 'md:grid-cols-2 max-w-2xl' : 'max-w-md'} gap-6 mx-auto mt-10 text-left`}>
               {/* Option 1: Pay Online */}
               <div className="p-6 bg-[#fdfcfb] rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
                 <div>
@@ -237,21 +239,67 @@ function MemberReceiptContent() {
               </div>
 
               {/* Option 2: Pay Offline */}
-              <div className="p-6 bg-[#fdfcfb] rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
-                <div>
-                  <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-amber-100">
-                    Offline Mode
-                  </span>
-                  <h4 className="text-sm font-black text-secondary mt-3">Direct Bank Transfer</h4>
-                  <p className="text-[11px] text-gray-400 font-bold leading-relaxed mt-2">
-                    Deposit ₹{membershipFee} directly to our NGO account. Share payment proof with the admin to activate membership manually from dashboard.
-                  </p>
+              {offlinePaymentEnabled && (
+                <div className="p-6 bg-[#fdfcfb] rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-amber-100">
+                      Offline Mode
+                    </span>
+                    <h4 className="text-sm font-black text-secondary mt-3">Direct Bank Transfer</h4>
+                    <p className="text-[11px] text-gray-400 font-bold leading-relaxed mt-2">
+                      Deposit ₹{membershipFee} directly to our NGO account. Share payment proof with the admin to activate membership manually from dashboard.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowBankDetails(true)}
+                    className="mt-6 w-full py-3.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-secondary hover:text-primary rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"
+                  >
+                    View Bank Details
+                  </button>
                 </div>
+              )}
+            </div>
+          )}
+
+          {showBankDetails && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-[32px] max-w-md w-full p-6 sm:p-8 border border-gray-100 shadow-2xl relative animate-in fade-in zoom-in duration-200 text-center">
+                <h3 className="text-lg font-black text-secondary mb-4 flex items-center justify-center gap-2">
+                  <CheckCircle2 className="text-emerald-500" size={22} /> Offline Bank Transfer
+                </h3>
+                <p className="text-xs text-gray-500 leading-relaxed mb-6">
+                  Please deposit the membership fee of <strong>₹{membershipFee}</strong> directly into our NGO bank account:
+                </p>
+                <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 space-y-3 mb-6 text-left">
+                  <div>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Bank Name</span>
+                    <span className="text-xs font-bold text-secondary">State Bank of India</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Account Name</span>
+                    <span className="text-xs font-bold text-secondary">SakhiHub Foundation</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Account Number</span>
+                    <span className="text-xs font-bold text-secondary font-mono">41234567890</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">IFSC Code</span>
+                    <span className="text-xs font-bold text-secondary font-mono">SBIN0001234</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Branch</span>
+                    <span className="text-xs font-bold text-secondary">New Delhi Main Branch</span>
+                  </div>
+                </div>
+                <p className="text-[11px] text-amber-600 bg-amber-50 rounded-xl p-3 border border-amber-100 leading-relaxed mb-6 font-semibold text-left">
+                  Note: After transfer, please email your transaction receipt/proof along with your Name and Mobile to <strong>support@sakhihub.org</strong> for activation.
+                </p>
                 <button
-                  onClick={() => toast.error("Please contact NGO Support or Admin at support@sakhihub.org to present offline transaction proof.")}
-                  className="mt-6 w-full py-3.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-secondary hover:text-primary rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"
+                  onClick={() => setShowBankDetails(false)}
+                  className="w-full py-3.5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
-                  Contact Admin Support
+                  I Understand
                 </button>
               </div>
             </div>

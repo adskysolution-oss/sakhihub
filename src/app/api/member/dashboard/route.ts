@@ -45,13 +45,15 @@ export async function GET(req: NextRequest) {
 
     const commConfig = await CommissionConfig.findOne({ key: 'default' });
     const membershipFee = commConfig ? (commConfig.membershipFee ?? 100) : 100;
+    const membershipOfflinePaymentEnabled = commConfig ? (commConfig.membershipOfflinePaymentEnabled !== false) : true;
 
     return successResponse({
       profile: user,
       fieldRecord: fieldRecord || null,
       membership: membership || null,
       pendingRequests: pendingRequests || [],
-      membershipFee
+      membershipFee,
+      membershipOfflinePaymentEnabled
     }, 'Member dashboard data fetched successfully');
 
   } catch (error: any) {

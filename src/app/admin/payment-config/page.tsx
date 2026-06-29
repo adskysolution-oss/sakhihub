@@ -28,6 +28,7 @@ export default function PaymentConfigPage() {
   const [commConfig, setCommConfig] = useState<any>({
     membershipFee: 100,
     membershipPaymentEnabled: true,
+    membershipOfflinePaymentEnabled: true,
     memberCommission: {
       employeeRecruiter: 20,
       subVendorRecruiter: 20,
@@ -127,7 +128,8 @@ export default function PaymentConfigPage() {
         axios.put('/api/admin/payment-config', config),
         axios.post('/api/admin/commission-config', {
           membershipFee: commConfig.membershipFee,
-          membershipPaymentEnabled: commConfig.membershipPaymentEnabled
+          membershipPaymentEnabled: commConfig.membershipPaymentEnabled,
+          membershipOfflinePaymentEnabled: commConfig.membershipOfflinePaymentEnabled
         })
       ]);
       if (res.data.success && commRes.data.success) {
@@ -465,6 +467,26 @@ export default function PaymentConfigPage() {
                         className="w-full px-4 py-2 rounded-lg border border-gray-200 disabled:opacity-50 disabled:bg-gray-50 font-bold"
                       />
                     </div>
+                  </div>
+
+                  <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+                      <label className="text-xs font-bold text-gray-700 flex items-center gap-2">
+                        <CreditCard size={16} className="text-primary" /> Allow Offline Bank Transfer
+                      </label>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          className="sr-only peer" 
+                          checked={commConfig.membershipOfflinePaymentEnabled !== false}
+                          onChange={(e) => setCommConfig({...commConfig, membershipOfflinePaymentEnabled: e.target.checked})}
+                        />
+                        <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                      </label>
+                    </div>
+                    <p className="text-[11px] text-gray-400 font-bold leading-relaxed mt-2">
+                      Allow members to view NGO bank transfer details and instructions on their dashboard/receipt screens to pay offline.
+                    </p>
                   </div>
                 </div>
 

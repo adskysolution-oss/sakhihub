@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
       payoutRules,
       membershipFee,
       membershipPaymentEnabled,
+      membershipOfflinePaymentEnabled,
       commissionSystemEnabled
     } = body;
 
@@ -106,6 +107,10 @@ export async function POST(req: NextRequest) {
 
     if (membershipPaymentEnabled !== undefined) {
       config.membershipPaymentEnabled = Boolean(membershipPaymentEnabled);
+    }
+
+    if (membershipOfflinePaymentEnabled !== undefined) {
+      config.membershipOfflinePaymentEnabled = Boolean(membershipOfflinePaymentEnabled);
     }
 
     config.updatedBy = (session as any).id;
