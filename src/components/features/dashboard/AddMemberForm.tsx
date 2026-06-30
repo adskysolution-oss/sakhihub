@@ -10,13 +10,16 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePincodeAutofill } from '@/hooks/usePincodeAutofill';
+import { toast } from 'sonner';
 
 const occupations = ["Housewife", "Self Employed", "Labor", "Student", "Farmer", "Other"];
 const interestOptions = ["Health Awareness", "Sakhi Care Pads", "Employment", "Training", "Volunteer"];
 
-export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () => void, onSuccess: () => void }) {
+export default function AddMemberForm({ onCancel, onSuccess, defaultGroupId }: { onCancel: () => void, onSuccess: () => void, defaultGroupId?: string }) {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [groups, setGroups] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     name: '',
@@ -26,7 +29,7 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
     maritalStatus: 'Married',
     occupation: '',
     interests: [] as string[],
-    groupId: '',
+    groupId: defaultGroupId || '',
     pincode: '',
     state: '',
     district: '',
@@ -73,11 +76,23 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
+    setSuccess("");
     try {
       const res = await axios.post('/api/members', formData);
-      if (res.data.success) onSuccess();
-    } catch (err) {
+      if (res.data.success) {
+        const msg = res.data.message || "Member added successfully. Activation email sent.";
+        setSuccess(msg);
+        toast.success(msg);
+        setTimeout(() => {
+          onSuccess();
+        }, 1500);
+      }
+    } catch (err: any) {
       console.error("Failed to add member", err);
+      const errMsg = err.response?.data?.message || "Failed to add member. Please try again.";
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }
@@ -185,22 +200,24 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
             </div>
           </div>
 
-          <div className="flex flex-col gap-3">
-            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">{t('employeeForms.selectGroupLabel', 'Select Group')}</label>
-            <div className="relative">
-              <select 
-                required 
-                name="groupId" 
-                value={formData.groupId} 
-                onChange={handleChange} 
-                className="w-full p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary appearance-none"
-              >
-                <option value="">{t('employeeForms.chooseGroup', 'Choose a Group')}</option>
-                {groups.map(g => <option key={g._id} value={g._id}>{g.groupName} ({g.village})</option>)}
-              </select>
-              <Users size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          {!defaultGroupId && (
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">{t('employeeForms.selectGroupLabel', 'Select Group')}</label>
+              <div className="relative">
+                <select 
+                  required 
+                  name="groupId" 
+                  value={formData.groupId} 
+                  onChange={handleChange} 
+                  className="w-full p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary appearance-none"
+                >
+                  <option value="">{t('employeeForms.chooseGroup', 'Choose a Group')}</option>
+                  {groups.map(g => <option key={g._id} value={g._id}>{g.groupName} ({g.village})</option>)}
+                </select>
+                <Users size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-3">
@@ -268,8 +285,22 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
             </div>
           </div>
 
+          {error && (
+            <div className="p-4 bg-red-50 text-red-500 text-sm font-bold rounded-2xl flex items-center gap-3 border border-red-100 mt-4">
+              <span className="flex-shrink-0 w-2 h-2 rounded-full bg-red-500" />
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="p-4 bg-green-50 text-green-600 text-sm font-bold rounded-2xl flex items-center gap-3 border border-green-100 mt-4">
+              <span className="flex-shrink-0 w-2 h-2 rounded-full bg-green-500" />
+              {success}
+            </div>
+          )}
+
           <button 
-            disabled={loading} 
+            disabled={loading || success !== ""} 
             type="submit" 
             className="btn-primary w-full py-5 rounded-[24px] text-lg font-black mt-4 shadow-2xl shadow-primary/30 disabled:opacity-50 disabled:transform-none"
           >
