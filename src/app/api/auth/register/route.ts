@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       age, maritalStatus, occupation, interests,
       vendorCode, subVendorCode, campaignId, vendorType, membershipType,
       workState, workDistrict, workBlock, workTehsil,
-      workPincode, workArea, workAddress
+      workPincode, workArea, workAddress, isDirectRegistration
     } = body;
 
     if (!fullName || !mobile || !password || !email) {
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
 
     const effectiveVendorCode = vendorCode || body.vendor;
     const effectiveSubVendorCode = subVendorCode || body.subvendor;
-    const effectiveEmployeeCode = assignedEmployeeId || body.employee;
+    const effectiveEmployeeCode = isDirectRegistration ? undefined : (assignedEmployeeId || body.employee);
 
     if (!parentVendorId && effectiveVendorCode) {
       const vendor = await User.findOne({ vendorCode: effectiveVendorCode, role: 'vendor' });
@@ -101,6 +101,14 @@ export async function POST(req: NextRequest) {
         assignmentStatus = 'completed';
       }
     }
+
+    console.log("[DEBUG] /api/auth/register resolved fields:", {
+      assignedEmployeeId,
+      effectiveEmployeeCode,
+      parentVendorId,
+      referralSource,
+      assignmentStatus
+    });
 
     const hashedPassword = await hashPassword(password);
     const userRole = role || 'member';

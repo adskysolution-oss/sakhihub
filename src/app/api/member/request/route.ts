@@ -22,12 +22,11 @@ export async function POST(req: NextRequest) {
     // Check if a request already exists
     const existingRequest = await MemberRequest.findOne({
       memberId: (session as any).id,
-      employeeId,
       status: 'pending'
     });
 
     if (existingRequest) {
-      return errorResponse('A pending request already exists for this employee', 400);
+      return errorResponse('You already have a pending connection request', 400);
     }
 
     const newRequest = await MemberRequest.create({

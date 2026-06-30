@@ -59,6 +59,14 @@ export async function POST(req: NextRequest) {
         memberConnectionStatus = 'approved';
       }
 
+      console.log("[DEBUG] /api/auth/verify-otp calculated statuses:", {
+        role: userRole,
+        pendingParentVendorId: pendingUser.parentVendorId,
+        userStatus,
+        memberAccountStatus,
+        memberConnectionStatus
+      });
+
       const userData: any = {
         fullName: pendingUser.fullName,
         mobile: pendingUser.mobile,
@@ -107,6 +115,12 @@ export async function POST(req: NextRequest) {
 
       // Handle Member Specific Collections
       if (userRole === 'member') {
+        console.log("[DEBUG] /api/auth/verify-otp Creating WomenMember:", {
+          userId: newUser._id,
+          assignedEmployeeId: pendingUser.parentVendorId ? (pendingUser.assignedEmployeeId || newUser.parentVendorId) : undefined,
+          memberConnectionStatus
+        });
+
         await WomenMember.create({
           userId: newUser._id,
           name: newUser.fullName,
@@ -122,14 +136,20 @@ export async function POST(req: NextRequest) {
           occupation: pendingUser.occupation,
           interests: pendingUser.interests,
           createdBy: newUser._id,
-          assignedEmployeeId: pendingUser.assignedEmployeeId || newUser.parentVendorId,
+          assignedEmployeeId: pendingUser.parentVendorId ? (pendingUser.assignedEmployeeId || newUser.parentVendorId) : undefined,
           accountStatus: memberAccountStatus,
           connectionStatus: memberConnectionStatus,
           membershipStatus: 'free'
         });
 
+        console.log("[DEBUG] /api/auth/verify-otp MemberRequest condition check:", {
+          newUserParentVendorId: newUser.parentVendorId,
+          pendingUserAssignedEmployeeId: pendingUser.assignedEmployeeId
+        });
+
         // If it's a direct registration and they chose an employee to connect with
         if (!newUser.parentVendorId && pendingUser.assignedEmployeeId) {
+          console.log("[DEBUG] Creating MemberRequest for member:", newUser._id, "employee:", pendingUser.assignedEmployeeId);
           await MemberRequest.create({
             memberId: newUser._id,
             employeeId: pendingUser.assignedEmployeeId,

@@ -37,7 +37,8 @@ export enum NotificationEvent {
   ACCOUNT_ACTIVATED = 'ACCOUNT_ACTIVATED',
   OFFER_LETTER_GENERATED = 'OFFER_LETTER_GENERATED',
   AGREEMENT_GENERATED = 'AGREEMENT_GENERATED',
-  WELCOME_ONBOARDING = 'WELCOME_ONBOARDING'
+  WELCOME_ONBOARDING = 'WELCOME_ONBOARDING',
+  CONNECTION_REJECTED = 'CONNECTION_REJECTED'
 }
 
 export const NotificationService = {
@@ -532,6 +533,31 @@ export const NotificationService = {
             return true;
           }
           return false;
+        }
+
+        case NotificationEvent.CONNECTION_REJECTED: {
+          const { userId, employeeId } = data;
+          const user = await User.findById(userId);
+          const employee = await User.findById(employeeId);
+          if (!user || !user.email || !employee) return false;
+
+          const html = getBaseTemplate(`
+            <p>Hello <span class="highlight">${user.fullName}</span>,</p>
+            <p>Your connection request to employee/agent <strong>${employee.fullName}</strong> was not accepted at this time.</p>
+            <p>Please log in to your dashboard to search for and connect with other nearby employees in your area.</p>
+          `, { text: 'Go to Dashboard', url: 'https://sakhihub.com/dashboard' });
+
+          const res = await EmailService.send(user.email, 'Connection Request Status on SakhiHub', html);
+
+          await EmailLog.create({
+            recipient: user.email,
+            subject: 'Connection Request Status on SakhiHub',
+            type: 'connection_rejected_notification',
+            status: res.success ? 'success' : 'failed',
+            error: res.success ? undefined : (res.error as any)?.message,
+            relatedId: user._id
+          });
+          return res.success;
         }
       }
       return false;

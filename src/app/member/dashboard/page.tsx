@@ -216,8 +216,13 @@ function MemberDashboardContent() {
     setManualError("");
     try {
       const resLookup = await axios.get(`/api/employees/nearby?employeeCode=${manualCode.trim()}`);
-      if (resLookup.data.success && resLookup.data.data.length > 0) {
-        const emp = resLookup.data.data[0];
+      if (resLookup.data.success && resLookup.data.data) {
+        const emp = Array.isArray(resLookup.data.data) ? resLookup.data.data[0] : resLookup.data.data;
+        if (!emp) {
+          setManualError(t('dashboardMember.employeeNotFound', "Employee Code not found or not active. Please check the code."));
+          setManualSearching(false);
+          return;
+        }
         const resConnect = await axios.post('/api/member/request', {
           employeeId: emp._id,
           pincode: emp.pincode || data?.fieldRecord?.pincode || "000000"

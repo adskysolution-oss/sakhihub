@@ -29,12 +29,11 @@ export async function POST(req: NextRequest) {
     // Check if a request already exists
     const existingRequest = await MemberRequest.findOne({
       memberId: memberUserId,
-      employeeId: (session as any).id,
       status: 'pending'
     });
 
     if (existingRequest) {
-      return errorResponse('A pending request already exists for this member', 400);
+      return errorResponse('This member already has a pending connection request', 400);
     }
 
     const newRequest = await MemberRequest.create({
@@ -46,11 +45,20 @@ export async function POST(req: NextRequest) {
       status: 'pending'
     });
 
-    // Update WomenMember connection status
+    // Update WomenMember connection status and reset assigned employee
     await WomenMember.findOneAndUpdate(
       { userId: memberUserId },
-      { connectionStatus: 'pending_request' }
+      { 
+        connectionStatus: 'pending_request',
+        assignedEmployeeId: undefined
+      }
     );
+
+    // Reset parentVendorId and assignmentStatus on User document to ensure consistency
+    await User.findByIdAndUpdate(memberUserId, {
+      parentVendorId: undefined,
+      assignmentStatus: 'pending'
+    });
 
     // Notify member asynchronously
     notifyEmployeeInvite((session as any).id, memberUserId, message);

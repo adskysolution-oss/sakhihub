@@ -73,20 +73,29 @@ export async function GET(req: NextRequest) {
       const employee = userProfile;
       if (!employee) return errorResponse('Employee not found', 404);
       
+      // Get ObjectIds of members with active pending requests
+      const pendingMemberIds = await MemberRequest.distinct('memberId', { status: 'pending' });
+
       query = {
         connectionStatus: 'unassigned',
+        accountStatus: 'active',
         $or: [
           { block: employee.block },
           { district: employee.district }
         ],
-        userId: { $exists: true } // Only show members who have a user account (self-registered)
+        userId: { 
+          $exists: true,
+          $nin: pendingMemberIds
+        }
       };
+
+      console.log("[DEBUG] /api/members discovery query:", JSON.stringify(query), "pendingMemberIds count:", pendingMemberIds.length);
     } else if (role === 'employee') {
       const empObjectId = new mongoose.Types.ObjectId(userId);
-      // Find all members who registered using this employee's code (mapped in User model)
       const mappedUsers = await User.find({ parentVendorId: empObjectId, role: 'member' }).select('_id');
       const mappedUserIds = mappedUsers.map(u => u._id);
 
+      query.connectionStatus = 'approved';
       query.$or = [
         { createdBy: empObjectId }, 
         { assignedEmployeeId: empObjectId },
@@ -140,6 +149,9 @@ export async function GET(req: NextRequest) {
     const uniqueMembersMap = new Map();
 
     members.forEach(member => {
+      // Filter out orphan records (referenced User has been deleted)
+      if (member.userId === null) return;
+
       // Use mobile as unique key
       if (!uniqueMembersMap.has(member.mobile)) {
         // Determine the assigned employee fallback

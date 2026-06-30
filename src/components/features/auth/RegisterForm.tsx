@@ -270,10 +270,14 @@ export default function RegisterForm() {
         Object.entries(formData).filter(([_, value]) => value !== "")
       );
 
+      console.log("[DEBUG] RegisterForm submit cleanData:", cleanData);
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cleanData),
+        body: JSON.stringify({
+          ...cleanData,
+          isDirectRegistration: !referredEmployee
+        }),
       });
 
       const result = await response.json();
