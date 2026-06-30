@@ -520,14 +520,14 @@ const PaymentSlip: React.FC<PaymentSlipProps> = ({ type, data }) => {
 
           <div className="flex items-center gap-1.5">
             <Mail size={11} className="text-gray-400 shrink-0" />
-            <a href="mailto:care@sakhihub.org" className="hover:text-primary transition-colors text-gray-400 no-underline">
-              care@sakhihub.org
+            <a href="mailto:info@sakhihub.com" className="hover:text-primary transition-colors text-gray-400 no-underline">
+              info@sakhihub.com
             </a>
           </div>
 
           <div className="flex items-center gap-1.5">
             <Phone size={11} className="text-gray-400 shrink-0" />
-            <span>+91 9988273555</span>
+            <span>+91 8031492661</span>
           </div>
 
           <div className="flex items-center gap-1.5">
