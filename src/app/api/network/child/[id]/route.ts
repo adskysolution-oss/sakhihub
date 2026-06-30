@@ -6,6 +6,7 @@ import Campaign from '@/models/Campaign';
 import Group from '@/models/Group';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
+import { isReportingEmployee } from '@/utils/hierarchy';
 
 // Helper to sanitize documents and remove sensitive fields
 function sanitizeDocuments(docs: any) {
@@ -75,13 +76,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
           isAuthorized = true;
         }
       } else if (isDC) {
-        // District Coordinator can see Block Coordinators in their assigned blocks
-        const assignedBlocks = (currentUser.assignedBlocks || []).map((b: string) => b.trim().toLowerCase());
-        const isBlockEmployee = ['Block Coordinator', 'Field Executive'].includes(childUser.designation || '');
-        const hasMatchingBlock = 
-          assignedBlocks.includes((childUser.workBlock || '').trim().toLowerCase()) || 
-          assignedBlocks.includes((childUser.block || '').trim().toLowerCase());
-        if (childUser.role === 'employee' && isBlockEmployee && hasMatchingBlock) {
+        if (await isReportingEmployee(currentUser, childUser)) {
           isAuthorized = true;
         }
       }

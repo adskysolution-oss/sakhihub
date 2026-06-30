@@ -52,9 +52,39 @@ export async function GET(req: NextRequest) {
     const userId = (session as any).id;
     const User = (await import('@/models/User')).default;
     const userProfile = await User.findById(userId);
+
+    const { searchParams } = new URL(req.url);
+    const createdByParam = searchParams.get('createdBy');
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '20', 10);
+
     let query: any = {};
+    let skip: number | undefined;
+    let limitVal: number | undefined;
+    const isDC = userProfile && ['District Coordinator', 'District Project Officer'].includes(userProfile.designation || '');
+
     if (role === 'employee') {
-      query = { createdBy: new mongoose.Types.ObjectId(userId) };
+      if (createdByParam) {
+        if (createdByParam !== userId) {
+          if (!isDC) {
+            return errorResponse('Forbidden: Only District Coordinators can view reporting coordinators groups', 403);
+          }
+          // Validate reporting hierarchy using the shared helper
+          const targetUser = await User.findById(createdByParam);
+          if (!targetUser) return errorResponse('Target employee not found', 404);
+
+          const { isReportingEmployee } = await import('@/utils/hierarchy');
+          const reportsToDc = await isReportingEmployee(userProfile, targetUser);
+          if (!reportsToDc) {
+            return errorResponse('Forbidden: You can only view groups of your direct reporting Block Coordinators', 403);
+          }
+        }
+        query = { createdBy: new mongoose.Types.ObjectId(createdByParam) };
+        skip = (page - 1) * limit;
+        limitVal = limit;
+      } else {
+        query = { createdBy: new mongoose.Types.ObjectId(userId) };
+      }
     } else if (role === 'vendor') {
       query = { vendorCode: userProfile?.vendorCode };
     } else if (role === 'sub_vendor') {
@@ -70,7 +100,18 @@ export async function GET(req: NextRequest) {
       return errorResponse('Forbidden', 403);
     }
 
-    const groups = await Group.find(query).sort({ createdAt: -1 }).populate('campaignId', 'title');
+    let queryBuilder = Group.find(query).sort({ createdAt: -1 }).populate('campaignId', 'title');
+    if (skip !== undefined && limitVal !== undefined) {
+      queryBuilder = queryBuilder.skip(skip).limit(limitVal);
+    }
+
+    // Only populate createdBy for District Coordinator views or explicit creator queries
+    const shouldPopulateCreatedBy = !!createdByParam || isDC;
+    if (shouldPopulateCreatedBy) {
+      queryBuilder = queryBuilder.populate('createdBy', 'fullName employeeId block workBlock designation');
+    }
+
+    const groups = await queryBuilder;
     return successResponse(groups);
   } catch (error: any) {
     return errorResponse(error.message, 500);

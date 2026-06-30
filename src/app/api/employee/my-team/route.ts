@@ -104,6 +104,20 @@ export async function GET(req: NextRequest) {
     });
 
     const employees = JSON.parse(JSON.stringify(populatedEmployees));
+
+    const mongoose = (await import('mongoose')).default;
+    const Group = (await import('@/models/Group')).default;
+    const empIds = employees.map((e: any) => new mongoose.Types.ObjectId(e._id));
+    const groupCounts = await Group.aggregate([
+      { $match: { createdBy: { $in: empIds } } },
+      { $group: { _id: '$createdBy', count: { $sum: 1 } } }
+    ]);
+    const countsMap = new Map(groupCounts.map((item: any) => [item._id.toString(), item.count]));
+    
+    employees.forEach((e: any) => {
+      e.totalGroups = countsMap.get(e._id) || 0;
+    });
+
     const sanitizedData = sanitizeUserListForClient(employees);
 
     return Response.json({

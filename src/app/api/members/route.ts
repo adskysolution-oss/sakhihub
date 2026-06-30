@@ -192,7 +192,21 @@ export async function GET(req: NextRequest) {
     let query: any = {};
     const groupId = searchParams.get('groupId');
 
-    if (mode === 'discovery' && role === 'employee') {
+    if (groupId && role === 'employee') {
+      const group = await Group.findById(groupId);
+      if (!group) return errorResponse('Group not found', 404);
+      
+      let isAuthorized = group.createdBy.toString() === userId;
+      if (!isAuthorized) {
+        const { isReportingEmployee } = await import('@/utils/hierarchy');
+        const creatorUser = await User.findById(group.createdBy);
+        isAuthorized = creatorUser && userProfile && await isReportingEmployee(userProfile, creatorUser);
+      }
+      if (!isAuthorized) {
+        return errorResponse('Forbidden: You do not have access to this group\'s members', 403);
+      }
+      query = { groupId };
+    } else if (mode === 'discovery' && role === 'employee') {
       const employee = userProfile;
       if (!employee) return errorResponse('Employee not found', 404);
       
@@ -232,7 +246,7 @@ export async function GET(req: NextRequest) {
       return errorResponse('Forbidden', 403);
     }
 
-    if (groupId) {
+    if (groupId && !query.groupId) {
       query.groupId = groupId;
     }
 

@@ -12,7 +12,7 @@ export const ALLOWED_USER_FIELDS = [
   'vendorCode', 'subVendorCode', 'employeeId', 'vendorType',
   'parentVendorId', 'profileImage', 'assignmentStatus', 'documents',
   'permissions', 'assignedScope', 'assignedStates', 'assignedDistricts', 'assignedBlocks', 'assignedRegions',
-  'dashboardAccess'
+  'dashboardAccess', 'totalGroups'
 ];
 
 /**

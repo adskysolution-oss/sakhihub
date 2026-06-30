@@ -28,7 +28,14 @@ export async function GET(
     }
 
     if (role === 'employee' && group.createdBy.toString() !== userId) {
-      return errorResponse('Unauthorized access to this group', 403);
+      const User = (await import('@/models/User')).default;
+      const userProfile = await User.findById(userId);
+      const creatorUser = await User.findById(group.createdBy);
+      const { isReportingEmployee } = await import('@/utils/hierarchy');
+      const isAuthorized = creatorUser && userProfile && await isReportingEmployee(userProfile, creatorUser);
+      if (!isAuthorized) {
+        return errorResponse('Unauthorized access to this group', 403);
+      }
     }
 
     return successResponse(group);

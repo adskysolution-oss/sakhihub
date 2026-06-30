@@ -24,7 +24,14 @@ export async function GET(
 
     // Permission checks
     if (role === 'employee' && group.createdBy.toString() !== userId) {
-      return errorResponse('Forbidden', 403);
+      const User = (await import('@/models/User')).default;
+      const userProfile = await User.findById(userId);
+      const creatorUser = await User.findById(group.createdBy);
+      const { isReportingEmployee } = await import('@/utils/hierarchy');
+      const isAuthorized = creatorUser && userProfile && await isReportingEmployee(userProfile, creatorUser);
+      if (!isAuthorized) {
+        return errorResponse('Forbidden', 403);
+      }
     }
 
     const { searchParams } = new URL(req.url);
