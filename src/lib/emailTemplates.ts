@@ -214,3 +214,12 @@ export const getAgreementGeneratedTemplate = (data: { name: string; agreementId:
     <p>A copy of the generated Partnership Agreement PDF is attached to this email for your reference.</p>
 `, { text: 'View Agreement Page', url: 'https://sakhihub.com/dashboard' });
 
+export const getActivationTemplate = (name: string, otp: string, email: string, employeeName: string) => getBaseTemplate(`
+    <p>Hello <span class="highlight">${name}</span>,</p>
+    <p>Welcome to SakhiHub! An account has been created for you by our executive <strong>${employeeName}</strong>.</p>
+    <p>Your OTP for <strong>Account Activation</strong> is:</p>
+    <div class="otp-box">${otp}</div>
+    <p>Please click the button below to verify your OTP and set your password to activate your account.</p>
+`, { text: 'Activate Account', url: `https://sakhihub.com/activate-account?email=${encodeURIComponent(email)}` });
+
+

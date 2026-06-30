@@ -59,6 +59,31 @@ export default function EmployeeMembersPage() {
     }
   };
 
+  const [resendingId, setResendingId] = useState<string | null>(null);
+
+  const handleResendActivation = async (member: any) => {
+    const userDoc = member.userId;
+    const email = member.email || (userDoc && typeof userDoc === 'object' ? userDoc.email : null);
+    if (!email) {
+      toast.error("Member does not have an email address associated.");
+      return;
+    }
+    setResendingId(member._id);
+    try {
+      const res = await axios.post('/api/auth/resend-otp', {
+        email,
+        purpose: 'Account Activation'
+      });
+      if (res.data.success) {
+        toast.success("Activation email resent successfully!");
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to resend activation email.");
+    } finally {
+      setResendingId(null);
+    }
+  };
+
   const handleGroupAssign = (member: any) => {
     setAssigningMember(member);
   };
@@ -181,11 +206,15 @@ export default function EmployeeMembersPage() {
                   </td>
                   <td className="p-6">
                     <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                      member.connectionStatus === 'approved' 
+                      member.activationStatus === 'Activated' || member.connectionStatus === 'approved'
                         ? 'bg-green-50 text-green-600 border border-green-100' 
+                        : member.activationStatus === 'Pending Activation'
+                        ? 'bg-amber-50 text-amber-600 border border-amber-100'
+                        : member.activationStatus === 'Activation Expired'
+                        ? 'bg-red-50 text-red-600 border border-red-100'
                         : 'bg-gray-50 text-gray-400 border border-gray-100'
                     }`}>
-                      {member.connectionStatus || t('employeeMembers.unassigned', 'Unassigned')}
+                      {member.activationStatus || member.connectionStatus || t('employeeMembers.unassigned', 'Unassigned')}
                     </span>
                   </td>
                   <td className="p-6">
@@ -209,17 +238,28 @@ export default function EmployeeMembersPage() {
                         );
                       })()
                     ) : (
-                      <div className="flex gap-4">
-                         <button 
-                          onClick={() => setSelectedMember(member)}
-                          className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline"
-                         >{t('employeeMembers.details', 'Details')}</button>
-                         {!member.groupId && (
-                           <button 
-                            onClick={() => handleGroupAssign(member)}
-                            className="text-secondary text-[10px] font-black uppercase tracking-widest hover:underline"
-                           >{t('employeeMembers.addGroup', '+ Group')}</button>
-                         )}
+                      <div className="flex gap-4 items-center">
+                          <button 
+                           onClick={() => setSelectedMember(member)}
+                           className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline"
+                          >{t('employeeMembers.details', 'Details')}</button>
+                          
+                          {['Pending Activation', 'Activation Expired'].includes(member.activationStatus) && (
+                            <button 
+                             disabled={resendingId === member._id}
+                             onClick={() => handleResendActivation(member)}
+                             className="text-accent text-[10px] font-black uppercase tracking-widest hover:underline disabled:opacity-50"
+                            >
+                              {resendingId === member._id ? 'Sending...' : 'Resend Activation'}
+                            </button>
+                          )}
+
+                          {!member.groupId && member.activationStatus === 'Activated' && (
+                            <button 
+                             onClick={() => handleGroupAssign(member)}
+                             className="text-secondary text-[10px] font-black uppercase tracking-widest hover:underline"
+                            >{t('employeeMembers.addGroup', '+ Group')}</button>
+                          )}
                       </div>
                     )}
                   </td>

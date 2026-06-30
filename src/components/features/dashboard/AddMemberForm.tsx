@@ -9,6 +9,7 @@ import {
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useLanguage } from '@/context/LanguageContext';
+import { usePincodeAutofill } from '@/hooks/usePincodeAutofill';
 
 const occupations = ["Housewife", "Self Employed", "Labor", "Student", "Farmer", "Other"];
 const interestOptions = ["Health Awareness", "Sakhi Care Pads", "Employment", "Training", "Volunteer"];
@@ -20,14 +21,28 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
   const [formData, setFormData] = useState({
     name: '',
     mobile: '',
+    email: '',
     age: '',
     maritalStatus: 'Married',
     occupation: '',
     interests: [] as string[],
     groupId: '',
-    village: '',
+    pincode: '',
+    state: '',
     district: '',
     block: '',
+    village: '',
+    address: '',
+  });
+
+  const { loading: pincodeLoading } = usePincodeAutofill(formData.pincode, (data) => {
+    setFormData(prev => ({
+      ...prev,
+      state: data.state,
+      district: data.district,
+      block: data.block,
+      village: data.area[0] || ""
+    }));
   });
 
   useEffect(() => {
@@ -86,7 +101,7 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
         </div>
 
         <form onSubmit={handleSubmit} className="grid gap-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="flex flex-col gap-3">
               <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">{t('employeeForms.nameLabel', 'Member Name')}</label>
               <input 
@@ -107,6 +122,18 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
                 value={formData.mobile} 
                 onChange={handleChange} 
                 placeholder={t('employeeForms.mobilePlaceholder', '10 Digit Number')} 
+                className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" 
+              />
+            </div>
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">{t('employeeForms.emailLabel', 'Email Address')}</label>
+              <input 
+                required 
+                type="email" 
+                name="email" 
+                value={formData.email} 
+                onChange={handleChange} 
+                placeholder={t('employeeForms.emailPlaceholder', 'email@example.com')} 
                 className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" 
               />
             </div>
@@ -175,10 +202,49 @@ export default function AddMemberForm({ onCancel, onSuccess }: { onCancel: () =>
             </div>
           </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Pincode</label>
+              <div className="relative">
+                <input 
+                  required 
+                  name="pincode" 
+                  value={formData.pincode} 
+                  onChange={handleChange} 
+                  placeholder="Pincode" 
+                  className="w-full p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" 
+                />
+                {pincodeLoading && (
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Village/Area</label>
+              <input required name="village" value={formData.village} onChange={handleChange} placeholder={t('employeeForms.villagePlaceholder', 'Village')} className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <input required name="village" value={formData.village} onChange={handleChange} placeholder={t('employeeForms.villagePlaceholder', 'Village')} className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
-            <input required name="block" value={formData.block} onChange={handleChange} placeholder={t('employeeForms.blockPlaceholder', 'Block')} className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
-            <input required name="district" value={formData.district} onChange={handleChange} placeholder={t('employeeForms.districtPlaceholder', 'District')} className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Block</label>
+              <input required name="block" value={formData.block} onChange={handleChange} placeholder={t('employeeForms.blockPlaceholder', 'Block')} className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
+            </div>
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">District</label>
+              <input required name="district" value={formData.district} onChange={handleChange} placeholder={t('employeeForms.districtPlaceholder', 'District')} className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
+            </div>
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">State</label>
+              <input required name="state" value={formData.state} onChange={handleChange} placeholder="State" className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Full Address (Aadhaar/Residential)</label>
+            <input name="address" value={formData.address} onChange={handleChange} placeholder="House No, Street, Landmark, etc." className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-secondary" />
           </div>
 
           <div className="flex flex-col gap-6">

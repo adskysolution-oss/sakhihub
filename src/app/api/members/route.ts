@@ -9,6 +9,30 @@ import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/utils/response';
 import { notifyGroupAddition } from '@/lib/notifications';
 
+import { generateOTP, hashOTP } from '@/lib/otp';
+
+async function deliverOTP(user: any, rawOtp: string, purpose: string, creatorName?: string) {
+  if (process.env.OTP_DELIVERY_METHOD === 'sms') {
+    // Future SMS implementation:
+    // await sendSMS(user.mobile, `Your SakhiHub OTP is ${rawOtp}`);
+  } else {
+    // Current Email implementation:
+    const { sendEmail } = await import('@/lib/email');
+    const { getActivationTemplate, getOTPTemplate } = await import('@/lib/emailTemplates');
+    
+    let subject = `Your SakhiHub OTP for ${purpose}`;
+    let html = getOTPTemplate(user.fullName, rawOtp, purpose);
+
+    if (purpose === 'Account Activation') {
+      subject = 'Activate your SakhiHub Account';
+      html = getActivationTemplate(user.fullName, rawOtp, user.email, creatorName || 'our executive');
+    }
+
+    const res = await sendEmail(user.email, subject, html);
+    return res;
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getAuthSession();
@@ -18,8 +42,60 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const userId = (session as any).id;
     
+    if (!body.email) {
+      return errorResponse('Email is required', 400);
+    }
+    if (!body.mobile) {
+      return errorResponse('Mobile number is required', 400);
+    }
+
     // Fetch creator's profile for hierarchy
     const userProfile = await User.findById(userId);
+
+    // Duplicate User Protection
+    const existingUser = await User.findOne({
+      $or: [
+        { email: body.email },
+        { mobile: body.mobile }
+      ]
+    });
+
+    const AuditLog = (await import('@/models/AuditLog')).default;
+
+    if (existingUser) {
+      if (existingUser.status === 'pending_registration') {
+        // Verify resend cooldown (60 seconds)
+        if (existingUser.lastOtpSentAt) {
+          const diff = Date.now() - new Date(existingUser.lastOtpSentAt).getTime();
+          if (diff < 60 * 1000) {
+            return errorResponse(`Please wait ${Math.ceil((60 * 1000 - diff) / 1000)}s before requesting a new OTP`, 400);
+          }
+        }
+
+        const rawOtp = generateOTP();
+        existingUser.otp = hashOTP(rawOtp);
+        existingUser.otpExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours expiry
+        existingUser.lastOtpSentAt = new Date();
+        existingUser.otpAttempts = 0;
+        await existingUser.save();
+
+        // Deliver activation OTP email
+        const creatorName = userProfile?.fullName || 'our executive';
+        await deliverOTP(existingUser, rawOtp, 'Account Activation', creatorName);
+
+        // Audit Log
+        await AuditLog.create({
+          action: 'ACTIVATION_EMAIL_RESENT',
+          performedBy: new mongoose.Types.ObjectId(userId),
+          targetUser: existingUser._id,
+          details: { email: body.email, mobile: body.mobile }
+        });
+
+        return successResponse(null, 'Member registration is pending. Activation email has been resent.', 200);
+      } else {
+        return errorResponse('A user with this email or mobile number already exists and is active.', 400);
+      }
+    }
 
     // Auto-populate district and block from group if missing
     const group = await Group.findById(body.groupId);
@@ -30,16 +106,63 @@ export async function POST(req: NextRequest) {
     if (!body.district) body.district = group.district;
     if (!body.block) body.block = group.block;
 
+    // Generate Activation OTP
+    const rawOtp = generateOTP();
+    const hashedOtp = hashOTP(rawOtp);
+
+    // Create User record in pending_registration
+    const newUser = await User.create({
+      fullName: body.name,
+      mobile: body.mobile,
+      email: body.email,
+      role: 'member',
+      status: 'pending_registration',
+      parentVendorId: new mongoose.Types.ObjectId(userId),
+      parentEmployeeCode: userProfile?.employeeId,
+      parentVendorCode: userProfile?.vendorCode,
+      parentSubVendorCode: userProfile?.subVendorCode,
+      assignmentStatus: 'completed',
+      otp: hashedOtp,
+      otpExpires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      lastOtpSentAt: new Date(),
+      otpAttempts: 0,
+      emailVerified: false,
+      dashboardAccess: false,
+      onboardingCompleted: false,
+      paymentCompleted: true,
+      referralSource: 'invite'
+    });
+
     const member = await WomenMember.create({
       ...body,
-      createdBy: userId,
-      assignedEmployeeId: userId,
+      userId: newUser._id,
+      createdBy: new mongoose.Types.ObjectId(userId),
+      assignedEmployeeId: new mongoose.Types.ObjectId(userId),
       vendorCode: userProfile?.vendorCode,
       subVendorCode: userProfile?.subVendorCode,
       requestedBy: 'employee',
       connectionStatus: 'approved',
-      accountStatus: 'active',
+      accountStatus: 'inactive',
       membershipStatus: 'free'
+    });
+
+    // Deliver activation OTP email
+    const creatorName = userProfile?.fullName || 'our executive';
+    await deliverOTP(newUser, rawOtp, 'Account Activation', creatorName);
+
+    // Audit logs
+    await AuditLog.create({
+      action: 'EMPLOYEE_MEMBER_CREATED',
+      performedBy: new mongoose.Types.ObjectId(userId),
+      targetUser: newUser._id,
+      details: { email: body.email, mobile: body.mobile }
+    });
+
+    await AuditLog.create({
+      action: 'ACTIVATION_EMAIL_SENT',
+      performedBy: new mongoose.Types.ObjectId(userId),
+      targetUser: newUser._id,
+      details: { email: body.email }
     });
 
     // Notify group addition asynchronously
@@ -47,7 +170,7 @@ export async function POST(req: NextRequest) {
       notifyGroupAddition(member._id, member.groupId.toString(), userId);
     }
 
-    return successResponse(member, 'Member added successfully', 201);
+    return successResponse(member, 'Member added successfully. Activation email sent.', 201);
   } catch (error: any) {
     return errorResponse(error.message, 500);
   }
@@ -138,7 +261,7 @@ export async function GET(req: NextRequest) {
       .populate('assignedEmployeeId', 'fullName mobile employeeId')
       .populate({
         path: 'userId',
-        select: 'parentVendorId parentEmployeeCode parentVendorCode parentSubVendorCode',
+        select: 'parentVendorId parentEmployeeCode parentVendorCode parentSubVendorCode status otpExpires',
         populate: {
           path: 'parentVendorId',
           select: 'fullName mobile employeeId'
@@ -152,6 +275,15 @@ export async function GET(req: NextRequest) {
       // Filter out orphan records (referenced User has been deleted)
       if (member.userId === null) return;
 
+      let activationStatus = 'Activated';
+      if (member.userId && typeof member.userId === 'object') {
+        const userDoc = member.userId as any;
+        if (userDoc.status === 'pending_registration') {
+          const isExpired = userDoc.otpExpires && new Date() > new Date(userDoc.otpExpires);
+          activationStatus = isExpired ? 'Activation Expired' : 'Pending Activation';
+        }
+      }
+
       // Use mobile as unique key
       if (!uniqueMembersMap.has(member.mobile)) {
         // Determine the assigned employee fallback
@@ -162,7 +294,8 @@ export async function GET(req: NextRequest) {
           assignedEmployeeId: employee, // Unified employee field
           paymentStatus: member.membershipStatus === 'paid' ? 'Paid' : 'Pending',
           accountStatus: member.accountStatus,
-          connectionStatus: member.connectionStatus
+          connectionStatus: member.connectionStatus,
+          activationStatus: activationStatus
         });
       }
     });

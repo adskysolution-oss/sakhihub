@@ -31,26 +31,43 @@ export async function POST(req: NextRequest) {
 
     const rawOtp = generateOTP();
     user.otp = hashOTP(rawOtp);
-    user.otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    user.otpExpires = new Date(Date.now() + (purpose === 'Account Activation' ? 24 * 60 * 60 * 1000 : 10 * 60 * 1000));
     user.lastOtpSentAt = new Date();
     user.otpAttempts = 0;
     await user.save();
 
     // Send Email
-    const res = await sendEmail(
-      email, 
-      `Your SakhiHub OTP for ${purpose || 'Verification'}`, 
-      getOTPTemplate(user.fullName, rawOtp, purpose || 'Verification')
-    );
+    let subject = `Your SakhiHub OTP for ${purpose || 'Verification'}`;
+    let html = getOTPTemplate(user.fullName, rawOtp, purpose || 'Verification');
+
+    if (purpose === 'Account Activation') {
+      subject = 'Activate your SakhiHub Account';
+      const { getActivationTemplate } = await import('@/lib/emailTemplates');
+      const employeeUser = await User.findById(user.parentVendorId);
+      const employeeName = employeeUser?.fullName || 'our executive';
+      html = getActivationTemplate(user.fullName, rawOtp, email, employeeName);
+    }
+
+    const res = await sendEmail(email, subject, html);
 
     await EmailLog.create({
       recipient: email,
-      subject: `Your SakhiHub OTP for ${purpose || 'Verification'}`,
+      subject,
       type: 'resend_otp',
       status: res.success ? 'success' : 'failed',
       error: res.success ? undefined : (res.error as any)?.message,
       relatedId: user._id
     });
+
+    if (purpose === 'Account Activation') {
+      const AuditLog = (await import('@/models/AuditLog')).default;
+      await AuditLog.create({
+        action: 'ACTIVATION_EMAIL_RESENT',
+        performedBy: user.parentVendorId || user._id,
+        targetUser: user._id,
+        details: { email }
+      });
+    }
 
     if (!res.success) {
       return errorResponse('Failed to send email. Please try again later.', 500);
