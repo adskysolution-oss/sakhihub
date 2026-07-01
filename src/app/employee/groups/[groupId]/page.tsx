@@ -44,7 +44,7 @@ export default function GroupDetailsPage() {
     try {
       const [groupRes, membersRes] = await Promise.all([
         axios.get(`/api/groups/${groupId}`),
-        axios.get(`/api/members?groupId=${groupId}`)
+        axios.get(`/api/groups/${groupId}/members`)
       ]);
 
       if (groupRes.data.success) setGroup(groupRes.data.data);
@@ -111,7 +111,7 @@ export default function GroupDetailsPage() {
 
   const filteredMembers = members.filter(m =>
     m.name.toLowerCase().includes(memberSearch.toLowerCase()) ||
-    m.mobile.includes(memberSearch)
+    (m.mobile && m.mobile.includes(memberSearch))
   );
 
   if (loading) return <DashboardLayout><div style={{ padding: '80px', textAlign: 'center', fontWeight: 'bold', color: '#666' }}><RefreshCw className="animate-spin" style={{ margin: '0 auto 10px' }} size={24} />{t('employeeGroups.loadingDetails', 'Loading group details...')}</div></DashboardLayout>;
@@ -180,6 +180,7 @@ export default function GroupDetailsPage() {
         <AddMemberModal
           groupId={groupId as string}
           groupName={group.groupName}
+          isParticipant={true}
           onClose={() => setShowAddMember(false)}
           onSuccess={() => { setShowAddMember(false); fetchGroupAndMembers(); }}
         />
@@ -277,6 +278,7 @@ export default function GroupDetailsPage() {
                   <tr style={{ textAlign: 'left', borderBottom: '2px solid #f8f9fa' }}>
                     <th style={{ padding: '15px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Member Name</th>
                     <th style={{ padding: '15px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Contact</th>
+                    <th style={{ padding: '15px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Type</th>
                     <th style={{ padding: '15px', color: '#999', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Status</th>
                   </tr>
                 </thead>
@@ -296,8 +298,23 @@ export default function GroupDetailsPage() {
                       </td>
                       <td style={{ padding: '15px' }}>
                         <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Phone size={14} color="var(--primary)" /> {member.mobile}
+                          <Phone size={14} color="var(--primary)" /> {member.mobile || 'N/A'}
                         </p>
+                      </td>
+                      <td style={{ padding: '15px' }}>
+                        <span style={{
+                          padding: '6px 12px',
+                          borderRadius: '8px',
+                          fontSize: '0.7rem',
+                          fontWeight: '800',
+                          background: member.memberType === 'REPORTING_MEMBER' ? '#f1f5f9' : '#e0f2fe',
+                          color: member.memberType === 'REPORTING_MEMBER' ? '#475569' : '#0369a1',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          width: 'fit-content'
+                        }}>
+                          {member.memberType === 'REPORTING_MEMBER' ? 'Reporting Only' : 'Platform Member'}
+                        </span>
                       </td>
                       <td style={{ padding: '15px' }}>
                         <span style={{
@@ -320,7 +337,7 @@ export default function GroupDetailsPage() {
                   ))}
                   {filteredMembers.length === 0 && (
                     <tr>
-                      <td colSpan={3} style={{ textAlign: 'center', padding: '40px', color: '#999', fontWeight: '700' }}>No members found in this group.</td>
+                      <td colSpan={4} style={{ textAlign: 'center', padding: '40px', color: '#999', fontWeight: '700' }}>No members found in this group.</td>
                     </tr>
                   )}
                 </tbody>

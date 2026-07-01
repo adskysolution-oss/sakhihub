@@ -190,6 +190,15 @@ export async function GET(req: NextRequest) {
     const userProfile = await User.findById(userId);
 
     let query: any = {};
+    const includeReporting = searchParams.get('includeReporting') === 'true';
+    const memberTypeFilter = searchParams.get('memberType');
+
+    if (memberTypeFilter) {
+      query.memberType = memberTypeFilter;
+    } else if (!includeReporting) {
+      query.memberType = { $ne: 'REPORTING_MEMBER' };
+    }
+
     const groupId = searchParams.get('groupId');
 
     if (groupId && role === 'employee') {
@@ -287,10 +296,12 @@ export async function GET(req: NextRequest) {
 
     members.forEach(member => {
       // Filter out orphan records (referenced User has been deleted)
-      if (member.userId === null) return;
+      if (member.userId === null && member.memberType !== 'REPORTING_MEMBER') return;
 
       let activationStatus = 'Activated';
-      if (member.userId && typeof member.userId === 'object') {
+      if (member.memberType === 'REPORTING_MEMBER') {
+        activationStatus = 'Reporting Member';
+      } else if (member.userId && typeof member.userId === 'object') {
         const userDoc = member.userId as any;
         if (userDoc.status === 'pending_registration') {
           const isExpired = userDoc.otpExpires && new Date() > new Date(userDoc.otpExpires);
@@ -298,12 +309,13 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      // Use mobile as unique key
-      if (!uniqueMembersMap.has(member.mobile)) {
+      // Use mobile or _id as unique key
+      const key = member.mobile || member._id.toString();
+      if (!uniqueMembersMap.has(key)) {
         // Determine the assigned employee fallback
         const employee = member.assignedEmployeeId || (member.userId as any)?.parentVendorId;
 
-        uniqueMembersMap.set(member.mobile, {
+        uniqueMembersMap.set(key, {
           ...member.toObject(),
           assignedEmployeeId: employee, // Unified employee field
           paymentStatus: member.membershipStatus === 'paid' ? 'Paid' : 'Pending',

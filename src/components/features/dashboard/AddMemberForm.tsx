@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 const occupations = ["Housewife", "Self Employed", "Labor", "Student", "Farmer", "Other"];
 const interestOptions = ["Health Awareness", "Sakhi Care Pads", "Employment", "Training", "Volunteer"];
 
-export default function AddMemberForm({ onCancel, onSuccess, defaultGroupId }: { onCancel: () => void, onSuccess: () => void, defaultGroupId?: string }) {
+export default function AddMemberForm({ onCancel, onSuccess, defaultGroupId, isParticipant = false }: { onCancel: () => void, onSuccess: () => void, defaultGroupId?: string, isParticipant?: boolean }) {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -79,9 +79,12 @@ export default function AddMemberForm({ onCancel, onSuccess, defaultGroupId }: {
     setError("");
     setSuccess("");
     try {
-      const res = await axios.post('/api/members', formData);
+      const url = isParticipant 
+        ? `/api/groups/${formData.groupId}/reporting-member` 
+        : '/api/members';
+      const res = await axios.post(url, formData);
       if (res.data.success) {
-        const msg = res.data.message || "Member added successfully. Activation email sent.";
+        const msg = res.data.message || (isParticipant ? "Reporting member added successfully." : "Member added successfully. Activation email sent.");
         setSuccess(msg);
         toast.success(msg);
         setTimeout(() => {
@@ -113,6 +116,17 @@ export default function AddMemberForm({ onCancel, onSuccess, defaultGroupId }: {
           <p className="mt-4 text-primary font-bold text-sm md:text-lg flex items-center gap-2">
             <Sparkles size={18} /> {t('employeeForms.addMemberSub', 'Register a community member under a group')}
           </p>
+          {!isParticipant ? (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-2xl text-blue-700 text-sm font-bold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
+              Note: This registers a Platform Member who will receive login credentials, dashboard access, and email activation OTP.
+            </div>
+          ) : (
+            <div className="mt-4 p-4 bg-amber-50 border border-amber-100 rounded-2xl text-amber-700 text-sm font-bold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0" />
+              Note: This registers a Reporting-Only Member who will NOT have login credentials, OTP verification, or dashboard access.
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="grid gap-8">
@@ -143,7 +157,7 @@ export default function AddMemberForm({ onCancel, onSuccess, defaultGroupId }: {
             <div className="flex flex-col gap-3">
               <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">{t('employeeForms.emailLabel', 'Email Address')}</label>
               <input 
-                required 
+                required={!isParticipant} 
                 type="email" 
                 name="email" 
                 value={formData.email} 
@@ -304,7 +318,9 @@ export default function AddMemberForm({ onCancel, onSuccess, defaultGroupId }: {
             type="submit" 
             className="btn-primary w-full py-5 rounded-[24px] text-lg font-black mt-4 shadow-2xl shadow-primary/30 disabled:opacity-50 disabled:transform-none"
           >
-            {loading ? t('employeeForms.registering', 'Registering...') : t('employeeForms.completeBtn', 'Complete Registration')} <Sparkles size={22} className="ml-2" />
+            {loading 
+              ? (isParticipant ? "Adding..." : t('employeeForms.registering', 'Registering...')) 
+              : (isParticipant ? "Add Reporting Member" : t('employeeForms.completeBtn', 'Complete Registration'))} <Sparkles size={22} className="ml-2" />
           </button>
         </form>
       </div>

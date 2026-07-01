@@ -9,9 +9,10 @@ interface AddMemberModalProps {
   groupName: string;
   onClose: () => void;
   onSuccess: () => void;
+  isParticipant?: boolean;
 }
 
-export default function AddMemberModal({ groupId, groupName, onClose, onSuccess }: AddMemberModalProps) {
+export default function AddMemberModal({ groupId, groupName, onClose, onSuccess, isParticipant = false }: AddMemberModalProps) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)' }} />
@@ -29,7 +30,7 @@ export default function AddMemberModal({ groupId, groupName, onClose, onSuccess 
         </div>
 
         <div style={{ padding: '20px', maxHeight: '80vh', overflowY: 'auto' }}>
-          <AddMemberForm onCancel={onClose} onSuccess={onSuccess} defaultGroupId={groupId} />
+          <AddMemberForm onCancel={onClose} onSuccess={onSuccess} defaultGroupId={groupId} isParticipant={isParticipant} />
         </div>
       </div>
     </div>

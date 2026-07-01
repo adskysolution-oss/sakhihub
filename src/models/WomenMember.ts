@@ -31,6 +31,9 @@ export interface IWomenMember extends Document {
   invitationEmailSent?: boolean;
   requestEmailSent?: boolean;
   
+  memberType?: 'FULL_MEMBER' | 'REPORTING_MEMBER';
+  createdVia?: 'SELF_REGISTRATION' | 'EMPLOYEE_GROUP' | 'ADMIN' | 'IMPORT';
+  
   createdAt: Date;
   updatedAt: Date;
 }
@@ -76,6 +79,16 @@ const WomenMemberSchema: Schema = new Schema(
     membershipReceiptEmailSent: { type: Boolean, default: false },
     invitationEmailSent: { type: Boolean, default: false },
     requestEmailSent: { type: Boolean, default: false },
+    memberType: { 
+      type: String, 
+      enum: ['FULL_MEMBER', 'REPORTING_MEMBER'], 
+      default: 'FULL_MEMBER' 
+    },
+    createdVia: { 
+      type: String, 
+      enum: ['SELF_REGISTRATION', 'EMPLOYEE_GROUP', 'ADMIN', 'IMPORT'], 
+      default: 'SELF_REGISTRATION' 
+    },
   },
   { timestamps: true }
 );
