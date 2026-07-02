@@ -71,6 +71,7 @@ export async function POST(
           {
             name: body.name,
             mobile: body.mobile,
+            email: body.email ? body.email.trim() : undefined,
             age: body.age,
             village: body.village || group.village,
             district: body.district || group.district,

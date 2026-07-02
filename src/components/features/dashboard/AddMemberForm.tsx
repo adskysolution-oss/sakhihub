@@ -155,7 +155,9 @@ export default function AddMemberForm({ onCancel, onSuccess, defaultGroupId, isP
               />
             </div>
             <div className="flex flex-col gap-3">
-              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">{t('employeeForms.emailLabel', 'Email Address')}</label>
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">
+                {t('employeeForms.emailLabel', 'Email Address')} {isParticipant && <span className="text-[10px] text-gray-400 font-bold lowercase">({t('employeeForms.optional', 'optional')})</span>}
+              </label>
               <input 
                 required={!isParticipant} 
                 type="email" 
